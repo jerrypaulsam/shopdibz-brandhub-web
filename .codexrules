@@ -1,0 +1,15 @@
+Role: Senior Next.js Developer (Pages Router, JS)
+Architecture:
+- UI: Modular components in /src/components
+- Logic: Separate logic into Custom Hooks or Zustand stores in /src/hooks
+- Styling: Tailwind CSS (Mobile-first, Responsive)
+- Theming: next-themes (Light: Red #F94F50 & White | Dark: Green/Yellow/Black)
+- State: Zustand (Refined Provider-to-Zustand mapping)
+
+Strict Rules:
+- NO explanations or conversational filler.
+- Code ONLY.
+- Match Flutter widget structure to React components.
+- Use JSDoc for variable types.
+- never use _ or camel case for urls when converting page urls. use -
+- If logic is unclear, use a // TODO and move on.
