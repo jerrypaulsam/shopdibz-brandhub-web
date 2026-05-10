@@ -24,18 +24,18 @@ const menuItems = [
 
 function LogoTitle() {
   return (
-    <Link className="flex items-center gap-3" href="/hub">
-      <span className="relative h-[38px] w-[38px]">
+    <Link className="flex min-w-0 items-center gap-3" href="/hub">
+      <span className="relative h-[40px] w-[40px] shrink-0">
         <Image
           src="/assets/logo/seller-logo.png"
           alt="Shopdibz seller logo"
           fill
-          sizes="38px"
+          sizes="40px"
           className="object-contain"
           priority
         />
       </span>
-      <span className="text-[20px] font-bold tracking-[0.06em] text-[#f4f4f7]">
+      <span className="truncate text-[18px] font-bold tracking-[0.06em] text-[#f4f4f7] sm:text-[20px]">
         Shopdibz Brand Hub
       </span>
     </Link>
@@ -71,50 +71,52 @@ export default function AppHeader() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-30 bg-brand-black text-brand-white">
-      <div className="mx-auto flex min-h-20 max-w-[1440px] items-center justify-between px-4 py-4 sm:px-8 lg:px-12">
-        <LogoTitle />
+      <div className="border-b border-white/10 bg-brand-black/95 backdrop-blur">
+        <div className="mx-auto flex min-h-20 max-w-[1440px] items-center justify-between gap-4 px-4 py-4 sm:px-8 lg:px-12">
+          <LogoTitle />
 
-        <nav className="hidden items-center gap-3 lg:flex">
+          <nav className="hidden items-center gap-3 lg:flex">
+            <button
+              className="inline-flex min-h-10 items-center justify-center rounded border border-white/40 px-4 py-2 text-sm font-semibold tracking-wide text-[#f4f4f7] transition-colors hover:border-brand-gold hover:text-brand-gold"
+              type="button"
+              onClick={() => setIsLoginOpen(true)}
+            >
+              Login
+            </button>
+            {menuItems.map((item) => (
+              <MenuButton key={item.label} item={item} />
+            ))}
+            <a
+              className="inline-flex min-h-10 items-center justify-center rounded bg-brand-gold px-4 py-2 text-sm font-extrabold uppercase tracking-wide text-brand-black transition-colors hover:bg-brand-white"
+              href={callbackUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Request Callback
+            </a>
+          </nav>
+
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded border border-white/40 px-4 py-2 text-sm font-semibold tracking-wide text-[#f4f4f7] transition-colors hover:border-brand-gold hover:text-brand-gold"
+            className="inline-flex h-10 w-10 shrink-0 flex-col items-center justify-center gap-1 rounded border border-white/40 text-brand-white lg:hidden"
             type="button"
-            onClick={() => setIsLoginOpen(true)}
+            aria-label="Open menu"
+            onClick={() => setIsOpen((current) => !current)}
           >
-            Login
+            {isOpen ? (
+              <span className="text-xl leading-none">×</span>
+            ) : (
+              <>
+                <span className="h-0.5 w-5 bg-brand-white" />
+                <span className="h-0.5 w-5 bg-brand-white" />
+                <span className="h-0.5 w-5 bg-brand-white" />
+              </>
+            )}
           </button>
-          {menuItems.map((item) => (
-            <MenuButton key={item.label} item={item} />
-          ))}
-          <a
-            className="inline-flex min-h-10 items-center justify-center rounded bg-brand-gold px-4 py-2 text-sm font-extrabold uppercase tracking-wide text-brand-black transition-colors hover:bg-brand-white"
-            href={callbackUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Request Callback
-          </a>
-        </nav>
-
-        <button
-          className="inline-flex h-10 w-10 flex-col items-center justify-center gap-1 rounded border border-white/40 text-brand-white lg:hidden"
-          type="button"
-          aria-label="Open menu"
-          onClick={() => setIsOpen((current) => !current)}
-        >
-          {isOpen ? (
-            <span className="text-xl leading-none">x</span>
-          ) : (
-            <>
-              <span className="h-0.5 w-5 bg-brand-white" />
-              <span className="h-0.5 w-5 bg-brand-white" />
-              <span className="h-0.5 w-5 bg-brand-white" />
-            </>
-          )}
-        </button>
+        </div>
       </div>
 
       {isOpen ? (
-        <div className="border-t border-white/10 bg-brand-black px-4 pb-5 lg:hidden">
+        <div className="border-b border-white/10 bg-brand-black px-4 pb-5 lg:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col gap-3">
             <button
               className="inline-flex min-h-10 items-center justify-center rounded border border-white/40 px-4 py-2 text-sm font-semibold tracking-wide text-brand-white"

@@ -27,7 +27,7 @@ const advantages = [
 
 export default function AdvantagesSection() {
   return (
-    <section className="bg-brand-white px-5 py-[100px] sm:px-10 lg:px-[100px]">
+    <section className="bg-brand-white px-5 py-20 sm:px-8 sm:py-24 lg:px-12">
       <div className="mx-auto max-w-7xl text-center">
         <p className="text-xs font-bold uppercase tracking-[0.4em] text-brand-gold">
           The Swadeshi Advantage
@@ -36,20 +36,20 @@ export default function AdvantagesSection() {
           Built for India&apos;s Finest.
         </h2>
 
-        <div className="mt-[90px] grid gap-10 lg:grid-cols-2">
+        <div className="mt-14 grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
           {advantages.map((advantage) => (
             <article
-              className="flex items-start gap-7 rounded-sm border border-black/[0.03] bg-brand-soft p-10 text-left"
+              className="flex h-full flex-col items-start gap-6 rounded-sm border border-black/[0.04] bg-brand-soft p-8 text-left"
               key={advantage.title}
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border border-brand-gold/30 text-lg font-black text-brand-gold">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-brand-gold/30 text-lg font-black text-brand-gold">
                 {advantage.icon}
               </span>
               <div>
-                <h3 className="text-xl font-bold tracking-wide text-brand-black">
+                <h3 className="text-lg font-bold tracking-wide text-brand-black">
                   {advantage.title}
                 </h3>
-                <p className="mt-4 text-base font-light leading-[1.6] text-black/60">
+                <p className="mt-4 text-sm leading-7 text-black/60">
                   {advantage.description}
                 </p>
               </div>

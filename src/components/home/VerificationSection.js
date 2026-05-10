@@ -1,7 +1,7 @@
 export default function VerificationSection() {
   return (
-    <section id="verification" className="-mt-10 bg-brand-soft px-4 pb-24 sm:-mt-24">
-      <div className="mx-auto max-w-5xl rounded-sm border border-brand-gold/20 bg-brand-white px-5 py-14 text-center shadow-verification sm:px-20 sm:py-24">
+    <section id="verification" className="bg-brand-soft px-4 pb-20 sm:px-8 sm:pb-24 lg:px-12">
+      <div className="mx-auto max-w-5xl rounded-sm border border-brand-gold/20 bg-brand-white px-5 py-14 text-center shadow-verification sm:px-16 sm:py-20">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sm border border-brand-gold/30 text-4xl text-brand-gold">
           V
         </div>
@@ -17,7 +17,7 @@ export default function VerificationSection() {
           bay.
         </p>
 
-        <div className="mx-auto mt-12 max-w-2xl rounded-sm border border-brand-gold/30 bg-brand-ivory px-5 py-9">
+        <div className="mx-auto mt-10 max-w-2xl rounded-sm border border-brand-gold/30 bg-brand-ivory px-5 py-9">
           <p className="text-6xl font-black leading-none text-brand-black">4.5%</p>
           <p className="mt-4 text-xs font-bold uppercase tracking-[0.35em] text-brand-gold">
             Founder-First Commission

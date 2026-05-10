@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/router";
 import {
   fetchDailyVisits,
   fetchManagers,
@@ -41,6 +42,7 @@ const fallbackStore = {
  * @returns {{ storeInfo: any, pendingOrders: any[], managers: any[], weeklyAnalytics: any[], isLoading: boolean, error: string, hidePremiumBanner: boolean, setHidePremiumBanner: (value: boolean) => void, analyticsCards: Array<{ label: string, value: string, tone: string }> }}
  */
 export function useDashboardHome() {
+  const router = useRouter();
   const [storeInfo, setStoreInfo] = useState(fallbackStore);
   const [pendingOrders, setPendingOrders] = useState([]);
   const [managers, setManagers] = useState([]);
@@ -84,18 +86,35 @@ export function useDashboardHome() {
         const nextDailyVisits =
           dailyVisitResult.status === "fulfilled" ? dailyVisitResult.value : {};
 
-        setStoreInfo({
+        const resolvedStoreInfo = {
           ...fallbackStore,
           ...nextStore,
-        });
+        };
+
+        setStoreInfo(resolvedStoreInfo);
         setPendingOrders(nextOrders.results || []);
         setManagers(nextManagers.results || []);
         setWeeklyAnalytics(nextWeekly.results || []);
         setDailyVisits(nextDailyVisits.results || []);
 
+        if (resolvedStoreInfo?.bankVerify === false) {
+          await router.replace("/settings/bank/create");
+          return;
+        }
+
+        if (resolvedStoreInfo?.paywall === false) {
+          await router.replace("/onboard-payment");
+          return;
+        }
+
+        if (resolvedStoreInfo?.close === true) {
+          await router.replace("/store-closed");
+          return;
+        }
+
         logScreenView(
           "dashboard_screen",
-          nextStore?.url || "Anonymous",
+          resolvedStoreInfo?.url || "Anonymous",
           "store",
         );
       } catch (loadError) {
@@ -120,7 +139,7 @@ export function useDashboardHome() {
     return () => {
       isCurrent = false;
     };
-  }, []);
+  }, [router]);
 
   const analyticsCards = useMemo(
     () => [

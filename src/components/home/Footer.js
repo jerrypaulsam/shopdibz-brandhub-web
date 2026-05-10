@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const footerColumns = [
   {
     heading: "ABOUT",
@@ -31,9 +33,9 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-brand-black p-[30px] text-brand-white">
+    <footer className="bg-brand-black px-5 py-14 text-brand-white sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-10 lg:grid-cols-[1fr_1fr_1fr_2px_1.5fr]">
+        <div className="grid gap-10 lg:grid-cols-[repeat(3,minmax(0,1fr))_1.35fr]">
           {footerColumns.map((column) => (
             <div key={column.heading}>
               <h2 className="text-sm font-black tracking-[0.2em] text-brand-white">
@@ -43,7 +45,7 @@ export default function Footer() {
                 {column.links.map(([label, href]) => (
                   <li key={label}>
                     <a
-                      className="text-sm text-white/75 hover:text-brand-gold"
+                      className="text-sm text-white/75 transition-colors hover:text-brand-gold"
                       href={href}
                       target="_blank"
                       rel="noreferrer"
@@ -56,25 +58,19 @@ export default function Footer() {
             </div>
           ))}
 
-          <div className="hidden h-[150px] w-0.5 bg-brand-white lg:block" />
-
-          <div>
+          <div className="lg:border-l lg:border-white/15 lg:pl-8">
             <p className="text-sm text-white/80">
-              <span className="font-bold text-brand-white">Phone:</span> +91
-              8506951656
+              <span className="font-bold text-brand-white">Phone:</span> +91 8506951656
             </p>
             <p className="mt-3 text-sm text-white/80">
-              <span className="font-bold text-brand-white">Email:</span>{" "}
-              contact@shopdibz.com
+              <span className="font-bold text-brand-white">Email:</span> contact@shopdibz.com
             </p>
             <p className="mt-3 text-sm leading-6 text-white/80">
-              <span className="font-bold text-brand-white">
-                Registered Address:
-              </span>{" "}
+              <span className="font-bold text-brand-white">Registered Address:</span>{" "}
               Kumarapuram, Trivandrum, Kerala - 695011
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap items-center gap-3">
               <a
                 href="https://play.google.com/store/apps/details?id=com.shopdibz.shopdibz_seller_hub"
                 target="_blank"
@@ -82,11 +78,10 @@ export default function Footer() {
               >
                 <Image
                   src="/assets/images/google-play-badge.png"
-                  alt="Shopdibz Brand Hub - Google Play"
-                  width={180}
-                  height={60}
-                  className="h-[60px] w-auto object-contain"
-                  style={{ width: "auto" }}
+                  alt="Shopdibz Brand Hub on Google Play"
+                  width={164}
+                  height={48}
+                  className="h-12 w-auto object-contain"
                 />
               </a>
               <a
@@ -96,22 +91,20 @@ export default function Footer() {
               >
                 <Image
                   src="/assets/images/app-store.png"
-                  alt="Shopdibz Brand Hub - App Store"
-                  width={135}
-                  height={135}
-                  className="h-[135px] w-auto object-contain"
-                  style={{ width: "auto" }}
+                  alt="Shopdibz Brand Hub on App Store"
+                  width={164}
+                  height={48}
+                  className="h-12 w-auto object-contain"
                 />
               </a>
             </div>
           </div>
         </div>
 
-        <div className="mt-10 border-t border-white/20 pt-8 text-center text-sm text-white/80">
-          Copyright © {year} | Shopdibz Private Limited TM
+        <div className="mt-10 border-t border-white/15 pt-6 text-center text-sm text-white/70">
+          Copyright © {year} | Shopdibz Private Limited™
         </div>
       </div>
     </footer>
   );
 }
-import Image from "next/image";

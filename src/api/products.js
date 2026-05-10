@@ -211,6 +211,45 @@ export function deleteExistingVariation(payload) {
 }
 
 /**
+ * @param {{ slug: string }} payload
+ * @returns {Promise<any>}
+ */
+export function deleteExistingProduct(payload) {
+  const session = getDashboardSession();
+  return postProductJson("/api/products/delete", {
+    accessToken: session.accessToken,
+    slug: payload.slug,
+  });
+}
+
+/**
+ * @param {{ slug: string, type: number }} payload
+ * @returns {Promise<any>}
+ */
+export function addProductToFeaturedFeed(payload) {
+  const session = getDashboardSession();
+  return postProductJson("/api/products/featured-status", {
+    accessToken: session.accessToken,
+    slug: payload.slug,
+    action: "add",
+    type: payload.type,
+  });
+}
+
+/**
+ * @param {{ slug: string }} payload
+ * @returns {Promise<any>}
+ */
+export function removeProductFromFeaturedFeed(payload) {
+  const session = getDashboardSession();
+  return postProductJson("/api/products/featured-status", {
+    accessToken: session.accessToken,
+    slug: payload.slug,
+    action: "remove",
+  });
+}
+
+/**
  * @param {{ pickupPin: string, deliveryPin: string, weight: string, length: string, width: string, height: string, shippingMode: string }} payload
  * @returns {Promise<any>}
  */
@@ -294,10 +333,6 @@ export function searchProducts(payload) {
     page: String(payload.page || 1),
   });
 
-  if (payload.sort) {
-    search.set("sort", payload.sort);
-  }
-
   return fetch(`/api/products/search?${search.toString()}`).then(async (response) => {
     const data = await response.json().catch(() => ({}));
 
@@ -378,6 +413,7 @@ export function createProductAnswer(payload) {
     accessToken: session.accessToken,
     questionId: payload.questionId,
     answer: payload.answer,
+    orderId: payload.orderId,
   });
 }
 

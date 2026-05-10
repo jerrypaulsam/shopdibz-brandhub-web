@@ -84,6 +84,11 @@ export function useAppBootstrap() {
           return;
         }
 
+        if (storeInfo?.paywall === false) {
+          await router.replace("/onboard-payment");
+          return;
+        }
+
         if (storeInfo?.close === true) {
           await router.replace("/store-closed");
           return;

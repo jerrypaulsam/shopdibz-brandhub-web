@@ -29,7 +29,10 @@ export default function ProductsListPage() {
           onArchiveProduct={productList.archiveProduct}
           onRestoreProduct={productList.restoreProduct}
           onHideProduct={productList.hideProduct}
+          onDeleteProduct={productList.deleteProduct}
           onDeleteVariation={productList.deleteVariation}
+          onAddToPromotionFeed={productList.addToPromotionFeed}
+          onRemoveFromPromotionFeed={productList.removeFromPromotionFeed}
         />
       </div>
     </DashboardShell>

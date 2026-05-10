@@ -103,6 +103,38 @@ export function useProductVariationUpdateForm() {
       setSuccess("");
       setIsSubmitting(true);
 
+      const existingVariationTypes = Array.isArray(variation?.vTypes)
+        ? variation.vTypes
+        : Array.isArray(variation?.variationTypes)
+          ? variation.variationTypes
+          : [];
+      const replacementType = {
+        id: form.typeId || existingVariationTypes[0]?.id || 1,
+        name: form.name,
+        type_map: form.typeMap,
+      };
+      const replacementExists = existingVariationTypes.some(
+        (item) => Number(item?.id || 0) === Number(replacementType.id || 0),
+      );
+      const variationTypes = existingVariationTypes.length
+        ? existingVariationTypes.map((item, index) => {
+            const currentId = Number(item?.id || 0);
+            const shouldReplace =
+              currentId === Number(replacementType.id || 0) ||
+              (!replacementExists && index === 0);
+
+            if (shouldReplace) {
+              return replacementType;
+            }
+
+            return {
+              id: item?.id || index + 1,
+              name: item?.name || "",
+              type_map: item?.tMap || item?.type_map || "",
+            };
+          })
+        : [replacementType];
+
       await updateExistingVariation({
         variationId: Number(variationId || 0),
         data: {
@@ -112,13 +144,7 @@ export function useProductVariationUpdateForm() {
           max_stock: form.stock === "S" ? Number(form.maxStock || 1) : 0,
           sku_code: form.variationSkuCode,
           variants: form.variantType,
-          variation_types: [
-            {
-              id: form.typeId || 1,
-              name: form.name,
-              type_map: form.typeMap,
-            },
-          ],
+          variation_types: variationTypes,
         },
       });
 

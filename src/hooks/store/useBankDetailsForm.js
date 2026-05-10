@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { lookupBankIfsc, updateBankDetails } from "@/src/api/bank";
+import { fetchBankDetails, lookupBankIfsc, updateBankDetails } from "@/src/api/bank";
 import { logScreenView } from "@/src/api/analytics";
 
 /**
@@ -16,19 +16,85 @@ export function useBankDetailsForm({ isFirstTime }) {
     ifscCode: "",
     bankName: "",
   });
+  const [savedBank, setSavedBank] = useState(null);
   const [message, setMessage] = useState("");
   const [ifscDetails, setIfscDetails] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLookingUpIfsc, setIsLookingUpIfsc] = useState(false);
+  const [isLoadingBank, setIsLoadingBank] = useState(!isFirstTime);
+  const [isEditing, setIsEditing] = useState(Boolean(isFirstTime));
+
+  const applyBankToForm = useCallback((bank) => {
+    setForm({
+      accountName: String(bank?.name || ""),
+      accountNumber: String(bank?.accountNumber || ""),
+      confirmAccountNumber: String(bank?.accountNumber || ""),
+      ifscCode: String(bank?.ifsc || ""),
+      bankName: String(bank?.bankName || ""),
+    });
+  }, []);
 
   useEffect(() => {
-    logScreenView("bank_detail_screen", "Anonymous", "store");
-  }, []);
+    logScreenView(
+      isFirstTime ? "bank_detail_screen" : "bank_screen",
+      "Anonymous",
+      "store",
+    );
+  }, [isFirstTime]);
+
+  useEffect(() => {
+    if (isFirstTime) {
+      return;
+    }
+
+    let isCurrent = true;
+    const timeoutId = window.setTimeout(async () => {
+      setIsLoadingBank(true);
+      setMessage("");
+
+      try {
+        const data = await fetchBankDetails();
+
+        if (!isCurrent) {
+          return;
+        }
+
+        if (data?.name || data?.accountNumber || data?.ifsc) {
+          setSavedBank(data);
+          applyBankToForm(data);
+          setIsEditing(false);
+          setIfscDetails("");
+        } else {
+          setSavedBank(null);
+          setIsEditing(true);
+        }
+      } catch (error) {
+        if (!isCurrent) {
+          return;
+        }
+
+        setSavedBank(null);
+        setIsEditing(true);
+        setMessage(
+          error instanceof Error ? error.message : "Bank details could not be loaded",
+        );
+      } finally {
+        if (isCurrent) {
+          setIsLoadingBank(false);
+        }
+      }
+    }, 0);
+
+    return () => {
+      isCurrent = false;
+      window.clearTimeout(timeoutId);
+    };
+  }, [applyBankToForm, isFirstTime]);
 
   useEffect(() => {
     const ifscCode = form.ifscCode.trim().toUpperCase();
 
-    if (ifscCode.length < 11) {
+    if (ifscCode.length < 11 || (!isEditing && !isFirstTime)) {
       return;
     }
 
@@ -68,7 +134,7 @@ export function useBankDetailsForm({ isFirstTime }) {
       isCurrent = false;
       window.clearTimeout(timeoutId);
     };
-  }, [form.ifscCode]);
+  }, [form.ifscCode, isEditing, isFirstTime]);
 
   /**
    * @param {"accountName" | "accountNumber" | "confirmAccountNumber" | "ifscCode" | "bankName"} key
@@ -85,6 +151,35 @@ export function useBankDetailsForm({ isFirstTime }) {
     if (key === "ifscCode" && nextValue.trim().length < 11) {
       setIfscDetails("");
     }
+  }
+
+  function startEditing() {
+    if (savedBank) {
+      applyBankToForm(savedBank);
+      setIfscDetails("");
+    }
+    setMessage("");
+    setIsEditing(true);
+  }
+
+  function cancelEditing() {
+    if (savedBank) {
+      applyBankToForm(savedBank);
+      setIsEditing(false);
+      setIfscDetails("");
+      setMessage("");
+      return;
+    }
+
+    setForm({
+      accountName: "",
+      accountNumber: "",
+      confirmAccountNumber: "",
+      ifscCode: "",
+      bankName: "",
+    });
+    setIfscDetails("");
+    setMessage("");
   }
 
   async function submitForm() {
@@ -109,18 +204,27 @@ export function useBankDetailsForm({ isFirstTime }) {
 
     try {
       await updateBankDetails({
-        accountName: form.accountName,
-        accountNumber: form.accountNumber,
-        bankName: form.bankName,
+        accountName: form.accountName.trim(),
+        accountNumber: form.accountNumber.trim(),
+        bankName: form.bankName.trim(),
         ifscCode: form.ifscCode.trim().toUpperCase(),
       });
 
+      const nextSavedBank = {
+        name: form.accountName.trim(),
+        accountNumber: form.accountNumber.trim(),
+        bankName: form.bankName.trim(),
+        ifsc: form.ifscCode.trim().toUpperCase(),
+      };
+
+      setSavedBank(nextSavedBank);
       setMessage("Bank Details Added");
+      setIsEditing(false);
 
       if (isFirstTime) {
         await router.replace("/awaiting-verification");
       } else {
-        await router.replace("/profile/account-settings");
+        await router.replace("/settings/bank");
       }
 
       return true;
@@ -134,11 +238,16 @@ export function useBankDetailsForm({ isFirstTime }) {
 
   return {
     form,
+    savedBank,
     message,
     ifscDetails,
     isSubmitting,
     isLookingUpIfsc,
+    isLoadingBank,
+    isEditing,
     updateField,
     submitForm,
+    startEditing,
+    cancelEditing,
   };
 }

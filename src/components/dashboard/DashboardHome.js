@@ -3,12 +3,16 @@ import CreateActions from "./CreateActions";
 import DashboardHeader from "./DashboardHeader";
 import LatestOrders from "./LatestOrders";
 import NewsBanner from "./NewsBanner";
+import OrderAttentionPanel from "./OrderAttentionPanel";
 import PremiumBanner from "./PremiumBanner";
 import RightPanel from "./RightPanel";
 import WeeklyAnalytics from "./WeeklyAnalytics";
+import AeyraInfoPanel from "./AeyraInfoPanel";
 import { useDashboardHome } from "@/src/hooks/dashboard/useDashboardHome";
+import { useState } from "react";
 
 export default function DashboardHome() {
+  const [isAeyraOpen, setIsAeyraOpen] = useState(false);
   const {
     storeInfo,
     pendingOrders,
@@ -25,7 +29,7 @@ export default function DashboardHome() {
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-6 md:px-6 xl:px-8">
       <div className="space-y-5">
-        <NewsBanner />
+        <NewsBanner onTap={() => setIsAeyraOpen(true)} />
         {!hidePremiumBanner ? (
           <PremiumBanner
             storeInfo={storeInfo}
@@ -43,8 +47,9 @@ export default function DashboardHome() {
 
       <div className="mt-8 grid gap-6 2xl:grid-cols-[minmax(0,1fr)_360px]">
         <section className="min-w-0 space-y-8">
-          <CreateActions />
+          <CreateActions storeInfo={storeInfo} />
           <AnalyticsGrid cards={analyticsCards} />
+          <OrderAttentionPanel storeInfo={storeInfo} />
           <section className="space-y-4">
             <div className="text-center">
               <h2
@@ -77,6 +82,7 @@ export default function DashboardHome() {
           dailyVisits={dailyVisits}
         />
       </div>
+      <AeyraInfoPanel open={isAeyraOpen} onClose={() => setIsAeyraOpen(false)} />
     </div>
   );
 }

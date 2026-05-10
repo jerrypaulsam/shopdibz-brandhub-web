@@ -153,27 +153,37 @@ export default function RightPanel({
  */
 function OrderStats({ storeInfo }) {
   const rows = [
-    ["Pending Orders", `${storeInfo?.pOrders || 0} Nos`],
-    ["Packed Orders", `${storeInfo?.packedOrders || 0} Nos`],
-    ["Shipped Orders", `${storeInfo?.shippedOrders || 0} Nos`],
-    ["Completed Orders", `${storeInfo?.completedOrders || 0} Nos`],
-    ["Cancelled Orders", `${storeInfo?.cancelledOrders || 0} Nos`],
+    ["Pending Orders", Number(storeInfo?.pOrders || 0), "/orders-list?tab=pending"],
+    ["Packed Orders", Number(storeInfo?.packedOrders || 0), "/orders-list?tab=packed"],
+    ["Shipped Orders", Number(storeInfo?.shippedOrders || 0), "/orders-list?tab=shipped"],
+    ["Completed Orders", Number(storeInfo?.completedOrders || 0), "/orders-list?tab=delivered"],
+    ["Cancelled Orders", Number(storeInfo?.cancelledOrders || 0), "/orders-list?tab=cancelled"],
   ];
 
   return (
     <section className="rounded-sm border border-white/10 bg-[#121212] p-4">
-      <h2 className="text-center text-base font-extrabold text-brand-white">
-        Order Stats
-      </h2>
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-base font-extrabold text-brand-white">Order Stats</h2>
+        <span className="rounded-sm border border-amber-400/25 bg-amber-400/10 px-2 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-amber-200">
+          {storeInfo?.pOrders || 0} pending
+        </span>
+      </div>
       <div className="mt-5 space-y-2">
-        {rows.map(([label, value]) => (
-          <div
-            className="flex items-center justify-between gap-4 px-3 text-sm text-white/75"
+        {rows.map(([label, value, href]) => (
+          <a
+            className={`flex items-center justify-between gap-4 rounded-sm px-3 py-2 text-sm transition-colors hover:bg-white/[0.03] ${
+              label === "Pending Orders" && value > 0
+                ? "border border-amber-400/20 bg-amber-400/5 text-amber-100"
+                : "text-white/75"
+            }`}
+            href={href}
             key={label}
           >
             <span>{label}</span>
-            <span className="font-bold text-brand-white">{value}</span>
-          </div>
+            <span className="font-bold text-brand-white">
+              {value.toLocaleString("en-IN")} Nos
+            </span>
+          </a>
         ))}
       </div>
     </section>

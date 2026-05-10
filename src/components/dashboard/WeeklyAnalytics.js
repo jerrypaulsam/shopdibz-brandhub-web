@@ -33,9 +33,28 @@ export default function WeeklyAnalytics({
 
   return (
     <section className="space-y-5">
-      <h2 className="text-center text-lg font-extrabold text-brand-white">
-        Store Weekly Orders & Revenue
-      </h2>
+      <div className="rounded-sm border border-white/10 bg-[#121212] p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
+              Analytics
+            </p>
+            <h2 className="mt-2 text-lg font-extrabold text-brand-white">
+              Store Weekly Orders & Revenue
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:flex">
+            <SummaryPill
+              label="Weeks tracked"
+              value={`${weeklyData.length}`}
+            />
+            <SummaryPill
+              label="Current daily visits"
+              value={`${Number(currentDailyVisits || 0).toLocaleString("en-IN")}`}
+            />
+          </div>
+        </div>
+      </div>
       <div className="grid gap-5 xl:grid-cols-2">
         <ChartCard title="Weekly Orders">
           <HorizontalBarChart
@@ -73,6 +92,20 @@ export default function WeeklyAnalytics({
         </ChartCard>
       </div>
     </section>
+  );
+}
+
+/**
+ * @param {{ label: string, value: string }} props
+ */
+function SummaryPill({ label, value }) {
+  return (
+    <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-3">
+      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/45">
+        {label}
+      </p>
+      <p className="mt-1 text-base font-extrabold text-brand-white">{value}</p>
+    </div>
   );
 }
 

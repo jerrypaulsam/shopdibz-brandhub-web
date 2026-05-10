@@ -46,7 +46,7 @@ export default function ProfileEditorPanel({
     <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
       <StoreSection title="Profile Picture" subtitle="Update the profile image used across seller hub surfaces.">
         <div className="flex flex-col items-center gap-5">
-          <div className="relative h-[120px] w-[120px] overflow-hidden rounded-full border border-white/10 bg-white/5">
+          <div className="relative h-[128px] w-[128px] overflow-hidden rounded-full border border-white/10 bg-white/5">
             {profilePreview ? (
               <img
                 src={profilePreview}
@@ -58,6 +58,11 @@ export default function ProfileEditorPanel({
                 No Image
               </div>
             )}
+          </div>
+
+          <div className="grid w-full gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <InfoPill label="Store" value={storeInfo?.name || "Store"} />
+            <InfoPill label="Plan" value={storeInfo?.plan || "Free"} />
           </div>
 
           <label className="w-full cursor-pointer rounded-sm border border-white/10 px-4 py-3 text-center text-sm font-bold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold">
@@ -72,6 +77,10 @@ export default function ProfileEditorPanel({
           >
             {isSubmitting ? "Updating..." : "Update Image"}
           </AuthButton>
+
+          <p className="text-center text-xs leading-5 text-white/45">
+            Use a square image for the cleanest account avatar across the seller workspace.
+          </p>
         </div>
       </StoreSection>
 
@@ -99,6 +108,12 @@ export default function ProfileEditorPanel({
           </div>
         </div>
 
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <InfoPill label="Store URL" value={storeInfo?.url || "---"} />
+          <InfoPill label="Email Status" value={email ? "Configured" : "Missing"} />
+          <InfoPill label="Profile Status" value={fName && email ? "Ready" : "Needs Attention"} />
+        </div>
+
         <div className="mt-6 flex flex-wrap items-center gap-4">
           <div className="w-full max-w-xs">
             <AuthButton disabled={isSubmitting || isLoading} type="button" onClick={onSubmitDetails}>
@@ -113,13 +128,8 @@ export default function ProfileEditorPanel({
           </Link>
         </div>
 
-        <div className="mt-6 border-t border-white/10 pt-6">
-          <p className="text-sm font-semibold text-white/75">Account Snapshot</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <InfoPill label="Store" value={storeInfo?.name || "Store"} />
-            <InfoPill label="Store URL" value={storeInfo?.url || "---"} />
-            <InfoPill label="Plan" value={storeInfo?.plan || "Free"} />
-          </div>
+        <div className="mt-6 rounded-sm border border-white/10 bg-black/20 p-4 text-sm leading-6 text-white/55">
+          Keep your primary email current here, then use the verification route to confirm email changes.
         </div>
 
         <div className="mt-6">

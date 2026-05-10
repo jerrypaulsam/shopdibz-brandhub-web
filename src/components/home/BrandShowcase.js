@@ -36,11 +36,17 @@ const brands = [
     logo: "https://shopdibz-main-1.s3.amazonaws.com/media/store/store_logos/d6ff5988693f4bf6a1d7c5e724e94e5c/storeLogo-branche.jpg",
     url: "https://www.shopdibz.com/store/branche",
   },
+  {
+    name: "Your Brand",
+    logo: null,
+    url: null,
+    placeholder: true,
+  },
 ];
 
 export default function BrandShowcase() {
   return (
-    <section id="showcase" className="bg-brand-soft px-5 pb-24 pt-8 sm:pb-36">
+    <section id="showcase" className="bg-brand-soft px-5 py-20 sm:px-8 sm:py-24 lg:px-12">
       <div className="mx-auto max-w-7xl text-center">
         <p className="text-xs font-bold uppercase tracking-[0.4em] text-brand-gold">
           Curated Ecosystem
@@ -49,31 +55,49 @@ export default function BrandShowcase() {
           Handpicked Indian Boutiques
         </h2>
 
-        <div className="mt-16 overflow-x-auto pb-8">
-          <div className="flex min-w-max justify-center gap-12 px-3">
-            {brands.map((brand) => (
+        <div className="mt-14 grid justify-center gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {brands.map((brand) =>
+            brand.placeholder ? (
+              <div
+                key={brand.name}
+                className="group flex min-h-[244px] flex-col items-center justify-center rounded-sm border border-dashed border-brand-gold/35 bg-brand-white p-6 text-center shadow-[0_18px_45px_rgba(0,0,0,0.04)]"
+              >
+                <span className="mx-auto flex h-[112px] w-[112px] items-center justify-center rounded-sm border border-dashed border-brand-gold/35 bg-brand-soft p-3 text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
+                  Coming Soon
+                </span>
+                <span className="mt-5 block text-sm font-bold tracking-[0.08em] text-black/80">
+                  {brand.name}
+                </span>
+                <span className="mt-2 block text-xs uppercase tracking-[0.16em] text-black/40">
+                  Reserved slot
+                </span>
+              </div>
+            ) : (
               <a
                 key={brand.name}
-                className="group block w-[130px] text-center"
+                className="group mx-auto w-full max-w-[320px] rounded-sm border border-black/[0.04] bg-brand-white p-6 text-center shadow-[0_18px_45px_rgba(0,0,0,0.04)] transition-transform hover:-translate-y-1"
                 href={brand.url}
                 target="_blank"
                 rel="noreferrer"
               >
-                <span className="flex h-[130px] w-[130px] items-center justify-center rounded-sm border border-brand-gold/20 bg-brand-white p-2 shadow-[0_10px_30px_rgba(0,0,0,0.03)] transition-transform group-hover:-translate-y-1">
+                <span className="mx-auto flex h-[112px] w-[112px] items-center justify-center rounded-sm border border-brand-gold/20 bg-brand-soft p-3">
                   <Image
                     className="max-h-full max-w-full object-contain"
                     src={brand.logo}
                     alt={`${brand.name} logo`}
-                    width={114}
-                    height={114}
+                    width={96}
+                    height={96}
                   />
                 </span>
-                <span className="mt-6 block text-sm font-bold tracking-[0.08em] text-black/80">
+                <span className="mt-5 block text-sm font-bold tracking-[0.08em] text-black/80">
                   {brand.name}
                 </span>
+                <span className="mt-2 block text-xs uppercase tracking-[0.16em] text-black/40">
+                  Visit Store
+                </span>
               </a>
-            ))}
-          </div>
+            ),
+          )}
         </div>
       </div>
     </section>

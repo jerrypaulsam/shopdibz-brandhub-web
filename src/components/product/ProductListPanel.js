@@ -34,7 +34,10 @@ const tabs = [
  * onArchiveProduct: (slug: string) => Promise<void>,
  * onRestoreProduct: (slug: string) => Promise<void>,
  * onHideProduct: (slug: string) => Promise<void>,
+ * onDeleteProduct: (slug: string) => Promise<void>,
  * onDeleteVariation: (variationId: number) => Promise<void>,
+ * onAddToPromotionFeed: (slug: string, type: number) => Promise<void>,
+ * onRemoveFromPromotionFeed: (slug: string) => Promise<void>,
  * }} props
  */
 export default function ProductListPanel({
@@ -58,7 +61,10 @@ export default function ProductListPanel({
   onArchiveProduct,
   onRestoreProduct,
   onHideProduct,
+  onDeleteProduct,
   onDeleteVariation,
+  onAddToPromotionFeed,
+  onRemoveFromPromotionFeed,
 }) {
   const page = Number(filters.page || 1);
 
@@ -214,8 +220,11 @@ export default function ProductListPanel({
                     ? onHideProduct
                     : onArchiveProduct
               }
-              isActionLoading={loadingSlug === String(product?.slug || "")}
+              isActionLoading={loadingSlug.includes(String(product?.slug || ""))}
+              onDeleteProduct={onDeleteProduct}
               onDeleteVariation={onDeleteVariation}
+              onAddToPromotionFeed={onAddToPromotionFeed}
+              onRemoveFromPromotionFeed={onRemoveFromPromotionFeed}
               key={product?.slug || product?.id}
             />
           ))

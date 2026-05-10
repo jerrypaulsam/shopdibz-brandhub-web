@@ -1,11 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 
-import Link from "next/link";
 import AuthButton from "@/src/components/auth/AuthButton";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 import StoreField from "./StoreField";
 import StoreSection from "./StoreSection";
-import StoreToggleRow from "./StoreToggleRow";
 
 /**
  * @param {{ storeInfo: any, productGroups: any[], filteredBanners: any[], mobileSliderSelection: boolean, setMobileSliderSelection: (value: boolean) => void, selectedBanner: any, selectBanner: (banner: any) => void, productGroupName: string, setProductGroupName: (value: string) => void, setProductGroupSlug: (value: string) => void, link: string, setLink: (value: string) => void, preview: string, setPreview: (value: string) => void, setImageBase64: (value: string) => void, currentAspectRatio: string, preferredSize: string, canUseExternalLinks: boolean, message: string, isLoading: boolean, isSubmitting: boolean, onSubmit: () => Promise<boolean> }} props
@@ -34,6 +32,7 @@ export default function StoreSliderManagementPanel({
   isSubmitting,
   onSubmit,
 }) {
+  const aspectClass = currentAspectRatio === "4:5" ? "aspect-[4/5]" : "aspect-[16/6]";
   const shownGroups = productGroups.filter((group) =>
     String(group?.name || "")
       .toLowerCase()
@@ -61,14 +60,43 @@ export default function StoreSliderManagementPanel({
       <div className="space-y-6">
         <StoreSection title="Manage Website Sliders" subtitle="Review the current live set and switch between desktop and mobile slots.">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <StoreToggleRow
-              label="Mobile Slider View"
-              checked={mobileSliderSelection}
-              helper={`Current Aspect Ratio: ${currentAspectRatio}`}
-              onChange={setMobileSliderSelection}
-            />
-            <div className="rounded-sm border border-brand-gold/20 bg-[#17130a] px-4 py-3 text-sm text-brand-gold">
-              Preferred Size: {preferredSize}
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/35">
+                  Active View
+                </p>
+                <h3 className="mt-2 text-xl font-black text-brand-white">
+                  {mobileSliderSelection ? "Mobile Sliders" : "Desktop Sliders"}
+                </h3>
+              </div>
+              <div className="inline-flex rounded-sm border border-white/10 bg-black/20 p-1">
+                <button
+                  className={`min-w-[120px] rounded-sm px-4 py-2 text-sm font-bold transition-colors ${
+                    !mobileSliderSelection
+                      ? "bg-brand-gold text-brand-black"
+                      : "text-brand-white hover:text-brand-gold"
+                  }`}
+                  type="button"
+                  onClick={() => setMobileSliderSelection(false)}
+                >
+                  Desktop
+                </button>
+                <button
+                  className={`min-w-[120px] rounded-sm px-4 py-2 text-sm font-bold transition-colors ${
+                    mobileSliderSelection
+                      ? "bg-brand-gold text-brand-black"
+                      : "text-brand-white hover:text-brand-gold"
+                  }`}
+                  type="button"
+                  onClick={() => setMobileSliderSelection(true)}
+                >
+                  Mobile
+                </button>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <MetricCard label="Aspect Ratio" value={currentAspectRatio} />
+              <MetricCard label="Preferred Size" value={preferredSize} compact />
             </div>
           </div>
 
@@ -87,7 +115,7 @@ export default function StoreSliderManagementPanel({
                   onClick={() => selectBanner(banner)}
                   key={banner.id}
                 >
-                  <div className="relative aspect-[16/6] bg-brand-black">
+                  <div className={`relative ${aspectClass} bg-brand-black`}>
                     <img
                       src={banner.image}
                       alt="Live slider"
@@ -98,7 +126,9 @@ export default function StoreSliderManagementPanel({
                     <span className="font-bold text-brand-white">
                       Slider #{banner.id}
                     </span>
-                    <span className="text-brand-gold">Edit</span>
+                    <span className="text-xs font-bold uppercase tracking-[0.14em] text-brand-gold">
+                      {selectedBanner?.id === banner.id ? "Selected" : "Edit"}
+                    </span>
                   </div>
                 </button>
               ))}
@@ -112,23 +142,15 @@ export default function StoreSliderManagementPanel({
           )}
         </StoreSection>
 
-        <StoreSection title="Create Additional Sliders">
+        <StoreSection title="Workspace Notes">
           <div className="flex flex-col items-center gap-4 text-center">
             <p className="text-sm text-white/60">
-              Maximum 2 active sliders allowed per publish action.
+              Pick a live slider on the left, replace the creative, then update its destination if needed.
             </p>
-            {filteredBanners.length < 2 ? (
-              <Link
-                className="inline-flex min-h-11 items-center justify-center rounded-sm border border-white/15 px-5 text-sm font-bold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
-                href="/store-slider-image-form"
-              >
-                Create New Sliders
-              </Link>
-            ) : (
-              <p className="text-sm text-white/45">
-                This view already has active sliders loaded for management.
-              </p>
-            )}
+            <div className="grid w-full gap-3 sm:grid-cols-2">
+              <MetricCard label="Visible Sliders" value={String(filteredBanners.length)} />
+              <MetricCard label="Store Plan" value={storeInfo?.plan || "Free"} />
+            </div>
           </div>
         </StoreSection>
       </div>
@@ -143,7 +165,7 @@ export default function StoreSliderManagementPanel({
           <div className="mt-4 space-y-5">
             <div className="overflow-hidden rounded-sm border border-white/10 bg-brand-black">
               {preview ? (
-                <div className="aspect-[16/6]">
+                <div className={aspectClass}>
                   <img
                     src={preview}
                     alt="Updated slider preview"
@@ -151,7 +173,7 @@ export default function StoreSliderManagementPanel({
                   />
                 </div>
               ) : (
-                <div className="aspect-[16/6]">
+                <div className={aspectClass}>
                   <img
                     src={selectedBanner.image}
                     alt="Selected live slider"
@@ -159,6 +181,11 @@ export default function StoreSliderManagementPanel({
                   />
                 </div>
               )}
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <MetricCard label="Banner ID" value={`#${selectedBanner.id}`} />
+              <MetricCard label="View" value={mobileSliderSelection ? "Mobile" : "Desktop"} />
             </div>
 
             <label className="block cursor-pointer rounded-sm border border-white/10 px-4 py-3 text-center text-sm font-bold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold">
@@ -227,6 +254,22 @@ export default function StoreSliderManagementPanel({
           <p>Store plan: {storeInfo?.plan || "Free"}</p>
         </div>
       </StoreSection>
+    </div>
+  );
+}
+
+/**
+ * @param {{ label: string, value: string, compact?: boolean }} props
+ */
+function MetricCard({ label, value, compact = false }) {
+  return (
+    <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-3">
+      <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/35">
+        {label}
+      </p>
+      <p className={`mt-2 font-black text-brand-white ${compact ? "text-sm" : "text-lg"}`}>
+        {value}
+      </p>
     </div>
   );
 }

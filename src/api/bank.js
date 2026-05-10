@@ -38,6 +38,15 @@ export function updateBankDetails(payload) {
 }
 
 /**
+ * @returns {Promise<any>}
+ */
+export function fetchBankDetails() {
+  return postBankJson("/api/auth/get-bank", {
+    accessToken: getAccessToken(),
+  });
+}
+
+/**
  * @param {string} ifscCode
  * @returns {Promise<any>}
  */

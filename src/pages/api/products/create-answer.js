@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", questionId = 0, answer = "" } = req.body || {};
+  const { accessToken = "", questionId = 0, answer = "", orderId = "" } = req.body || {};
 
   if (!accessToken || !questionId || !answer) {
     res.status(400).json({ message: "Access token, question ID, and answer are required" });
@@ -21,6 +21,7 @@ export default async function handler(req, res) {
     method: "POST",
     fields: {
       answer,
+      orderId,
     },
   });
 

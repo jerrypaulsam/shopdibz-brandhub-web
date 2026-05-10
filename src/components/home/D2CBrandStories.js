@@ -33,15 +33,15 @@ export default function D2CBrandStories({ videoUrls }) {
   const videoIds = videoUrls.map(getVideoId).filter(Boolean).slice(0, 5);
 
   return (
-    <section className="bg-brand-white py-[60px]">
-      <div className="mx-auto max-w-7xl px-5 sm:px-10 lg:px-20">
+    <section className="bg-brand-white py-20 sm:py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
         <a
           className="flex items-center justify-between gap-6 text-brand-black"
           href={playlistUrl}
           target="_blank"
           rel="noreferrer"
         >
-          <h2 className="text-lg font-extrabold uppercase tracking-wide text-slate-900">
+          <h2 className="text-lg font-extrabold uppercase tracking-wide text-slate-900 sm:text-xl">
             SHOPCAST: Indian D2C Stories
           </h2>
           <span className="text-2xl text-slate-800" aria-hidden="true">
@@ -49,10 +49,10 @@ export default function D2CBrandStories({ videoUrls }) {
           </span>
         </a>
 
-        <div className="mt-6 flex h-[200px] gap-3 overflow-x-auto pb-4">
+        <div className="mt-8 flex gap-4 overflow-x-auto pb-4">
           {videoIds.map((videoId) => (
             <a
-              className="group relative h-[200px] w-[280px] shrink-0 overflow-hidden rounded-lg bg-slate-200"
+              className="group relative h-[210px] w-[320px] shrink-0 overflow-hidden rounded-sm bg-slate-200"
               href={`https://www.youtube.com/watch?v=${videoId}`}
               key={videoId}
               target="_blank"
@@ -64,7 +64,7 @@ export default function D2CBrandStories({ videoUrls }) {
                 src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
                 alt="Shopcast video thumbnail"
                 fill
-                sizes="280px"
+                sizes="320px"
               />
               <span className="absolute inset-0 bg-black/25" />
               <span className="absolute inset-0 flex items-center justify-center">

@@ -16,6 +16,40 @@ function firstValue(value) {
 }
 
 /**
+ * @param {any[]} products
+ * @param {string} sort
+ * @returns {any[]}
+ */
+function sortProducts(products, sort) {
+  const nextProducts = [...products];
+
+  switch (sort) {
+    case "latest":
+      return nextProducts.sort((left, right) => Number(right?.id || 0) - Number(left?.id || 0));
+    case "price-high":
+      return nextProducts.sort(
+        (left, right) =>
+          Number(right?.price || right?.prdtInfo?.price || 0) -
+          Number(left?.price || left?.prdtInfo?.price || 0),
+      );
+    case "price-low":
+      return nextProducts.sort(
+        (left, right) =>
+          Number(left?.price || left?.prdtInfo?.price || 0) -
+          Number(right?.price || right?.prdtInfo?.price || 0),
+      );
+    case "best-rated":
+      return nextProducts.sort(
+        (left, right) =>
+          Number(right?.averageReview || right?.rating || 0) -
+          Number(left?.averageReview || left?.rating || 0),
+      );
+    default:
+      return nextProducts;
+  }
+}
+
+/**
  * @returns {{
  * query: string,
  * label: string,
@@ -64,10 +98,9 @@ export function useProductSearch() {
       const data = await searchProducts({
         query,
         page,
-        sort,
       });
       const collection = normalizePaginatedCollection(data);
-      setProducts(collection.results);
+      setProducts(sortProducts(collection.results, sort));
       setHasNextPage(Boolean(collection.next) || page * 15 < collection.count);
       setHasPreviousPage(Boolean(collection.previous) || page > 1);
     } catch (error) {

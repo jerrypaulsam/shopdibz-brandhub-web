@@ -13,7 +13,10 @@ import {
  * actionLabel?: string,
  * onAction?: (slug: string) => Promise<void>,
  * isActionLoading?: boolean,
+ * onDeleteProduct?: (slug: string) => Promise<void>,
  * onDeleteVariation?: (variationId: number) => Promise<void>,
+ * onAddToPromotionFeed?: (slug: string, type: number) => Promise<void>,
+ * onRemoveFromPromotionFeed?: (slug: string) => Promise<void>,
  * }} props
  */
 export default function ProductSummaryCard({
@@ -22,7 +25,10 @@ export default function ProductSummaryCard({
   actionLabel,
   onAction,
   isActionLoading = false,
+  onDeleteProduct,
   onDeleteVariation,
+  onAddToPromotionFeed,
+  onRemoveFromPromotionFeed,
 }) {
   const slug = String(product?.slug || "");
   const title = String(product?.title || product?.name || "Untitled Product");
@@ -43,7 +49,13 @@ export default function ProductSummaryCard({
   const firstVariationId = variationCount ? variations[0]?.id : 0;
   const isArchived = Boolean(product?.arch || product?.archived);
   const isPromoted = Boolean(product?.isPromoted || product?.promoted);
+  const featuredStatus = Number(product?.feaStat ?? product?.featuredStatus ?? 3);
   const approvalLabel = product?.aprvd ? "Approved" : "Pending";
+  const canManagePromotion = !isArchived && typeof onAddToPromotionFeed === "function";
+  const canRemovePromotion =
+    featuredStatus >= 0 &&
+    featuredStatus <= 2 &&
+    typeof onRemoveFromPromotionFeed === "function";
 
   return (
     <article className="overflow-hidden rounded-sm border border-white/10 bg-[#121212]">
@@ -123,6 +135,12 @@ export default function ProductSummaryCard({
             >
               Reviews
             </Link>
+            <Link
+              className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
+              href={`/products/${slug}/edit?variant-mode=${variationCount ? "with-variant" : "without-variant"}&section=category`}
+            >
+              Category
+            </Link>
             {!isPromoted ? (
               <Link
                 className="rounded-sm border border-emerald-400/35 px-4 py-2 text-sm font-semibold text-emerald-300 transition-colors hover:border-emerald-300 hover:text-emerald-200"
@@ -139,12 +157,20 @@ export default function ProductSummaryCard({
               </Link>
             ) : null}
             {variationCount ? (
-              <Link
-                className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
-                href={`/products/${slug}/variations/${firstVariationId}/edit?variant-mode=with-variant`}
-              >
-                Edit Variant
-              </Link>
+              <>
+                <Link
+                  className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
+                  href={`/products/${slug}/variations/${firstVariationId}/edit?variant-mode=with-variant`}
+                >
+                  Edit Variant
+                </Link>
+                <Link
+                  className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
+                  href={`/products/${slug}/new-variation`}
+                >
+                  Add Variation
+                </Link>
+              </>
             ) : (
               <Link
                 className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
@@ -163,12 +189,67 @@ export default function ProductSummaryCard({
                 {isActionLoading ? "Updating..." : actionLabel}
               </button>
             ) : null}
+            {onDeleteProduct ? (
+              <button
+                className="rounded-sm border border-red-400/40 px-4 py-2 text-sm font-semibold text-red-300 transition-colors hover:border-red-300 hover:text-red-200 disabled:opacity-50"
+                type="button"
+                disabled={isActionLoading}
+                onClick={() => onDeleteProduct(slug)}
+              >
+                {isActionLoading ? "Updating..." : "Delete"}
+              </button>
+            ) : null}
             {isArchived ? (
               <p className="self-center text-xs font-bold uppercase tracking-[0.18em] text-white/35">
                 Archived listing
               </p>
             ) : null}
           </div>
+
+          {canManagePromotion || canRemovePromotion ? (
+            <div className="mt-5 rounded-sm border border-white/10 bg-black/20 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
+                    Promotional Placement
+                  </p>
+                  <p className="mt-2 text-sm text-white/55">
+                    Surface this listing in seller-panel merchandising feeds right from the product workspace.
+                  </p>
+                </div>
+                {canRemovePromotion ? (
+                  <button
+                    className="rounded-sm border border-red-400/35 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-red-300 hover:border-red-300 hover:text-red-200 disabled:opacity-50"
+                    type="button"
+                    disabled={isActionLoading}
+                    onClick={() => onRemoveFromPromotionFeed?.(slug)}
+                  >
+                    Remove from {featuredStatus === 0 ? "Top" : featuredStatus === 1 ? "Featured" : "Daily Deals"}
+                  </button>
+                ) : null}
+              </div>
+
+              {!canRemovePromotion && canManagePromotion ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {[
+                    [0, "Top"],
+                    [1, "Featured"],
+                    [2, "Daily Deals"],
+                  ].map(([type, label]) => (
+                    <button
+                      className="rounded-sm border border-emerald-400/30 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-300 hover:border-emerald-300 hover:text-emerald-200 disabled:opacity-50"
+                      type="button"
+                      key={String(type)}
+                      disabled={isActionLoading}
+                      onClick={() => onAddToPromotionFeed?.(slug, Number(type))}
+                    >
+                      Add to {label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           {variationCount ? (
             <div className="mt-5 rounded-sm border border-white/10 bg-black/20 p-4">

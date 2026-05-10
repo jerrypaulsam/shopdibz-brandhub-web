@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import {
+  addProductToFeaturedFeed,
   changeProductStatus,
+  deleteExistingProduct,
   deleteExistingVariation,
   fetchProductList,
+  removeProductFromFeaturedFeed,
 } from "@/src/api/products";
 import { getDashboardSession } from "@/src/api/dashboard";
 import { logScreenView } from "@/src/api/analytics";
@@ -55,7 +58,10 @@ function firstValue(value) {
  * archiveProduct: (slug: string) => Promise<void>,
  * restoreProduct: (slug: string) => Promise<void>,
  * hideProduct: (slug: string) => Promise<void>,
+ * deleteProduct: (slug: string) => Promise<void>,
  * deleteVariation: (variationId: number) => Promise<void>,
+ * addToPromotionFeed: (slug: string, type: number) => Promise<void>,
+ * removeFromPromotionFeed: (slug: string) => Promise<void>,
  * loadingSlug: string,
  * router: import("next/router").NextRouter,
  * }}
@@ -241,6 +247,58 @@ export function useProductList() {
     }
   }
 
+  async function deleteProduct(slug) {
+    if (typeof window !== "undefined" && !window.confirm("Delete this product permanently?")) {
+      return;
+    }
+
+    try {
+      setMessage("");
+      setLoadingSlug(`delete:${slug}`);
+      await deleteExistingProduct({ slug });
+      setMessage("Product deleted successfully.");
+      await loadProducts();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Product could not be deleted");
+    } finally {
+      setLoadingSlug("");
+    }
+  }
+
+  async function addToPromotionFeed(slug, type) {
+    try {
+      setMessage("");
+      setLoadingSlug(`promotion:${slug}:${type}`);
+      await addProductToFeaturedFeed({ slug, type });
+      setMessage(
+        type === 0
+          ? "Added to Top products."
+          : type === 1
+            ? "Added to Featured products."
+            : "Added to Daily Deals.",
+      );
+      await loadProducts();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Product could not be promoted");
+    } finally {
+      setLoadingSlug("");
+    }
+  }
+
+  async function removeFromPromotionFeed(slug) {
+    try {
+      setMessage("");
+      setLoadingSlug(`promotion-remove:${slug}`);
+      await removeProductFromFeaturedFeed({ slug });
+      setMessage("Product removed from promotional feed.");
+      await loadProducts();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Promotion could not be updated");
+    } finally {
+      setLoadingSlug("");
+    }
+  }
+
   return {
     filters,
     categories,
@@ -261,7 +319,10 @@ export function useProductList() {
     archiveProduct: (slug) => changeStatus(slug, "archive"),
     restoreProduct: (slug) => changeStatus(slug, "restore"),
     hideProduct: (slug) => changeStatus(slug, "hide"),
+    deleteProduct,
     deleteVariation,
+    addToPromotionFeed,
+    removeFromPromotionFeed,
     loadingSlug,
     router,
   };
