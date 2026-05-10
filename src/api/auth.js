@@ -151,11 +151,28 @@ export async function updateSellerProfilePicture(imageBase64) {
 }
 
 /**
+ * @returns {Promise<boolean>}
+ */
+export async function checkSellerEmailVerification() {
+  const response = await fetch("/api/auth/check-email-verification", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      accessToken: getAccessToken(),
+    }),
+  });
+
+  return response.ok;
+}
+
+/**
  * @param {string} url
  * @param {Record<string, unknown>} payload
  * @returns {Promise<AuthResponse>}
  */
-async function postAuthJson(url, payload) {
+export async function postAuthJson(url, payload) {
   const response = await fetch(url, {
     method: "POST",
     headers: {

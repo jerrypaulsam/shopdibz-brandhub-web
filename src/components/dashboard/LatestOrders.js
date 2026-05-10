@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 /**
  * @param {{ orders: any[] }} props
  */
@@ -27,7 +29,12 @@ export default function LatestOrders({ orders }) {
             {orders.slice(0, 5).map((order, index) => (
               <tr className="text-white/75" key={order.id || index}>
                 <td className="px-5 py-4 font-bold text-brand-white">
-                  #{order?.order?.id || order?.id || "New"}
+                  <Link
+                    className="transition-colors hover:text-brand-gold"
+                    href={`/orders/${order?.oIId || order?.id || ""}`}
+                  >
+                    #{order?.orderId || order?.order?.id || order?.id || "New"}
+                  </Link>
                 </td>
                 <td className="px-5 py-4">
                   {order?.order?.user?.email || order?.user?.email || "Customer"}

@@ -107,7 +107,7 @@ export default function ProfileEditorPanel({
           </div>
           <Link
             className="text-sm font-bold text-brand-gold transition-colors hover:text-brand-white"
-            href="/init-email-verify"
+            href="/verify-email"
           >
             Verify Email
           </Link>

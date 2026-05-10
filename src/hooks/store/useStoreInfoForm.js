@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { fetchEditableStoreInfo, updateSizeChart, updateStoreInfo, updateStoreLogo, updateStoreTheme } from "@/src/api/store";
+import {
+  connectShopifyStore,
+  connectWooCommerceStore,
+  disconnectShopifyStore,
+  disconnectWooCommerceStore,
+  fetchEditableStoreInfo,
+  syncShopifyStore,
+  syncWooCommerceStore,
+  updateSizeChart,
+  updateStoreInfo,
+  updateStoreLogo,
+  updateStoreTheme,
+} from "@/src/api/store";
 import { logScreenView } from "@/src/api/analytics";
 
 export function useStoreInfoForm() {
@@ -29,6 +41,13 @@ export function useStoreInfoForm() {
   const [logoBase64, setLogoBase64] = useState("");
   const [sizeChartPreview, setSizeChartPreview] = useState("");
   const [sizeChartBase64, setSizeChartBase64] = useState("");
+  const [connectorForm, setConnectorForm] = useState({
+    shopifyUrl: "",
+    shopifyAccess: "",
+    wooCommerceUrl: "",
+    wooCommerceKey: "",
+    wooCommerceSecret: "",
+  });
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -94,8 +113,36 @@ export function useStoreInfoForm() {
     }));
   }
 
+  function updateConnectorField(key, value) {
+    setConnectorForm((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  }
+
+  async function refreshStoreInfo() {
+    const data = await fetchEditableStoreInfo();
+
+    if (data) {
+      setStoreInfo(data);
+    }
+
+    return data;
+  }
+
   async function submitInfo() {
-    if (!form.storeName || !form.storeEmail || !form.storeDescription || !form.contactNo) {
+    const isInitialSetup = !storeInfo;
+    const missingCoreFields =
+      !form.storeName || !form.storeEmail || !form.storeDescription || !form.contactNo;
+    const missingSetupFields =
+      isInitialSetup &&
+      (!form.storeUrl ||
+        !form.storeAddress ||
+        !form.storeCity ||
+        !form.storeState ||
+        !form.storePinCode);
+
+    if (missingCoreFields || missingSetupFields) {
       setMessage("Please fill all required fields.");
       return;
     }
@@ -177,6 +224,124 @@ export function useStoreInfoForm() {
     }
   }
 
+  async function submitShopifyConnection() {
+    if (!connectorForm.shopifyUrl || !connectorForm.shopifyAccess) {
+      setMessage("Please add both Shopify URL and access token.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await connectShopifyStore({
+        url: connectorForm.shopifyUrl,
+        access: connectorForm.shopifyAccess,
+      });
+      setConnectorForm((current) => ({
+        ...current,
+        shopifyUrl: "",
+        shopifyAccess: "",
+      }));
+      await refreshStoreInfo();
+      setMessage("Shopify Url Added. Please follow the tutorial to complete the setup");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Shopify connection failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function submitShopifySync() {
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await syncShopifyStore();
+      await refreshStoreInfo();
+      setMessage("Product inventory and prices will now be synced with your Shopify store in a few minutes.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Shopify sync failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function submitShopifyDisconnect() {
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await disconnectShopifyStore();
+      await refreshStoreInfo();
+      setMessage("Successfully Disconnected");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Shopify disconnect failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function submitWooCommerceConnection() {
+    if (!connectorForm.wooCommerceUrl || !connectorForm.wooCommerceKey || !connectorForm.wooCommerceSecret) {
+      setMessage("Please add the WooCommerce URL, key, and secret.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await connectWooCommerceStore({
+        url: connectorForm.wooCommerceUrl,
+        key: connectorForm.wooCommerceKey,
+        secret: connectorForm.wooCommerceSecret,
+      });
+      setConnectorForm((current) => ({
+        ...current,
+        wooCommerceUrl: "",
+        wooCommerceKey: "",
+        wooCommerceSecret: "",
+      }));
+      await refreshStoreInfo();
+      setMessage("WooCommerce Information Added. Now you can start syncing your products");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "WooCommerce connection failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function submitWooCommerceSync() {
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await syncWooCommerceStore();
+      await refreshStoreInfo();
+      setMessage("Product inventory and prices will now be synced with your WooCommerce store.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "WooCommerce sync failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function submitWooCommerceDisconnect() {
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await disconnectWooCommerceStore();
+      await refreshStoreInfo();
+      setMessage("Successfully Disconnected");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "WooCommerce disconnect failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return {
     form,
     storeInfo,
@@ -188,25 +353,43 @@ export function useStoreInfoForm() {
     setSizeChartPreview,
     sizeChartBase64,
     setSizeChartBase64,
+    connectorForm,
     message,
     isLoading,
     isSubmitting,
     updateField,
+    updateConnectorField,
     submitInfo,
     submitLogo,
     submitSizeChart,
     submitTheme,
+    submitShopifyConnection,
+    submitShopifySync,
+    submitShopifyDisconnect,
+    submitWooCommerceConnection,
+    submitWooCommerceSync,
+    submitWooCommerceDisconnect,
   };
 }
 
 function normalizeYoutubeLink(value) {
   if (!value) {
-    return "";
+    return null;
+  }
+
+  if (/^[a-zA-Z0-9_-]{11}$/.test(value)) {
+    return `https://www.youtube.com/watch?v=${value}`;
   }
 
   if (/^https?:\/\//.test(value)) {
-    return value;
+    const match = value.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    );
+
+    if (match?.[1]) {
+      return `https://www.youtube.com/watch?v=${match[1]}`;
+    }
   }
 
-  return `https://www.youtube.com/watch?v=${value}`;
+  return null;
 }

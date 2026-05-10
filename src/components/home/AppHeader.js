@@ -24,7 +24,7 @@ const menuItems = [
 
 function LogoTitle() {
   return (
-    <Link className="flex items-center gap-3" href="/">
+    <Link className="flex items-center gap-3" href="/hub">
       <span className="relative h-[38px] w-[38px]">
         <Image
           src="/assets/logo/seller-logo.png"

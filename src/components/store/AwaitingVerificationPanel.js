@@ -64,7 +64,7 @@ function resolveStatusMessage(status, message) {
   }
 
   if (status === "needs-bank-details") {
-    return "Bank details flow is still pending in this web conversion.";
+    return "Bank details are required before verification can continue.";
   }
 
   if (status === "awaiting") {

@@ -18,15 +18,27 @@ export default function StoreInfoFormPage() {
     sizeChartPreview,
     setSizeChartPreview,
     setSizeChartBase64,
+    connectorForm,
     message,
     isLoading,
     isSubmitting,
     updateField,
+    updateConnectorField,
     submitInfo,
     submitLogo,
     submitSizeChart,
     submitTheme,
+    submitShopifyConnection,
+    submitShopifySync,
+    submitShopifyDisconnect,
+    submitWooCommerceConnection,
+    submitWooCommerceSync,
+    submitWooCommerceDisconnect,
   } = useStoreInfoForm();
+
+  const storeConnected = String(storeInfo?.storeConnected || "");
+  const shopifyConnected = storeConnected === "1";
+  const wooCommerceConnected = storeConnected === "2";
 
   async function fileToBase64(file, onPreview, onBase64) {
     const reader = new FileReader();
@@ -92,7 +104,9 @@ export default function StoreInfoFormPage() {
 
                 <div className="mt-8 grid gap-5">
                   <StoreField label="Store Name" value={form.storeName} onChange={(value) => updateField("storeName", value)} />
-                  <StoreField label="Store ID" value={form.storeUrl} helper="Example: mystore, fashionstore, etc." onChange={(value) => updateField("storeUrl", value)} />
+                  {!storeInfo ? (
+                    <StoreField label="Store ID" value={form.storeUrl} helper="Example: mystore, fashionstore, etc." onChange={(value) => updateField("storeUrl", value)} />
+                  ) : null}
                   <StoreField label="Store Email" type="email" value={form.storeEmail} onChange={(value) => updateField("storeEmail", value)} />
                   <StoreField label="Description" multiline maxLength={1000} value={form.storeDescription} onChange={(value) => updateField("storeDescription", value)} />
                   <StoreField label="Contact No." type="tel" value={form.contactNo} onChange={(value) => updateField("contactNo", value)} />
@@ -102,10 +116,14 @@ export default function StoreInfoFormPage() {
 
               <StoreSection title="Address & Social" subtitle="Configure pickup location and social discovery details.">
                 <div className="grid gap-5 md:grid-cols-2">
-                  <StoreField label="Store Address" value={form.storeAddress} onChange={(value) => updateField("storeAddress", value)} />
-                  <StoreField label="City" value={form.storeCity} onChange={(value) => updateField("storeCity", value)} />
-                  <StoreField label="State" value={form.storeState} onChange={(value) => updateField("storeState", value)} />
-                  <StoreField label="Pincode" type="tel" value={form.storePinCode} onChange={(value) => updateField("storePinCode", value)} />
+                  {!storeInfo ? (
+                    <>
+                      <StoreField label="Store Address" value={form.storeAddress} onChange={(value) => updateField("storeAddress", value)} />
+                      <StoreField label="City" value={form.storeCity} onChange={(value) => updateField("storeCity", value)} />
+                      <StoreField label="State" value={form.storeState} onChange={(value) => updateField("storeState", value)} />
+                      <StoreField label="Pincode" type="tel" value={form.storePinCode} onChange={(value) => updateField("storePinCode", value)} />
+                    </>
+                  ) : null}
                   <StoreField label="ScrapItt Username" value={form.link1} onChange={(value) => updateField("link1", value)} />
                   <StoreField label="Instagram Username" value={form.link2} onChange={(value) => updateField("link2", value)} />
                 </div>
@@ -228,11 +246,85 @@ export default function StoreInfoFormPage() {
               </StoreSection>
 
               <StoreSection title="Connect Your Store">
-                <div className="space-y-4 text-sm leading-6 text-white/60">
-                  <p>Connecting Shopify or WooCommerce enables inventory and price sync.</p>
-                  <p>Enter the required credentials, complete platform setup, then sync products.</p>
-                  <p>Use matching SKU codes across Shopdibz and your external store.</p>
-                  <p>TODO: Convert Shopify and WooCommerce credential panels and sync actions.</p>
+                <div className="space-y-6">
+                  <div className="space-y-2 text-sm leading-6 text-white/60">
+                    <p>Connecting your Shopify or WooCommerce store enables inventory and price sync.</p>
+                    <p>Enter the required credentials, complete platform setup, then sync products.</p>
+                    <p>Use matching SKU codes across Shopdibz and your external store.</p>
+                  </div>
+
+                  <div className="rounded-sm border border-white/10 p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h3 className="text-sm font-bold text-brand-white">Shopify</h3>
+                        <p className="mt-1 text-xs text-white/45">
+                          {shopifyConnected ? "Connected" : "Connect your Shopify store and enable sync."}
+                        </p>
+                      </div>
+                      {shopifyConnected ? (
+                        <div className="rounded-full border border-emerald-400/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">
+                          Connected
+                        </div>
+                      ) : null}
+                    </div>
+                    {!shopifyConnected ? (
+                      <div className="mt-4 space-y-4">
+                        <StoreField label="Shopify Store URL" value={connectorForm.shopifyUrl} onChange={(value) => updateConnectorField("shopifyUrl", value)} />
+                        <StoreField label="Shopify Access Token" value={connectorForm.shopifyAccess} onChange={(value) => updateConnectorField("shopifyAccess", value)} />
+                        <div className="max-w-xs">
+                          <AuthButton type="button" disabled={isSubmitting} onClick={submitShopifyConnection}>
+                            {isSubmitting ? "Saving..." : "Connect Shopify"}
+                          </AuthButton>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <button className="rounded-sm border border-white/20 px-4 py-2 text-sm font-bold text-brand-white" type="button" disabled={isSubmitting} onClick={submitShopifySync}>
+                          Sync Shopify
+                        </button>
+                        <button className="rounded-sm border border-red-400/30 px-4 py-2 text-sm font-bold text-red-300" type="button" disabled={isSubmitting} onClick={submitShopifyDisconnect}>
+                          Disconnect
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="rounded-sm border border-white/10 p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h3 className="text-sm font-bold text-brand-white">WooCommerce</h3>
+                        <p className="mt-1 text-xs text-white/45">
+                          {wooCommerceConnected ? "Connected" : "Connect your WooCommerce store and start syncing products."}
+                        </p>
+                      </div>
+                      {wooCommerceConnected ? (
+                        <div className="rounded-full border border-emerald-400/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">
+                          Connected
+                        </div>
+                      ) : null}
+                    </div>
+                    {!wooCommerceConnected ? (
+                      <div className="mt-4 space-y-4">
+                        <StoreField label="WooCommerce Store URL" value={connectorForm.wooCommerceUrl} onChange={(value) => updateConnectorField("wooCommerceUrl", value)} />
+                        <StoreField label="WooCommerce Consumer Key" value={connectorForm.wooCommerceKey} onChange={(value) => updateConnectorField("wooCommerceKey", value)} />
+                        <StoreField label="WooCommerce Consumer Secret" value={connectorForm.wooCommerceSecret} onChange={(value) => updateConnectorField("wooCommerceSecret", value)} />
+                        <div className="max-w-xs">
+                          <AuthButton type="button" disabled={isSubmitting} onClick={submitWooCommerceConnection}>
+                            {isSubmitting ? "Saving..." : "Connect WooCommerce"}
+                          </AuthButton>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <button className="rounded-sm border border-white/20 px-4 py-2 text-sm font-bold text-brand-white" type="button" disabled={isSubmitting} onClick={submitWooCommerceSync}>
+                          Sync WooCommerce
+                        </button>
+                        <button className="rounded-sm border border-red-400/30 px-4 py-2 text-sm font-bold text-red-300" type="button" disabled={isSubmitting} onClick={submitWooCommerceDisconnect}>
+                          Disconnect
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </StoreSection>
             </div>

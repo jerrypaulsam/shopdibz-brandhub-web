@@ -2,7 +2,7 @@ import DashboardShell from "@/src/components/dashboard/DashboardShell";
 import ProfileEditorPanel from "@/src/components/store/ProfileEditorPanel";
 import { useProfileEditor } from "@/src/hooks/store/useProfileEditor";
 
-export default function ProfilePage() {
+export default function ProfileSettingsPage() {
   const {
     storeInfo,
     fName,

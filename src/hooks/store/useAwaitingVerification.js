@@ -47,7 +47,7 @@ export function useAwaitingVerification() {
         if (response?.status === 404) {
           setStatus("needs-bank-details");
           setMessage("Bank details setup is still pending for this account.");
-          // TODO: Redirect to the converted bank details flow when available.
+          await router.replace("/settings/bank/create");
           return;
         }
 

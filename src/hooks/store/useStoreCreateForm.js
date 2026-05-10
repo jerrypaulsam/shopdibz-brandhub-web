@@ -71,7 +71,7 @@ export function useStoreCreateForm() {
         signatureBase64,
         enable: true,
       });
-      await router.replace("/store-info-form");
+      await router.replace("/settings/bank/create");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Something went wrong");
     } finally {

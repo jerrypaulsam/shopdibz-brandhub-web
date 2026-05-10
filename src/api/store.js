@@ -32,6 +32,17 @@ export function createStore(payload) {
   return postStoreJson("/api/store/create", {
     accessToken: getAccessToken(),
     ...payload,
+  }).then((data) => {
+    updateAuthSession({
+      storeCreated: true,
+      verified: false,
+      user: {
+        cre: true,
+        ver: false,
+      },
+    });
+
+    return data;
   });
 }
 
@@ -181,5 +192,100 @@ export function addStoreBanners(payload) {
     accessToken: session.accessToken,
     storeUrl: session.storeUrl,
     ...payload,
+  });
+}
+
+/**
+ * @param {{ bannerId: number, imageBase64: string, productGroupSlug: string, link?: string }} payload
+ * @returns {Promise<any>}
+ */
+export function updateStoreBanner(payload) {
+  const session = getDashboardSession();
+
+  return postStoreJson("/api/store/update-banner", {
+    accessToken: session.accessToken,
+    bannerId: payload.bannerId,
+    imageBase64: payload.imageBase64,
+    productGroupSlug: payload.productGroupSlug,
+    link: payload.link || "",
+  });
+}
+
+/**
+ * @param {{ url: string, access: string }} payload
+ * @returns {Promise<any>}
+ */
+export function connectShopifyStore(payload) {
+  const session = getDashboardSession();
+
+  return postStoreJson("/api/store/connect-shopify", {
+    accessToken: session.accessToken,
+    storeUrl: session.storeUrl,
+    url: payload.url,
+    access: payload.access,
+  });
+}
+
+/**
+ * @returns {Promise<any>}
+ */
+export function disconnectShopifyStore() {
+  const session = getDashboardSession();
+
+  return postStoreJson("/api/store/disconnect-shopify", {
+    accessToken: session.accessToken,
+    storeUrl: session.storeUrl,
+  });
+}
+
+/**
+ * @returns {Promise<any>}
+ */
+export function syncShopifyStore() {
+  const session = getDashboardSession();
+
+  return postStoreJson("/api/store/sync-shopify", {
+    accessToken: session.accessToken,
+    storeUrl: session.storeUrl,
+  });
+}
+
+/**
+ * @param {{ url: string, key: string, secret: string }} payload
+ * @returns {Promise<any>}
+ */
+export function connectWooCommerceStore(payload) {
+  const session = getDashboardSession();
+
+  return postStoreJson("/api/store/connect-woocommerce", {
+    accessToken: session.accessToken,
+    storeUrl: session.storeUrl,
+    url: payload.url,
+    key: payload.key,
+    secret: payload.secret,
+  });
+}
+
+/**
+ * @returns {Promise<any>}
+ */
+export function disconnectWooCommerceStore() {
+  const session = getDashboardSession();
+
+  return postStoreJson("/api/store/disconnect-woocommerce", {
+    accessToken: session.accessToken,
+    storeUrl: session.storeUrl,
+  });
+}
+
+/**
+ * @returns {Promise<any>}
+ */
+export function syncWooCommerceStore() {
+  const session = getDashboardSession();
+
+  return postStoreJson("/api/store/sync-woocommerce", {
+    accessToken: session.accessToken,
+    storeUrl: session.storeUrl,
   });
 }

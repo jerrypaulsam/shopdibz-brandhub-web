@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import {
   clearAuthSession,
   getBrowserLocation,
@@ -12,6 +13,7 @@ import { logScreenView } from "@/src/api/analytics";
  * @param {{ isOpen: boolean, onClose: () => void }} props
  */
 export default function LoginModal({ isOpen, onClose }) {
+  const router = useRouter();
   /** @type {[string, import("react").Dispatch<import("react").SetStateAction<string>>]} */
   const [email, setEmail] = useState("");
   /** @type {[string, import("react").Dispatch<import("react").SetStateAction<string>>]} */
@@ -51,6 +53,7 @@ export default function LoginModal({ isOpen, onClose }) {
       saveAuthSession(result.data);
       setMessage("Login successful.");
       onClose();
+      await router.replace("/");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Login failed.");
     } finally {

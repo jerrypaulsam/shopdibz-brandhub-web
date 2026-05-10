@@ -1,0 +1,3043 @@
+[
+  {
+    "id": 1,
+    "name": "Men",
+    "slug": "men",
+    "active": true,
+    "image": "https://shopdibz-main-1.s3.amazonaws.com/media/store/category/Men_2_3_26.png",
+    "sub": [
+      {
+        "id": 1,
+        "name": "Clothing",
+        "slug": "clothing-men",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 1,
+            "name": "T-shirt",
+            "slug": "tshirt-men",
+            "active": true
+          },
+          {
+            "id": 4,
+            "name": "Shirts",
+            "slug": "shirts-men",
+            "active": true
+          },
+          {
+            "id": 5,
+            "name": "Jeans",
+            "slug": "jeans-men",
+            "active": true
+          },
+          {
+            "id": 6,
+            "name": "Trousers",
+            "slug": "trousers-men",
+            "active": true
+          },
+          {
+            "id": 7,
+            "name": "Sports Wear",
+            "slug": "sports-wear-men",
+            "active": false
+          },
+          {
+            "id": 8,
+            "name": "Inner Wear",
+            "slug": "inner-wear-men",
+            "active": true
+          },
+          {
+            "id": 9,
+            "name": "Sleep Wear",
+            "slug": "sleep-wear-men",
+            "active": false
+          },
+          {
+            "id": 10,
+            "name": "Ethnic Wear",
+            "slug": "ethnic-wear-men",
+            "active": true
+          },
+          {
+            "id": 11,
+            "name": "Suits & Blazzers",
+            "slug": "suits-blazzers-men",
+            "active": true
+          },
+          {
+            "id": 12,
+            "name": "Shorts & 3/4",
+            "slug": "shorts-men",
+            "active": true
+          },
+          {
+            "id": 13,
+            "name": "Rain Wear",
+            "slug": "rain-wear-men",
+            "active": false
+          },
+          {
+            "id": 14,
+            "name": "Winter Wear",
+            "slug": "winter-wear-men",
+            "active": false
+          },
+          {
+            "id": 15,
+            "name": "Kerchiefs & Scarfs",
+            "slug": "kerchief-scarfs",
+            "active": false
+          },
+          {
+            "id": 16,
+            "name": "Jackets",
+            "slug": "jackets-men",
+            "active": false
+          },
+          {
+            "id": 17,
+            "name": "Dhotis",
+            "slug": "dhotis-men",
+            "active": true
+          },
+          {
+            "id": 356,
+            "name": "Hoodies & Sweatshirts",
+            "slug": "hoodies",
+            "active": true
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Footwear",
+        "slug": "footwear-men",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 18,
+            "name": "Casual Shoes",
+            "slug": "casual-shoes-men",
+            "active": false
+          },
+          {
+            "id": 19,
+            "name": "Formal shoes",
+            "slug": "formal-shoes-men",
+            "active": false
+          },
+          {
+            "id": 20,
+            "name": "Flipflops & Slippers",
+            "slug": "flipflips-slippers-men",
+            "active": false
+          },
+          {
+            "id": 21,
+            "name": "Loafers",
+            "slug": "loafers-men",
+            "active": false
+          },
+          {
+            "id": 22,
+            "name": "Traditional",
+            "slug": "ethnic-wear-footwear-men",
+            "active": true
+          },
+          {
+            "id": 23,
+            "name": "Sandals",
+            "slug": "sandals-men",
+            "active": false
+          },
+          {
+            "id": 24,
+            "name": "Sneakers",
+            "slug": "sneakers-men",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Accessories",
+        "slug": "accessories-men",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 25,
+            "name": "Shoe Accessories",
+            "slug": "shoe-accessories-men",
+            "active": false
+          },
+          {
+            "id": 26,
+            "name": "Wallets",
+            "slug": "wallets-men",
+            "active": false
+          },
+          {
+            "id": 27,
+            "name": "Belts",
+            "slug": "belts-men",
+            "active": false
+          },
+          {
+            "id": 28,
+            "name": "Hats & Caps",
+            "slug": "hats-caps-men",
+            "active": false
+          },
+          {
+            "id": 29,
+            "name": "Gifts",
+            "slug": "gifts-men",
+            "active": false
+          },
+          {
+            "id": 30,
+            "name": "Miscellaneous",
+            "slug": "misc-men",
+            "active": false
+          },
+          {
+            "id": 31,
+            "name": "Jewels",
+            "slug": "jewels-men",
+            "active": false
+          },
+          {
+            "id": 32,
+            "name": "Ties",
+            "slug": "ties-men",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "name": "Grooming",
+        "slug": "grooming-men",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 33,
+            "name": "Shaving",
+            "slug": "shaving-men",
+            "active": false
+          },
+          {
+            "id": 34,
+            "name": "Haircare",
+            "slug": "haircare-grooming-men",
+            "active": false
+          },
+          {
+            "id": 35,
+            "name": "Bath & Shower",
+            "slug": "bath-shower-men",
+            "active": false
+          },
+          {
+            "id": 36,
+            "name": "Skincare",
+            "slug": "skincare-grooming-men",
+            "active": false
+          },
+          {
+            "id": 37,
+            "name": "Beard Oil",
+            "slug": "beard-oil-men",
+            "active": false
+          },
+          {
+            "id": 38,
+            "name": "Hair Wax & Gel",
+            "slug": "hair-wax-gel-men",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "name": "Eyewear",
+        "slug": "eyewear-men",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 39,
+            "name": "Sunglasses",
+            "slug": "sunglasses-men",
+            "active": false
+          },
+          {
+            "id": 40,
+            "name": "Spectacles",
+            "slug": "spectacles-men",
+            "active": false
+          },
+          {
+            "id": 41,
+            "name": "Contact Lenses & solutions",
+            "slug": "contact-lenses-solutions-men",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "name": "Fragrances",
+        "slug": "fragrances-men",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 42,
+            "name": "Perfumes",
+            "slug": "perfumes-men",
+            "active": false
+          },
+          {
+            "id": 43,
+            "name": "Deodrants",
+            "slug": "deodrants-men",
+            "active": false
+          },
+          {
+            "id": 44,
+            "name": "Athar",
+            "slug": "athar-men",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "name": "watches",
+        "slug": "watches-men",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 45,
+            "name": "Analog",
+            "slug": "analog-men",
+            "active": false
+          },
+          {
+            "id": 46,
+            "name": "Digital",
+            "slug": "digital-men",
+            "active": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Women",
+    "slug": "women",
+    "active": true,
+    "image": "https://shopdibz-main-1.s3.amazonaws.com/media/store/category/Women_2_3_26.png",
+    "sub": [
+      {
+        "id": 2,
+        "name": "Clothing Ethnic",
+        "slug": "clothing--women",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 2,
+            "name": "T-shirt",
+            "slug": "tshirt-women",
+            "active": false
+          },
+          {
+            "id": 47,
+            "name": "Sarees",
+            "slug": "sarees-women",
+            "active": true
+          },
+          {
+            "id": 48,
+            "name": "Lehenga",
+            "slug": "lehenga-women",
+            "active": true
+          },
+          {
+            "id": 49,
+            "name": "Kurtis",
+            "slug": "kurtis-women",
+            "active": true
+          },
+          {
+            "id": 50,
+            "name": "Leggings, Churidars, Salwar & Suits",
+            "slug": "leggings-churidhar-salw",
+            "active": true
+          },
+          {
+            "id": 51,
+            "name": "Burqas & Hijabs",
+            "slug": "burqas-hijabs-women",
+            "active": false
+          },
+          {
+            "id": 52,
+            "name": "Dupatta & Shawls",
+            "slug": "dupatta-shawls",
+            "active": true
+          },
+          {
+            "id": 53,
+            "name": "Gowns",
+            "slug": "gowns-women",
+            "active": true
+          },
+          {
+            "id": 54,
+            "name": "Tunics & Tops",
+            "slug": "tunics-tops",
+            "active": true
+          },
+          {
+            "id": 55,
+            "name": "Skirts & Palazzos",
+            "slug": "skirts-palazzos",
+            "active": true
+          },
+          {
+            "id": 56,
+            "name": "Jackets",
+            "slug": "jackets-women",
+            "active": false
+          },
+          {
+            "id": 350,
+            "name": "Blouses, Petticoats & Materials",
+            "slug": "blouses-materials",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Western wear",
+        "slug": "western-women",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 57,
+            "name": "Dresses",
+            "slug": "dresses-women",
+            "active": true
+          },
+          {
+            "id": 58,
+            "name": "Jumpsuits",
+            "slug": "jumpsuits-women",
+            "active": true
+          },
+          {
+            "id": 59,
+            "name": "Tops & Shirts",
+            "slug": "top-women",
+            "active": true
+          },
+          {
+            "id": 60,
+            "name": "Jeans",
+            "slug": "jeans-women",
+            "active": true
+          },
+          {
+            "id": 61,
+            "name": "Trousers, Pants & Capris",
+            "slug": "trousers-capris-women",
+            "active": true
+          },
+          {
+            "id": 62,
+            "name": "Shorts & Skirts",
+            "slug": "shorts-skirts-western-wear",
+            "active": true
+          },
+          {
+            "id": 63,
+            "name": "Shrugs & Stoles",
+            "slug": "shrugs-women",
+            "active": true
+          },
+          {
+            "id": 64,
+            "name": "Sweaters & Sweatshirts",
+            "slug": "sweaters-sweatshirts-women",
+            "active": true
+          },
+          {
+            "id": 66,
+            "name": "Blazers, Jackets, Waist Coats",
+            "slug": "blazers-waist-coats",
+            "active": true
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "name": "Footwear",
+        "slug": "footwear-women",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 73,
+            "name": "Flats",
+            "slug": "flats",
+            "active": true
+          },
+          {
+            "id": 74,
+            "name": "Casual Shoes",
+            "slug": "casual-shoes-women",
+            "active": false
+          },
+          {
+            "id": 75,
+            "name": "Heels",
+            "slug": "heels",
+            "active": false
+          },
+          {
+            "id": 76,
+            "name": "Boots",
+            "slug": "boots-women",
+            "active": false
+          },
+          {
+            "id": 77,
+            "name": "Sports Shoes & Floaters",
+            "slug": "sports-shoes-floaters-women",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "name": "Lingerie & Sleepwear",
+        "slug": "lingerie-and-sl",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 67,
+            "name": "Bra",
+            "slug": "bra",
+            "active": true
+          },
+          {
+            "id": 68,
+            "name": "Panties, Briefs & Thongs",
+            "slug": "briefs",
+            "active": true
+          },
+          {
+            "id": 69,
+            "name": "Shape Wear",
+            "slug": "shape-wear",
+            "active": false
+          },
+          {
+            "id": 70,
+            "name": "Swimwear",
+            "slug": "swim-wear",
+            "active": false
+          },
+          {
+            "id": 71,
+            "name": "Camisoles & Thermals",
+            "slug": "camisoles",
+            "active": true
+          },
+          {
+            "id": 72,
+            "name": "Sleep Wear/Nighty",
+            "slug": "sleep-wear-women",
+            "active": true
+          },
+          {
+            "id": 357,
+            "name": "Lingerie Set & Babydolls",
+            "slug": "lingerieset-babydolls",
+            "active": false
+          },
+          {
+            "id": 358,
+            "name": "Gym Wear & Yoga",
+            "slug": "gym-yoga-women",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "name": "Jewellery",
+        "slug": "jewellery-women",
+        "active": true,
+        "itemSub": []
+      },
+      {
+        "id": 14,
+        "name": "Bag",
+        "slug": "bag-women",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 78,
+            "name": "Hand Bags",
+            "slug": "hand-bags-women",
+            "active": true
+          },
+          {
+            "id": 79,
+            "name": "Backpacks",
+            "slug": "backpacks-women",
+            "active": false
+          },
+          {
+            "id": 80,
+            "name": "Wallet, Clutches & Purses",
+            "slug": "wallets-purses-women",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "name": "Watches",
+        "slug": "watches-women",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 81,
+            "name": "Analog",
+            "slug": "analog-women",
+            "active": false
+          },
+          {
+            "id": 82,
+            "name": "Digital",
+            "slug": "digital-women",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 82,
+        "name": "Sunglasses & Frames",
+        "slug": "sunglasses-women",
+        "active": false,
+        "itemSub": []
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Kids",
+    "slug": "kids",
+    "active": true,
+    "image": "https://shopdibz-main-1.s3.amazonaws.com/media/store/category/Kids_2_3_26.png",
+    "sub": [
+      {
+        "id": 16,
+        "name": "Boy Clothing",
+        "slug": "boy-clothing",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 83,
+            "name": "T Shirts",
+            "slug": "t-shirts-kids",
+            "active": true
+          },
+          {
+            "id": 84,
+            "name": "Shorts",
+            "slug": "shorts-kids",
+            "active": true
+          },
+          {
+            "id": 85,
+            "name": "Trousers",
+            "slug": "trousers-kids",
+            "active": false
+          },
+          {
+            "id": 86,
+            "name": "Jeans",
+            "slug": "jeans-kids",
+            "active": false
+          },
+          {
+            "id": 87,
+            "name": "Shirts",
+            "slug": "shirts-kids",
+            "active": false
+          },
+          {
+            "id": 88,
+            "name": "Inner Wear",
+            "slug": "inner-wear-kids",
+            "active": false
+          },
+          {
+            "id": 89,
+            "name": "Night Wear",
+            "slug": "night-wear-kids",
+            "active": false
+          },
+          {
+            "id": 90,
+            "name": "Ethnic Wear",
+            "slug": "ethnic-wear-kids",
+            "active": false
+          },
+          {
+            "id": 91,
+            "name": "Pyjamas",
+            "slug": "pyjamas-kids",
+            "active": false
+          },
+          {
+            "id": 92,
+            "name": "Party Wear",
+            "slug": "party-wear-kids",
+            "active": false
+          },
+          {
+            "id": 361,
+            "name": "Jackets, Blazers & Coats",
+            "slug": "jackets-blazers-boys",
+            "active": false
+          },
+          {
+            "id": 362,
+            "name": "Clothing Sets",
+            "slug": "clothing-sets-boys",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "name": "Girl Clothing",
+        "slug": "girl-clothing",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 93,
+            "name": "Dresses",
+            "slug": "dresses-kids",
+            "active": false
+          },
+          {
+            "id": 94,
+            "name": "Tops",
+            "slug": "tops-girl-clothing-kids",
+            "active": false
+          },
+          {
+            "id": 95,
+            "name": "T Shirts",
+            "slug": "t-shirts-girl-clothing-kids",
+            "active": true
+          },
+          {
+            "id": 96,
+            "name": "Lehenga Choli",
+            "slug": "lehenga-choli-kids",
+            "active": false
+          },
+          {
+            "id": 97,
+            "name": "Kurta",
+            "slug": "kurta-girl-clothing-kids",
+            "active": false
+          },
+          {
+            "id": 98,
+            "name": "Party Wear",
+            "slug": "party-wear-girl-clothing-kids",
+            "active": false
+          },
+          {
+            "id": 99,
+            "name": "Dungarees & Jumpsuits",
+            "slug": "dungarees-jumpsuits-kids",
+            "active": false
+          },
+          {
+            "id": 100,
+            "name": "Skirts & Shorts",
+            "slug": "skirts-shorts-kids",
+            "active": false
+          },
+          {
+            "id": 101,
+            "name": "Jeans & Trousers",
+            "slug": "jeans-trousers-kids",
+            "active": false
+          },
+          {
+            "id": 102,
+            "name": "Jacket, Blazers & Sweaters",
+            "slug": "jackets-sweaters-girls",
+            "active": false
+          },
+          {
+            "id": 103,
+            "name": "Inner Wear",
+            "slug": "inner-wear-girl-clothing",
+            "active": false
+          },
+          {
+            "id": 363,
+            "name": "Clothing Sets",
+            "slug": "clothing-sets-girls",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 18,
+        "name": "Footwear",
+        "slug": "footwear-kids",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 104,
+            "name": "Casual Shoes",
+            "slug": "casual-shoes-kids",
+            "active": false
+          },
+          {
+            "id": 105,
+            "name": "Flipflops & Sandals",
+            "slug": "flipflops-sandals-kids",
+            "active": false
+          },
+          {
+            "id": 106,
+            "name": "Flats & Heels",
+            "slug": "flats-heels-kids",
+            "active": false
+          },
+          {
+            "id": 107,
+            "name": "School Shoes",
+            "slug": "school-shoes-kids",
+            "active": false
+          },
+          {
+            "id": 108,
+            "name": "Sports Shoes",
+            "slug": "sports-shoes-kids",
+            "active": false
+          },
+          {
+            "id": 109,
+            "name": "Socks",
+            "slug": "Socks-kids",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "name": "Toys",
+        "slug": "toys-kids",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 110,
+            "name": "Learning & Development",
+            "slug": "learning-and-development-kids",
+            "active": false
+          },
+          {
+            "id": 111,
+            "name": "Activity Toys",
+            "slug": "activity-toys-kids",
+            "active": false
+          },
+          {
+            "id": 112,
+            "name": "Soft Toys",
+            "slug": "soft-toys-kids",
+            "active": false
+          },
+          {
+            "id": 113,
+            "name": "Action Figure & Playset",
+            "slug": "action-figure-and-playset-kids",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 20,
+        "name": "Infants",
+        "slug": "infants",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 114,
+            "name": "Bodysuits",
+            "slug": "bodysuits-infants",
+            "active": false
+          },
+          {
+            "id": 115,
+            "name": "Rompers & Sleepsuits",
+            "slug": "rompers-sleepsuits-infants",
+            "active": false
+          },
+          {
+            "id": 116,
+            "name": "Clothing Sets",
+            "slug": "clothing-set-infants",
+            "active": true
+          },
+          {
+            "id": 117,
+            "name": "T Shirts & Tops",
+            "slug": "t-shirts-tops-infants",
+            "active": true
+          },
+          {
+            "id": 118,
+            "name": "Dresses",
+            "slug": "dresses-infants-kids",
+            "active": false
+          },
+          {
+            "id": 119,
+            "name": "Bottom Wear & Inner Wear",
+            "slug": "bottom-wear-inner-wear-infants",
+            "active": false
+          },
+          {
+            "id": 120,
+            "name": "Inner Wear",
+            "slug": "inner-wear-infants",
+            "active": false
+          },
+          {
+            "id": 121,
+            "name": "Infant Care",
+            "slug": "infant-care-kids",
+            "active": true
+          }
+        ]
+      },
+      {
+        "id": 21,
+        "name": "Kids Accessories",
+        "slug": "kids-accessorie",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 122,
+            "name": "Bags & Backpacks",
+            "slug": "bags-backpacks-kids",
+            "active": false
+          },
+          {
+            "id": 123,
+            "name": "Watches",
+            "slug": "watches-kids",
+            "active": false
+          },
+          {
+            "id": 124,
+            "name": "Jewellery",
+            "slug": "jewellery-kids",
+            "active": false
+          },
+          {
+            "id": 125,
+            "name": "Sunglasses",
+            "slug": "sunglasses-kids",
+            "active": false
+          },
+          {
+            "id": 126,
+            "name": "Caps & Hats",
+            "slug": "caps-hats-kids",
+            "active": false
+          },
+          {
+            "id": 127,
+            "name": "Personal Care",
+            "slug": "personal-care-kids",
+            "active": false
+          },
+          {
+            "id": 364,
+            "name": "Belts & Others",
+            "slug": "belts-others-kids",
+            "active": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Beauty & Care",
+    "slug": "beauty-and-care",
+    "active": true,
+    "image": "https://shopdibz-main-1.s3.amazonaws.com/media/store/category/Beauty_Care_2_3_26.png",
+    "sub": [
+      {
+        "id": 22,
+        "name": "Make Up",
+        "slug": "makeup-beauty",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 128,
+            "name": "Lipstick & Lip Gloss",
+            "slug": "lipstick-lip-gloss-beauty",
+            "active": false
+          },
+          {
+            "id": 129,
+            "name": "Lip Balm & Lipliner",
+            "slug": "lip-balm-lipliner-beauty",
+            "active": true
+          },
+          {
+            "id": 130,
+            "name": "Eyeliner, Eyelashes & Mascara",
+            "slug": "eyeliner-mascara-beauty",
+            "active": false
+          },
+          {
+            "id": 131,
+            "name": "Kajal",
+            "slug": "kajal-beauty",
+            "active": false
+          },
+          {
+            "id": 132,
+            "name": "Eye Shadow",
+            "slug": "eye-shadow-beauty",
+            "active": false
+          },
+          {
+            "id": 133,
+            "name": "Foundation",
+            "slug": "foundation-beauty",
+            "active": false
+          },
+          {
+            "id": 134,
+            "name": "Primer",
+            "slug": "primer-beauty",
+            "active": false
+          },
+          {
+            "id": 135,
+            "name": "Concealer",
+            "slug": "concealer-beauty",
+            "active": false
+          },
+          {
+            "id": 136,
+            "name": "Compacts & Setting Sprays",
+            "slug": "compact-beauty",
+            "active": false
+          },
+          {
+            "id": 137,
+            "name": "Nail Polish & Art",
+            "slug": "nail-polish-beauty",
+            "active": false
+          },
+          {
+            "id": 138,
+            "name": "Makeup Kit",
+            "slug": "makeup-kit-beauty",
+            "active": false
+          },
+          {
+            "id": 139,
+            "name": "Beauty Gift",
+            "slug": "beauty-gift-beauty",
+            "active": false
+          },
+          {
+            "id": 367,
+            "name": "Others",
+            "slug": "others-makeup",
+            "active": false
+          },
+          {
+            "id": 368,
+            "name": "Eyebrow",
+            "slug": "eyebrow",
+            "active": false
+          },
+          {
+            "id": 369,
+            "name": "Blushes",
+            "slug": "blushes",
+            "active": false
+          },
+          {
+            "id": 370,
+            "name": "Contours, Highlighters & Others",
+            "slug": "contours-high",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 23,
+        "name": "Skincare",
+        "slug": "skincare-beauty",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 140,
+            "name": "Face Wash, Creams & Moisturiser",
+            "slug": "face-moisturiser-face-wash-beauty",
+            "active": true
+          },
+          {
+            "id": 141,
+            "name": "Face Packs, Mask & Peel",
+            "slug": "mask-peel-beauty",
+            "active": false
+          },
+          {
+            "id": 142,
+            "name": "Sunscreen",
+            "slug": "sunscreen-beauty",
+            "active": true
+          },
+          {
+            "id": 143,
+            "name": "Serum",
+            "slug": "serum-beauty",
+            "active": true
+          },
+          {
+            "id": 144,
+            "name": "Eye Cream",
+            "slug": "eye-cream-beauty",
+            "active": false
+          },
+          {
+            "id": 145,
+            "name": "Body Wash, Lotion & Oil",
+            "slug": "body-lotion-body-wash-beauty",
+            "active": true
+          },
+          {
+            "id": 147,
+            "name": "Hand Cream",
+            "slug": "hand-cream-beauty",
+            "active": false
+          },
+          {
+            "id": 365,
+            "name": "Manicure & Pedicure",
+            "slug": "manicure-pedicure-beauty",
+            "active": false
+          },
+          {
+            "id": 366,
+            "name": "Face & Body Bleaches",
+            "slug": "face-body-bleach",
+            "active": false
+          },
+          {
+            "id": 386,
+            "name": "Soap",
+            "slug": "soap-skincare",
+            "active": true
+          },
+          {
+            "id": 389,
+            "name": "Others",
+            "slug": "others-skincare",
+            "active": true
+          }
+        ]
+      },
+      {
+        "id": 24,
+        "name": "Haircare",
+        "slug": "haircare-beauty",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 148,
+            "name": "Shampoo & Conditioner",
+            "slug": "shampoo-conditioner-beauty",
+            "active": true
+          },
+          {
+            "id": 149,
+            "name": "Creams, Gels & Sprays",
+            "slug": "hair-cream-hair-gel-beauty",
+            "active": true
+          },
+          {
+            "id": 150,
+            "name": "Hair Oil",
+            "slug": "hair-oil-beauty",
+            "active": true
+          },
+          {
+            "id": 151,
+            "name": "Colours & Serums",
+            "slug": "hair-colour-hair-serum-beauty",
+            "active": true
+          },
+          {
+            "id": 152,
+            "name": "Hair Accessories",
+            "slug": "hair-accessory-beauty",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 25,
+        "name": "Fragrances",
+        "slug": "fragrances-women",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 153,
+            "name": "Perfumes",
+            "slug": "perfumes-beauty",
+            "active": true
+          },
+          {
+            "id": 154,
+            "name": "Deodorant",
+            "slug": "deodorant-beauty",
+            "active": false
+          },
+          {
+            "id": 155,
+            "name": "Body Mist",
+            "slug": "body-mist-beauty",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 73,
+        "name": "Accessories",
+        "slug": "beauty-accessories",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 359,
+            "name": "Belts & Hats",
+            "slug": "belts-hats-women",
+            "active": false
+          },
+          {
+            "id": 360,
+            "name": "Ties",
+            "slug": "ties-women",
+            "active": false
+          },
+          {
+            "id": 382,
+            "name": "Socks",
+            "slug": "socks-wear",
+            "active": false
+          },
+          {
+            "id": 388,
+            "name": "Others",
+            "slug": "beauty-accessories-others",
+            "active": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Electronics",
+    "slug": "electronics",
+    "active": true,
+    "image": "https://shopdibz-main-1.s3.amazonaws.com/media/store/category/Electronics_2_3_26.png",
+    "sub": [
+      {
+        "id": 26,
+        "name": "Grooming",
+        "slug": "grooming-electr",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 156,
+            "name": "Trimmer",
+            "slug": "trimmer-electronics",
+            "active": false
+          },
+          {
+            "id": 157,
+            "name": "Epilator",
+            "slug": "epilator-electronics",
+            "active": false
+          },
+          {
+            "id": 371,
+            "name": "Wax Heaters, Strips & Others",
+            "slug": "wax-heaters-others",
+            "active": false
+          },
+          {
+            "id": 372,
+            "name": "Facial, Manicure & Pedicure",
+            "slug": "manicure-pedicure-groom",
+            "active": false
+          },
+          {
+            "id": 373,
+            "name": "Hair Tools",
+            "slug": "hair-tools-grooming",
+            "active": false
+          },
+          {
+            "id": 374,
+            "name": "Other Accessories",
+            "slug": "other-grooming-elect",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 27,
+        "name": "Mobiles",
+        "slug": "mobile",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 158,
+            "name": "Mi",
+            "slug": "mi-mobiles",
+            "active": false
+          },
+          {
+            "id": 159,
+            "name": "Realme",
+            "slug": "realme-mobiles",
+            "active": false
+          },
+          {
+            "id": 160,
+            "name": "Samsung",
+            "slug": "samsung-mobiles",
+            "active": false
+          },
+          {
+            "id": 161,
+            "name": "Infinix",
+            "slug": "infinix-mobiles",
+            "active": false
+          },
+          {
+            "id": 162,
+            "name": "OPPO",
+            "slug": "oppo-mobiles",
+            "active": false
+          },
+          {
+            "id": 163,
+            "name": "Apple",
+            "slug": "apple-mobiles",
+            "active": false
+          },
+          {
+            "id": 164,
+            "name": "Vivo",
+            "slug": "vivo-mobiles",
+            "active": false
+          },
+          {
+            "id": 165,
+            "name": "Honor",
+            "slug": "honor-mobiles",
+            "active": false
+          },
+          {
+            "id": 166,
+            "name": "Asus",
+            "slug": "asus-mobiles",
+            "active": false
+          },
+          {
+            "id": 167,
+            "name": "Poco",
+            "slug": "poco-mobiles",
+            "active": false
+          },
+          {
+            "id": 168,
+            "name": "IQOO",
+            "slug": "iqoo-mobiles",
+            "active": false
+          },
+          {
+            "id": 169,
+            "name": "Motorola",
+            "slug": "motorola-mobiles",
+            "active": false
+          },
+          {
+            "id": 343,
+            "name": "Others",
+            "slug": "others-mobiles",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 28,
+        "name": "Mobile Accessories",
+        "slug": "mobile-accessor",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 170,
+            "name": "Mobile Cases",
+            "slug": "mobile-cases-electronics",
+            "active": false
+          },
+          {
+            "id": 171,
+            "name": "Headphones & Headsets",
+            "slug": "headphones-headsets-electronics",
+            "active": false
+          },
+          {
+            "id": 172,
+            "name": "Power Banks",
+            "slug": "power-banks-electronics",
+            "active": false
+          },
+          {
+            "id": 173,
+            "name": "Screenguards",
+            "slug": "screenguards-electronics",
+            "active": false
+          },
+          {
+            "id": 174,
+            "name": "Memory Cards",
+            "slug": "memory-cards-electronics",
+            "active": false
+          },
+          {
+            "id": 175,
+            "name": "Smart Headphones",
+            "slug": "smart-headphones-electronics",
+            "active": false
+          },
+          {
+            "id": 176,
+            "name": "Mobile Cables",
+            "slug": "mobile-cables-electronics",
+            "active": false
+          },
+          {
+            "id": 177,
+            "name": "Mobile Chargers",
+            "slug": "mobile-chargers-electronics",
+            "active": false
+          },
+          {
+            "id": 347,
+            "name": "Miscellaneous",
+            "slug": "mobile-acc-misc",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 29,
+        "name": "Smart Wearables",
+        "slug": "smart-wearables",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 178,
+            "name": "Smart Watches & Bands",
+            "slug": "smart-watches-electronics",
+            "active": false
+          },
+          {
+            "id": 179,
+            "name": "Smart Glasses",
+            "slug": "smart-glasses-electronics",
+            "active": false
+          },
+          {
+            "id": 376,
+            "name": "Other Wearables & Devices",
+            "slug": "other-wearable-devices",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 30,
+        "name": "Health Care",
+        "slug": "health-care-devices",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 180,
+            "name": "BP Monitors",
+            "slug": "bp-monitors-electronics",
+            "active": false
+          },
+          {
+            "id": 181,
+            "name": "Weighing Scale",
+            "slug": "weighing-scale-electronics",
+            "active": false
+          },
+          {
+            "id": 377,
+            "name": "Other Devices",
+            "slug": "other-health-monitoring",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 31,
+        "name": "Laptops",
+        "slug": "laptops",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 182,
+            "name": "Gaming Laptops",
+            "slug": "gaming-laptops-electronics",
+            "active": false
+          },
+          {
+            "id": 344,
+            "name": "MacBooks",
+            "slug": "macbook-laptops",
+            "active": false
+          },
+          {
+            "id": 345,
+            "name": "Chromebooks",
+            "slug": "chromebook-laptops",
+            "active": false
+          },
+          {
+            "id": 346,
+            "name": "Laptops",
+            "slug": "laptops-all",
+            "active": true
+          }
+        ]
+      },
+      {
+        "id": 32,
+        "name": "Desktop PCs",
+        "slug": "desktop-pcs",
+        "active": false,
+        "itemSub": []
+      },
+      {
+        "id": 33,
+        "name": "Gaming & Accessories",
+        "slug": "gaming-and-accessories",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 292,
+            "name": "Gaming Consoles",
+            "slug": "gaming-consoles-gaming",
+            "active": false
+          },
+          {
+            "id": 293,
+            "name": "Gaming Accessories",
+            "slug": "gaming-accessories-gaming",
+            "active": false
+          },
+          {
+            "id": 294,
+            "name": "PS4 Games",
+            "slug": "ps4-games-gaming",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 34,
+        "name": "Computer Accessories",
+        "slug": "computer-accessories",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 183,
+            "name": "External Hard Disks",
+            "slug": "external-hard-disk-electronics",
+            "active": false
+          },
+          {
+            "id": 184,
+            "name": "Pendrives",
+            "slug": "pendrives-electronics",
+            "active": false
+          },
+          {
+            "id": 185,
+            "name": "Laptop Skins & Decals",
+            "slug": "laptop-skins-decals-electronics",
+            "active": false
+          },
+          {
+            "id": 186,
+            "name": "Laptop Bags",
+            "slug": "laptop-bags-electronics",
+            "active": false
+          },
+          {
+            "id": 187,
+            "name": "Mouse",
+            "slug": "mouse-electronics",
+            "active": false
+          },
+          {
+            "id": 188,
+            "name": "Printers & Ink cartridges",
+            "slug": "printers-ink-cartridges-electronics",
+            "active": false
+          },
+          {
+            "id": 189,
+            "name": "Monitors",
+            "slug": "monitors-electronics",
+            "active": false
+          },
+          {
+            "id": 190,
+            "name": "Apple iPads",
+            "slug": "apple-ipads-electronics",
+            "active": false
+          },
+          {
+            "id": 199,
+            "name": "Tripods",
+            "slug": "tripods-electronics",
+            "active": false
+          },
+          {
+            "id": 385,
+            "name": "Other Accessories",
+            "slug": "electronics-other-acc",
+            "active": true
+          }
+        ]
+      },
+      {
+        "id": 35,
+        "name": "Tablets",
+        "slug": "tablets-electronics",
+        "active": false,
+        "itemSub": []
+      },
+      {
+        "id": 36,
+        "name": "Speakers",
+        "slug": "speakers",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 191,
+            "name": "Home Audio Speakers",
+            "slug": "home-audio-speakers-electronics",
+            "active": false
+          },
+          {
+            "id": 192,
+            "name": "Home Theatres",
+            "slug": "home-theatres-speakers",
+            "active": false
+          },
+          {
+            "id": 193,
+            "name": "Soundbars",
+            "slug": "soundbars-electronics",
+            "active": false
+          },
+          {
+            "id": 194,
+            "name": "Bluetooth Speakers",
+            "slug": "bluetooth-speakers-electronics",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 37,
+        "name": "Home Automation",
+        "slug": "home-automation",
+        "active": false,
+        "itemSub": []
+      },
+      {
+        "id": 38,
+        "name": "Camera & Accessories",
+        "slug": "Camera-accessories",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 195,
+            "name": "DSLR & Mirrorless",
+            "slug": "dslr-mirrorless-electronics",
+            "active": false
+          },
+          {
+            "id": 196,
+            "name": "Compact & Bridge Cameras",
+            "slug": "compact-bridge-cameras-electronics",
+            "active": false
+          },
+          {
+            "id": 197,
+            "name": "Sports & Action",
+            "slug": "sports-action-electronics",
+            "active": false
+          },
+          {
+            "id": 198,
+            "name": "Lens",
+            "slug": "lens-electronics",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 39,
+        "name": "Network Components",
+        "slug": "network-components",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 200,
+            "name": "Routers",
+            "slug": "routers-electronics",
+            "active": false
+          },
+          {
+            "id": 201,
+            "name": "Modem",
+            "slug": "modem-electronics",
+            "active": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Appliances",
+    "slug": "appliances",
+    "active": false,
+    "image": "https://shopdibz-main-1.s3.amazonaws.com/media/store/category/Appliance_2_3_26.png",
+    "sub": [
+      {
+        "id": 40,
+        "name": "Television",
+        "slug": "television",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 202,
+            "name": "Smart & Ultra HD",
+            "slug": "smart-ultra-hd-home-and-appliances",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 41,
+        "name": "Washing Machine",
+        "slug": "washing-machine",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 203,
+            "name": "Fully Automatic Front Load",
+            "slug": "fully-automatic-front-load-washing-machine",
+            "active": false
+          },
+          {
+            "id": 204,
+            "name": "Semi Automatic Top Load",
+            "slug": "semi-automatic-top-load-washing-machine",
+            "active": false
+          },
+          {
+            "id": 205,
+            "name": "Fully Automatic Top Load",
+            "slug": "fully-automatic-top-load-washing-machine",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 42,
+        "name": "Air conditioners",
+        "slug": "air-conditioners",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 206,
+            "name": "Inverter AC",
+            "slug": "inverter-ac-home-appliances",
+            "active": false
+          },
+          {
+            "id": 207,
+            "name": "Split ACs",
+            "slug": "split-acs-home-appliances",
+            "active": false
+          },
+          {
+            "id": 208,
+            "name": "Window ACs",
+            "slug": "window-acs-home-appliances",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 43,
+        "name": "Refrigerators",
+        "slug": "refrigerators",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 209,
+            "name": "Single Door",
+            "slug": "single-door-refrigerators",
+            "active": false
+          },
+          {
+            "id": 210,
+            "name": "Double Door",
+            "slug": "double-door-refrigerators",
+            "active": false
+          },
+          {
+            "id": 211,
+            "name": "Triple door",
+            "slug": "triple-door-refrigerators",
+            "active": false
+          },
+          {
+            "id": 212,
+            "name": "Side by Side",
+            "slug": "side-by-side-refrigerators",
+            "active": false
+          },
+          {
+            "id": 213,
+            "name": "Convertible",
+            "slug": "convertible-refrigerators",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 44,
+        "name": "Kitchen Appliances",
+        "slug": "kitchen-appliances",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 214,
+            "name": "Microwave / Oven",
+            "slug": "microwave-ovens-kitchen",
+            "active": false
+          },
+          {
+            "id": 215,
+            "name": "Fryer / Toaster / Grills",
+            "slug": "fryer-toaster-grills-kitchen",
+            "active": false
+          },
+          {
+            "id": 216,
+            "name": "Juicer/Mixer/Grinder",
+            "slug": "juicer-mixer-grinder-kitchen",
+            "active": false
+          },
+          {
+            "id": 217,
+            "name": "Electric Kettle",
+            "slug": "electric-kettle-kitchen",
+            "active": false
+          },
+          {
+            "id": 218,
+            "name": "Induction Cooktops",
+            "slug": "induction-cooktops-kitchen",
+            "active": false
+          },
+          {
+            "id": 219,
+            "name": "Chimneys",
+            "slug": "chimneys-kitchen",
+            "active": false
+          },
+          {
+            "id": 220,
+            "name": "Hand Blenders",
+            "slug": "hand-blenders-kitchen",
+            "active": false
+          },
+          {
+            "id": 221,
+            "name": "Sandwich Makers",
+            "slug": "sandwich-makers-kitchen",
+            "active": false
+          },
+          {
+            "id": 222,
+            "name": "Pop Up Toasters",
+            "slug": "pop-up-toasters-kitchen",
+            "active": false
+          },
+          {
+            "id": 223,
+            "name": "Pressure/Electric Cookers",
+            "slug": "electric-cookers-kitchen",
+            "active": false
+          },
+          {
+            "id": 224,
+            "name": "Wet Grinders",
+            "slug": "wet-grinders-kitchen",
+            "active": false
+          },
+          {
+            "id": 225,
+            "name": "Food Processors",
+            "slug": "food-processors-kitchen",
+            "active": false
+          },
+          {
+            "id": 226,
+            "name": "Coffee Makers",
+            "slug": "coffee-makers-kitchen",
+            "active": false
+          },
+          {
+            "id": 227,
+            "name": "Dishwashers",
+            "slug": "dishwashers-kitchen",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 45,
+        "name": "Small Appliances",
+        "slug": "small-appliances",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 228,
+            "name": "Irons",
+            "slug": "irons-small-home-appliances",
+            "active": false
+          },
+          {
+            "id": 229,
+            "name": "Water Purifiers",
+            "slug": "water-purifiers-small-home-appliances",
+            "active": false
+          },
+          {
+            "id": 230,
+            "name": "Fans",
+            "slug": "fans-small-home-appliances",
+            "active": false
+          },
+          {
+            "id": 231,
+            "name": "Air Coolers",
+            "slug": "air-coolers--small-home-appliances",
+            "active": false
+          },
+          {
+            "id": 232,
+            "name": "Inverters",
+            "slug": "inverters-small-home-appliances",
+            "active": false
+          },
+          {
+            "id": 233,
+            "name": "Vaccum Cleaners",
+            "slug": "vaccum-cleaners-small-home-appliances",
+            "active": false
+          },
+          {
+            "id": 234,
+            "name": "Sewing Machines",
+            "slug": "sewing-machines-small-home-appliances",
+            "active": false
+          },
+          {
+            "id": 235,
+            "name": "Voltage Stabilizers",
+            "slug": "voltage-stabilizers-small-home-appliances",
+            "active": false
+          },
+          {
+            "id": 236,
+            "name": "Water Geysers",
+            "slug": "water-geysers-small-home-appliances",
+            "active": false
+          },
+          {
+            "id": 237,
+            "name": "Immersion Rods",
+            "slug": "immersion-rods-small-home-appliances",
+            "active": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Books, Sports & More",
+    "slug": "books-sports-mo",
+    "active": true,
+    "image": "https://shopdibz-main-1.s3.amazonaws.com/media/store/category/Book_Sports_More_2_3_26.png",
+    "sub": [
+      {
+        "id": 46,
+        "name": "Bags",
+        "slug": "bags-main",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 238,
+            "name": "Backpacks",
+            "slug": "backpacks-bags-books",
+            "active": true
+          },
+          {
+            "id": 239,
+            "name": "Luggage Bags & Suitcase",
+            "slug": "luggage-bags-suitcase-bags-books",
+            "active": false
+          },
+          {
+            "id": 240,
+            "name": "Office Bags",
+            "slug": "office-bags-books",
+            "active": false
+          },
+          {
+            "id": 241,
+            "name": "Daily Need Bags",
+            "slug": "daily-need-bags-books",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 47,
+        "name": "Sports",
+        "slug": "sports-main",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 242,
+            "name": "Cricket",
+            "slug": "cricket-sports",
+            "active": false
+          },
+          {
+            "id": 243,
+            "name": "Badminton",
+            "slug": "badminton-sports",
+            "active": false
+          },
+          {
+            "id": 244,
+            "name": "Cycling",
+            "slug": "cycling-sports",
+            "active": false
+          },
+          {
+            "id": 245,
+            "name": "Football",
+            "slug": "football-sports",
+            "active": false
+          },
+          {
+            "id": 246,
+            "name": "Skating",
+            "slug": "skating-sports",
+            "active": false
+          },
+          {
+            "id": 247,
+            "name": "Camping & Hiking",
+            "slug": "camping-hiking-sports",
+            "active": false
+          },
+          {
+            "id": 248,
+            "name": "Swimming",
+            "slug": "swimming-sports",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 48,
+        "name": "Fitness",
+        "slug": "fitness",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 249,
+            "name": "Cardio Equipments",
+            "slug": "cardio-equipments-fitness",
+            "active": false
+          },
+          {
+            "id": 250,
+            "name": "Home Gyms",
+            "slug": "home-gyms-fitness",
+            "active": false
+          },
+          {
+            "id": 251,
+            "name": "Support",
+            "slug": "support-fitness",
+            "active": false
+          },
+          {
+            "id": 252,
+            "name": "Dumbells",
+            "slug": "dumbells-fitness",
+            "active": false
+          },
+          {
+            "id": 253,
+            "name": "Ab Exercisers",
+            "slug": "ab-exercisers-fitness",
+            "active": false
+          },
+          {
+            "id": 254,
+            "name": "Shakers & Sippers",
+            "slug": "shakers-sippers-fitness",
+            "active": false
+          },
+          {
+            "id": 255,
+            "name": "Yoga Mat",
+            "slug": "yoga-mat-fitness",
+            "active": false
+          },
+          {
+            "id": 256,
+            "name": "Gym Gloves",
+            "slug": "gym-gloves-fitness",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 49,
+        "name": "Health & Nutrition",
+        "slug": "health-nutrition",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 257,
+            "name": "All Supplements",
+            "slug": "all-supplements-Health",
+            "active": false
+          },
+          {
+            "id": 258,
+            "name": "Protein Supplements",
+            "slug": "protein-supplements-health",
+            "active": false
+          },
+          {
+            "id": 259,
+            "name": "Vitamin Supplements",
+            "slug": "vitamin-supplements-health",
+            "active": false
+          },
+          {
+            "id": 260,
+            "name": "Health Drinks",
+            "slug": "health-drinks-health",
+            "active": false
+          },
+          {
+            "id": 261,
+            "name": "Ayurvedic Supplements",
+            "slug": "ayurvedic-supplements-health",
+            "active": true
+          }
+        ]
+      },
+      {
+        "id": 50,
+        "name": "Books",
+        "slug": "Books-main",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 262,
+            "name": "Entrance Exams",
+            "slug": "entrance-exams-books",
+            "active": false
+          },
+          {
+            "id": 263,
+            "name": "Academics",
+            "slug": "academics-books",
+            "active": false
+          },
+          {
+            "id": 264,
+            "name": "Literature & Fiction",
+            "slug": "literature-fiction-books",
+            "active": false
+          },
+          {
+            "id": 265,
+            "name": "Non Fiction",
+            "slug": "non-fiction-books",
+            "active": false
+          },
+          {
+            "id": 266,
+            "name": "Young Readers",
+            "slug": "young-readers-books",
+            "active": false
+          },
+          {
+            "id": 267,
+            "name": "Self-Help",
+            "slug": "self-help-books",
+            "active": false
+          },
+          {
+            "id": 268,
+            "name": "E-Learning",
+            "slug": "e-learning-books",
+            "active": false
+          },
+          {
+            "id": 269,
+            "name": "Preorders",
+            "slug": "preorders-books",
+            "active": false
+          },
+          {
+            "id": 270,
+            "name": "Indian Languages",
+            "slug": "indian-languages-books",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 51,
+        "name": "Stationery",
+        "slug": "stationery",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 271,
+            "name": "Pens",
+            "slug": "pens-Stationery",
+            "active": false
+          },
+          {
+            "id": 272,
+            "name": "Diaries",
+            "slug": "diaries-stationery",
+            "active": true
+          },
+          {
+            "id": 273,
+            "name": "Card Holders",
+            "slug": "card-holders-stationery",
+            "active": false
+          },
+          {
+            "id": 274,
+            "name": "Desk Organizers",
+            "slug": "desk-organizers-stationery",
+            "active": false
+          },
+          {
+            "id": 275,
+            "name": "Calculators",
+            "slug": "calculators-stationery",
+            "active": false
+          },
+          {
+            "id": 276,
+            "name": "Key Chains",
+            "slug": "key-chains-stationery",
+            "active": false
+          },
+          {
+            "id": 348,
+            "name": "Accessories",
+            "slug": "accessory-stationary",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 52,
+        "name": "Auto Accessories",
+        "slug": "auto-accessories",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 277,
+            "name": "Helmets & Riding Gears",
+            "slug": "helmets-riding-gears-Auto",
+            "active": false
+          },
+          {
+            "id": 278,
+            "name": "Car Audio/Video",
+            "slug": "car-audio-video-auto",
+            "active": false
+          },
+          {
+            "id": 279,
+            "name": "Car Mobile Accessories",
+            "slug": "car-mobile-accessories-auto",
+            "active": false
+          },
+          {
+            "id": 280,
+            "name": "Car & Bike Care",
+            "slug": "car-bike-care-auto",
+            "active": false
+          },
+          {
+            "id": 281,
+            "name": "Vehicle Lubricants",
+            "slug": "vehicle-lubricants-auto",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 53,
+        "name": "Industrial Equipments",
+        "slug": "industrial-equipments",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 282,
+            "name": "Industrial Measurement Devices",
+            "slug": "industrial-measurement-devices-industrial",
+            "active": false
+          },
+          {
+            "id": 283,
+            "name": "Industrial Testing Devices",
+            "slug": "industrial-testing-devices-industrial",
+            "active": false
+          },
+          {
+            "id": 284,
+            "name": "Lab & Scientific Products",
+            "slug": "lab-scientific-products-industrial",
+            "active": false
+          },
+          {
+            "id": 285,
+            "name": "Packaging & Shipping Products",
+            "slug": "packaging-shipping-products-industrial",
+            "active": false
+          },
+          {
+            "id": 286,
+            "name": "Safety Products",
+            "slug": "safety-products-industrial",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 54,
+        "name": "Medical Supplies",
+        "slug": "medical-supplies",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 287,
+            "name": "Pregnancy and Fertility Kits",
+            "slug": "pregnancy-fertility-kids-medical-supplies",
+            "active": false
+          },
+          {
+            "id": 288,
+            "name": "Hot Water Bag",
+            "slug": "hot-water-bag-medical-supplies",
+            "active": false
+          },
+          {
+            "id": 390,
+            "name": "Ayurvedic",
+            "slug": "medical-ayurvedic",
+            "active": true
+          },
+          {
+            "id": 391,
+            "name": "Others",
+            "slug": "medical-others",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 55,
+        "name": "Music",
+        "slug": "music",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 289,
+            "name": "Musical Instruments",
+            "slug": "musical-instruments-music",
+            "active": false
+          },
+          {
+            "id": 290,
+            "name": "Music",
+            "slug": "music-music",
+            "active": false
+          },
+          {
+            "id": 291,
+            "name": "Movies & Tv Shows",
+            "slug": "movies-tv-shows-music",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 56,
+        "name": "Gaming",
+        "slug": "gaming",
+        "active": false,
+        "itemSub": []
+      },
+      {
+        "id": 80,
+        "name": "Safety & Hygiene",
+        "slug": "safety-hygiene",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 351,
+            "name": "Face Mask/Shields",
+            "slug": "face-mask",
+            "active": false
+          },
+          {
+            "id": 352,
+            "name": "Sanitizers",
+            "slug": "sanitzers",
+            "active": false
+          },
+          {
+            "id": 353,
+            "name": "Gloves",
+            "slug": "gloves",
+            "active": false
+          },
+          {
+            "id": 354,
+            "name": "Others",
+            "slug": "safety-others",
+            "active": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Home & Living",
+    "slug": "home-and-living",
+    "active": true,
+    "image": "https://shopdibz-main-1.s3.amazonaws.com/media/store/category/Home_Living_2_3_26.png",
+    "sub": [
+      {
+        "id": 58,
+        "name": "Kitchen,Cookware & Serveware",
+        "slug": "kitchen-cookware-serveware-home-and-living",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 295,
+            "name": "Pans & Pots",
+            "slug": "pans--home-and-living",
+            "active": false
+          },
+          {
+            "id": 296,
+            "name": "Tawas",
+            "slug": "tawas-home-and-living",
+            "active": false
+          },
+          {
+            "id": 297,
+            "name": "Pressure Cookers",
+            "slug": "pressure-cookers-home-and-living",
+            "active": false
+          },
+          {
+            "id": 298,
+            "name": "Kitchen Tools",
+            "slug": "kitchen-tools-home-and-living",
+            "active": true
+          },
+          {
+            "id": 299,
+            "name": "Gas Stoves",
+            "slug": "gas-stoves-home-and-living",
+            "active": false
+          },
+          {
+            "id": 349,
+            "name": "Cookware Sets",
+            "slug": "cookware-sets",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 59,
+        "name": "Tableware & Dinnerware",
+        "slug": "tableware-and-dinnerware-home-and-living",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 300,
+            "name": "Coffee Mugs",
+            "slug": "coffee-mugs-home-and-living",
+            "active": true
+          },
+          {
+            "id": 301,
+            "name": "Dinner Set",
+            "slug": "dinner-set-home-and-living",
+            "active": false
+          },
+          {
+            "id": 302,
+            "name": "Barware",
+            "slug": "barware-home-and-living",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 60,
+        "name": "Kitchen Storage",
+        "slug": "kitchen-storage-home-and-living",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 303,
+            "name": "Water Bottles",
+            "slug": "water-bottles-home-and-living",
+            "active": true
+          },
+          {
+            "id": 304,
+            "name": "Lunch Boxes",
+            "slug": "lunch-boxes-home-and-living",
+            "active": false
+          },
+          {
+            "id": 305,
+            "name": "Flasks",
+            "slug": "flasks-home-and-living",
+            "active": false
+          },
+          {
+            "id": 306,
+            "name": "Casseroles",
+            "slug": "casseroles-home-and-living",
+            "active": false
+          },
+          {
+            "id": 307,
+            "name": "Kitchen Containers",
+            "slug": "kitchen-containers-home-and-living",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 61,
+        "name": "Cleaning Supplies",
+        "slug": "cleaning-supplies-home-and-living",
+        "active": false,
+        "itemSub": []
+      },
+      {
+        "id": 63,
+        "name": "Bed Room Furniture",
+        "slug": "bed-room-furniture-home-and-living",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 308,
+            "name": "Beds",
+            "slug": "beds--home-and-living",
+            "active": false
+          },
+          {
+            "id": 309,
+            "name": "Mattresses",
+            "slug": "mattresses-home-and-living",
+            "active": false
+          },
+          {
+            "id": 310,
+            "name": "Wardrobes",
+            "slug": "wardrobes-home-and-living",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 64,
+        "name": "Living Room Furniture",
+        "slug": "living-room-furniture-home-and-living",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 311,
+            "name": "Sofa",
+            "slug": "sofa-home-and-living",
+            "active": false
+          },
+          {
+            "id": 312,
+            "name": "Sofa Beds",
+            "slug": "sofa-beds-home-and-living",
+            "active": false
+          },
+          {
+            "id": 313,
+            "name": "TV Units",
+            "slug": "tv-units-home-and-living",
+            "active": false
+          },
+          {
+            "id": 314,
+            "name": "Dining Tables & Chairs",
+            "slug": "dining-tables-chairs-home-and-living",
+            "active": false
+          },
+          {
+            "id": 315,
+            "name": "Coffee Tables",
+            "slug": "coffee-tables-home-and-living",
+            "active": false
+          },
+          {
+            "id": 316,
+            "name": "Shoe Racks",
+            "slug": "shoe-racks-home-and-living",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 65,
+        "name": "Office & Study Furniture",
+        "slug": "office-study-furniture-home-and-living",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 317,
+            "name": "Kids Room Furniture",
+            "slug": "kids-room-furniture--home-and-living",
+            "active": false
+          },
+          {
+            "id": 379,
+            "name": "Tables",
+            "slug": "tables-office",
+            "active": false
+          },
+          {
+            "id": 380,
+            "name": "Chairs",
+            "slug": "chairs-offices",
+            "active": false
+          },
+          {
+            "id": 381,
+            "name": "Accessories",
+            "slug": "office-accessories",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 66,
+        "name": "DIY Furniture",
+        "slug": "diy-furniture-home-and-living",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 318,
+            "name": "Bean Bags",
+            "slug": "bean-bags--home-and-living",
+            "active": false
+          },
+          {
+            "id": 319,
+            "name": "Collapsible Wardrobes",
+            "slug": "collapsible-wardrobes-home-and-living",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 67,
+        "name": "Furnishing",
+        "slug": "furnishing-home-and-living",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 320,
+            "name": "Bedsheets",
+            "slug": "bedsheets-home-and-living",
+            "active": true
+          },
+          {
+            "id": 321,
+            "name": "Curtains",
+            "slug": "curtains-home-and-living",
+            "active": false
+          },
+          {
+            "id": 322,
+            "name": "Cushions & Pillows",
+            "slug": "cushions-pillows-home-and-living",
+            "active": false
+          },
+          {
+            "id": 323,
+            "name": "Blankets",
+            "slug": "blankets-home-and-living",
+            "active": false
+          },
+          {
+            "id": 325,
+            "name": "Kitchen & Table Linen",
+            "slug": "kitchen-table-linen-home-and-living",
+            "active": false
+          },
+          {
+            "id": 326,
+            "name": "Floor Coverings",
+            "slug": "floor-coverings-home-and-living",
+            "active": true
+          },
+          {
+            "id": 383,
+            "name": "Other",
+            "slug": "furnishing-other",
+            "active": false
+          },
+          {
+            "id": 384,
+            "name": "Bed Covers",
+            "slug": "furnishing-bed-covers",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 68,
+        "name": "Home Improvement",
+        "slug": "home-improvement-home-and-living",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 327,
+            "name": "Tools & Measuring Equipments",
+            "slug": "tools-measuring-equipments-home-and-living",
+            "active": false
+          },
+          {
+            "id": 328,
+            "name": "Home Utilities & Organizers",
+            "slug": "home-utilities-organizers-home-and-living",
+            "active": false
+          },
+          {
+            "id": 329,
+            "name": "Lawn & Gardening",
+            "slug": "lawn-gardening-home-and-living",
+            "active": false
+          },
+          {
+            "id": 330,
+            "name": "Bathroom & Kitchen Fittings",
+            "slug": "bathroom-kitchen-fittings-home-and-living",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 69,
+        "name": "Home Decor",
+        "slug": "home-decor-home-and-living",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 331,
+            "name": "Paintings",
+            "slug": "paintings-home-and-living",
+            "active": false
+          },
+          {
+            "id": 332,
+            "name": "Clocks",
+            "slug": "clocks-home-and-living",
+            "active": false
+          },
+          {
+            "id": 333,
+            "name": "Wall Shelves",
+            "slug": "wall-shelves-home-and-living",
+            "active": false
+          },
+          {
+            "id": 334,
+            "name": "Stickers",
+            "slug": "stickers-home-and-living",
+            "active": false
+          },
+          {
+            "id": 335,
+            "name": "Showpieces & Figurines",
+            "slug": "showpieces-figurines-home-and-living",
+            "active": true
+          }
+        ]
+      },
+      {
+        "id": 70,
+        "name": "Home Lighting",
+        "slug": "home-lighting-home-and-living",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 336,
+            "name": "Utility Lights",
+            "slug": "bulbs-emergency-lights-home-and-living",
+            "active": false
+          },
+          {
+            "id": 337,
+            "name": "Wall Lamp",
+            "slug": "wall-lamp-home-and-living",
+            "active": false
+          },
+          {
+            "id": 338,
+            "name": "Table Lamp",
+            "slug": "table-lamp-home-and-living",
+            "active": true
+          },
+          {
+            "id": 339,
+            "name": "Ceiling Lamp",
+            "slug": "ceiling-lamp-home-and-living",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 71,
+        "name": "Festive Decor & Gifts",
+        "slug": "festive-decor-gifts-home-and-living",
+        "active": true,
+        "itemSub": []
+      },
+      {
+        "id": 72,
+        "name": "Pet Supplies",
+        "slug": "pet-supplies-home-and-living",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 340,
+            "name": "Dogs",
+            "slug": "dogs-home-and-living",
+            "active": false
+          },
+          {
+            "id": 341,
+            "name": "Cats",
+            "slug": "cats-home-and-living",
+            "active": false
+          },
+          {
+            "id": 342,
+            "name": "Fish & Aquatics",
+            "slug": "fish-aquatics-home-and-living",
+            "active": false
+          },
+          {
+            "id": 378,
+            "name": "Birds & Others",
+            "slug": "birds-others-food",
+            "active": false
+          }
+        ]
+      },
+      {
+        "id": 84,
+        "name": "Bath Essentials",
+        "slug": "bath-essentials",
+        "active": true,
+        "itemSub": [
+          {
+            "id": 324,
+            "name": "Bath Towels",
+            "slug": "bath-towels-home-and-living",
+            "active": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Food & Beverages",
+    "slug": "food-and-beverages",
+    "active": false,
+    "image": "https://shopdibz-main-1.s3.amazonaws.com/media/store/category/Food_Bevarages_2_3_26.png",
+    "sub": [
+      {
+        "id": 74,
+        "name": "Cooking Oil",
+        "slug": "cooking-oil",
+        "active": false,
+        "itemSub": []
+      },
+      {
+        "id": 75,
+        "name": "Nuts & Dry Fruits",
+        "slug": "nuts-dry-fruits",
+        "active": false,
+        "itemSub": []
+      },
+      {
+        "id": 76,
+        "name": "Jams & Spreads",
+        "slug": "jams-spreads",
+        "active": false,
+        "itemSub": []
+      },
+      {
+        "id": 77,
+        "name": "Tea & Coffee",
+        "slug": "tea-coffee",
+        "active": false,
+        "itemSub": []
+      },
+      {
+        "id": 78,
+        "name": "Snacks, Chocolates",
+        "slug": "snacks-chocolates",
+        "active": false,
+        "itemSub": []
+      },
+      {
+        "id": 79,
+        "name": "Cereal, Oats & More",
+        "slug": "cereal-oats-more",
+        "active": false,
+        "itemSub": []
+      },
+      {
+        "id": 85,
+        "name": "Masala, Spices & Ready to Cook",
+        "slug": "masala-spices-ready-to-cook",
+        "active": false,
+        "itemSub": [
+          {
+            "id": 392,
+            "name": "Masala Powders",
+            "slug": "masala-powders",
+            "active": false
+          },
+          {
+            "id": 393,
+            "name": "Cooking Pastes",
+            "slug": "cooking-pastes",
+            "active": false
+          },
+          {
+            "id": 394,
+            "name": "Ready to Cook Mixes",
+            "slug": "ready-to-cook-mixes",
+            "active": false
+          },
+          {
+            "id": 395,
+            "name": "Whole Spices",
+            "slug": "whole-spices",
+            "active": false
+          }
+        ]
+      }
+    ]
+  }
+]

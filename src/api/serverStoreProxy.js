@@ -21,14 +21,21 @@ function parseResponse(text) {
 }
 
 /**
- * @param {{ endpoint: string, accessToken?: string, method?: string, fields?: Record<string, string | boolean | number>, file?: { field: string, base64: string, filename: string } }} options
+ * @param {{ endpoint: string, accessToken?: string, method?: string, fields?: Record<string, string | boolean | number>, file?: { field: string, base64: string, filename: string }, query?: Record<string, string | number | boolean> }} options
  * @returns {Promise<{ status: number, data: unknown }>}
  */
 export async function submitStoreForm(options) {
   const formData = new FormData();
+  const searchParams = new URLSearchParams();
 
   Object.entries(options.fields || {}).forEach(([key, value]) => {
     formData.append(key, String(value));
+  });
+
+  Object.entries(options.query || {}).forEach(([key, value]) => {
+    if (value !== "" && value !== undefined && value !== null) {
+      searchParams.set(key, String(value));
+    }
   });
 
   if (options.file) {
@@ -40,7 +47,10 @@ export async function submitStoreForm(options) {
     );
   }
 
-  const response = await fetch(`${API_BASE_URL}${options.endpoint}`, {
+  const queryString = searchParams.toString();
+  const response = await fetch(
+    `${API_BASE_URL}${options.endpoint}${queryString ? `?${queryString}` : ""}`,
+    {
     method: options.method || "POST",
     headers: options.accessToken
       ? {
@@ -48,7 +58,8 @@ export async function submitStoreForm(options) {
         }
       : undefined,
     body: formData,
-  });
+    },
+  );
   const text = await response.text();
 
   return {
@@ -127,7 +138,7 @@ export async function submitStoreMultiForm(options) {
   });
 
   const response = await fetch(`${API_BASE_URL}${options.endpoint}`, {
-    method: "POST",
+    method: options.method || "POST",
     headers: options.accessToken
       ? {
           Authorization: `JWT ${options.accessToken}`,
@@ -135,6 +146,48 @@ export async function submitStoreMultiForm(options) {
       : undefined,
     body: formData,
   });
+  const text = await response.text();
+
+  return {
+    status: response.status,
+    data: text ? parseResponse(text) : {},
+  };
+}
+
+/**
+ * @param {{ endpoint: string, accessToken?: string, method?: string, body?: unknown, query?: Record<string, string | number> }} options
+ * @returns {Promise<{ status: number, data: unknown }>}
+ */
+export async function requestStoreJsonWithAuth(options) {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(options.query || {}).forEach(([key, value]) => {
+    if (value !== "" && value !== undefined && value !== null) {
+      searchParams.set(key, String(value));
+    }
+  });
+
+  const queryString = searchParams.toString();
+  const response = await fetch(
+    `${API_BASE_URL}${options.endpoint}${queryString ? `?${queryString}` : ""}`,
+    {
+      method: options.method || "GET",
+      headers: {
+        ...(options.accessToken
+          ? {
+              Authorization: `JWT ${options.accessToken}`,
+            }
+          : {}),
+        ...(options.body !== undefined
+          ? {
+              "Content-Type": "application/json",
+            }
+          : {}),
+      },
+      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    },
+  );
+
   const text = await response.text();
 
   return {

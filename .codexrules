@@ -13,3 +13,5 @@ Strict Rules:
 - Use JSDoc for variable types.
 - never use _ or camel case for urls when converting page urls. use -
 - If logic is unclear, use a // TODO and move on.
+
+FLUTTER_WEB_ROOT_PATH = /Users/jerrypaul/Documents/Business-Project/Alpha/shopdibz_web_v1/new_Version

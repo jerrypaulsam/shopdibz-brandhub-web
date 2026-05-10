@@ -96,19 +96,32 @@ function NotificationRow({ notification, onDismiss }) {
  */
 function resolveNotificationHref(notification) {
   const type = String(notification?.target?.url || notification?.target?.type || "");
+  const targetId = notification?.target?.id;
 
   if (type.includes("STR_FBK")) {
     return "/store-reviews";
   }
 
-  if (type.includes("ORD") || type.includes("RFD") || type.includes("PAY")) {
-    // TODO: Map to the converted order detail/list flow once those routes are available.
-    return "";
+  if (type.includes("CNT")) {
+    return "/action-board/support-tickets";
   }
 
-  if (type.includes("CNT")) {
-    // TODO: Map to the converted action board flow once available.
-    return "";
+  if (type.includes("PRDT")) {
+    if (type.includes("PRDT_BLK")) {
+      return "/products/new/bulk";
+    }
+
+    if (targetId) {
+      return `/products/${targetId}`;
+    }
+  }
+
+  if (type.includes("PAY")) {
+    return targetId ? `/payments-list?tab=all&payment=${targetId}` : "/payments-list?tab=pending";
+  }
+
+  if (type.includes("ORD") || type.includes("RFD")) {
+    return targetId ? `/orders/${targetId}` : "/orders-list?tab=pending";
   }
 
   return "";
