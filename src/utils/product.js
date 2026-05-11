@@ -162,6 +162,36 @@ export function normalizeProductGroupList(value) {
 }
 
 /**
+ * @param {any} value
+ * @returns {string}
+ */
+export function normalizeRemoteAssetUrl(value) {
+  const resolved = String(value || "").trim();
+
+  if (!resolved || resolved === "/" || resolved.toLowerCase() === "null" || resolved.toLowerCase() === "undefined") {
+    return "";
+  }
+
+  if (resolved.startsWith("https://") || resolved.startsWith("http://")) {
+    return resolved;
+  }
+
+  if (resolved.startsWith("//")) {
+    return `https:${resolved}`;
+  }
+
+  if (resolved.startsWith("/media/")) {
+    return `https://www.shopdibz.com${resolved}`;
+  }
+
+  if (resolved.startsWith("media/")) {
+    return `https://www.shopdibz.com/${resolved}`;
+  }
+
+  return resolved;
+}
+
+/**
  * @param {any} product
  * @returns {string}
  */

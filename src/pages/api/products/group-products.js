@@ -8,7 +8,9 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", groupId = "", page = 1 } = req.query || {};
+  const authHeader = String(req.headers.authorization || "");
+  const accessToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const { groupId = "", page = 1 } = req.query || {};
 
   if (!accessToken || !groupId) {
     res.status(400).json({ message: "Access token and group ID are required" });

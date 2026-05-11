@@ -26,6 +26,38 @@ async function postProductJson(url, payload) {
 }
 
 /**
+ * @param {string} url
+ * @param {{ query?: Record<string, string | number>, accessToken?: string }} options
+ * @returns {Promise<any>}
+ */
+async function getProductJson(url, options = {}) {
+  const search = new URLSearchParams();
+
+  Object.entries(options.query || {}).forEach(([key, value]) => {
+    if (value !== "" && value !== undefined && value !== null) {
+      search.set(key, String(value));
+    }
+  });
+
+  const response = await fetch(`${url}${search.toString() ? `?${search.toString()}` : ""}`, {
+    headers: options.accessToken
+      ? {
+          Authorization: `Bearer ${options.accessToken}`,
+        }
+      : undefined,
+  });
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message || data?.detail || data?.error || "Product request failed",
+    );
+  }
+
+  return data;
+}
+
+/**
  * @param {Record<string, unknown>} payload
  * @returns {Promise<any>}
  */
@@ -83,19 +115,11 @@ export function verifyBulkProductSheet(payload) {
  */
 export function fetchProductDetail(slug) {
   const session = getDashboardSession();
-  const query = new URLSearchParams({
+  return getProductJson("/api/products/detail", {
     accessToken: session.accessToken,
-    slug,
-  });
-
-  return fetch(`/api/products/detail?${query.toString()}`).then(async (response) => {
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(data?.message || "Product detail request failed");
-    }
-
-    return data;
+    query: {
+      slug,
+    },
   });
 }
 
@@ -269,31 +293,16 @@ export function calculateShippingRates(payload) {
  */
 export function fetchProductList(payload = {}) {
   const session = getDashboardSession();
-  const query = new URLSearchParams({
+  return getProductJson("/api/products/list", {
     accessToken: session.accessToken,
-    storeUrl: session.storeUrl,
-    tab: payload.tab || "active",
-    page: String(payload.page || 1),
-  });
-
-  [
-    ["category", payload.category || ""],
-    ["subCategory", payload.subCategory || ""],
-    ["item", payload.item || ""],
-  ].forEach(([key, value]) => {
-    if (value) {
-      query.set(key, value);
-    }
-  });
-
-  return fetch(`/api/products/list?${query.toString()}`).then(async (response) => {
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(data?.message || "Product list request failed");
-    }
-
-    return data;
+    query: {
+      storeUrl: session.storeUrl,
+      tab: payload.tab || "active",
+      page: String(payload.page || 1),
+      category: payload.category || "",
+      subCategory: payload.subCategory || "",
+      item: payload.item || "",
+    },
   });
 }
 
@@ -303,20 +312,12 @@ export function fetchProductList(payload = {}) {
  */
 export function fetchProductSearchTitles(query) {
   const session = getDashboardSession();
-  const search = new URLSearchParams({
+  return getProductJson("/api/products/search-title", {
     accessToken: session.accessToken,
-    storeUrl: session.storeUrl,
-    query,
-  });
-
-  return fetch(`/api/products/search-title?${search.toString()}`).then(async (response) => {
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(data?.message || "Search suggestion request failed");
-    }
-
-    return data;
+    query: {
+      storeUrl: session.storeUrl,
+      query,
+    },
   });
 }
 
@@ -326,21 +327,13 @@ export function fetchProductSearchTitles(query) {
  */
 export function searchProducts(payload) {
   const session = getDashboardSession();
-  const search = new URLSearchParams({
+  return getProductJson("/api/products/search", {
     accessToken: session.accessToken,
-    storeUrl: session.storeUrl,
-    query: payload.query,
-    page: String(payload.page || 1),
-  });
-
-  return fetch(`/api/products/search?${search.toString()}`).then(async (response) => {
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(data?.message || "Search request failed");
-    }
-
-    return data;
+    query: {
+      storeUrl: session.storeUrl,
+      query: payload.query,
+      page: String(payload.page || 1),
+    },
   });
 }
 
@@ -350,20 +343,12 @@ export function searchProducts(payload) {
  */
 export function fetchProductReviews(payload) {
   const session = getDashboardSession();
-  const search = new URLSearchParams({
+  return getProductJson("/api/products/reviews", {
     accessToken: session.accessToken,
-    slug: payload.slug,
-    page: String(payload.page || 1),
-  });
-
-  return fetch(`/api/products/reviews?${search.toString()}`).then(async (response) => {
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(data?.message || "Product reviews request failed");
-    }
-
-    return data;
+    query: {
+      slug: payload.slug,
+      page: String(payload.page || 1),
+    },
   });
 }
 
@@ -386,20 +371,12 @@ export function voteProductReview(payload) {
  */
 export function fetchProductQuestions(payload) {
   const session = getDashboardSession();
-  const search = new URLSearchParams({
+  return getProductJson("/api/products/questions", {
     accessToken: session.accessToken,
-    slug: payload.slug,
-    page: String(payload.page || 1),
-  });
-
-  return fetch(`/api/products/questions?${search.toString()}`).then(async (response) => {
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(data?.message || "Product questions request failed");
-    }
-
-    return data;
+    query: {
+      slug: payload.slug,
+      page: String(payload.page || 1),
+    },
   });
 }
 
@@ -448,20 +425,12 @@ export function fetchProductGroups(payload = {}) {
  */
 export function fetchProductGroupProducts(payload) {
   const session = getDashboardSession();
-  const search = new URLSearchParams({
+  return getProductJson("/api/products/group-products", {
     accessToken: session.accessToken,
-    groupId: String(payload.groupId),
-    page: String(payload.page || 1),
-  });
-
-  return fetch(`/api/products/group-products?${search.toString()}`).then(async (response) => {
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(data?.message || "Product group products request failed");
-    }
-
-    return data;
+    query: {
+      groupId: String(payload.groupId),
+      page: String(payload.page || 1),
+    },
   });
 }
 

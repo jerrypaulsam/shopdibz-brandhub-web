@@ -8,7 +8,9 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", storeUrl = "", query = "" } = req.query || {};
+  const authHeader = String(req.headers.authorization || "");
+  const accessToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const { storeUrl = "", query = "" } = req.query || {};
 
   if (!accessToken) {
     res.status(400).json({ message: "Access token is required" });
