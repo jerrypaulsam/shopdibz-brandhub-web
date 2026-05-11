@@ -9,11 +9,11 @@ export default function OrdersListPage() {
     orders,
     count,
     isLoading,
+    isLoadingMore,
     message,
     hasNextPage,
-    hasPreviousPage,
     setTab,
-    goToPage,
+    loadMore,
   } = useOrderList();
 
   return (
@@ -22,12 +22,12 @@ export default function OrdersListPage() {
         activeTab={activeTab}
         count={count}
         hasNextPage={hasNextPage}
-        hasPreviousPage={hasPreviousPage}
         isLoading={isLoading}
+        isLoadingMore={isLoadingMore}
         message={message}
         orders={orders}
         page={page}
-        onPageChange={goToPage}
+        onLoadMore={loadMore}
         onTabChange={setTab}
       />
     </DashboardShell>

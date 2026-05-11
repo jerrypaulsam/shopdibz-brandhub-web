@@ -17,10 +17,6 @@ export default function CouponsWorkspace(props) {
           <h1 className="mt-3 text-2xl font-extrabold text-brand-white">
             Seller coupon workspace
           </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-            Manage store coupons with URL-visible states, clearer performance
-            signals, and the original Flutter coupon endpoints under the hood.
-          </p>
         </div>
 
         <aside className="rounded-sm border border-white/10 bg-[#121212] p-5">

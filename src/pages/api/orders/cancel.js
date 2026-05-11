@@ -8,7 +8,10 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", orderId, reasonId, detail = "" } = req.body || {};
+  const authHeader = String(req.headers.authorization || "");
+  const accessToken =
+    authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const { orderId, reasonId, detail = "" } = req.body || {};
 
   if (!accessToken || !orderId || !reasonId || !detail) {
     res.status(400).json({ message: "Missing cancel order fields" });

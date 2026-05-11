@@ -26,19 +26,26 @@ export function getDashboardSession() {
 
 /**
  * @param {string} url
- * @param {Record<string, string | number>} params
+ * @param {{ query?: Record<string, string | number>, accessToken?: string }} options
  * @returns {Promise<any>}
  */
-async function getDashboardJson(url, params) {
+async function getDashboardJson(url, options = {}) {
   const query = new URLSearchParams();
 
-  Object.entries(params).forEach(([key, value]) => {
+  Object.entries(options.query || {}).forEach(([key, value]) => {
     if (value !== "" && value !== undefined && value !== null) {
       query.set(key, String(value));
     }
   });
 
-  const response = await fetch(`${url}?${query.toString()}`);
+  const queryString = query.toString();
+  const response = await fetch(`${url}${queryString ? `?${queryString}` : ""}`, {
+    headers: options.accessToken
+      ? {
+          Authorization: `Bearer ${options.accessToken}`,
+        }
+      : undefined,
+  });
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -51,7 +58,12 @@ async function getDashboardJson(url, params) {
 export function fetchStoreInfo() {
   const session = getDashboardSession();
 
-  return getDashboardJson("/api/dashboard/store-info", session).then((data) => {
+  return getDashboardJson("/api/dashboard/store-info", {
+    accessToken: session.accessToken,
+    query: {
+      storeUrl: session.storeUrl,
+    },
+  }).then((data) => {
     cacheStoreInfo(data);
     return data;
   });
@@ -65,24 +77,35 @@ export function fetchOrders(status = "AC", page = 1) {
   const session = getDashboardSession();
 
   return getDashboardJson("/api/dashboard/orders", {
-    ...session,
-    status,
-    page,
+    accessToken: session.accessToken,
+    query: {
+      storeUrl: session.storeUrl,
+      status,
+      page,
+    },
   });
 }
 
 export function fetchManagers() {
   const session = getDashboardSession();
 
-  return getDashboardJson("/api/dashboard/managers", session);
+  return getDashboardJson("/api/dashboard/managers", {
+    accessToken: session.accessToken,
+    query: {
+      storeUrl: session.storeUrl,
+    },
+  });
 }
 
 export function fetchWeeklyAnalytics() {
   const session = getDashboardSession();
 
   return getDashboardJson("/api/dashboard/weekly-analytics", {
-    ...session,
-    page: 1,
+    accessToken: session.accessToken,
+    query: {
+      storeUrl: session.storeUrl,
+      page: 1,
+    },
   });
 }
 
@@ -90,7 +113,10 @@ export function fetchDailyVisits() {
   const session = getDashboardSession();
 
   return getDashboardJson("/api/dashboard/daily-visits", {
-    ...session,
-    page: 1,
+    accessToken: session.accessToken,
+    query: {
+      storeUrl: session.storeUrl,
+      page: 1,
+    },
   });
 }

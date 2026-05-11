@@ -8,7 +8,10 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", orderId, status = "" } = req.body || {};
+  const authHeader = String(req.headers.authorization || "");
+  const accessToken =
+    authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const { orderId, status = "" } = req.body || {};
 
   if (!accessToken || !orderId || !status) {
     res.status(400).json({ message: "Access token, order ID, and status are required" });

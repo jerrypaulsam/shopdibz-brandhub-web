@@ -11,6 +11,12 @@ import StoreSection from "@/src/components/store/StoreSection";
  * @param {{ storeInfo: any }} props
  */
 export function StoreSettingsSection({ storeInfo }) {
+  const description =
+    storeInfo?.description ||
+    storeInfo?.desc ||
+    storeInfo?.storeDescription ||
+    "---";
+
   return (
     <StoreSection title="Store Settings">
       <div className="space-y-4 text-sm">
@@ -19,7 +25,7 @@ export function StoreSettingsSection({ storeInfo }) {
         <InfoRow label="GSTIN" value={storeInfo?.tin || "---"} />
         <div>
           <p className="text-xs uppercase tracking-[0.14em] text-white/35">Description</p>
-          <p className="mt-2 leading-6 text-white/75">{storeInfo?.description || "---"}</p>
+          <p className="mt-2 leading-6 text-white/75">{description}</p>
         </div>
         <div className="pt-2">
           <Link
@@ -203,33 +209,81 @@ export function AccountSettingsSection({ isOwner, isSubmitting, onDeactivate }) 
  * @param {{ storeInfo: any, isSubmitting: boolean, onCancel: () => Promise<boolean> }} props
  */
 export function SubscriptionSection({ storeInfo, isSubmitting, onCancel }) {
-  if (storeInfo?.plan === "F") {
-    return (
-      <StoreSection title="Store Subscription">
-        <p className="text-sm text-white/60">This store is currently on the Free Plan.</p>
-      </StoreSection>
-    );
-  }
-
+  const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
+  const planCode = storeInfo?.plan || "F";
+  const storeUrl = storeInfo?.url || "";
   const planLabel =
-    storeInfo?.plan === "S"
+    planCode === "S"
       ? "Silver Plan"
-      : storeInfo?.plan === "G"
+      : planCode === "G"
         ? "Gold Plan"
-        : "Platinum Plan";
+        : planCode === "P"
+          ? "Platinum Plan"
+          : "Free Plan";
+  const subscriptionUrl = storeUrl
+    ? `https://loadapp.shopdibz.com/api/store/get/subscription_plans/?store_url=${storeUrl}`
+    : "";
 
   return (
     <StoreSection title="Store Subscription">
       <div className="space-y-4">
-        <InfoRow label="Active Plan" value={planLabel} />
-        <button
-          className="inline-flex min-h-11 items-center justify-center rounded-sm border border-red-400/25 px-5 text-sm font-bold text-red-300 hover:border-red-300 hover:text-red-100"
-          type="button"
-          disabled={isSubmitting}
-          onClick={onCancel}
-        >
-          Cancel Subscription
-        </button>
+        <InfoRow label="Store Plan" value={planLabel} />
+        {planCode === "F" ? (
+          subscriptionUrl ? (
+            <a
+              className="inline-flex min-h-11 items-center justify-center rounded-sm border border-brand-gold/35 px-5 text-sm font-bold text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
+              href={subscriptionUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Upgrade Plan
+            </a>
+          ) : (
+            <p className="text-sm text-white/60">This store is currently on the Free Plan.</p>
+          )
+        ) : (
+          <div className="space-y-3">
+            {!isConfirmingCancel ? (
+              <button
+                className="inline-flex min-h-11 items-center justify-center rounded-sm border border-red-400/25 px-5 text-sm font-bold text-red-300 hover:border-red-300 hover:text-red-100"
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => setIsConfirmingCancel(true)}
+              >
+                Cancel Subscription
+              </button>
+            ) : (
+              <div className="rounded-sm border border-red-400/20 bg-red-400/5 p-4">
+                <p className="text-sm leading-6 text-red-100">
+                  Are you sure? The current plan will be cancelled immediately and the store will switch back to the Free Plan.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <button
+                    className="inline-flex min-h-10 items-center justify-center rounded-sm border border-red-400/35 px-4 text-sm font-bold text-red-300 hover:border-red-300 hover:text-red-100"
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={async () => {
+                      const success = await onCancel();
+                      if (success) {
+                        setIsConfirmingCancel(false);
+                      }
+                    }}
+                  >
+                    {isSubmitting ? "Cancelling..." : "Yes, Cancel"}
+                  </button>
+                  <button
+                    className="inline-flex min-h-10 items-center justify-center rounded-sm border border-white/10 px-4 text-sm font-bold text-white/70 hover:border-white/20 hover:text-brand-white"
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={() => setIsConfirmingCancel(false)}
+                  >
+                    Keep Plan
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </StoreSection>
   );

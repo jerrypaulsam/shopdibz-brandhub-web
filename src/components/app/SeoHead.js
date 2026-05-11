@@ -88,7 +88,7 @@ export default function SeoHead({ pathname, asPath }) {
       <meta name="twitter:description" content={DEFAULT_DESCRIPTION} />
       <meta name="twitter:image" content={DEFAULT_IMAGE} />
       <link rel="canonical" href={canonicalUrl} />
-      <link rel="icon" href="/assets/logo/seller-logo.png" />
+      <link rel="icon" href="/favicon.ico" />
       {!isPublic ? <meta name="robots" content="noindex,nofollow" /> : null}
       {isPublic ? (
         <>

@@ -52,6 +52,7 @@ import {
  */
 export function useProductDetail() {
   const router = useRouter();
+  const isReady = router.isReady;
   const slug = Array.isArray(router.query.slug) ? router.query.slug[0] : router.query.slug;
   const variationId = Array.isArray(router.query["variation-id"])
     ? router.query["variation-id"][0]
@@ -72,7 +73,7 @@ export function useProductDetail() {
   const [imageActionLoadingId, setImageActionLoadingId] = useState("");
 
   const refresh = useCallback(async () => {
-    if (!slug) {
+    if (!isReady || !slug) {
       return;
     }
 
@@ -86,10 +87,10 @@ export function useProductDetail() {
     } finally {
       setIsLoading(false);
     }
-  }, [slug]);
+  }, [isReady, slug]);
 
   const loadReviewPreview = useCallback(async () => {
-    if (!slug) {
+    if (!isReady || !slug) {
       return;
     }
 
@@ -107,11 +108,11 @@ export function useProductDetail() {
     } finally {
       setReviewPreviewLoading(false);
     }
-  }, [slug]);
+  }, [isReady, slug]);
 
   const loadQuestions = useCallback(
     async (page, append = false) => {
-      if (!slug) {
+      if (!isReady || !slug) {
         return;
       }
 
@@ -139,7 +140,7 @@ export function useProductDetail() {
         setQuestionsLoading(false);
       }
     },
-    [slug],
+    [isReady, slug],
   );
 
   useEffect(() => {
@@ -154,7 +155,7 @@ export function useProductDetail() {
     return () => {
       isCancelled = true;
     };
-  }, [loadQuestions, loadReviewPreview, refresh]);
+  }, [isReady, loadQuestions, loadReviewPreview, refresh]);
 
   const activeVariation = useMemo(
     () => resolveActiveVariation(product?.prdtVari || [], variationId),
@@ -180,6 +181,10 @@ export function useProductDetail() {
   );
 
   async function selectVariation(nextVariationId) {
+    if (!slug) {
+      return;
+    }
+
     await router.replace(
       {
         pathname: `/products/${slug}`,

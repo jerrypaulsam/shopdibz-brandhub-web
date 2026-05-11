@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 /**
  * @param {{ storeInfo: any, actions?: import("react").ReactNode }} props
@@ -31,15 +32,25 @@ export default function DashboardHeader({ storeInfo, actions = null }) {
 
       <div className="rounded-sm border border-white/10 bg-[#121212] p-4">
         <div className="flex items-center gap-4">
-          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm border border-brand-gold/30 bg-brand-black">
-            <Image
-              src={storeInfo?.logo || "/assets/logo/seller-logo.png"}
-              alt={`${storeInfo?.name || "Store"} logo`}
-              fill
-              sizes="56px"
-              className="object-contain"
-            />
-          </div>
+          {storeInfo?.logo ? (
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm border border-brand-gold/30 bg-brand-black">
+              <Image
+                src={storeInfo.logo}
+                alt={`${storeInfo?.name || "Store"} logo`}
+                fill
+                sizes="56px"
+                className="object-contain"
+                unoptimized
+              />
+            </div>
+          ) : (
+            <Link
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-sm border border-dashed border-brand-gold/35 bg-black/20 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
+              href="/store-info-form?section=identity"
+            >
+              Add Logo
+            </Link>
+          )}
           <div className="min-w-0">
             <p className="truncate text-base font-bold text-brand-white">
               {storeInfo?.name || "Store setup pending"}

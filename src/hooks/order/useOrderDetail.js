@@ -4,6 +4,7 @@ import {
   cancelOrder,
   fetchOrderDetail,
   fetchOrderInvoice,
+  fetchOrderShippingLabel,
   markOrderPacked,
   sendOrderMessage,
   updateOrderStatus,
@@ -11,7 +12,7 @@ import {
 } from "@/src/api/orders";
 import { getDashboardSession } from "@/src/api/dashboard";
 import { logScreenView } from "@/src/api/analytics";
-import { firstQueryValue } from "@/src/utils/orders";
+import { firstQueryValue, normalizeOrderDetail } from "@/src/utils/orders";
 
 export function useOrderDetail() {
   const router = useRouter();
@@ -26,8 +27,13 @@ export function useOrderDetail() {
   const [isPhoneVisible, setIsPhoneVisible] = useState(false);
 
   const loadOrder = useCallback(async () => {
+    if (!router.isReady) {
+      return;
+    }
+
     if (!orderId) {
       setIsLoading(false);
+      setMessage("Order ID is missing from the route.");
       return;
     }
 
@@ -35,7 +41,7 @@ export function useOrderDetail() {
       setIsLoading(true);
       setMessage("");
       const data = await fetchOrderDetail(orderId);
-      setOrder(data);
+      setOrder(normalizeOrderDetail(data));
     } catch (error) {
       setOrder(null);
       setMessage(
@@ -46,7 +52,7 @@ export function useOrderDetail() {
     } finally {
       setIsLoading(false);
     }
-  }, [orderId]);
+  }, [orderId, router.isReady]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -87,6 +93,20 @@ export function useOrderDetail() {
   }
 
   async function submitPack(payload) {
+    if (
+      Number(payload.packageWidth || 0) < 2 ||
+      Number(payload.packageLength || 0) < 2 ||
+      Number(payload.packageHeight || 0) < 2
+    ) {
+      setActionError("Package width, length, and height must be at least 2 cm.");
+      return;
+    }
+
+    if (Number(payload.packageWeight || 0) < 50) {
+      setActionError("Package weight must be at least 50 gms.");
+      return;
+    }
+
     const result = await runAction("pack", () =>
       markOrderPacked({
         orderId,
@@ -104,6 +124,36 @@ export function useOrderDetail() {
   }
 
   async function submitTracking(payload) {
+    if (!String(payload.company || "").trim()) {
+      setActionError("Shipping company name is required.");
+      return;
+    }
+
+    if (String(payload.company || "").trim().length > 25) {
+      setActionError("Shipping company name must be 25 characters or fewer.");
+      return;
+    }
+
+    if (!String(payload.trackingNo || "").trim()) {
+      setActionError("Tracking ID is required.");
+      return;
+    }
+
+    if (String(payload.trackingNo || "").trim().length > 30) {
+      setActionError("Tracking ID must be 30 characters or fewer.");
+      return;
+    }
+
+    const trackingUrl = String(payload.trackingUrl || "").trim();
+    if (trackingUrl) {
+      try {
+        new URL(trackingUrl);
+      } catch {
+        setActionError("Tracking URL must be a valid URL.");
+        return;
+      }
+    }
+
     const result = await runAction("tracking", () =>
       updateOrderTracking({
         orderId,
@@ -130,6 +180,21 @@ export function useOrderDetail() {
   }
 
   async function submitCancel(payload) {
+    if (!Number(payload.reasonId || 0)) {
+      setActionError("Cancellation reason is required.");
+      return;
+    }
+
+    if (!String(payload.detail || "").trim()) {
+      setActionError("Reason for cancellation is required.");
+      return;
+    }
+
+    if (String(payload.detail || "").trim().length > 200) {
+      setActionError("Cancellation detail must be 200 characters or fewer.");
+      return;
+    }
+
     const result = await runAction("cancel", () =>
       cancelOrder({
         orderId,
@@ -147,11 +212,32 @@ export function useOrderDetail() {
       setBusyAction("invoice");
       setActionError("");
       setActionMessage("");
-      const data = await fetchOrderInvoice(orderId);
-      const invoiceUrl = String(data?.data || data?.url || "");
 
-      if (invoiceUrl && typeof window !== "undefined") {
-        window.open(invoiceUrl, "_blank", "noopener,noreferrer");
+      if (order?.product?.status !== "DD") {
+        setActionError("Invoice can only be downloaded once the order is delivered.");
+        return;
+      }
+
+      const data = await fetchOrderInvoice(orderId);
+      const invoicePayload = String(data?.data || data?.url || "");
+
+      if (invoicePayload && typeof window !== "undefined") {
+        if (
+          invoicePayload.startsWith("<!DOCTYPE") ||
+          invoicePayload.startsWith("<html") ||
+          invoicePayload.startsWith("<")
+        ) {
+          const invoiceBlob = new Blob([invoicePayload], {
+            type: "text/html;charset=utf-8",
+          });
+          const objectUrl = URL.createObjectURL(invoiceBlob);
+          window.open(objectUrl, "_blank", "noopener,noreferrer");
+          window.setTimeout(() => {
+            URL.revokeObjectURL(objectUrl);
+          }, 60000);
+        } else {
+          window.open(invoicePayload, "_blank", "noopener,noreferrer");
+        }
       } else {
         setActionError("Invoice unavailable");
         return;
@@ -167,12 +253,63 @@ export function useOrderDetail() {
     }
   }
 
+  async function openShippingLabel() {
+    try {
+      setBusyAction("label");
+      setActionError("");
+      setActionMessage("");
+
+      if (!order?.assistedShip) {
+        setActionError("Shipping label is not available for self-shipping.");
+        return;
+      }
+
+      const inlineLabelUrl = String(order?.labelUrl || "");
+
+      if (inlineLabelUrl && typeof window !== "undefined") {
+        window.open(inlineLabelUrl, "_blank", "noopener,noreferrer");
+        setActionMessage("Shipping label opened in a new tab.");
+        return;
+      }
+
+      const data = await fetchOrderShippingLabel(orderId);
+      const labelUrl = String(data?.data || data?.url || "");
+
+      if (labelUrl && typeof window !== "undefined") {
+        window.open(labelUrl, "_blank", "noopener,noreferrer");
+        setActionMessage("Shipping label opened in a new tab.");
+      } else {
+        setActionError("Kindly try again in a few minutes.");
+      }
+    } catch (error) {
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : "Shipping label unavailable",
+      );
+    } finally {
+      setBusyAction("");
+    }
+  }
+
   async function submitMessage(messageText) {
+    const text = String(messageText || "").trim();
+
+    if (!text) {
+      setActionError("Message is required.");
+      return false;
+    }
+
+    if (text.length > 250) {
+      setActionError("Message must be 250 characters or fewer.");
+      return false;
+    }
+
     const result = await runAction("message", () =>
       sendOrderMessage({
         orderId,
         userCode: String(order?.userCode || ""),
-        message: messageText,
+        message: text,
       }),
     );
 
@@ -180,7 +317,24 @@ export function useOrderDetail() {
       setActionMessage(
         "Message sent. Continue the conversation from direct chats in the app.",
       );
+      return true;
     }
+
+    return false;
+  }
+
+  async function revealPhone() {
+    if (typeof window !== "undefined") {
+      const accepted = window.confirm(
+        "Contacting customers through personal numbers is strictly prohibited. Communication should only be order-related. Use in-app chat whenever possible. Violation of this policy can lead to store closure.\n\nDo you want to reveal the mobile number?",
+      );
+
+      if (!accepted) {
+        return;
+      }
+    }
+
+    setIsPhoneVisible((current) => !current);
   }
 
   return {
@@ -192,13 +346,14 @@ export function useOrderDetail() {
     actionError,
     busyAction,
     isPhoneVisible,
-    setIsPhoneVisible,
+    revealPhone,
     submitPack,
     submitTracking,
     submitDelivered,
     submitCancel,
     submitMessage,
     openInvoice,
+    openShippingLabel,
     refresh: loadOrder,
   };
 }

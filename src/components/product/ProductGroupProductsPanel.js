@@ -1,18 +1,18 @@
 import ProductSummaryCard from "@/src/components/product/ProductSummaryCard";
+import InfiniteScrollTrigger from "@/src/components/app/InfiniteScrollTrigger";
 
 /**
- * @param {{ groupId: number, products: any[], count: number, isLoading: boolean, message: string, page: number, hasNextPage: boolean, hasPreviousPage: boolean, onGoToPage: (page: number) => Promise<void> }} props
+ * @param {{ groupId: number, products: any[], count: number, isLoading: boolean, isLoadingMore: boolean, message: string, hasNextPage: boolean, onLoadMore: () => Promise<void> }} props
  */
 export default function ProductGroupProductsPanel({
   groupId,
   products,
   count,
   isLoading,
+  isLoadingMore,
   message,
-  page,
   hasNextPage,
-  hasPreviousPage,
-  onGoToPage,
+  onLoadMore,
 }) {
   return (
     <div className="space-y-6">
@@ -38,32 +38,18 @@ export default function ProductGroupProductsPanel({
           {products.map((product) => (
             <ProductSummaryCard key={product?.id || product?.slug} product={product} />
           ))}
+          <InfiniteScrollTrigger
+            hasMore={hasNextPage}
+            isLoading={isLoadingMore}
+            label="Loading more products..."
+            onLoadMore={onLoadMore}
+          />
         </div>
       ) : (
         <div className="rounded-sm border border-dashed border-white/15 bg-[#121212] p-12 text-center">
           <p className="text-lg font-black text-brand-white">No Products In This Group</p>
         </div>
       )}
-
-      <section className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-white/10 bg-[#121212] p-4">
-        <button
-          className="rounded-sm border border-white/10 px-4 py-2 text-sm font-semibold text-brand-white disabled:opacity-40"
-          type="button"
-          disabled={!hasPreviousPage}
-          onClick={() => onGoToPage(Math.max(page - 1, 1))}
-        >
-          Previous
-        </button>
-        <p className="text-sm font-semibold text-white/55">Page {page}</p>
-        <button
-          className="rounded-sm border border-white/10 px-4 py-2 text-sm font-semibold text-brand-white disabled:opacity-40"
-          type="button"
-          disabled={!hasNextPage}
-          onClick={() => onGoToPage(page + 1)}
-        >
-          Next
-        </button>
-      </section>
     </div>
   );
 }

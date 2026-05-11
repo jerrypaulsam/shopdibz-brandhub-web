@@ -49,7 +49,8 @@ export default function ProductSummaryCard({
   const priceRange = getProductPriceRange(product);
   const rating = getProductRating(product);
   const reviewCount = getProductReviewCount(product);
-  const sold = Number(product?.sold || 0);
+  const hasVariants = getProductHasVariants(product);
+  const sold = hasVariants ? null : Number(product?.sold || 0);
   const views = Number(product?.vCnt || product?.views || 0);
   const variations = getProductVariations(product);
   const variationCount = variations.length;
@@ -57,8 +58,7 @@ export default function ProductSummaryCard({
   const isArchived = Boolean(product?.arch || product?.archived);
   const isPromoted = Boolean(product?.isPromoted || product?.promoted);
   const featuredStatus = Number(product?.feaStat ?? product?.featuredStatus ?? 3);
-  const hasVariants = getProductHasVariants(product);
-  const approvalLabel = getProductApprovalStatus(product) ? "Approved" : "Pending";
+  const approvalLabel = getProductApprovalStatus(product) ? "Active" : "Pending";
   const canManagePromotion = !isArchived && typeof onAddToPromotionFeed === "function";
   const canRemovePromotion =
     featuredStatus >= 0 &&
@@ -107,30 +107,43 @@ export default function ProductSummaryCard({
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
                 Price
               </p>
-              <p className="mt-2 text-lg font-black text-brand-white">
-                Rs. {priceRange.minPrice.toFixed(2)}
-                {priceRange.maxPrice !== priceRange.minPrice
-                  ? ` - Rs. ${priceRange.maxPrice.toFixed(2)}`
-                  : ""}
-              </p>
-              <p className="mt-1 text-sm text-white/45">
-                MRP Rs. {priceRange.minMrp.toFixed(2)}
-                {priceRange.maxMrp !== priceRange.minMrp
-                  ? ` - Rs. ${priceRange.maxMrp.toFixed(2)}`
-                  : ""}
-              </p>
+              {hasVariants ? (
+                <>
+                  <p className="mt-2 text-lg font-black text-brand-white">
+                    {priceRange.minPrice > 0 ? `From Rs. ${priceRange.minPrice.toFixed(2)}` : "Check Variants"}
+                  </p>
+                  <p className="mt-1 text-sm text-white/45">
+                    Variant MRP and price are managed per option
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-2 text-lg font-black text-brand-white">
+                    Rs. {priceRange.minPrice.toFixed(2)}
+                    {priceRange.maxPrice !== priceRange.minPrice
+                      ? ` - Rs. ${priceRange.maxPrice.toFixed(2)}`
+                      : ""}
+                  </p>
+                  <p className="mt-1 text-sm text-white/45">
+                    MRP Rs. {priceRange.minMrp.toFixed(2)}
+                    {priceRange.maxMrp !== priceRange.minMrp
+                      ? ` - Rs. ${priceRange.maxMrp.toFixed(2)}`
+                      : ""}
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Metric label="Sold" value={String(sold)} />
+            <Metric label="Sold" value={sold == null ? "NA" : String(sold)} />
             <Metric label="Product Code" value={productCode || "---"} />
             <Metric label="Reviews" value={String(reviewCount)} />
             <Metric label="Rating" value={rating ? `${rating.toFixed(1)} / 5` : "0 / 5"} />
           </div>
 
           <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Metric label="Views" value={String(views)} />
+            <Metric label="Views" value={views > 0 ? String(views) : "0"} />
             <Metric label="Listing Type" value={hasVariants ? "Variant" : "Single"} />
             <Metric label="Variation Count" value={String(variationCount)} />
             <Metric label="Approval" value={approvalLabel} />
@@ -161,21 +174,6 @@ export default function ProductSummaryCard({
             >
               Category
             </Link>
-            {!isPromoted ? (
-              <Link
-                className="rounded-sm border border-emerald-400/35 px-4 py-2 text-sm font-semibold text-emerald-300 transition-colors hover:border-emerald-300 hover:text-emerald-200"
-                href={{
-                  pathname: "/campaigns/create",
-                  query: {
-                    "product-slug": slug,
-                    "product-name": title,
-                    mode: "product",
-                  },
-                }}
-              >
-                Boost
-              </Link>
-            ) : null}
             {hasVariants ? (
               <>
                 <Link
@@ -224,6 +222,22 @@ export default function ProductSummaryCard({
                 Archived listing
               </p>
             ) : null}
+            {!isPromoted ? (
+              <Link
+                className="order-last inline-flex items-center gap-2 self-start rounded-sm border border-emerald-400/30 px-2.5 py-2 text-xs font-semibold text-emerald-300 transition-colors hover:border-emerald-300 hover:bg-emerald-400/10 hover:text-emerald-200"
+                href={{
+                  pathname: "/campaigns/create",
+                  query: {
+                    "product-slug": slug,
+                    "product-name": title,
+                    mode: "product",
+                  },
+                }}
+              >
+                <BoostIcon />
+                <span>Boost</span>
+              </Link>
+            ) : null}
           </div>
 
           {canManagePromotion || canRemovePromotion ? (
@@ -257,17 +271,18 @@ export default function ProductSummaryCard({
                     [2, "Daily Deals"],
                   ].map(([type, label]) => (
                     <button
-                      className="rounded-sm border border-emerald-400/30 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-300 hover:border-emerald-300 hover:text-emerald-200 disabled:opacity-50"
+                      className="rounded-sm border border-emerald-400/30 px-3 py-2 text-xs font-bold text-emerald-300 hover:border-emerald-300 hover:text-emerald-200 disabled:opacity-50"
                       type="button"
                       key={String(type)}
                       disabled={isActionLoading}
                       onClick={() => onAddToPromotionFeed?.(slug, Number(type))}
                     >
-                      Add to {label}
-                    </button>
-                  ))}
-                </div>
-              ) : null}
+                    Add to {label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
             </div>
           ) : null}
 
@@ -287,7 +302,7 @@ export default function ProductSummaryCard({
 
                   return (
                     <div
-                      className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3 last:border-b-0 last:pb-0"
+                      className="grid gap-3 border-b border-white/10 pb-3 last:border-b-0 last:pb-0 lg:grid-cols-[minmax(0,1fr)_auto]"
                       key={variation.id}
                     >
                       <div className="min-w-0">
@@ -299,22 +314,22 @@ export default function ProductSummaryCard({
                           {variationTypes.length ? ` / ${variationTypes.join(", ")}` : ""}
                         </p>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap items-start gap-2 lg:justify-end">
                         <Link
-                          className="rounded-sm border border-white/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                          className="inline-flex min-h-9 items-center justify-center rounded-sm border border-white/10 px-3 py-2 text-xs font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold"
                           href={`/products/${slug}?variation-id=${variation.id}&variant-mode=with-variant`}
                         >
                           View
                         </Link>
                         <Link
-                          className="rounded-sm border border-white/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                          className="inline-flex min-h-9 items-center justify-center rounded-sm border border-white/10 px-3 py-2 text-xs font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold"
                           href={`/products/${slug}/variations/${variation.id}/edit?variant-mode=with-variant`}
                         >
-                          Update
+                          Edit
                         </Link>
                         {onDeleteVariation ? (
                           <button
-                            className="rounded-sm border border-red-400/35 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-red-300 hover:border-red-300 hover:text-red-200 disabled:opacity-50"
+                            className="inline-flex min-h-9 items-center justify-center rounded-sm border border-red-400/35 px-3 py-2 text-xs font-semibold text-red-300 hover:border-red-300 hover:text-red-200 disabled:opacity-50"
                             type="button"
                             disabled={isActionLoading}
                             onClick={() => onDeleteVariation(variation.id)}
@@ -368,5 +383,25 @@ function Metric({ label, value }) {
       </p>
       <p className="mt-2 text-sm font-bold text-brand-white">{value}</p>
     </div>
+  );
+}
+
+function BoostIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-4 w-4 flex-none"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M12 3L14.6 8.4L20.5 9.2L16.2 13.3L17.3 19.1L12 16.2L6.7 19.1L7.8 13.3L3.5 9.2L9.4 8.4L12 3Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
   );
 }

@@ -18,14 +18,14 @@ export default function ProductsListPage() {
           products={productList.products}
           count={productList.count}
           isLoading={productList.isLoading}
+          isLoadingMore={productList.isLoadingMore}
           isRefreshing={productList.isRefreshing}
           hasNextPage={productList.hasNextPage}
-          hasPreviousPage={productList.hasPreviousPage}
           message={productList.message}
           loadingSlug={productList.loadingSlug}
           onSubmitSearch={productList.submitSearch}
           onUpdateFilters={productList.updateFilters}
-          onGoToPage={productList.goToPage}
+          onLoadMore={productList.loadMore}
           onArchiveProduct={productList.archiveProduct}
           onRestoreProduct={productList.restoreProduct}
           onHideProduct={productList.hideProduct}

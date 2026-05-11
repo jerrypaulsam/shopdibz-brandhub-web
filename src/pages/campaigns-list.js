@@ -12,7 +12,7 @@ export default function CampaignsListPage() {
         onCloseCampaignPanel={adState.closeCampaignPanel}
         onDownloadInvoice={adState.downloadInvoice}
         onOpenCampaign={adState.openCampaign}
-        onPageChange={adState.goToPage}
+        onLoadMore={adState.loadMore}
         onSaveCampaign={adState.saveCampaign}
         onStatusChange={adState.changeCampaignStatus}
         onTabChange={adState.setTab}

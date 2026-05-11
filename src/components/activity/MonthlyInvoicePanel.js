@@ -26,10 +26,6 @@ export default function MonthlyInvoicePanel({
       <h3 className="mt-3 text-xl font-extrabold text-brand-white">
         Request invoice email for a selected month
       </h3>
-      <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-        Flutter launched a month picker, then mailed the invoice. Here the month
-        stays shareable in the URL for finance follow-up and support links.
-      </p>
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <label className="block">

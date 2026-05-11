@@ -142,6 +142,26 @@ export function normalizePaginatedCollection(value) {
 }
 
 /**
+ * @param {any} value
+ * @returns {any[]}
+ */
+export function normalizeProductGroupList(value) {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (Array.isArray(value?.results)) {
+    return value.results;
+  }
+
+  if (Array.isArray(value?.data)) {
+    return value.data;
+  }
+
+  return [];
+}
+
+/**
  * @param {any} product
  * @returns {string}
  */
@@ -349,6 +369,17 @@ export function getVariationTypeNames(variation) {
   return variationTypes
     .map((item) => String(item?.name || item?.tMap || "").trim())
     .filter(Boolean);
+}
+
+/**
+ * @param {any} variation
+ * @returns {{ price: number, mrp: number }}
+ */
+export function getVariationPriceInfo(variation) {
+  return {
+    price: Number(variation?.price || variation?.prc || 0),
+    mrp: Number(variation?.mrp || variation?.mPrice || 0),
+  };
 }
 
 /**

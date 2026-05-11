@@ -14,45 +14,54 @@ function firstValue(value) {
 export function useProductGroupProducts() {
   const router = useRouter();
   const groupId = Number(firstValue(router.query["group-id"]) || 0);
-  const page = Number(firstValue(router.query.page) || 1);
 
   const [products, setProducts] = useState([]);
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [message, setMessage] = useState("");
   const [hasNextPage, setHasNextPage] = useState(false);
-  const [hasPreviousPage, setHasPreviousPage] = useState(false);
+  const [page, setPage] = useState(1);
 
-  const loadProducts = useCallback(async () => {
+  const loadProducts = useCallback(async (nextPage = 1, append = false) => {
     if (!groupId) {
       return;
     }
 
     try {
-      setIsLoading(true);
-      setMessage("");
-      const data = await fetchProductGroupProducts({ groupId, page });
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
+        setMessage("");
+      }
+      const data = await fetchProductGroupProducts({ groupId, page: nextPage });
       const collection = normalizePaginatedCollection(data);
-      setProducts(collection.results);
+      setProducts((current) => (append ? [...current, ...collection.results] : collection.results));
       setCount(collection.count);
-      setHasNextPage(Boolean(collection.next) || page * 15 < collection.count);
-      setHasPreviousPage(Boolean(collection.previous) || page > 1);
+      setHasNextPage(Boolean(collection.next) || nextPage * 15 < collection.count);
+      setPage(nextPage);
     } catch (error) {
-      setProducts([]);
-      setCount(0);
-      setHasNextPage(false);
-      setHasPreviousPage(false);
+      if (!append) {
+        setProducts([]);
+        setCount(0);
+        setHasNextPage(false);
+      }
       setMessage(
         error instanceof Error ? error.message : "Product group items could not be loaded",
       );
     } finally {
-      setIsLoading(false);
+      if (append) {
+        setIsLoadingMore(false);
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, [groupId, page]);
+  }, [groupId]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      loadProducts();
+      loadProducts(1, false);
     }, 0);
 
     return () => {
@@ -60,15 +69,12 @@ export function useProductGroupProducts() {
     };
   }, [loadProducts]);
 
-  async function goToPage(nextPage) {
-    await router.replace(
-      {
-        pathname: `/product-groups/${groupId}`,
-        query: nextPage > 1 ? { page: String(nextPage) } : {},
-      },
-      undefined,
-      { shallow: true },
-    );
+  async function loadMore() {
+    if (isLoading || isLoadingMore || !hasNextPage) {
+      return;
+    }
+
+    await loadProducts(page + 1, true);
   }
 
   return {
@@ -77,9 +83,9 @@ export function useProductGroupProducts() {
     products,
     count,
     isLoading,
+    isLoadingMore,
     message,
     hasNextPage,
-    hasPreviousPage,
-    goToPage,
+    loadMore,
   };
 }

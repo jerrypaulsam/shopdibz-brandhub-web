@@ -32,7 +32,6 @@ function filterPaymentsByTab(payments, tabSlug) {
 export function usePaymentsWorkspace() {
   const router = useRouter();
   const tabSlug = firstPaymentQuery(router.query.tab) || "pending";
-  const page = Number(firstPaymentQuery(router.query.page) || 1);
   const selectedPaymentId = Number(firstPaymentQuery(router.query.payment) || 0);
   const activeTab = useMemo(() => resolvePaymentTab(tabSlug), [tabSlug]);
 
@@ -40,11 +39,12 @@ export function usePaymentsWorkspace() {
   const [paymentBreakdown, setPaymentBreakdown] = useState(null);
   const [storeInfo, setStoreInfo] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isBreakdownLoading, setIsBreakdownLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [breakdownMessage, setBreakdownMessage] = useState("");
   const [hasNextPage, setHasNextPage] = useState(false);
-  const [hasPreviousPage, setHasPreviousPage] = useState(false);
+  const [page, setPage] = useState(1);
 
   const filteredPayments = useMemo(
     () => filterPaymentsByTab(allPayments, activeTab.slug),
@@ -56,31 +56,50 @@ export function usePaymentsWorkspace() {
     [allPayments],
   );
 
-  const loadPayments = useCallback(async () => {
+  const selectedPayment = useMemo(
+    () =>
+      filteredPayments.find(
+        (payment) => Number(payment.id) === Number(selectedPaymentId),
+      ) || null,
+    [filteredPayments, selectedPaymentId],
+  );
+
+  const loadPayments = useCallback(async (nextPage = 1, append = false) => {
     try {
-      setIsLoading(true);
-      setMessage("");
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
+        setMessage("");
+      }
       const [paymentData, storeData] = await Promise.all([
-        fetchPaymentList({ page }),
+        fetchPaymentList({ page: nextPage }),
         fetchPaymentsStoreInfo().catch(() => ({})),
       ]);
       const collection = normalizePaymentCollection(paymentData);
-      setAllPayments(collection.results);
+      setAllPayments((current) =>
+        append ? [...current, ...collection.results] : collection.results,
+      );
       setStoreInfo(storeData || {});
-      setHasNextPage(Boolean(collection.next) || page * 15 < collection.count);
-      setHasPreviousPage(Boolean(collection.previous) || page > 1);
+      setHasNextPage(Boolean(collection.next) || nextPage * 15 < collection.count);
+      setPage(nextPage);
     } catch (error) {
-      setAllPayments([]);
-      setStoreInfo({});
-      setHasNextPage(false);
-      setHasPreviousPage(false);
+      if (!append) {
+        setAllPayments([]);
+        setStoreInfo({});
+        setHasNextPage(false);
+      }
       setMessage(
         error instanceof Error ? error.message : "Payments could not be loaded",
       );
     } finally {
-      setIsLoading(false);
+      if (append) {
+        setIsLoadingMore(false);
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, [page]);
+  }, []);
 
   const loadBreakdown = useCallback(async () => {
     if (!selectedPaymentId) {
@@ -108,13 +127,13 @@ export function usePaymentsWorkspace() {
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      loadPayments();
+      loadPayments(1, false);
     }, 0);
 
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [loadPayments]);
+  }, [loadPayments, activeTab.slug]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -150,19 +169,12 @@ export function usePaymentsWorkspace() {
     );
   }
 
-  async function goToPage(nextPage) {
-    await router.replace(
-      {
-        pathname: router.pathname,
-        query: {
-          tab: activeTab.slug,
-          ...(nextPage > 1 ? { page: String(nextPage) } : {}),
-          ...(selectedPaymentId ? { payment: String(selectedPaymentId) } : {}),
-        },
-      },
-      undefined,
-      { shallow: true },
-    );
+  async function loadMore() {
+    if (isLoading || isLoadingMore || !hasNextPage) {
+      return;
+    }
+
+    await loadPayments(page + 1, true);
   }
 
   async function openPayment(paymentId) {
@@ -171,7 +183,6 @@ export function usePaymentsWorkspace() {
         pathname: router.pathname,
         query: {
           tab: activeTab.slug,
-          ...(page > 1 ? { page: String(page) } : {}),
           payment: String(paymentId),
         },
       },
@@ -186,7 +197,6 @@ export function usePaymentsWorkspace() {
         pathname: router.pathname,
         query: {
           tab: activeTab.slug,
-          ...(page > 1 ? { page: String(page) } : {}),
         },
       },
       undefined,
@@ -208,18 +218,19 @@ export function usePaymentsWorkspace() {
       orderId: payment?.orderId || payment?.oId,
     })),
     allPayments,
+    selectedPayment,
     summary,
     storeInfo,
     selectedPaymentId,
     paymentBreakdown,
     isLoading,
+    isLoadingMore,
     isBreakdownLoading,
     message,
     breakdownMessage,
     hasNextPage,
-    hasPreviousPage,
     setTab,
-    goToPage,
+    loadMore,
     openPayment,
     closePayment,
   };

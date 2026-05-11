@@ -12,6 +12,16 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "www.shopdibz.com",
+        pathname: "/media/store/store_logos/**",
+      },
+      {
+        protocol: "https",
+        hostname: "shopdibz-test.s3.amazonaws.com",
+        pathname: "/media/store/store_logos/**",
+      },
+      {
+        protocol: "https",
         hostname: "img.youtube.com",
         pathname: "/vi/**",
       },

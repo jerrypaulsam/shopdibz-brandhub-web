@@ -1,5 +1,6 @@
 import Link from "next/link";
-import AuthMessage from "@/src/components/auth/AuthMessage";
+import InfiniteScrollTrigger from "@/src/components/app/InfiniteScrollTrigger";
+import ToastMessage from "@/src/components/app/ToastMessage";
 import ProductSummaryCard from "./ProductSummaryCard";
 
 const tabs = [
@@ -25,12 +26,12 @@ const tabs = [
  * isLoading: boolean,
  * isRefreshing: boolean,
  * hasNextPage: boolean,
- * hasPreviousPage: boolean,
+ * isLoadingMore: boolean,
  * message: string,
  * loadingSlug: string,
  * onSubmitSearch: () => Promise<void>,
  * onUpdateFilters: (patch: Record<string, string>) => Promise<void>,
- * onGoToPage: (page: number) => Promise<void>,
+ * onLoadMore: () => Promise<void>,
  * onArchiveProduct: (slug: string) => Promise<void>,
  * onRestoreProduct: (slug: string) => Promise<void>,
  * onHideProduct: (slug: string) => Promise<void>,
@@ -52,12 +53,12 @@ export default function ProductListPanel({
   isLoading,
   isRefreshing,
   hasNextPage,
-  hasPreviousPage,
+  isLoadingMore,
   message,
   loadingSlug,
   onSubmitSearch,
   onUpdateFilters,
-  onGoToPage,
+  onLoadMore,
   onArchiveProduct,
   onRestoreProduct,
   onHideProduct,
@@ -66,10 +67,9 @@ export default function ProductListPanel({
   onAddToPromotionFeed,
   onRemoveFromPromotionFeed,
 }) {
-  const page = Number(filters.page || 1);
-
   return (
     <div className="space-y-6">
+      <ToastMessage message={message} type="info" />
       <section className="rounded-sm border border-white/10 bg-[#121212] p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
@@ -78,9 +78,9 @@ export default function ProductListPanel({
             </p>
             <h1 className="mt-3 text-3xl font-black text-brand-white">Products</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-              A route-driven catalog workspace for direct product management. Tabs,
-              category filters, and pagination all stay in the URL so the team can
-              reopen the exact product slice they were working in.
+              A route-driven catalog workspace for direct product management. Tabs
+              and category filters stay in the URL so the team can reopen the
+              exact product slice they were working in.
             </p>
           </div>
 
@@ -110,7 +110,7 @@ export default function ProductListPanel({
               }`}
               type="button"
               key={value}
-              onClick={() => onUpdateFilters({ tab: value, page: "1" })}
+              onClick={() => onUpdateFilters({ tab: value })}
             >
               {label}
             </button>
@@ -139,7 +139,6 @@ export default function ProductListPanel({
                 category: event.target.value,
                 "sub-category": "",
                 item: "",
-                page: "1",
               })
             }
           >
@@ -157,7 +156,6 @@ export default function ProductListPanel({
               onUpdateFilters({
                 "sub-category": event.target.value,
                 item: "",
-                page: "1",
               })
             }
           >
@@ -174,7 +172,6 @@ export default function ProductListPanel({
             onChange={(event) =>
               onUpdateFilters({
                 item: event.target.value,
-                page: "1",
               })
             }
           >
@@ -188,7 +185,6 @@ export default function ProductListPanel({
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <AuthMessage>{message}</AuthMessage>
           <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-white/35">
             <span>{count} listings</span>
             {isRefreshing ? <span>Updating route...</span> : null}
@@ -236,26 +232,15 @@ export default function ProductListPanel({
             </p>
           </div>
         )}
-      </section>
 
-      <section className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-white/10 bg-[#121212] p-4">
-        <button
-          className="rounded-sm border border-white/10 px-4 py-2 text-sm font-semibold text-brand-white disabled:opacity-40"
-          type="button"
-          disabled={!hasPreviousPage}
-          onClick={() => onGoToPage(Math.max(page - 1, 1))}
-        >
-          Previous
-        </button>
-        <p className="text-sm font-semibold text-white/55">Page {page}</p>
-        <button
-          className="rounded-sm border border-white/10 px-4 py-2 text-sm font-semibold text-brand-white disabled:opacity-40"
-          type="button"
-          disabled={!hasNextPage}
-          onClick={() => onGoToPage(page + 1)}
-        >
-          Next
-        </button>
+        {!isLoading && products.length ? (
+          <InfiniteScrollTrigger
+            hasMore={hasNextPage}
+            isLoading={isLoadingMore}
+            label="Loading more products..."
+            onLoadMore={onLoadMore}
+          />
+        ) : null}
       </section>
     </div>
   );

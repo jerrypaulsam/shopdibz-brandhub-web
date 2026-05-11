@@ -92,7 +92,7 @@ export function normalizeOrderCollection(value) {
     [];
 
   return {
-    results: Array.isArray(results) ? results : [],
+    results: Array.isArray(results) ? results.map(normalizeOrderListItem) : [],
     next: value?.next || value?.data?.next || false,
     previous: value?.previous || value?.data?.previous || false,
     count: Number(
@@ -109,8 +109,9 @@ export function normalizeOrderCollection(value) {
  */
 export function getOrderStatusCode(order) {
   return String(
+    order?.prdt?.status ||
     order?.product?.status ||
-      order?.prdt?.status ||
+      order?.statusCode ||
       order?.status ||
       "",
   );
@@ -189,7 +190,12 @@ export function getOrderStatusTone(status) {
  * @returns {string}
  */
 export function getOrderPrimaryImage(order) {
-  return String(order?.image || order?.product?.image || order?.prdt?.image || "");
+  return String(
+    order?.image ||
+      order?.product?.image ||
+      order?.prdt?.image ||
+      "",
+  );
 }
 
 /**
@@ -215,7 +221,7 @@ export function getOrderCustomerName(order) {
       order?.order?.user?.name ||
       order?.order?.user?.fullName ||
       order?.order?.user?.email ||
-      "Customer",
+      "",
   );
 }
 
@@ -241,6 +247,119 @@ export function getOrderQuantity(order) {
  */
 export function getOrderUnitPrice(order) {
   return Number(order?.product?.price || order?.prdt?.price || order?.price || 0);
+}
+
+/**
+ * @param {any} order
+ * @returns {string}
+ */
+export function getOrderReference(order) {
+  return String(
+    order?.orderId ||
+      order?.ordId ||
+      order?.order?.orderId ||
+      order?.order?.OrderId ||
+      order?.order?.id ||
+      "",
+  );
+}
+
+/**
+ * @param {any} order
+ * @returns {number}
+ */
+export function getOrderItemId(order) {
+  return Number(order?.oIId || order?.oI_id || order?.id || 0);
+}
+
+/**
+ * @param {any} raw
+ * @returns {any}
+ */
+export function normalizeOrderDetail(raw) {
+  const order = raw || {};
+  const sourceOrder = order?.order || {};
+  const product = order?.product || order?.prdt || {};
+  const variation = order?.variation || order?.var || null;
+  const address = order?.address || order?.add || {};
+  const businessAddress = order?.bAddress || order?.bAdd || {};
+
+  return {
+    ...order,
+    oIId: order?.oIId ?? order?.oI_id ?? null,
+    image: order?.image || "",
+    user: order?.user || "",
+    order: {
+      ...sourceOrder,
+      id: sourceOrder?.id ?? sourceOrder?.Id ?? null,
+      orderId: sourceOrder?.orderId ?? sourceOrder?.OrderId ?? "",
+      date: sourceOrder?.date || "",
+      cancel: sourceOrder?.cancel ?? false,
+      coupon: sourceOrder?.coupon || "",
+    },
+    variation: variation
+      ? {
+          ...variation,
+          varCode: variation?.varCode || "",
+          skuCode: variation?.skuCode ?? variation?.sku ?? "",
+          variant: variation?.variant || "",
+          varType: variation?.varType || [],
+        }
+      : null,
+    product: {
+      ...product,
+      title: product?.title || "",
+      quantity: Number(product?.quantity || 0),
+      price: Number(product?.price || 0),
+      status: product?.status || "",
+      delDate: product?.delDate || null,
+      refund: product?.refund || "",
+      productCode: product?.productCode ?? product?.pCode ?? "",
+      skuCode: product?.skuCode ?? product?.sku ?? "",
+      cancellationReason:
+        product?.cancellationReason ?? product?.canReason ?? "",
+      resellPrice: product?.resellPrice ?? null,
+    },
+    address: {
+      ...address,
+      id: address?.id ?? null,
+      name: address?.name || "",
+      landmark: address?.landmark ?? address?.lmark ?? "",
+      flatNo: address?.flatNo ?? address?.flNo ?? "",
+      address: address?.address ?? address?.add ?? "",
+      city: address?.city || "",
+      state: address?.state || "",
+      pinCode: address?.pinCode ?? address?.zipcode ?? address?.zCode ?? "",
+      mobile: address?.mobile ?? address?.mob ?? "",
+    },
+    bAddress: {
+      ...businessAddress,
+      id: businessAddress?.id ?? null,
+      name: businessAddress?.name || "",
+      landmark: businessAddress?.landmark ?? businessAddress?.lmark ?? "",
+      flatNo: businessAddress?.flatNo ?? businessAddress?.flNo ?? "",
+      address: businessAddress?.address ?? businessAddress?.add ?? "",
+      city: businessAddress?.city || "",
+      state: businessAddress?.state || "",
+      pinCode:
+        businessAddress?.pinCode ??
+        businessAddress?.zipcode ??
+        businessAddress?.zCode ??
+        "",
+      mobile: businessAddress?.mobile ?? businessAddress?.mob ?? "",
+    },
+    shipBefore: order?.shipBefore ?? order?.shB ?? "",
+    trackNo: order?.trackNo ?? order?.track ?? "",
+    trackUrl: order?.trackUrl || "",
+    shipCompany: order?.shipCompany ?? order?.comp ?? "",
+    assistedShip: Boolean(order?.assistedShip),
+    rto: Boolean(order?.rto),
+    labelUrl: order?.labelUrl || "",
+    customizationText:
+      order?.customizationText ?? order?.cText ?? "",
+    userCode: order?.userCode ?? order?.uCode ?? "",
+    pickUpSchedule: order?.pickUpSchedule ?? order?.pSch ?? "",
+  };
 }
 
 /**
@@ -368,4 +487,32 @@ export function canMarkDelivered(detail) {
 export function canMessageCustomer(detail) {
   const status = getOrderStatusCode(detail);
   return status !== "DD" && status !== "SD" && status !== "CA";
+}
+
+/**
+ * @param {any} raw
+ * @returns {any}
+ */
+function normalizeOrderListItem(raw) {
+  const order = raw || {};
+
+  return {
+    ...order,
+    oIId: order?.oIId ?? order?.oI_id ?? order?.id ?? null,
+    orderId:
+      order?.orderId ??
+      order?.ordId ??
+      order?.order?.orderId ??
+      order?.order?.OrderId ??
+      "",
+    image: order?.image ?? order?.img ?? "",
+    prdt: order?.prdt ?? order?.product ?? {},
+    product: order?.product ?? order?.prdt ?? {},
+    statusCode:
+      order?.statusCode ??
+      order?.prdt?.status ??
+      order?.product?.status ??
+      order?.status ??
+      "",
+  };
 }

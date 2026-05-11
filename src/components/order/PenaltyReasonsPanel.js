@@ -1,4 +1,5 @@
 import { formatMoney, formatOrderDateTime } from "@/src/utils/orders";
+import ToastMessage from "@/src/components/app/ToastMessage";
 
 /**
  * @param {{ reasons: any[], count: number, isLoading: boolean, message: string, page: number, hasNextPage: boolean, hasPreviousPage: boolean, onPageChange: (value: number) => void }} props
@@ -15,6 +16,8 @@ export default function PenaltyReasonsPanel({
 }) {
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 xl:px-10">
+      <ToastMessage message={message} type="error" />
+
       <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
           Penalties
@@ -22,10 +25,6 @@ export default function PenaltyReasonsPanel({
         <h1 className="mt-3 text-2xl font-extrabold text-brand-white">
           Store penalty ledger
         </h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-          A clearer web view of the Flutter penalty list, with direct pagination
-          and enough structure to spot which orders are affecting seller health.
-        </p>
       </section>
 
       <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
@@ -46,12 +45,6 @@ export default function PenaltyReasonsPanel({
           </div>
         </div>
       </section>
-
-      {message ? (
-        <div className="rounded-sm border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-          {message}
-        </div>
-      ) : null}
 
       {isLoading ? (
         <div className="rounded-sm border border-white/10 bg-[#121212] px-5 py-12 text-center text-sm text-white/45">

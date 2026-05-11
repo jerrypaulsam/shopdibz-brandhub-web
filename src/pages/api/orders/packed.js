@@ -8,8 +8,10 @@ export default async function handler(req, res) {
     return;
   }
 
+  const authHeader = String(req.headers.authorization || "");
+  const accessToken =
+    authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
   const {
-    accessToken = "",
     orderId,
     packageWidth,
     packageLength,

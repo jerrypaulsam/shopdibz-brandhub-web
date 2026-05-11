@@ -35,10 +35,6 @@ export default function SpecialProductsPanel({
       <h3 className="mt-3 text-xl font-extrabold text-brand-white">
         Bulk add or clear promoted slots
       </h3>
-      <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-        Use the same three promotion buckets as Flutter, but keep the chosen type
-        in the URL so teams can share the exact merchandising context.
-      </p>
 
       <div className="mt-5 grid gap-3 lg:grid-cols-3">
         {SPECIAL_PRODUCT_TYPES.map((type) => (

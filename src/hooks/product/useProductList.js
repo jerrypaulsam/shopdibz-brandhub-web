@@ -8,6 +8,7 @@ import {
   fetchProductList,
   removeProductFromFeaturedFeed,
 } from "@/src/api/products";
+import { getCachedStoreInfo } from "@/src/api/auth";
 import { getDashboardSession } from "@/src/api/dashboard";
 import { logScreenView } from "@/src/api/analytics";
 import { normalizePaginatedCollection } from "@/src/utils/product";
@@ -19,7 +20,6 @@ import {
 
 const DEFAULT_QUERY = {
   tab: "active",
-  page: "1",
   category: "",
   "sub-category": "",
   item: "",
@@ -47,14 +47,14 @@ function firstValue(value) {
  * setSearchInput: (value: string) => void,
  * products: any[],
  * isLoading: boolean,
+ * isLoadingMore: boolean,
  * isRefreshing: boolean,
  * message: string,
  * count: number,
  * hasNextPage: boolean,
- * hasPreviousPage: boolean,
  * updateFilters: (patch: Record<string, string>) => Promise<void>,
  * submitSearch: () => Promise<void>,
- * goToPage: (page: number) => Promise<void>,
+ * loadMore: () => Promise<void>,
  * archiveProduct: (slug: string) => Promise<void>,
  * restoreProduct: (slug: string) => Promise<void>,
  * hideProduct: (slug: string) => Promise<void>,
@@ -71,7 +71,6 @@ export function useProductList() {
   const filters = useMemo(
     () => ({
       tab: firstValue(router.query.tab) || DEFAULT_QUERY.tab,
-      page: firstValue(router.query.page) || DEFAULT_QUERY.page,
       category: firstValue(router.query.category) || DEFAULT_QUERY.category,
       "sub-category":
         firstValue(router.query["sub-category"]) || DEFAULT_QUERY["sub-category"],
@@ -95,30 +94,37 @@ export function useProductList() {
   const [rawProducts, setRawProducts] = useState([]);
   const [count, setCount] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(false);
-  const [hasPreviousPage, setHasPreviousPage] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [message, setMessage] = useState("");
   const [loadingSlug, setLoadingSlug] = useState("");
+  const [page, setPage] = useState(1);
 
-  const loadProducts = useCallback(async () => {
+  const loadProducts = useCallback(async (nextPage = 1, append = false) => {
     try {
-      setMessage("");
-      setIsLoading(true);
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setMessage("");
+        setIsLoading(true);
+      }
 
       const data = await fetchProductList({
         tab: filters.tab,
-        page: Number(filters.page || 1),
+        page: nextPage,
         category: filters.category,
         subCategory: filters["sub-category"],
         item: filters.item,
       });
 
       const collection = normalizePaginatedCollection(data);
-      setRawProducts(collection.results);
+      setRawProducts((current) =>
+        append ? [...current, ...collection.results] : collection.results,
+      );
       setCount(collection.count);
-      setHasNextPage(Boolean(collection.next) || Number(filters.page || 1) * 15 < collection.count);
-      setHasPreviousPage(Boolean(collection.previous) || Number(filters.page || 1) > 1);
+      setHasNextPage(Boolean(collection.next) || nextPage * 15 < collection.count);
+      setPage(nextPage);
 
       const session = getDashboardSession();
       logScreenView(
@@ -128,12 +134,18 @@ export function useProductList() {
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Product list could not be loaded");
-      setRawProducts([]);
-      setCount(0);
-      setHasNextPage(false);
-      setHasPreviousPage(false);
+      if (!append) {
+        setRawProducts([]);
+        setCount(0);
+        setHasNextPage(false);
+        setPage(1);
+      }
     } finally {
-      setIsLoading(false);
+      if (append) {
+        setIsLoadingMore(false);
+      } else {
+        setIsLoading(false);
+      }
     }
   }, [filters]);
 
@@ -209,10 +221,12 @@ export function useProductList() {
     });
   }
 
-  async function goToPage(page) {
-    await updateFilters({
-      page: String(page),
-    });
+  async function loadMore() {
+    if (isLoading || isLoadingMore || !hasNextPage) {
+      return;
+    }
+
+    await loadProducts(page + 1, true);
   }
 
   async function changeStatus(slug, action) {
@@ -225,7 +239,7 @@ export function useProductList() {
           ? "Product restored successfully."
           : "Product status updated successfully.",
       );
-      await loadProducts();
+      await loadProducts(1, false);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Product status update failed");
     } finally {
@@ -239,7 +253,7 @@ export function useProductList() {
       setLoadingSlug(`variation-${variationId}`);
       await deleteExistingVariation({ variationId });
       setMessage("Variation deleted successfully.");
-      await loadProducts();
+      await loadProducts(1, false);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Variation could not be deleted");
     } finally {
@@ -257,7 +271,7 @@ export function useProductList() {
       setLoadingSlug(`delete:${slug}`);
       await deleteExistingProduct({ slug });
       setMessage("Product deleted successfully.");
-      await loadProducts();
+      await loadProducts(1, false);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Product could not be deleted");
     } finally {
@@ -266,6 +280,13 @@ export function useProductList() {
   }
 
   async function addToPromotionFeed(slug, type) {
+    const storeInfo = getCachedStoreInfo();
+
+    if (!storeInfo?.prem) {
+      setMessage("Please upgrade to a premium plan to use Top, Featured, and Daily Deals.");
+      return;
+    }
+
     try {
       setMessage("");
       setLoadingSlug(`promotion:${slug}:${type}`);
@@ -277,7 +298,7 @@ export function useProductList() {
             ? "Added to Featured products."
             : "Added to Daily Deals.",
       );
-      await loadProducts();
+      await loadProducts(1, false);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Product could not be promoted");
     } finally {
@@ -291,7 +312,7 @@ export function useProductList() {
       setLoadingSlug(`promotion-remove:${slug}`);
       await removeProductFromFeaturedFeed({ slug });
       setMessage("Product removed from promotional feed.");
-      await loadProducts();
+      await loadProducts(1, false);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Promotion could not be updated");
     } finally {
@@ -308,14 +329,14 @@ export function useProductList() {
     setSearchInput,
     products,
     isLoading,
+    isLoadingMore,
     isRefreshing,
     message,
     count,
     hasNextPage,
-    hasPreviousPage,
     updateFilters,
     submitSearch,
-    goToPage,
+    loadMore,
     archiveProduct: (slug) => changeStatus(slug, "archive"),
     restoreProduct: (slug) => changeStatus(slug, "restore"),
     hideProduct: (slug) => changeStatus(slug, "hide"),

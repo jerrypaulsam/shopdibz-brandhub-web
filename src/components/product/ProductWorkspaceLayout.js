@@ -1,5 +1,5 @@
 import DashboardShell from "@/src/components/dashboard/DashboardShell";
-import AuthMessage from "@/src/components/auth/AuthMessage";
+import ToastMessage from "@/src/components/app/ToastMessage";
 
 /**
  * @param {{ title: string, subtitle: string, message?: string, success?: string, children: import("react").ReactNode, aside?: import("react").ReactNode }} props
@@ -23,12 +23,8 @@ export default function ProductWorkspaceLayout({
               </p>
               <h1 className="mt-3 text-3xl font-black text-brand-white">{title}</h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">{subtitle}</p>
-              <div className="mt-4 space-y-2">
-                <AuthMessage>{message}</AuthMessage>
-                {success ? (
-                  <p className="text-center text-sm text-emerald-400">{success}</p>
-                ) : null}
-              </div>
+              <ToastMessage message={message} type="error" />
+              <ToastMessage message={success} type="success" />
             </div>
             {children}
           </section>

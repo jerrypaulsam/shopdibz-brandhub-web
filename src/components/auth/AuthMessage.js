@@ -1,3 +1,5 @@
+import ToastMessage from "@/src/components/app/ToastMessage";
+
 /**
  * @param {{ children?: import("react").ReactNode }} props
  */
@@ -6,5 +8,5 @@ export default function AuthMessage({ children }) {
     return null;
   }
 
-  return <p className="text-center text-sm text-brand-gold">{children}</p>;
+  return <ToastMessage message={typeof children === "string" ? children : ""} type="info" />;
 }

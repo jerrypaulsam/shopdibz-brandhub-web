@@ -117,10 +117,11 @@ export default function CampaignSidePanel({
         <div className="mt-6 space-y-3">
           <Field label="Promotion Ref" value={campaign.promotionRef} />
           <Field label="Campaign Type" value={campaign.type} />
-          <Field label="Bidding" value={campaign.bidding} />
+          <Field label="Bid Type" value={campaign.bidding} />
           <Field label="Budget Type" value={campaign.budgetType} />
           <Field label="Start Date" value={formatCampaignDate(campaign.startDate)} />
           <Field label="End Date" value={formatCampaignDate(campaign.endDate)} />
+          <Field label="Bid Amount" value={formatCampaignMoney(campaign.bidAmount)} />
           <Field label="Budget" value={formatCampaignMoney(campaign.budget)} />
           <Field label="Daily Budget" value={formatCampaignMoney(campaign.dailyBudget)} />
           <Field label="Remaining" value={formatCampaignMoney(campaign.remainingBudget)} />
@@ -140,7 +141,8 @@ export default function CampaignSidePanel({
                 {campaign.status === "ACTIVE" ? "Pause Campaign" : "Activate Campaign"}
               </button>
             ) : null}
-            {campaign.status !== "DRAFT" ? (
+            {campaign.status !== "FINISHED" &&
+            campaign.status !== "DRAFT" ? (
               <button
                 className="min-h-11 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold"
                 type="button"

@@ -4,6 +4,7 @@ import Script from "next/script";
 import { useRouter } from "next/router";
 import MaintenanceScreen from "@/src/components/app/MaintenanceScreen";
 import SeoHead from "@/src/components/app/SeoHead";
+import ToastProvider from "@/src/components/app/ToastProvider";
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function App({ Component, pageProps }) {
   }
 
   return (
-    <>
+    <ToastProvider>
       <SeoHead pathname={router.pathname} asPath={router.asPath} />
       {analyticsId ? (
         <>
@@ -65,6 +66,6 @@ export default function App({ Component, pageProps }) {
         </>
       ) : null}
       <Component {...pageProps} />
-    </>
+    </ToastProvider>
   );
 }

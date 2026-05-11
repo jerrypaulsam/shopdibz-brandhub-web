@@ -15,7 +15,7 @@ export default function WeeklyAnalytics({
     label: formatRange(item.sDate, item.eDate),
     orders: Number(item.orders || 0),
     earned: Number(item.earned || 0),
-    productViews: Number(item.productViews || item.product_views || 0),
+    productViews: Number(item.productViews || item.prdViews || item.product_views || 0),
   }));
   const visitData = [
     ...dailyVisits.map((item) => ({

@@ -11,20 +11,19 @@ export default async function handler(req, res) {
   const authHeader = String(req.headers.authorization || "");
   const accessToken =
     authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-  const { storeUrl = "", page = "1" } = req.query || {};
+  const { storeUrl = "", orderId = "" } = req.query || {};
 
-  if (!accessToken || !storeUrl) {
-    res.status(400).json({ message: "Access token and store URL are required" });
+  if (!accessToken || !storeUrl || !orderId) {
+    res.status(400).json({
+      message: "Access token, store URL, and order ID are required",
+    });
     return;
   }
 
   try {
     const result = await getStoreJsonWithAuth({
-      endpoint: `${SHOPDIBZ_URLS.penaltyReasons}${storeUrl}/list/`,
+      endpoint: `${SHOPDIBZ_URLS.payments}shippingLabel/${storeUrl}/order/${orderId}/web/`,
       accessToken: String(accessToken),
-      query: {
-        page: Number(page || 1) || 1,
-      },
     });
 
     res.status(result.status).json(result.data);
@@ -33,7 +32,7 @@ export default async function handler(req, res) {
       message:
         error instanceof Error
           ? error.message
-          : "Penalty reasons request failed",
+          : "Shipping label request failed",
     });
   }
 }

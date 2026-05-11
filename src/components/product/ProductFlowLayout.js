@@ -1,6 +1,6 @@
 import Link from "next/link";
 import DashboardShell from "@/src/components/dashboard/DashboardShell";
-import AuthMessage from "@/src/components/auth/AuthMessage";
+import ToastMessage from "@/src/components/app/ToastMessage";
 
 function resolveSteps(query) {
   const isBulkFlow = query["listing-mode"] === "bulk";
@@ -106,10 +106,8 @@ export default function ProductFlowLayout({
                 })}
               </div>
               <div className="mt-5 space-y-2">
-                <AuthMessage>{message}</AuthMessage>
-                {success ? (
-                  <p className="text-center text-sm text-emerald-400">{success}</p>
-                ) : null}
+                <ToastMessage message={message} type="error" />
+                <ToastMessage message={success} type="success" />
               </div>
             </div>
             {children}

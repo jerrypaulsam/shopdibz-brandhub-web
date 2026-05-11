@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchProductGroups } from "@/src/api/products";
-import { normalizePaginatedCollection } from "@/src/utils/product";
+import { normalizeProductGroupList } from "@/src/utils/product";
 
 export function useProductGroups() {
   const router = useRouter();
@@ -14,8 +14,7 @@ export function useProductGroups() {
       setIsLoading(true);
       setMessage("");
       const data = await fetchProductGroups({ page: 1 });
-      const collection = normalizePaginatedCollection(data);
-      setGroups(collection.results);
+      setGroups(normalizeProductGroupList(data));
     } catch (error) {
       setGroups([]);
       setMessage(error instanceof Error ? error.message : "Product groups could not be loaded");

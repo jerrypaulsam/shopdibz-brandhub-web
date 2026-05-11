@@ -3,13 +3,19 @@ import CampaignTabs from "./CampaignTabs";
 import AdCampaignCard from "./AdCampaignCard";
 import CampaignSidePanel from "./CampaignSidePanel";
 import { formatCampaignMoney } from "@/src/utils/ads";
+import InfiniteScrollTrigger from "@/src/components/app/InfiniteScrollTrigger";
+import ToastMessage from "@/src/components/app/ToastMessage";
 
 /**
- * @param {{ activeTab: { slug: string, label: string, description: string }, page: number, count: number, campaigns: any[], selectedCampaign: any, panel: string, storeInfo: any, summary: { totalBudget: number, totalSpend: number, totalClicks: number, totalImpressions: number }, isLoading: boolean, message: string, actionMessage: string, actionError: string, isActionLoading: boolean, hasNextPage: boolean, hasPreviousPage: boolean, onTabChange: (value: string) => void, onPageChange: (value: number) => void, onOpenCampaign: (campaignId: number, panel?: string) => Promise<void>, onCloseCampaignPanel: () => Promise<void>, onDownloadInvoice: (campaignId: number) => Promise<void>, onStatusChange: (campaignId: number, status: string) => Promise<void>, onSaveCampaign: (payload: { campaignId: number, budget: number, dailyBudget: number, endDate: string }) => Promise<void> }} props
+ * @param {{ activeTab: { slug: string, label: string, description: string }, count: number, campaigns: any[], selectedCampaign: any, panel: string, storeInfo: any, summary: { totalBudget: number, totalSpend: number, totalClicks: number, totalImpressions: number }, isLoading: boolean, isLoadingMore: boolean, message: string, actionMessage: string, actionError: string, isActionLoading: boolean, hasNextPage: boolean, onTabChange: (value: string) => void, onLoadMore: () => void, onOpenCampaign: (campaignId: number, panel?: string) => Promise<void>, onCloseCampaignPanel: () => Promise<void>, onDownloadInvoice: (campaignId: number) => Promise<void>, onStatusChange: (campaignId: number, status: string) => Promise<void>, onSaveCampaign: (payload: { campaignId: number, budget: number, dailyBudget: number, endDate: string }) => Promise<void> }} props
  */
 export default function AdCampaignsWorkspace(props) {
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 xl:px-10">
+      <ToastMessage message={props.message} type="error" />
+      <ToastMessage message={props.actionError} type="error" />
+      <ToastMessage message={props.actionMessage} type="success" />
+
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="rounded-sm border border-white/10 bg-[#121212] p-5">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
@@ -18,10 +24,6 @@ export default function AdCampaignsWorkspace(props) {
           <h1 className="mt-3 text-2xl font-extrabold text-brand-white">
             Ad campaign workspace
           </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-            Review campaign performance, pause or reactivate spend, and open edit
-            state directly from the URL instead of hidden Flutter tabs and dialogs.
-          </p>
         </div>
 
         <aside className="rounded-sm border border-white/10 bg-[#121212] p-5">
@@ -63,13 +65,7 @@ export default function AdCampaignsWorkspace(props) {
         </div>
       </section>
 
-      {props.message ? (
-        <div className="rounded-sm border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-          {props.message}
-        </div>
-      ) : null}
-
-      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_360px]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-4">
           {props.isLoading ? (
             <div className="rounded-sm border border-white/10 bg-[#121212] px-5 py-12 text-center text-sm text-white/45">
@@ -101,25 +97,14 @@ export default function AdCampaignsWorkspace(props) {
               ))
             : null}
 
-          <div className="flex items-center justify-between rounded-sm border border-white/10 bg-[#121212] px-5 py-4">
-            <button
-              className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-white/20 hover:text-brand-white disabled:cursor-not-allowed disabled:opacity-40"
-              type="button"
-              disabled={!props.hasPreviousPage}
-              onClick={() => props.onPageChange(props.page - 1)}
-            >
-              Previous
-            </button>
-            <span className="text-sm font-semibold text-white/60">Page {props.page}</span>
-            <button
-              className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-white/20 hover:text-brand-white disabled:cursor-not-allowed disabled:opacity-40"
-              type="button"
-              disabled={!props.hasNextPage}
-              onClick={() => props.onPageChange(props.page + 1)}
-            >
-              Next
-            </button>
-          </div>
+          {!props.isLoading && props.campaigns.length ? (
+            <InfiniteScrollTrigger
+              hasMore={props.hasNextPage}
+              isLoading={props.isLoadingMore}
+              label="Loading more campaigns..."
+              onLoadMore={props.onLoadMore}
+            />
+          ) : null}
         </div>
 
         <CampaignSidePanel
@@ -127,6 +112,7 @@ export default function AdCampaignsWorkspace(props) {
           actionMessage={props.actionMessage}
           campaign={props.selectedCampaign}
           isActionLoading={props.isActionLoading}
+          key={`${props.selectedCampaign?.id || "empty"}:${props.panel}`}
           panel={props.panel}
           onClose={props.onCloseCampaignPanel}
           onOpenEdit={props.onOpenCampaign}

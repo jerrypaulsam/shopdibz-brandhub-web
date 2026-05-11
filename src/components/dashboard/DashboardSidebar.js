@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { clearAuthSession } from "@/src/api/auth";
+import { clearAuthSession, logoutSeller } from "@/src/api/auth";
+import { useToast } from "@/src/components/app/ToastProvider";
+import { PRODUCT_BULK_TEMPLATE_URLS } from "@/src/data/product-variation-options";
 
 const menuItems = [
   { label: "Dashboard", href: "/home", icon: "dashboard", kind: "route" },
@@ -20,6 +22,7 @@ const menuItems = [
   { label: "Store Sliders", href: "/store-slider-management", icon: "image", kind: "route" },
   { label: "New Sliders", href: "/store-slider-image-form", icon: "image-plus", kind: "route" },
   { label: "Profile", href: "/profile", icon: "user", kind: "route" },
+  { label: "Bank Details", href: "/settings/bank", icon: "bank", kind: "route" },
   { label: "Change Password", href: "/settings/change-password", icon: "key", kind: "route" },
   { label: "Feeds", icon: "megaphone", kind: "notice", notice: "Feeds is still coming soon." },
   {
@@ -40,10 +43,16 @@ const menuItems = [
  * @param {{ onNavigate?: () => void }} props
  */
 export default function DashboardSidebar({ onNavigate }) {
-  const [message, setMessage] = useState("");
+  const { showToast } = useToast();
+  const [isDownloadsOpen, setIsDownloadsOpen] = useState(false);
 
-  function logout() {
+  async function logout() {
+    await logoutSeller().catch(() => null);
     clearAuthSession();
+
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
   }
 
   function openPreview() {
@@ -67,7 +76,10 @@ export default function DashboardSidebar({ onNavigate }) {
       "";
 
     if (!storeUrl) {
-      setMessage("Store preview will appear after your store URL is available.");
+      showToast({
+        message: "Store preview will appear after your store URL is available.",
+        type: "info",
+      });
       return;
     }
 
@@ -96,11 +108,6 @@ export default function DashboardSidebar({ onNavigate }) {
       </div>
 
       <div className="mt-6 space-y-2">
-        {message ? (
-          <div className="rounded-sm border border-brand-gold/20 bg-brand-gold/10 px-3 py-2 text-xs leading-5 text-brand-gold">
-            {message}
-          </div>
-        ) : null}
         {menuItems.map((item) => {
           const classes =
             "flex min-h-11 w-full items-center gap-3 rounded-sm px-3 text-sm font-semibold text-white/72 transition-colors hover:bg-white/5 hover:text-brand-gold";
@@ -132,7 +139,20 @@ export default function DashboardSidebar({ onNavigate }) {
                   return;
                 }
 
-                setMessage(item.notice || "This section is still being connected.");
+                if (item.label === "Downloads") {
+                  setIsDownloadsOpen(true);
+                  return;
+                }
+
+                showToast({
+                  message:
+                    item.label === "Feeds"
+                      ? "Feeds is available in the Brand Hub app. Please view it there."
+                      : item.label === "Customer Insights"
+                        ? "Customer Insights is coming soon."
+                        : item.notice || "This section is still being connected.",
+                  type: "info",
+                });
                 onNavigate?.();
               }}
             >
@@ -148,8 +168,9 @@ export default function DashboardSidebar({ onNavigate }) {
       <Link
         className="mt-8 flex min-h-11 items-center gap-3 rounded-sm px-3 text-sm font-semibold text-white/72 hover:bg-white/5 hover:text-brand-red"
         href="/"
-        onClick={() => {
-          logout();
+        onClick={async (event) => {
+          event.preventDefault();
+          await logout();
           onNavigate?.();
         }}
       >
@@ -158,9 +179,90 @@ export default function DashboardSidebar({ onNavigate }) {
         </span>
         Logout
       </Link>
+
+      {isDownloadsOpen ? (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 px-4">
+          <div className="w-full max-w-2xl rounded-sm border border-white/10 bg-[#121212] p-5 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+                  Downloads
+                </p>
+                <h2 className="mt-2 text-lg font-extrabold text-brand-white">
+                  Templates
+                </h2>
+              </div>
+              <button
+                className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-white/10 text-white/65 transition-colors hover:border-white/20 hover:text-brand-white"
+                type="button"
+                onClick={() => setIsDownloadsOpen(false)}
+              >
+                x
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-2">
+              {DOWNLOAD_ITEMS.map((item) => (
+                <button
+                  key={item.label}
+                  className="flex min-h-12 w-full items-center justify-between rounded-sm border border-white/10 px-4 text-left text-sm font-semibold text-white/75 transition-colors hover:border-brand-gold hover:text-brand-white"
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.open(item.href, "_blank", "noopener,noreferrer");
+                    }
+                    showToast({
+                      message: `${item.label} opened in a new tab.`,
+                      type: "success",
+                    });
+                  }}
+                >
+                  <span>{item.label}</span>
+                  <SidebarGlyph className="h-4 w-4" name="download" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </nav>
   );
 }
+
+const DOWNLOAD_ITEMS = [
+  {
+    label: "Bulk Listing Without Variation",
+    href: PRODUCT_BULK_TEMPLATE_URLS.create["without-variant"],
+  },
+  {
+    label: "Bulk Listing With Variation",
+    href: PRODUCT_BULK_TEMPLATE_URLS.create["with-variant"],
+  },
+  {
+    label: "Bulk Update Product Attributes",
+    href: "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/bulkUpdatewVar.xlsx",
+  },
+  {
+    label: "Bulk Update Variation Attributes",
+    href: "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/bulkUpdatewithVar.xlsx",
+  },
+  {
+    label: "Template for Product/Offer Groups",
+    href: "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/ProductCodeAdd.xlsx",
+  },
+  {
+    label: "Template For Featured Products",
+    href: "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/ProductCodeAdd.xlsx",
+  },
+  {
+    label: "Example Bulk Listing Without Variation",
+    href: PRODUCT_BULK_TEMPLATE_URLS.sample["without-variant"],
+  },
+  {
+    label: "Example Bulk Listing With Variation",
+    href: PRODUCT_BULK_TEMPLATE_URLS.sample["with-variant"],
+  },
+];
 
 /**
  * @param {{ name: string, className?: string }} props
@@ -288,6 +390,16 @@ function SidebarGlyph({ name, className = "h-4 w-4" }) {
         <path d="M12 15h9" />
         <path d="M18 12v6" />
         <path d="M21 13v4" />
+      </>
+    ),
+    bank: (
+      <>
+        <path d="M3 10 12 4l9 6" />
+        <path d="M5 10v8" />
+        <path d="M9 10v8" />
+        <path d="M15 10v8" />
+        <path d="M19 10v8" />
+        <path d="M3 20h18" />
       </>
     ),
     megaphone: (

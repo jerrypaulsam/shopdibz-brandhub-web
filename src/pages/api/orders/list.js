@@ -9,7 +9,10 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", storeUrl = "", tab = "pending", page = "1" } = req.query || {};
+  const authHeader = String(req.headers.authorization || "");
+  const accessToken =
+    authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const { storeUrl = "", tab = "pending", page = "1" } = req.query || {};
 
   if (!accessToken || !storeUrl) {
     res.status(400).json({ message: "Access token and store URL are required" });
@@ -18,14 +21,21 @@ export default async function handler(req, res) {
 
   const activeTab = resolveOrderTab(String(tab || "pending"));
 
-  const result = await getStoreJsonWithAuth({
-    endpoint: `${SHOPDIBZ_URLS.orderList}${storeUrl}/`,
-    accessToken: String(accessToken),
-    query: {
-      status: activeTab.status,
-      page: Number(page || 1) || 1,
-    },
-  });
+  try {
+    const result = await getStoreJsonWithAuth({
+      endpoint: `${SHOPDIBZ_URLS.orderList}${storeUrl}/`,
+      accessToken: String(accessToken),
+      query: {
+        status: activeTab.status,
+        page: Number(page || 1) || 1,
+      },
+    });
 
-  res.status(result.status).json(result.data);
+    res.status(result.status).json(result.data);
+  } catch (error) {
+    res.status(500).json({
+      message:
+        error instanceof Error ? error.message : "Orders list request failed",
+    });
+  }
 }

@@ -17,6 +17,7 @@ export function useAppBootstrap() {
     let isCurrent = true;
 
     async function bootstrap() {
+      const resumePath = resolveResumePath(router.asPath);
       const authSession = getAuthSession();
       const accessToken = authSession?.data?.access || authSession?.access || "";
 
@@ -100,7 +101,7 @@ export function useAppBootstrap() {
           return;
         }
 
-        await router.replace("/home");
+        await router.replace(resumePath || "/home");
       } catch (bootstrapError) {
         if (isCurrent) {
           setError(
@@ -124,6 +125,42 @@ export function useAppBootstrap() {
     isChecking,
     error,
   };
+}
+
+/**
+ * @param {string} value
+ * @returns {string}
+ */
+function resolveResumePath(value) {
+  const path = String(value || "").trim();
+
+  if (!path || path === "/" || path === "/home") {
+    return "";
+  }
+
+  if (!path.startsWith("/")) {
+    return "";
+  }
+
+  const blockedPrefixes = [
+    "/login",
+    "/sign-up",
+    "/hub",
+    "/new-mobile-verify",
+    "/init-email-verify",
+    "/store-form",
+    "/settings/bank/create",
+    "/awaiting-verification",
+    "/store-info-form",
+    "/onboard-payment",
+    "/store-closed",
+  ];
+
+  if (blockedPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}?`))) {
+    return "";
+  }
+
+  return path;
 }
 
 /**

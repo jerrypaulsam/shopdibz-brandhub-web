@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import ToastMessage from "@/src/components/app/ToastMessage";
 import {
   ORDER_CANCEL_REASONS,
   canCancelOrder,
@@ -24,7 +25,7 @@ import {
 } from "@/src/utils/orders";
 
 /**
- * @param {{ order: any, isLoading: boolean, message: string, actionMessage: string, actionError: string, busyAction: string, isPhoneVisible: boolean, onTogglePhone: (value: boolean) => void, onSubmitPack: (payload: { packageWidth: number, packageLength: number, packageHeight: number, packageWeight: number }) => Promise<void>, onSubmitTracking: (payload: { company: string, trackingNo: string, trackingUrl: string }) => Promise<void>, onSubmitDelivered: () => Promise<void>, onSubmitCancel: (payload: { reasonId: number, detail: string }) => Promise<void>, onSubmitMessage: (message: string) => Promise<void>, onOpenInvoice: () => Promise<void> }} props
+ * @param {{ order: any, isLoading: boolean, message: string, actionMessage: string, actionError: string, busyAction: string, isPhoneVisible: boolean, onTogglePhone: (value: boolean) => void, onSubmitPack: (payload: { packageWidth: number, packageLength: number, packageHeight: number, packageWeight: number }) => Promise<void>, onSubmitTracking: (payload: { company: string, trackingNo: string, trackingUrl: string }) => Promise<void>, onSubmitDelivered: () => Promise<void>, onSubmitCancel: (payload: { reasonId: number, detail: string }) => Promise<void>, onSubmitMessage: (message: string) => Promise<void>, onOpenInvoice: () => Promise<void>, onOpenShippingLabel: () => Promise<void> }} props
  */
 export default function OrderDetailPanel({
   order,
@@ -41,6 +42,7 @@ export default function OrderDetailPanel({
   onSubmitCancel,
   onSubmitMessage,
   onOpenInvoice,
+  onOpenShippingLabel,
 }) {
   const [packForm, setPackForm] = useState({
     packageWidth: "2",
@@ -58,13 +60,24 @@ export default function OrderDetailPanel({
     detail: "",
   });
   const [messageText, setMessageText] = useState("");
+  const [isMessageComposerOpen, setIsMessageComposerOpen] = useState(false);
 
   const status = getOrderStatusCode(order);
   const variantLabel = getOrderVariantLabel(order);
+  const productSlug = order?.product?.slug || order?.prdt?.slug || "";
   const totalValue = useMemo(
     () => getOrderQuantity(order) * getOrderUnitPrice(order),
     [order],
   );
+
+  async function handleSubmitMessage() {
+    const sent = await onSubmitMessage(messageText);
+
+    if (sent) {
+      setMessageText("");
+      setIsMessageComposerOpen(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -97,6 +110,9 @@ export default function OrderDetailPanel({
 
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 xl:px-10">
+      <ToastMessage message={actionMessage} type="success" />
+      <ToastMessage message={actionError || message} type="error" />
+
       <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
@@ -109,17 +125,19 @@ export default function OrderDetailPanel({
               </Link>
               <span className="text-white/20">/</span>
               <span className="text-sm font-semibold text-brand-gold">
-                #{order?.order?.id || order?.oIId}
+                #{order?.order?.orderId || order?.oIId}
               </span>
             </div>
             <h1 className="mt-3 text-2xl font-extrabold text-brand-white">
               Seller order control
             </h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-              Review shipment readiness, buyer context, cancellation risk, and
-              customer communication from one place without bouncing through
-              hidden Flutter dialogs.
-            </p>
+
+            {status !== "SD" && status !== "DD" && status !== "CA" && order?.shipBefore ? (
+              <div className="mt-4 inline-flex items-center gap-2 rounded-sm border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-bold text-red-100">
+                <span className="uppercase tracking-[0.12em] text-red-300">Ship Before</span>
+                <span>{formatOrderDate(order.shipBefore)}</span>
+              </div>
+            ) : null}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -128,6 +146,18 @@ export default function OrderDetailPanel({
             >
               {getOrderStatusLabel(status)}
             </span>
+            {(status === "PD" || status === "SD") ? (
+              <button
+                className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-40"
+                type="button"
+                disabled={busyAction === "label"}
+                onClick={onOpenShippingLabel}
+              >
+                {busyAction === "label"
+                  ? "Opening..."
+                  : "Print Shipping Label"}
+              </button>
+            ) : null}
             <button
               className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-40"
               type="button"
@@ -138,21 +168,20 @@ export default function OrderDetailPanel({
             </button>
           </div>
         </div>
-
-        {actionMessage ? (
-          <div className="mt-4 rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-            {actionMessage}
-          </div>
-        ) : null}
-
-        {actionError || message ? (
-          <div className="mt-4 rounded-sm border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-            {actionError || message}
-          </div>
-        ) : null}
       </section>
 
-      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.25fr)_420px]">
+      {order?.customizationText ? (
+        <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+            Customization Message
+          </p>
+          <p className="mt-3 text-base font-semibold leading-7 text-brand-white">
+            {order.customizationText}
+          </p>
+        </section>
+      ) : null}
+
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_320px] 2xl:grid-cols-[minmax(0,1.55fr)_340px]">
         <div className="space-y-6">
           <article className="rounded-sm border border-white/10 bg-[#121212] p-5">
             <div className="flex flex-col gap-5 lg:flex-row">
@@ -175,9 +204,18 @@ export default function OrderDetailPanel({
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/35">
                   Product
                 </p>
-                <h2 className="mt-2 text-xl font-extrabold text-brand-white">
-                  {getOrderProductTitle(order)}
-                </h2>
+                {productSlug ? (
+                  <Link
+                    className="mt-2 block text-xl font-extrabold text-brand-white transition-colors hover:text-brand-gold"
+                    href={`/products/${productSlug}`}
+                  >
+                    {getOrderProductTitle(order)}
+                  </Link>
+                ) : (
+                  <h2 className="mt-2 text-xl font-extrabold text-brand-white">
+                    {getOrderProductTitle(order)}
+                  </h2>
+                )}
                 {variantLabel ? (
                   <p className="mt-3 text-sm font-semibold text-brand-gold">
                     {variantLabel}
@@ -192,31 +230,20 @@ export default function OrderDetailPanel({
               </div>
             </div>
 
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              <InfoRow label="Product Code" value={order?.product?.productCode} />
-              <InfoRow label="Variation Code" value={order?.variation?.varCode} />
+            <div className="mt-5 grid gap-4 lg:grid-cols-2">
+              <CodeCard label="Product Code" value={order?.product?.productCode} />
+              <CodeCard label="Variation Code" value={order?.variation?.varCode} />
               <InfoRow
                 label="SKU Code"
                 value={order?.variation?.skuCode || order?.product?.skuCode}
               />
               <InfoRow label="Coupon Used" value={order?.order?.coupon} />
             </div>
-
-            {order?.customizationText ? (
-              <div className="mt-5 rounded-sm border border-white/10 bg-black/20 p-4">
-                <p className="text-sm font-bold text-brand-white">
-                  Customization Message
-                </p>
-                <p className="mt-2 text-sm leading-6 text-white/60">
-                  {order.customizationText}
-                </p>
-              </div>
-            ) : null}
           </article>
 
           <article className="rounded-sm border border-white/10 bg-[#121212] p-5">
             <h2 className="text-lg font-extrabold text-brand-white">
-              Shipping and buyer
+              Address and fulfilment
             </h2>
             <div className="mt-5 grid gap-6 lg:grid-cols-2">
               <div className="rounded-sm border border-white/10 bg-black/20 p-4">
@@ -236,9 +263,9 @@ export default function OrderDetailPanel({
                   <button
                     className="text-xs font-bold uppercase tracking-[0.14em] text-brand-gold"
                     type="button"
-                    onClick={() => onTogglePhone(!isPhoneVisible)}
+                    onClick={onTogglePhone}
                   >
-                    {isPhoneVisible ? "Hide mobile" : "Reveal mobile"}
+                    {isPhoneVisible ? "Hide mobile" : "Click to view"}
                   </button>
                   <InfoRow
                     label="Address"
@@ -251,23 +278,53 @@ export default function OrderDetailPanel({
 
               <div className="rounded-sm border border-white/10 bg-black/20 p-4">
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/35">
-                  Fulfilment context
+                  Billing address
                 </p>
                 <div className="mt-4 space-y-3 text-sm text-white/70">
+                  <InfoRow label="Name" value={order?.bAddress?.name} />
                   <InfoRow
-                    label="Shipping Mode"
-                    value={order?.assistedShip ? "Assisted Shipping" : "Self Shipping"}
+                    label="Mobile"
+                    value={
+                      isPhoneVisible
+                        ? order?.bAddress?.mobile
+                        : maskPhone(order?.bAddress?.mobile)
+                    }
                   />
-                  <InfoRow label="Ship Before" value={formatOrderDate(order?.shipBefore)} />
-                  <InfoRow label="Pickup Schedule" value={order?.pickUpSchedule} />
-                  <InfoRow label="Tracking Company" value={order?.shipCompany} />
-                  <InfoRow label="Tracking Number" value={order?.trackNo} />
-                  <InfoRow label="Tracking URL" value={order?.trackUrl} isLink />
+                  <button
+                    className="text-xs font-bold uppercase tracking-[0.14em] text-brand-gold"
+                    type="button"
+                    onClick={onTogglePhone}
+                  >
+                    {isPhoneVisible ? "Hide mobile" : "Click to view"}
+                  </button>
                   <InfoRow
-                    label="Delivered On"
-                    value={formatOrderDate(order?.product?.delDate)}
+                    label="Address"
+                    value={`${order?.bAddress?.flatNo || ""} ${order?.bAddress?.address || ""} ${order?.bAddress?.landmark || ""}`.trim()}
                   />
+                  <InfoRow label="Pin Code" value={order?.bAddress?.pinCode} />
+                  <InfoRow label="State" value={order?.bAddress?.state} />
                 </div>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-sm border border-white/10 bg-black/20 p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/35">
+                Fulfilment context
+              </p>
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3 text-sm text-white/70">
+                <InfoRow
+                  label="Shipping Mode"
+                  value={order?.assistedShip ? "Assisted Shipping" : "Self Shipping"}
+                />
+                <InfoRow label="Ship Before" value={formatOrderDate(order?.shipBefore)} />
+                <InfoRow label="Pickup Schedule" value={order?.pickUpSchedule} />
+                <InfoRow label="Tracking Company" value={order?.shipCompany} />
+                <InfoRow label="Tracking Number" value={order?.trackNo} />
+                <InfoRow label="Tracking URL" value={order?.trackUrl} isLink />
+                <InfoRow
+                  label="Delivered On"
+                  value={formatOrderDate(order?.product?.delDate)}
+                />
               </div>
             </div>
 
@@ -286,7 +343,39 @@ export default function OrderDetailPanel({
           </article>
         </div>
 
-        <aside className="space-y-6">
+        <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
+          <ActionCard
+            description="The available controls below follow the current fulfilment status of this order."
+            title="Order actions"
+          >
+            <div className="grid gap-3">
+              {(status === "PD" || status === "SD") ? (
+                <SecondaryButton
+                  disabled={busyAction === "label"}
+                  label={
+                    busyAction === "label"
+                      ? "Opening..."
+                      : "Print Shipping Label"
+                  }
+                  onClick={onOpenShippingLabel}
+                />
+              ) : null}
+              <SecondaryButton
+                disabled={busyAction === "invoice"}
+                label={busyAction === "invoice" ? "Opening..." : "Print Invoice"}
+                onClick={onOpenInvoice}
+              />
+              {canMessageCustomer(order) ? (
+                <SecondaryButton
+                  disabled={busyAction === "message"}
+                  icon="chat"
+                  label={busyAction === "message" ? "Sending..." : "Ask Customer"}
+                  onClick={() => setIsMessageComposerOpen(true)}
+                />
+              ) : null}
+            </div>
+          </ActionCard>
+
           {canPackOrder(order) ? (
             <ActionCard
               description="Confirm package dimensions before pickup or self-ship handoff."
@@ -369,6 +458,17 @@ export default function OrderDetailPanel({
             </ActionCard>
           ) : null}
 
+          {status === "PD" && order?.assistedShip ? (
+            <ActionCard
+              description="This order uses assisted shipping. Once it is packed, tracking and pickup progress are handled automatically."
+              title="Tracking handled automatically"
+            >
+              <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-3 text-sm leading-6 text-white/60">
+                There is no manual tracking step for assisted shipping orders in packed state.
+              </div>
+            </ActionCard>
+          ) : null}
+
           {canMarkDelivered(order) ? (
             <ActionCard
               description="Use this when the courier has confirmed completion and you need to close the loop manually."
@@ -379,6 +479,17 @@ export default function OrderDetailPanel({
                 label={busyAction === "delivered" ? "Updating..." : "Update to Delivered"}
                 onClick={onSubmitDelivered}
               />
+            </ActionCard>
+          ) : null}
+
+          {status === "SD" && order?.assistedShip ? (
+            <ActionCard
+              description="This shipment is managed through assisted logistics. Delivery status will update automatically when the courier confirms completion."
+              title="Delivery handled automatically"
+            >
+              <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-3 text-sm leading-6 text-white/60">
+                Manual delivered updates are disabled for assisted shipping orders.
+              </div>
             </ActionCard>
           ) : null}
 
@@ -434,29 +545,61 @@ export default function OrderDetailPanel({
             </ActionCard>
           ) : null}
 
-          {canMessageCustomer(order) ? (
-            <ActionCard
-              description="Keep communication order-specific. Flutter warns that misuse can lead to store closure, so the web flow preserves that restriction."
-              title="Ask customer"
-            >
-              <label className="space-y-2 text-sm text-white/60">
-                <span className="block font-semibold text-brand-white">Message</span>
-                <textarea
-                  className="min-h-28 w-full rounded-sm border border-white/10 bg-black/20 px-3 py-3 text-sm text-brand-white outline-none"
-                  maxLength={250}
-                  value={messageText}
-                  onChange={(event) => setMessageText(event.target.value)}
-                />
-              </label>
+        </aside>
+      </section>
+
+      {canMessageCustomer(order) && isMessageComposerOpen ? (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 px-4">
+          <div className="w-full max-w-xl rounded-sm border border-white/10 bg-[#121212] p-5 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+                  Order Chat
+                </p>
+                <h2 className="mt-2 text-lg font-extrabold text-brand-white">
+                  Ask Customer
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-white/55">
+                  Only use this for order-related communication. Misuse can lead to
+                  store closure.
+                </p>
+              </div>
+              <button
+                className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-white/10 text-white/65 transition-colors hover:border-white/20 hover:text-brand-white"
+                type="button"
+                onClick={() => setIsMessageComposerOpen(false)}
+              >
+                x
+              </button>
+            </div>
+
+            <label className="mt-5 block space-y-2 text-sm text-white/60">
+              <span className="block font-semibold text-brand-white">Message</span>
+              <textarea
+                className="min-h-36 w-full rounded-sm border border-white/10 bg-black/20 px-3 py-3 text-sm text-brand-white outline-none"
+                maxLength={250}
+                value={messageText}
+                onChange={(event) => setMessageText(event.target.value)}
+              />
+            </label>
+
+            <div className="mt-5 flex flex-wrap justify-end gap-3">
+              <button
+                className="min-h-11 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-white/20 hover:text-brand-white"
+                type="button"
+                onClick={() => setIsMessageComposerOpen(false)}
+              >
+                Cancel
+              </button>
               <PrimaryButton
                 disabled={busyAction === "message"}
                 label={busyAction === "message" ? "Sending..." : "Send Message"}
-                onClick={() => onSubmitMessage(messageText)}
+                onClick={handleSubmitMessage}
               />
-            </ActionCard>
-          ) : null}
-        </aside>
-      </section>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -483,7 +626,7 @@ function InfoRow({ label, value, isLink = false }) {
   }
 
   return (
-    <div className="flex items-start justify-between gap-4">
+    <div className="flex items-start justify-between gap-4 rounded-sm border border-white/10 bg-black/10 px-3 py-3">
       <span className="text-white/40">{label}</span>
       {isLink ? (
         <a
@@ -497,6 +640,23 @@ function InfoRow({ label, value, isLink = false }) {
       ) : (
         <span className="text-right font-semibold text-brand-white">{value}</span>
       )}
+    </div>
+  );
+}
+
+function CodeCard({ label, value }) {
+  if (!value) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-4">
+      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/35">
+        {label}
+      </p>
+      <p className="mt-2 break-all text-sm font-semibold text-brand-white">
+        {value}
+      </p>
     </div>
   );
 }
@@ -566,6 +726,34 @@ function PrimaryButton({ label, disabled = false, tone = "default", onClick }) {
       onClick={onClick}
     >
       {label}
+    </button>
+  );
+}
+
+function SecondaryButton({ label, disabled = false, onClick, icon = "" }) {
+  return (
+    <button
+      className="flex min-h-11 w-full items-center justify-between gap-3 rounded-sm border border-white/10 px-4 text-sm font-bold text-white/75 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-40"
+      disabled={disabled}
+      type="button"
+      onClick={onClick}
+    >
+      <span>{label}</span>
+      {icon === "chat" ? (
+        <svg
+          className="h-4 w-4 shrink-0"
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+          viewBox="0 0 24 24"
+        >
+          <path d="M7 10h10" />
+          <path d="M7 14h6" />
+          <path d="M5 19V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9z" />
+        </svg>
+      ) : null}
     </button>
   );
 }

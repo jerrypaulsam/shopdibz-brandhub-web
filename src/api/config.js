@@ -62,6 +62,7 @@ export const SHOPDIBZ_URLS = {
   adCampaignCreate: "/api/ads/campaigns/create/",
   adCampaignUpdate: "/api/ads/campaign/",
   campaignInvoice: "/api/ads/campaign/invoice/download/",
+  payments: "/api/payments/",
   bulkSpecial: "/api/store/bulk-upload/special/",
   bulkSpecialRemove: "/api/store/bulk-remove/special-prdts/",
   bulkProductGroup: "/api/products/productGroup/bulk-add/",

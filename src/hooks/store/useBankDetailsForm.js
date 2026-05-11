@@ -24,13 +24,27 @@ export function useBankDetailsForm({ isFirstTime }) {
   const [isLoadingBank, setIsLoadingBank] = useState(!isFirstTime);
   const [isEditing, setIsEditing] = useState(Boolean(isFirstTime));
 
+  const normalizeBank = useCallback((bank) => ({
+    name: String(bank?.name || ""),
+    accountNumber: String(bank?.accountNumber || bank?.account_number || ""),
+    bankName: String(bank?.bankName || bank?.bank_name || ""),
+    ifsc: String(bank?.ifsc || ""),
+  }), []);
+
   const applyBankToForm = useCallback((bank) => {
+    const normalizedBank = {
+      name: String(bank?.name || ""),
+      accountNumber: String(bank?.accountNumber || bank?.account_number || ""),
+      bankName: String(bank?.bankName || bank?.bank_name || ""),
+      ifsc: String(bank?.ifsc || ""),
+    };
+
     setForm({
-      accountName: String(bank?.name || ""),
-      accountNumber: String(bank?.accountNumber || ""),
-      confirmAccountNumber: String(bank?.accountNumber || ""),
-      ifscCode: String(bank?.ifsc || ""),
-      bankName: String(bank?.bankName || ""),
+      accountName: normalizedBank.name,
+      accountNumber: normalizedBank.accountNumber,
+      confirmAccountNumber: normalizedBank.accountNumber,
+      ifscCode: normalizedBank.ifsc,
+      bankName: normalizedBank.bankName,
     });
   }, []);
 
@@ -59,9 +73,11 @@ export function useBankDetailsForm({ isFirstTime }) {
           return;
         }
 
-        if (data?.name || data?.accountNumber || data?.ifsc) {
-          setSavedBank(data);
-          applyBankToForm(data);
+        const normalizedBank = normalizeBank(data);
+
+        if (normalizedBank.name || normalizedBank.accountNumber || normalizedBank.ifsc) {
+          setSavedBank(normalizedBank);
+          applyBankToForm(normalizedBank);
           setIsEditing(false);
           setIfscDetails("");
         } else {
@@ -89,7 +105,7 @@ export function useBankDetailsForm({ isFirstTime }) {
       isCurrent = false;
       window.clearTimeout(timeoutId);
     };
-  }, [applyBankToForm, isFirstTime]);
+  }, [applyBankToForm, isFirstTime, normalizeBank]);
 
   useEffect(() => {
     const ifscCode = form.ifscCode.trim().toUpperCase();
@@ -141,7 +157,15 @@ export function useBankDetailsForm({ isFirstTime }) {
    * @param {string} value
    */
   function updateField(key, value) {
-    const nextValue = key === "ifscCode" ? value.toUpperCase() : value;
+    let nextValue = value;
+
+    if (key === "ifscCode") {
+      nextValue = value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11);
+    }
+
+    if (key === "accountNumber" || key === "confirmAccountNumber") {
+      nextValue = value.replace(/\D/g, "").slice(0, 18);
+    }
 
     setForm((current) => ({
       ...current,
@@ -183,19 +207,34 @@ export function useBankDetailsForm({ isFirstTime }) {
   }
 
   async function submitForm() {
-    if (
-      !form.accountName ||
-      !form.accountNumber ||
-      !form.confirmAccountNumber ||
-      !form.ifscCode ||
-      !form.bankName
-    ) {
+    const accountName = form.accountName.trim();
+    const accountNumber = form.accountNumber.trim();
+    const confirmAccountNumber = form.confirmAccountNumber.trim();
+    const ifscCode = form.ifscCode.trim().toUpperCase();
+    const bankName = form.bankName.trim();
+
+    if (!accountName || !accountNumber || !confirmAccountNumber || !ifscCode || !bankName) {
       setMessage("Please fill all required fields.");
       return false;
     }
 
-    if (form.accountNumber !== form.confirmAccountNumber) {
+    if (!/^\d{6,18}$/.test(accountNumber)) {
+      setMessage("Account number must be between 6 and 18 digits.");
+      return false;
+    }
+
+    if (accountNumber !== confirmAccountNumber) {
       setMessage("Account number does not match.");
+      return false;
+    }
+
+    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscCode)) {
+      setMessage("Please enter a valid 11-character IFSC code.");
+      return false;
+    }
+
+    if (String(ifscDetails || "").toLowerCase() === "not a valid ifsc code") {
+      setMessage("Please enter a valid IFSC code.");
       return false;
     }
 
@@ -204,17 +243,17 @@ export function useBankDetailsForm({ isFirstTime }) {
 
     try {
       await updateBankDetails({
-        accountName: form.accountName.trim(),
-        accountNumber: form.accountNumber.trim(),
-        bankName: form.bankName.trim(),
-        ifscCode: form.ifscCode.trim().toUpperCase(),
+        accountName,
+        accountNumber,
+        bankName,
+        ifscCode,
       });
 
       const nextSavedBank = {
-        name: form.accountName.trim(),
-        accountNumber: form.accountNumber.trim(),
-        bankName: form.bankName.trim(),
-        ifsc: form.ifscCode.trim().toUpperCase(),
+        name: accountName,
+        accountNumber,
+        bankName,
+        ifsc: ifscCode,
       };
 
       setSavedBank(nextSavedBank);

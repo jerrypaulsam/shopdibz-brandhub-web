@@ -1,17 +1,23 @@
 import { getDashboardSession } from "./dashboard";
+import { getCachedStoreInfo, getSellerStoreUrl } from "./auth";
 
 /**
  * @param {string} url
- * @param {Record<string, unknown>} payload
+ * @param {{ payload?: Record<string, unknown>, accessToken?: string }} options
  * @returns {Promise<any>}
  */
-async function postOrderJson(url, payload) {
+async function postOrderJson(url, options = {}) {
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(options.accessToken
+        ? {
+            Authorization: `Bearer ${options.accessToken}`,
+          }
+        : {}),
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(options.payload || {}),
   });
 
   const data = await response.json().catch(() => ({}));
@@ -27,19 +33,26 @@ async function postOrderJson(url, payload) {
 
 /**
  * @param {string} url
- * @param {Record<string, string | number>} query
+ * @param {{ query?: Record<string, string | number>, accessToken?: string }} options
  * @returns {Promise<any>}
  */
-async function getOrderJson(url, query) {
+async function getOrderJson(url, options = {}) {
   const search = new URLSearchParams();
 
-  Object.entries(query).forEach(([key, value]) => {
+  Object.entries(options.query || {}).forEach(([key, value]) => {
     if (value !== "" && value !== undefined && value !== null) {
       search.set(key, String(value));
     }
   });
 
-  const response = await fetch(`${url}?${search.toString()}`);
+  const queryString = search.toString();
+  const response = await fetch(`${url}${queryString ? `?${queryString}` : ""}`, {
+    headers: options.accessToken
+      ? {
+          Authorization: `Bearer ${options.accessToken}`,
+        }
+      : undefined,
+  });
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -57,12 +70,16 @@ async function getOrderJson(url, query) {
  */
 export function fetchOrderList(payload) {
   const session = getDashboardSession();
+  const storeUrl =
+    getSellerStoreUrl() || getCachedStoreInfo()?.url || session.storeUrl;
 
   return getOrderJson("/api/orders/list", {
     accessToken: session.accessToken,
-    storeUrl: session.storeUrl,
-    tab: payload.tab,
-    page: payload.page,
+    query: {
+      storeUrl,
+      tab: payload.tab,
+      page: payload.page,
+    },
   });
 }
 
@@ -75,7 +92,9 @@ export function fetchOrderDetail(orderId) {
 
   return getOrderJson("/api/orders/detail", {
     accessToken: session.accessToken,
-    orderId,
+    query: {
+      orderId,
+    },
   });
 }
 
@@ -88,7 +107,7 @@ export function cancelOrder(payload) {
 
   return postOrderJson("/api/orders/cancel", {
     accessToken: session.accessToken,
-    ...payload,
+    payload,
   });
 }
 
@@ -101,7 +120,7 @@ export function markOrderPacked(payload) {
 
   return postOrderJson("/api/orders/packed", {
     accessToken: session.accessToken,
-    ...payload,
+    payload,
   });
 }
 
@@ -114,7 +133,7 @@ export function updateOrderStatus(payload) {
 
   return postOrderJson("/api/orders/update-status", {
     accessToken: session.accessToken,
-    ...payload,
+    payload,
   });
 }
 
@@ -127,7 +146,7 @@ export function updateOrderTracking(payload) {
 
   return postOrderJson("/api/orders/update-tracking", {
     accessToken: session.accessToken,
-    ...payload,
+    payload,
   });
 }
 
@@ -137,11 +156,33 @@ export function updateOrderTracking(payload) {
  */
 export function fetchOrderInvoice(orderId) {
   const session = getDashboardSession();
+  const storeUrl =
+    getSellerStoreUrl() || getCachedStoreInfo()?.url || session.storeUrl;
 
   return getOrderJson("/api/orders/invoice", {
     accessToken: session.accessToken,
-    storeUrl: session.storeUrl,
-    orderId,
+    query: {
+      storeUrl,
+      orderId,
+    },
+  });
+}
+
+/**
+ * @param {number} orderId
+ * @returns {Promise<any>}
+ */
+export function fetchOrderShippingLabel(orderId) {
+  const session = getDashboardSession();
+  const storeUrl =
+    getSellerStoreUrl() || getCachedStoreInfo()?.url || session.storeUrl;
+
+  return getOrderJson("/api/orders/shipping-label", {
+    accessToken: session.accessToken,
+    query: {
+      storeUrl,
+      orderId,
+    },
   });
 }
 
@@ -151,11 +192,15 @@ export function fetchOrderInvoice(orderId) {
  */
 export function sendOrderMessage(payload) {
   const session = getDashboardSession();
+  const storeUrl =
+    getSellerStoreUrl() || getCachedStoreInfo()?.url || session.storeUrl;
 
   return postOrderJson("/api/orders/send-message", {
     accessToken: session.accessToken,
-    storeUrl: session.storeUrl,
-    ...payload,
+    payload: {
+      storeUrl,
+      ...payload,
+    },
   });
 }
 
@@ -165,10 +210,14 @@ export function sendOrderMessage(payload) {
  */
 export function fetchPenaltyReasons(payload) {
   const session = getDashboardSession();
+  const storeUrl =
+    getSellerStoreUrl() || getCachedStoreInfo()?.url || session.storeUrl;
 
   return getOrderJson("/api/orders/penalty-reasons", {
     accessToken: session.accessToken,
-    storeUrl: session.storeUrl,
-    page: payload.page,
+    query: {
+      storeUrl,
+      page: payload.page,
+    },
   });
 }

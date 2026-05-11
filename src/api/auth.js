@@ -324,6 +324,20 @@ export function clearAuthSession() {
 
   window.localStorage.removeItem(AUTH_STORAGE_KEY);
   window.localStorage.removeItem(STORE_INFO_STORAGE_KEY);
+  window.localStorage.removeItem(MOBILE_VERIFY_STORAGE_KEY);
+
+  Object.keys(window.localStorage).forEach((key) => {
+    if (key.startsWith("shopdibz_")) {
+      window.localStorage.removeItem(key);
+    }
+  });
+
+  Object.keys(window.sessionStorage).forEach((key) => {
+    if (key.startsWith("shopdibz_")) {
+      window.sessionStorage.removeItem(key);
+    }
+  });
+
   dispatchAuthSessionChange();
 }
 

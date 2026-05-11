@@ -8,9 +8,13 @@ export default function PaymentsListPage() {
   return (
     <DashboardShell>
       <PaymentsWorkspace
-        {...paymentState}
         subtitle="A cleaner seller payout workspace with route-driven tabs and direct fee-breakdown links, while still using the original Flutter payment endpoints."
         title="Seller payout command center"
+        {...paymentState}
+        onClosePayment={paymentState.closePayment}
+        onLoadMore={paymentState.loadMore}
+        onOpenPayment={paymentState.openPayment}
+        onTabChange={paymentState.setTab}
       />
     </DashboardShell>
   );

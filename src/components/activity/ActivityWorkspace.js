@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ToastMessage from "@/src/components/app/ToastMessage";
 import ActivityActionCard from "./ActivityActionCard";
 import BulkUpdatePanel from "./BulkUpdatePanel";
 import MonthlyInvoicePanel from "./MonthlyInvoicePanel";
@@ -56,6 +57,9 @@ import { ACTIVITY_PANELS } from "@/src/utils/activity";
 export default function ActivityWorkspace(props) {
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 xl:px-10">
+      <ToastMessage message={props.message} type="error" />
+      <ToastMessage message={props.actionError} type="error" />
+      <ToastMessage message={props.actionMessage} type="success" />
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="rounded-sm border border-white/10 bg-[#121212] p-5">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
@@ -64,11 +68,6 @@ export default function ActivityWorkspace(props) {
           <h1 className="mt-3 text-2xl font-extrabold text-brand-white">
             Seller activity console
           </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-            Operations, merchandising, and finance actions stay direct-linkable here
-            instead of hiding in one-off dialogs. The backend still follows the
-            Flutter activity endpoints.
-          </p>
         </div>
 
         <aside className="rounded-sm border border-white/10 bg-[#121212] p-5">
@@ -114,24 +113,6 @@ export default function ActivityWorkspace(props) {
           />
         ))}
       </section>
-
-      {props.message ? (
-        <div className="rounded-sm border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-          {props.message}
-        </div>
-      ) : null}
-
-      {props.actionError ? (
-        <div className="rounded-sm border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-          {props.actionError}
-        </div>
-      ) : null}
-
-      {props.actionMessage ? (
-        <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-          {props.actionMessage}
-        </div>
-      ) : null}
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">

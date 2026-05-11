@@ -15,11 +15,6 @@ export default function CouponCreateWorkspace(props) {
           <h1 className="mt-3 text-2xl font-extrabold text-brand-white">
             Build a store coupon with route-visible discount type
           </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-            Flutter cleared the form and toggled fields in place. On web, the
-            discount type is reflected in the URL so the right form state can be
-            linked directly.
-          </p>
         </div>
 
         <aside className="rounded-sm border border-white/10 bg-[#121212] p-5">

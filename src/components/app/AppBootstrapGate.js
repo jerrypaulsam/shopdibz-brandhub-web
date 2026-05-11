@@ -10,7 +10,7 @@ export default function AppBootstrapGate() {
         <div className="text-center">
           <div className="mx-auto h-20 w-20 animate-pulse rounded-full bg-[url('/assets/logo/seller-logo.png')] bg-contain bg-center bg-no-repeat" />
           <p className="mt-6 text-sm font-bold uppercase tracking-[0.18em] text-brand-black">
-            Loading Seller Hub
+            Loading Brand Hub
           </p>
         </div>
       </main>

@@ -1,20 +1,28 @@
 import { getDashboardSession, fetchStoreInfo } from "./dashboard";
+import { getCachedStoreInfo, getSellerStoreUrl } from "./auth";
 
 /**
  * @param {string} url
- * @param {Record<string, string | number>} query
+ * @param {{ query?: Record<string, string | number>, accessToken?: string }} options
  * @returns {Promise<any>}
  */
-async function getPaymentJson(url, query) {
+async function getPaymentJson(url, options = {}) {
   const search = new URLSearchParams();
 
-  Object.entries(query).forEach(([key, value]) => {
+  Object.entries(options.query || {}).forEach(([key, value]) => {
     if (value !== "" && value !== undefined && value !== null) {
       search.set(key, String(value));
     }
   });
 
-  const response = await fetch(`${url}?${search.toString()}`);
+  const queryString = search.toString();
+  const response = await fetch(`${url}${queryString ? `?${queryString}` : ""}`, {
+    headers: options.accessToken
+      ? {
+          Authorization: `Bearer ${options.accessToken}`,
+        }
+      : undefined,
+  });
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -32,11 +40,14 @@ async function getPaymentJson(url, query) {
  */
 export function fetchPaymentList(payload) {
   const session = getDashboardSession();
+  const storeUrl = getSellerStoreUrl() || getCachedStoreInfo()?.url || session.storeUrl;
 
   return getPaymentJson("/api/payments/list", {
     accessToken: session.accessToken,
-    storeUrl: session.storeUrl,
-    page: payload.page,
+    query: {
+      storeUrl,
+      page: payload.page,
+    },
   });
 }
 
@@ -49,7 +60,9 @@ export function fetchPaymentBreakdown(paymentId) {
 
   return getPaymentJson("/api/payments/breakdown", {
     accessToken: session.accessToken,
-    paymentId,
+    query: {
+      paymentId,
+    },
   });
 }
 

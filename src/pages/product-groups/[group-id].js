@@ -13,11 +13,10 @@ export default function ProductGroupProductsPage() {
           products={productGroup.products}
           count={productGroup.count}
           isLoading={productGroup.isLoading}
+          isLoadingMore={productGroup.isLoadingMore}
           message={productGroup.message}
-          page={productGroup.page}
           hasNextPage={productGroup.hasNextPage}
-          hasPreviousPage={productGroup.hasPreviousPage}
-          onGoToPage={productGroup.goToPage}
+          onLoadMore={productGroup.loadMore}
         />
       </div>
     </DashboardShell>

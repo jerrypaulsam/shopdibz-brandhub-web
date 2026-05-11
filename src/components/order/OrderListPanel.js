@@ -1,23 +1,26 @@
 import OrderStatusTabs from "./OrderStatusTabs";
 import OrderCard from "./OrderCard";
+import ToastMessage from "@/src/components/app/ToastMessage";
+import InfiniteScrollTrigger from "@/src/components/app/InfiniteScrollTrigger";
 
 /**
- * @param {{ activeTab: { slug: string, label: string, description: string }, orders: any[], count: number, isLoading: boolean, message: string, hasNextPage: boolean, hasPreviousPage: boolean, page: number, onTabChange: (value: string) => void, onPageChange: (value: number) => void }} props
+ * @param {{ activeTab: { slug: string, label: string, description: string }, orders: any[], count: number, isLoading: boolean, isLoadingMore: boolean, message: string, hasNextPage: boolean, page: number, onTabChange: (value: string) => void, onLoadMore: () => void }} props
  */
 export default function OrderListPanel({
   activeTab,
   orders,
   count,
   isLoading,
+  isLoadingMore,
   message,
   hasNextPage,
-  hasPreviousPage,
-  page,
   onTabChange,
-  onPageChange,
+  onLoadMore,
 }) {
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 xl:px-10">
+      <ToastMessage message={message} type="error" />
+
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="rounded-sm border border-white/10 bg-[#121212] p-5">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
@@ -68,12 +71,6 @@ export default function OrderListPanel({
       </section>
 
       <section className="space-y-4">
-        {message ? (
-          <div className="rounded-sm border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-            {message}
-          </div>
-        ) : null}
-
         {isLoading ? (
           <div className="rounded-sm border border-white/10 bg-[#121212] px-5 py-12 text-center text-sm text-white/45">
             Loading orders...
@@ -93,30 +90,23 @@ export default function OrderListPanel({
 
         {!isLoading
           ? orders.map((order) => (
-              <OrderCard key={order?.oIId || order?.id || order?.orderId} order={order} />
+              <OrderCard
+                key={order?.oIId || order?.id || order?.orderId}
+                order={order}
+                fallbackStatus={activeTab.status}
+              />
             ))
           : null}
-      </section>
 
-      <div className="flex items-center justify-between rounded-sm border border-white/10 bg-[#121212] px-5 py-4">
-        <button
-          className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-white/20 hover:text-brand-white disabled:cursor-not-allowed disabled:opacity-40"
-          type="button"
-          disabled={!hasPreviousPage}
-          onClick={() => onPageChange(page - 1)}
-        >
-          Previous
-        </button>
-        <span className="text-sm font-semibold text-white/60">Page {page}</span>
-        <button
-          className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-white/20 hover:text-brand-white disabled:cursor-not-allowed disabled:opacity-40"
-          type="button"
-          disabled={!hasNextPage}
-          onClick={() => onPageChange(page + 1)}
-        >
-          Next
-        </button>
-      </div>
+        {!isLoading && orders.length ? (
+          <InfiniteScrollTrigger
+            hasMore={hasNextPage}
+            isLoading={isLoadingMore}
+            label="Loading more orders..."
+            onLoadMore={onLoadMore}
+          />
+        ) : null}
+      </section>
     </div>
   );
 }

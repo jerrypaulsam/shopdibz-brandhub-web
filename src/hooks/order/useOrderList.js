@@ -12,45 +12,56 @@ import {
 export function useOrderList() {
   const router = useRouter();
   const tabSlug = firstQueryValue(router.query.tab) || "pending";
-  const page = Number(firstQueryValue(router.query.page) || 1);
   const activeTab = useMemo(() => resolveOrderTab(tabSlug), [tabSlug]);
 
   const [orders, setOrders] = useState([]);
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [message, setMessage] = useState("");
   const [hasNextPage, setHasNextPage] = useState(false);
-  const [hasPreviousPage, setHasPreviousPage] = useState(false);
+  const [page, setPage] = useState(1);
 
-  const loadOrders = useCallback(async () => {
+  const loadOrders = useCallback(async (nextPage = 1, append = false) => {
     try {
-      setIsLoading(true);
-      setMessage("");
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
+        setMessage("");
+      }
       const data = await fetchOrderList({
         tab: activeTab.slug,
-        page,
+        page: nextPage,
       });
       const collection = normalizeOrderCollection(data);
-      setOrders(collection.results);
+      setOrders((current) =>
+        append ? [...current, ...collection.results] : collection.results,
+      );
       setCount(collection.count);
-      setHasNextPage(Boolean(collection.next) || page * 15 < collection.count);
-      setHasPreviousPage(Boolean(collection.previous) || page > 1);
+      setHasNextPage(Boolean(collection.next) || nextPage * 15 < collection.count);
+      setPage(nextPage);
     } catch (error) {
-      setOrders([]);
-      setCount(0);
-      setHasNextPage(false);
-      setHasPreviousPage(false);
+      if (!append) {
+        setOrders([]);
+        setCount(0);
+        setHasNextPage(false);
+      }
       setMessage(
         error instanceof Error ? error.message : "Orders could not be loaded",
       );
     } finally {
-      setIsLoading(false);
+      if (append) {
+        setIsLoadingMore(false);
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, [activeTab.slug, page]);
+  }, [activeTab.slug]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      loadOrders();
+      loadOrders(1, false);
     }, 0);
 
     return () => {
@@ -82,18 +93,12 @@ export function useOrderList() {
     );
   }
 
-  async function goToPage(nextPage) {
-    await router.replace(
-      {
-        pathname: "/orders-list",
-        query: {
-          tab: activeTab.slug,
-          ...(nextPage > 1 ? { page: String(nextPage) } : {}),
-        },
-      },
-      undefined,
-      { shallow: true },
-    );
+  async function loadMore() {
+    if (isLoading || isLoadingMore || !hasNextPage) {
+      return;
+    }
+
+    await loadOrders(page + 1, true);
   }
 
   return {
@@ -102,10 +107,10 @@ export function useOrderList() {
     orders,
     count,
     isLoading,
+    isLoadingMore,
     message,
     hasNextPage,
-    hasPreviousPage,
     setTab,
-    goToPage,
+    loadMore,
   };
 }

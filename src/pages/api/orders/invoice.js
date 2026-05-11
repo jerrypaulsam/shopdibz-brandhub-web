@@ -8,17 +8,27 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", storeUrl = "", orderId = "" } = req.query || {};
+  const authHeader = String(req.headers.authorization || "");
+  const accessToken =
+    authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const { storeUrl = "", orderId = "" } = req.query || {};
 
   if (!accessToken || !storeUrl || !orderId) {
     res.status(400).json({ message: "Access token, store URL, and order ID are required" });
     return;
   }
 
-  const result = await getStoreJsonWithAuth({
-    endpoint: `${SHOPDIBZ_URLS.payments}invoice/${storeUrl}/order/${orderId}/web/`,
-    accessToken: String(accessToken),
-  });
+  try {
+    const result = await getStoreJsonWithAuth({
+      endpoint: `${SHOPDIBZ_URLS.payments}invoice/${storeUrl}/order/${orderId}/web/`,
+      accessToken: String(accessToken),
+    });
 
-  res.status(result.status).json(result.data);
+    res.status(result.status).json(result.data);
+  } catch (error) {
+    res.status(500).json({
+      message:
+        error instanceof Error ? error.message : "Invoice request failed",
+    });
+  }
 }

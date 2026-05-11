@@ -12,10 +12,6 @@ export default function CampaignCreateWorkspace(props) {
           <h1 className="mt-3 text-2xl font-extrabold text-brand-white">
             {props.title}
           </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-            Build a store or product promotion with route-visible mode, cleaner
-            budget controls, and the original Flutter backend payload preserved.
-          </p>
         </div>
 
         <aside className="rounded-sm border border-white/10 bg-[#121212] p-5">

@@ -11,7 +11,7 @@ export default function PaymentBreakdownPanel({
   onClose,
 }) {
   return (
-    <aside className="rounded-sm border border-white/10 bg-[#121212] p-5">
+    <aside className="rounded-sm border border-white/10 bg-[#121212] p-5 xl:sticky xl:top-24">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
@@ -29,6 +29,12 @@ export default function PaymentBreakdownPanel({
           Close
         </button>
       </div>
+
+      {!paymentId && !isLoading ? (
+        <div className="mt-6 rounded-sm border border-white/10 bg-black/20 px-4 py-4 text-sm leading-6 text-white/55">
+          Select a payment card to inspect its fee breakdown here.
+        </div>
+      ) : null}
 
       {isLoading ? (
         <p className="mt-6 text-sm text-white/45">Loading breakdown...</p>

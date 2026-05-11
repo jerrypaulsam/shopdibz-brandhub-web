@@ -15,6 +15,10 @@ export default function AdCampaignCard({
   onDownloadInvoice,
   isActionLoading,
 }) {
+  const canEdit = campaign.status === "ACTIVE" || campaign.status === "PAUSED";
+  const canOpen = Boolean(campaign.id);
+  const canDownloadInvoice = campaign.status === "FINISHED";
+
   return (
     <article
       className={`rounded-sm border p-4 transition-colors ${
@@ -49,7 +53,7 @@ export default function AdCampaignCard({
           <Metric label="Spend" value={formatCampaignMoney(campaign.spend)} />
           <Metric label="Remaining" value={formatCampaignMoney(campaign.remainingBudget)} />
           <Metric label="Clicks" value={`${campaign.clicks || 0}`} />
-          <Metric label="Impressions" value={`${campaign.impressions || 0}`} />
+          <Metric label="Impr." value={`${campaign.impressions || 0}`} />
           <Metric label="Sales" value={`${campaign.sales || 0}`} />
           <Metric label="CTR" value={`${campaign.ctr ?? "-"}%`} />
         </div>
@@ -64,23 +68,25 @@ export default function AdCampaignCard({
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button
-            className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold"
-            type="button"
-            onClick={() => onOpen(campaign.id, "details")}
-          >
-            Open
-          </button>
-          {campaign.status !== "DRAFT" ? (
+          {canOpen ? (
             <button
               className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold"
+              type="button"
+              onClick={() => onOpen(campaign.id, "details")}
+            >
+              Open
+            </button>
+          ) : null}
+          {canEdit ? (
+            <button
+              className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:opacity-40"
               type="button"
               onClick={() => onOpen(campaign.id, "edit")}
             >
               Edit
             </button>
           ) : null}
-          {campaign.status === "FINISHED" ? (
+          {canDownloadInvoice ? (
             <button
               className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:opacity-40"
               type="button"
@@ -101,11 +107,13 @@ export default function AdCampaignCard({
  */
 function Metric({ label, value }) {
   return (
-    <div className="rounded-sm border border-white/10 bg-black/20 px-3 py-3">
+    <div className="min-w-0 rounded-sm border border-white/10 bg-black/20 px-3 py-3">
       <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/35">
         {label}
       </p>
-      <p className="mt-2 text-sm font-semibold text-brand-white">{value}</p>
+      <p className="mt-2 truncate text-sm font-semibold tabular-nums text-brand-white">
+        {value}
+      </p>
     </div>
   );
 }

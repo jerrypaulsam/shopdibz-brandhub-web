@@ -11,13 +11,14 @@ export default function OrderDetailPage() {
     actionError,
     busyAction,
     isPhoneVisible,
-    setIsPhoneVisible,
+    revealPhone,
     submitPack,
     submitTracking,
     submitDelivered,
     submitCancel,
     submitMessage,
     openInvoice,
+    openShippingLabel,
   } = useOrderDetail();
 
   return (
@@ -31,12 +32,13 @@ export default function OrderDetailPage() {
         message={message}
         order={order}
         onOpenInvoice={openInvoice}
+        onOpenShippingLabel={openShippingLabel}
         onSubmitCancel={submitCancel}
         onSubmitDelivered={submitDelivered}
         onSubmitMessage={submitMessage}
         onSubmitPack={submitPack}
         onSubmitTracking={submitTracking}
-        onTogglePhone={setIsPhoneVisible}
+        onTogglePhone={revealPhone}
       />
     </DashboardShell>
   );

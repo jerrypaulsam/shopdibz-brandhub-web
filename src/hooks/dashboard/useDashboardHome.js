@@ -274,7 +274,7 @@ function normalizeStoreInfo(raw) {
     ...store,
     name: firstDefined([store.name, store.storeName, fallbackStore.name]),
     url: firstDefined([store.url, store.storeUrl, fallbackStore.url]),
-    logo: firstDefined([store.logo, store.storeLogo, fallbackStore.logo]),
+    logo: normalizeStoreAssetUrl(firstDefined([store.logo, store.storeLogo, ""])),
     description: firstDefined([
       store.description,
       store.desc,
@@ -317,4 +317,40 @@ function normalizeStoreInfo(raw) {
     shipMode: firstDefined([store.shipMode, store.mode, "0"]),
     storeTheme: String(firstDefined([store.storeTheme, store.theme, "0"])),
   };
+}
+
+/**
+ * @param {any} value
+ * @returns {string}
+ */
+function normalizeStoreAssetUrl(value) {
+  const resolved = String(value || "").trim();
+
+  if (
+    !resolved ||
+    resolved === "/" ||
+    resolved.toLowerCase() === "null" ||
+    resolved.toLowerCase() === "undefined" ||
+    resolved === "https://shopdibz-test.s3.amazonaws.com/media/store/store_logos/defaultstorelogo.png"
+  ) {
+    return "";
+  }
+
+  if (resolved.startsWith("https://") || resolved.startsWith("http://")) {
+    return resolved;
+  }
+
+  if (resolved.startsWith("//")) {
+    return `https:${resolved}`;
+  }
+
+  if (resolved.startsWith("/media/")) {
+    return `https://www.shopdibz.com${resolved}`;
+  }
+
+  if (resolved.startsWith("media/")) {
+    return `https://www.shopdibz.com/${resolved}`;
+  }
+
+  return resolved;
 }

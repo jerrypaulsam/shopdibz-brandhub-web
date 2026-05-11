@@ -1,32 +1,34 @@
 import PaymentTabs from "./PaymentTabs";
 import PaymentCard from "./PaymentCard";
 import PaymentBreakdownPanel from "./PaymentBreakdownPanel";
+import ToastMessage from "@/src/components/app/ToastMessage";
+import InfiniteScrollTrigger from "@/src/components/app/InfiniteScrollTrigger";
 import {
   formatPaymentMoney,
   getPaymentsPricingUrl,
 } from "@/src/utils/payments";
 
 /**
- * @param {{ title: string, subtitle: string, activeTab: { slug: string, label: string, description: string }, payments: any[], page: number, summary: { pendingAmount: number, settledAmount: number, holdAmount: number, totalAmount: number }, storeInfo: any, selectedPaymentId: number, paymentBreakdown: any, isLoading: boolean, isBreakdownLoading: boolean, message: string, breakdownMessage: string, hasNextPage: boolean, hasPreviousPage: boolean, onTabChange: (value: string) => void, onPageChange: (value: number) => void, onOpenPayment: (value: number) => void, onClosePayment: () => void }} props
+ * @param {{ title: string, subtitle: string, activeTab: { slug: string, label: string, description: string }, payments: any[], summary: { pendingAmount: number, settledAmount: number, holdAmount: number, totalAmount: number }, storeInfo: any, selectedPayment: any, selectedPaymentId: number, paymentBreakdown: any, isLoading: boolean, isLoadingMore: boolean, isBreakdownLoading: boolean, message: string, breakdownMessage: string, hasNextPage: boolean, onTabChange: (value: string) => void, onLoadMore: () => void, onOpenPayment: (value: number) => void, onClosePayment: () => void }} props
  */
 export default function PaymentsWorkspace({
   title,
   subtitle,
   activeTab,
   payments,
-  page,
   summary,
   storeInfo,
+  selectedPayment,
   selectedPaymentId,
   paymentBreakdown,
   isLoading,
+  isLoadingMore,
   isBreakdownLoading,
   message,
   breakdownMessage,
   hasNextPage,
-  hasPreviousPage,
   onTabChange,
-  onPageChange,
+  onLoadMore,
   onOpenPayment,
   onClosePayment,
 }) {
@@ -91,13 +93,10 @@ export default function PaymentsWorkspace({
         </div>
       </section>
 
-      {message ? (
-        <div className="rounded-sm border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-          {message}
-        </div>
-      ) : null}
+      <ToastMessage message={message} type="error" />
+      <ToastMessage message={breakdownMessage} type="error" />
 
-      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_360px]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-4">
           {isLoading ? (
             <div className="rounded-sm border border-white/10 bg-[#121212] px-5 py-12 text-center text-sm text-white/45">
@@ -118,43 +117,46 @@ export default function PaymentsWorkspace({
 
           {!isLoading
             ? payments.map((payment) => (
-                <PaymentCard
-                  isActive={selectedPaymentId === Number(payment.id)}
-                  key={payment.id}
-                  payment={payment}
-                  onOpen={onOpenPayment}
-                />
+                <div className="space-y-4" key={payment.id}>
+                  <PaymentCard
+                    isActive={selectedPaymentId === Number(payment.id)}
+                    payment={payment}
+                    onOpen={onOpenPayment}
+                  />
+                  {selectedPaymentId === Number(payment.id) ? (
+                    <div className="xl:hidden">
+                      <PaymentBreakdownPanel
+                        breakdown={paymentBreakdown}
+                        isLoading={isBreakdownLoading}
+                        message={breakdownMessage}
+                        paymentId={selectedPaymentId}
+                        onClose={onClosePayment}
+                      />
+                    </div>
+                  ) : null}
+                </div>
               ))
             : null}
 
-          <div className="flex items-center justify-between rounded-sm border border-white/10 bg-[#121212] px-5 py-4">
-            <button
-              className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-white/20 hover:text-brand-white disabled:cursor-not-allowed disabled:opacity-40"
-              type="button"
-              disabled={!hasPreviousPage}
-              onClick={() => onPageChange(page - 1)}
-            >
-              Previous
-            </button>
-            <span className="text-sm font-semibold text-white/60">Page {page}</span>
-            <button
-              className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-white/20 hover:text-brand-white disabled:cursor-not-allowed disabled:opacity-40"
-              type="button"
-              disabled={!hasNextPage}
-              onClick={() => onPageChange(page + 1)}
-            >
-              Next
-            </button>
-          </div>
+          {!isLoading && payments.length ? (
+            <InfiniteScrollTrigger
+              hasMore={hasNextPage}
+              isLoading={isLoadingMore}
+              label="Loading more payments..."
+              onLoadMore={onLoadMore}
+            />
+          ) : null}
         </div>
 
-        <PaymentBreakdownPanel
-          breakdown={paymentBreakdown}
-          isLoading={isBreakdownLoading}
-          message={selectedPaymentId ? breakdownMessage : ""}
-          paymentId={selectedPaymentId}
-          onClose={onClosePayment}
-        />
+        <div className="hidden xl:block">
+          <PaymentBreakdownPanel
+            breakdown={paymentBreakdown}
+            isLoading={isBreakdownLoading}
+            message={selectedPaymentId ? breakdownMessage : ""}
+            paymentId={selectedPaymentId}
+            onClose={onClosePayment}
+          />
+        </div>
       </section>
     </div>
   );

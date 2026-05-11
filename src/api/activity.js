@@ -1,4 +1,15 @@
 import { getDashboardSession } from "./dashboard";
+import { getCachedStoreInfo, getSellerStoreUrl } from "./auth";
+
+function resolveActivitySession() {
+  const session = getDashboardSession();
+  const storeUrl = getSellerStoreUrl() || getCachedStoreInfo()?.url || session.storeUrl;
+
+  return {
+    accessToken: session.accessToken,
+    storeUrl,
+  };
+}
 
 /**
  * @param {string} url
@@ -28,7 +39,7 @@ async function postActivityJson(url, payload) {
  * @returns {Promise<any>}
  */
 export function bulkUpdateProducts(payload) {
-  const session = getDashboardSession();
+  const session = resolveActivitySession();
 
   return postActivityJson("/api/activity/bulk-update-products", {
     accessToken: session.accessToken,
@@ -42,7 +53,7 @@ export function bulkUpdateProducts(payload) {
  * @returns {Promise<any>}
  */
 export function requestMonthlyInvoice(payload) {
-  const session = getDashboardSession();
+  const session = resolveActivitySession();
 
   return postActivityJson("/api/activity/monthly-invoice", {
     accessToken: session.accessToken,
@@ -56,7 +67,7 @@ export function requestMonthlyInvoice(payload) {
  * @returns {Promise<any>}
  */
 export function uploadSpecialProducts(payload) {
-  const session = getDashboardSession();
+  const session = resolveActivitySession();
 
   return postActivityJson("/api/activity/special-products-upload", {
     accessToken: session.accessToken,
@@ -70,7 +81,7 @@ export function uploadSpecialProducts(payload) {
  * @returns {Promise<any>}
  */
 export function removeSpecialProducts(payload) {
-  const session = getDashboardSession();
+  const session = resolveActivitySession();
 
   return postActivityJson("/api/activity/special-products-remove", {
     accessToken: session.accessToken,
@@ -84,7 +95,7 @@ export function removeSpecialProducts(payload) {
  * @returns {Promise<any>}
  */
 export function createProductGroup(payload) {
-  const session = getDashboardSession();
+  const session = resolveActivitySession();
 
   return postActivityJson("/api/activity/create-product-group", {
     accessToken: session.accessToken,
