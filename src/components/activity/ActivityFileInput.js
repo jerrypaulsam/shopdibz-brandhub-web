@@ -19,7 +19,10 @@ export default function ActivityFileInput({
         className="sr-only"
         type="file"
         accept={accept}
-        onChange={onChange}
+        onChange={(event) => {
+          onChange(event);
+          event.target.value = "";
+        }}
       />
       <p className="text-sm font-semibold text-brand-white">{label}</p>
       <p className="mt-2 text-sm text-white/45">{helper}</p>

@@ -41,6 +41,7 @@ export function useStoreInfoForm() {
   const [logoBase64, setLogoBase64] = useState("");
   const [sizeChartPreview, setSizeChartPreview] = useState("");
   const [sizeChartBase64, setSizeChartBase64] = useState("");
+  const [sizeChartFilename, setSizeChartFilename] = useState("");
   const [connectorForm, setConnectorForm] = useState({
     shopifyUrl: "",
     shopifyAccess: "",
@@ -76,15 +77,15 @@ export function useStoreInfoForm() {
           storeState: data.state || "",
           storePinCode: data.pCode || data.pinCode || "",
           storeDescription: data.description || data.desc || "",
-          contactNo: (data.contactNo || "").replace("+91", ""),
+          contactNo: String(data.contactNo || data.cntNo || "").replace("+91", ""),
           storeVideo: data.storeVideo || data.video || "",
           link1: data.link1 || "",
           link2: data.link2 || "",
-          shipType: data.shipType || "SE",
-          shipMode: data.shipMode || "0",
+          shipType: data.shipType || data.shType || "SE",
+          shipMode: data.shipMode || data.mode || "0",
           activateStore: data.active ?? true,
-          enableReselling: data.enableResell ?? false,
-          themeId: String(data.storeTheme || "0"),
+          enableReselling: data.enableResell ?? data.resell ?? false,
+          themeId: String(data.storeTheme || data.theme || "0"),
         }));
         setLogoPreview(data.logo || "");
         setMessage("");
@@ -107,6 +108,24 @@ export function useStoreInfoForm() {
   }, []);
 
   function updateField(key, value) {
+    if (key === "contactNo") {
+      const digitsOnly = String(value || "").replace(/\D/g, "").slice(0, 10);
+      setForm((current) => ({
+        ...current,
+        contactNo: digitsOnly,
+      }));
+      return;
+    }
+
+    if (key === "storePinCode") {
+      const digitsOnly = String(value || "").replace(/\D/g, "").slice(0, 6);
+      setForm((current) => ({
+        ...current,
+        storePinCode: digitsOnly,
+      }));
+      return;
+    }
+
     setForm((current) => ({
       ...current,
       [key]: value,
@@ -131,19 +150,10 @@ export function useStoreInfoForm() {
   }
 
   async function submitInfo() {
-    const isInitialSetup = !storeInfo;
-    const missingCoreFields =
-      !form.storeName || !form.storeEmail || !form.storeDescription || !form.contactNo;
-    const missingSetupFields =
-      isInitialSetup &&
-      (!form.storeUrl ||
-        !form.storeAddress ||
-        !form.storeCity ||
-        !form.storeState ||
-        !form.storePinCode);
+    const validationMessage = validateStoreInfoForm(form, !storeInfo);
 
-    if (missingCoreFields || missingSetupFields) {
-      setMessage("Please fill all required fields.");
+    if (validationMessage) {
+      setMessage(validationMessage);
       return;
     }
 
@@ -188,6 +198,8 @@ export function useStoreInfoForm() {
     try {
       await updateStoreLogo(logoBase64);
       setMessage("Logo Updated Successfully");
+      setLogoBase64("");
+      await refreshStoreInfo();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Logo update failed");
     } finally {
@@ -197,14 +209,20 @@ export function useStoreInfoForm() {
 
   async function submitSizeChart() {
     if (!sizeChartBase64) {
-      setMessage("Upload size chart image first.");
+      setMessage("Upload size chart file first.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await updateSizeChart(sizeChartBase64);
+      await updateSizeChart({
+        base64: sizeChartBase64,
+        filename: sizeChartFilename,
+      });
       setMessage("Size Chart Updated Successfully");
+      setSizeChartBase64("");
+      setSizeChartFilename("");
+      await refreshStoreInfo();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Size chart update failed");
     } finally {
@@ -225,8 +243,18 @@ export function useStoreInfoForm() {
   }
 
   async function submitShopifyConnection() {
+    if (String(storeInfo?.storeConnected || "") === "2") {
+      setMessage("Please disconnect your WooCommerce store before connecting Shopify.");
+      return;
+    }
+
     if (!connectorForm.shopifyUrl || !connectorForm.shopifyAccess) {
       setMessage("Please add both Shopify URL and access token.");
+      return;
+    }
+
+    if (connectorForm.shopifyUrl.endsWith(".myshopify.com")) {
+      setMessage("Enter the Shopify subdomain only, without .myshopify.com.");
       return;
     }
 
@@ -283,8 +311,18 @@ export function useStoreInfoForm() {
   }
 
   async function submitWooCommerceConnection() {
+    if (String(storeInfo?.storeConnected || "") === "1") {
+      setMessage("Please disconnect your Shopify store before connecting WooCommerce.");
+      return;
+    }
+
     if (!connectorForm.wooCommerceUrl || !connectorForm.wooCommerceKey || !connectorForm.wooCommerceSecret) {
       setMessage("Please add the WooCommerce URL, key, and secret.");
+      return;
+    }
+
+    if (!/^https?:\/\/[^\s$.?#].[^\s]*$/i.test(connectorForm.wooCommerceUrl)) {
+      setMessage("Please enter a valid WooCommerce URL.");
       return;
     }
 
@@ -353,6 +391,8 @@ export function useStoreInfoForm() {
     setSizeChartPreview,
     sizeChartBase64,
     setSizeChartBase64,
+    sizeChartFilename,
+    setSizeChartFilename,
     connectorForm,
     message,
     isLoading,
@@ -370,6 +410,81 @@ export function useStoreInfoForm() {
     submitWooCommerceSync,
     submitWooCommerceDisconnect,
   };
+}
+
+/**
+ * @param {any} form
+ * @param {boolean} isInitialSetup
+ * @returns {string}
+ */
+function validateStoreInfoForm(form, isInitialSetup) {
+  if (!form.storeName.trim()) {
+    return "Store name is required.";
+  }
+
+  if (!form.storeEmail.trim()) {
+    return "Store email is required.";
+  }
+
+  if (!/^\S+@\S+\.\S+$/.test(form.storeEmail.trim())) {
+    return "Please enter a valid store email.";
+  }
+
+  if (!form.contactNo.trim()) {
+    return "Contact number is required.";
+  }
+
+  if (!/^\d{10}$/.test(form.contactNo.trim())) {
+    return "Contact number must be 10 digits.";
+  }
+
+  if (!form.storeDescription.trim()) {
+    return "Store description is required.";
+  }
+
+  if (form.storeDescription.trim().length < 20) {
+    return "Store description should be at least 20 characters.";
+  }
+
+  if (isInitialSetup) {
+    if (!form.storeUrl.trim()) {
+      return "Store ID is required.";
+    }
+
+    if (!/^[a-z0-9-]+$/.test(form.storeUrl.trim())) {
+      return "Store ID can only contain lowercase letters, numbers, and hyphens.";
+    }
+
+    if (!form.storeAddress.trim()) {
+      return "Store address is required.";
+    }
+
+    if (!form.storeCity.trim()) {
+      return "City is required.";
+    }
+
+    if (!form.storeState.trim()) {
+      return "State is required.";
+    }
+
+    if (!/^\d{6}$/.test(form.storePinCode.trim())) {
+      return "Pincode must be 6 digits.";
+    }
+  }
+
+  if (form.shipType === "AS" && !["0", "1"].includes(String(form.shipMode))) {
+    return "Choose a shipping mode.";
+  }
+
+  if (form.storeVideo.trim()) {
+    const normalized = normalizeYoutubeLink(form.storeVideo);
+
+    if (!normalized) {
+      return "Please enter a valid YouTube video link or video ID.";
+    }
+  }
+
+  return "";
 }
 
 function normalizeYoutubeLink(value) {

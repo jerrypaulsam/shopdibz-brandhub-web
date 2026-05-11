@@ -2,13 +2,31 @@ import Link from "next/link";
 import DashboardShell from "@/src/components/dashboard/DashboardShell";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 
-const steps = [
-  ["category", "Choose Category"],
-  ["info", "Product Info"],
-  ["variation", "Variation"],
-  ["images", "Images"],
-  ["bulk", "Bulk Upload"],
-];
+function resolveSteps(query) {
+  const isBulkFlow = query["listing-mode"] === "bulk";
+  const hasVariantFlow = query["variant-mode"] === "with-variant";
+
+  if (isBulkFlow) {
+    return [
+      ["category", "Choose Category"],
+      ["bulk", "Bulk Upload"],
+    ];
+  }
+
+  if (hasVariantFlow) {
+    return [
+      ["category", "Choose Category"],
+      ["info", "Product Info"],
+      ["variation", "Variation"],
+    ];
+  }
+
+  return [
+    ["category", "Choose Category"],
+    ["info", "Product Info"],
+    ["images", "Images"],
+  ];
+}
 
 /**
  * @param {{ title: string, subtitle: string, currentStep: string, query?: Record<string, string>, children: import("react").ReactNode, message?: string, success?: string }} props
@@ -22,6 +40,11 @@ export default function ProductFlowLayout({
   message,
   success,
 }) {
+  const steps = resolveSteps(query);
+  const currentIndex = steps.findIndex(([step]) => step === currentStep);
+  const hasSelection = Boolean(query.category && query["sub-category"]);
+  const isBulkFlow = query["listing-mode"] === "bulk";
+
   return (
     <DashboardShell>
       <div className="mx-auto max-w-[1320px] px-4 py-8 md:px-6">
@@ -43,6 +66,26 @@ export default function ProductFlowLayout({
                     step === "variation" && !query["variation-type"]
                       ? { pathname: "/products/new/info", query }
                       : { pathname: `/products/new/${step}`, query };
+                  const stepIndex = steps.findIndex(([value]) => value === step);
+                  const canNavigate =
+                    step === currentStep ||
+                    stepIndex < currentIndex ||
+                    (step === "info" && hasSelection) ||
+                    (step === "bulk" && hasSelection && isBulkFlow);
+
+                  if (!canNavigate) {
+                    return (
+                      <div
+                        className="rounded-sm border border-white/10 px-3 py-3 text-left text-white/35"
+                        key={step}
+                      >
+                        <span className="block text-[11px] font-bold uppercase tracking-[0.18em]">
+                          Step
+                        </span>
+                        <span className="mt-1 block text-sm font-semibold">{label}</span>
+                      </div>
+                    );
+                  }
 
                   return (
                     <Link

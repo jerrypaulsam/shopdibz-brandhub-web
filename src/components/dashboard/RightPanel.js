@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import ChartCard from "./ChartCard";
 import LineChart from "./LineChart";
 
@@ -236,27 +237,86 @@ function QuickStat({
  * @param {{ storeInfo: any }} props
  */
 function StoreProfile({ storeInfo }) {
+  const storeUrl = storeInfo?.url
+    ? `shopdibz.com/store/${storeInfo.url}`
+    : "Store URL pending";
+
   return (
-    <section className="rounded-sm border border-white/10 bg-[#121212] p-5 text-center">
-      <div className="relative mx-auto h-20 w-20 overflow-hidden rounded-sm border border-brand-gold/30 bg-brand-black">
-        <Image
-          src={storeInfo?.logo || "/assets/logo/seller-logo.png"}
-          alt={`${storeInfo?.name || "Store"} logo`}
-          fill
-          sizes="80px"
-          className="object-contain"
-        />
+    <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
+      <div className="flex items-start gap-4">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-sm border border-brand-gold/30 bg-brand-black">
+          <Image
+            src={storeInfo?.logo || "/assets/logo/seller-logo.png"}
+            alt={`${storeInfo?.name || "Store"} logo`}
+            fill
+            sizes="80px"
+            className="object-contain"
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="truncate text-lg font-extrabold text-brand-white">
+                {storeInfo?.name || "Store"}
+              </h2>
+              <p className="mt-1 truncate text-xs text-white/45">{storeUrl}</p>
+            </div>
+            <span className="rounded-full border border-brand-gold/30 bg-brand-gold/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-gold">
+              {resolvePlanLabel(storeInfo)}
+            </span>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              className="inline-flex min-h-9 items-center rounded-sm border border-white/10 px-3 text-xs font-bold uppercase tracking-[0.12em] text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
+              href="/store-info-form?section=identity"
+            >
+              Edit Store
+            </Link>
+            {storeInfo?.url ? (
+              <a
+                className="inline-flex min-h-9 items-center rounded-sm border border-brand-gold/20 px-3 text-xs font-bold uppercase tracking-[0.12em] text-brand-gold transition-colors hover:text-brand-white"
+                href={`https://www.shopdibz.com/store/${storeInfo.url}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Preview
+              </a>
+            ) : null}
+          </div>
+        </div>
       </div>
-      <h2 className="mt-4 text-lg font-extrabold text-brand-white">
-        {storeInfo?.name || "Store"}
-      </h2>
-      <p className="mt-2 line-clamp-4 text-sm leading-6 text-white/50">
-        {storeInfo?.description || "Store description has not been added yet."}
-      </p>
-      <div className="mt-5 grid grid-cols-3 gap-2 text-xs">
+
+      <div className="mt-5 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
         <ProfileMetric label="Level" value={storeInfo?.level || 0} />
-        <ProfileMetric label="Rating" value={storeInfo?.averageReview || 0} />
+        <ProfileMetric label="Rating" value={formatDecimal(storeInfo?.averageReview || 0)} />
         <ProfileMetric label="Points" value={storeInfo?.points || 0} />
+        <ProfileMetric label="Followers" value={storeInfo?.followers || 0} />
+      </div>
+
+      <div className="mt-5 rounded-sm border border-white/10 bg-black/20 p-4">
+        <div className="flex items-center justify-between gap-4">
+          <h3 className="text-sm font-bold text-brand-white">Store Description</h3>
+          <Link
+            className="text-xs font-bold uppercase tracking-[0.12em] text-brand-gold transition-colors hover:text-brand-white"
+            href="/store-info-form?section=identity"
+          >
+            Edit
+          </Link>
+        </div>
+        <p className="mt-3 line-clamp-4 text-sm leading-6 text-white/55">
+          {storeInfo?.description || "Store description has not been added yet."}
+        </p>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <IdentityRow
+          label="Store Link"
+          value={storeInfo?.url ? `@${storeInfo.url}` : "---"}
+        />
+        <IdentityRow
+          label="Visibility"
+          value={storeInfo?.active === false ? "Inactive" : "Active"}
+        />
       </div>
     </section>
   );
@@ -270,6 +330,20 @@ function ProfileMetric({ label, value }) {
     <div className="rounded-sm border border-white/10 p-2">
       <p className="font-bold text-brand-white">{value}</p>
       <p className="mt-1 text-white/35">{label}</p>
+    </div>
+  );
+}
+
+/**
+ * @param {{ label: string, value: string }} props
+ */
+function IdentityRow({ label, value }) {
+  return (
+    <div className="rounded-sm border border-white/10 px-3 py-3">
+      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/35">
+        {label}
+      </p>
+      <p className="mt-2 text-sm font-semibold text-brand-white">{value}</p>
     </div>
   );
 }
@@ -336,6 +410,38 @@ function Managers({ managers }) {
       </div>
     </section>
   );
+}
+
+/**
+ * @param {number|string} value
+ * @returns {string}
+ */
+function formatDecimal(value) {
+  return Number(value || 0).toFixed(1);
+}
+
+/**
+ * @param {any} storeInfo
+ * @returns {string}
+ */
+function resolvePlanLabel(storeInfo) {
+  if (!storeInfo?.prem) {
+    return "Free Store";
+  }
+
+  if (storeInfo?.plan === "S") {
+    return "Silver Store";
+  }
+
+  if (storeInfo?.plan === "G") {
+    return "Gold Store";
+  }
+
+  if (storeInfo?.plan === "P") {
+    return "Platinum Store";
+  }
+
+  return "Premium Store";
 }
 
 /**

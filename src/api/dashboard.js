@@ -1,3 +1,5 @@
+import { cacheStoreInfo, getAuthSession, getCachedStoreInfo } from "./auth";
+
 /**
  * @typedef {Object} DashboardSession
  * @property {string} accessToken
@@ -8,38 +10,18 @@
  * @returns {DashboardSession}
  */
 export function getDashboardSession() {
-  if (typeof window === "undefined") {
-    return {
-      accessToken: "",
-      storeUrl: "",
-    };
-  }
+  const session = getAuthSession();
+  const cachedStore = getCachedStoreInfo();
 
-  const rawSession = window.localStorage.getItem("shopdibz_seller_auth");
-
-  if (!rawSession) {
-    return {
-      accessToken: "",
-      storeUrl: "",
-    };
-  }
-
-  try {
-    const session = JSON.parse(rawSession);
-    return {
-      accessToken: session?.data?.access || session?.access || "",
-      storeUrl:
-        session?.user?.storeUrl ||
-        session?.user?.store_url ||
-        session?.storeUrl ||
-        "",
-    };
-  } catch {
-    return {
-      accessToken: "",
-      storeUrl: "",
-    };
-  }
+  return {
+    accessToken: session?.data?.access || session?.access || "",
+    storeUrl:
+      session?.user?.storeUrl ||
+      session?.user?.store_url ||
+      session?.storeUrl ||
+      cachedStore?.url ||
+      "",
+  };
 }
 
 /**
@@ -69,7 +51,10 @@ async function getDashboardJson(url, params) {
 export function fetchStoreInfo() {
   const session = getDashboardSession();
 
-  return getDashboardJson("/api/dashboard/store-info", session);
+  return getDashboardJson("/api/dashboard/store-info", session).then((data) => {
+    cacheStoreInfo(data);
+    return data;
+  });
 }
 
 /**

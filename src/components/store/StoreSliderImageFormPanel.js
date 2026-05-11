@@ -1,7 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
+import { useRef, useState } from "react";
 
 import AuthButton from "@/src/components/auth/AuthButton";
 import AuthMessage from "@/src/components/auth/AuthMessage";
+import AspectCropDialog from "@/src/components/media/AspectCropDialog";
 import StoreField from "./StoreField";
 import StoreSection from "./StoreSection";
 
@@ -169,6 +171,8 @@ function BannerSlotEditor({
   onUpdate,
   aspectClass,
 }) {
+  const fileInputRef = useRef(null);
+  const [cropFile, setCropFile] = useState(null);
   const filteredGroups = productGroups.filter((group) =>
     String(group?.name || "")
       .toLowerCase()
@@ -177,30 +181,32 @@ function BannerSlotEditor({
 
   function handleImageChange(event) {
     const file = event.target.files?.[0];
+    event.target.value = "";
 
     if (!file) {
       return;
     }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result || "");
-      onUpdate(index, {
-        preview: result,
-        imageBase64: result.split(",")[1] || "",
-      });
-    };
-    reader.readAsDataURL(file);
+    setCropFile(file);
   }
 
   return (
     <section className="rounded-sm border border-white/10 bg-black/20 p-4">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-base font-bold text-brand-white">Slider {index + 1}</h3>
-        <label className="cursor-pointer rounded-sm border border-white/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold">
+        <button
+          className="rounded-sm border border-white/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+        >
           Select Image
-          <input className="hidden" type="file" accept="image/*" onChange={handleImageChange} />
-        </label>
+        </button>
+        <input
+          ref={fileInputRef}
+          className="hidden"
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+        />
       </div>
 
       <div className="mt-4 overflow-hidden rounded-sm border border-white/10 bg-brand-black">
@@ -267,6 +273,22 @@ function BannerSlotEditor({
           </div>
         )}
       </div>
+      <AspectCropDialog
+        open={Boolean(cropFile)}
+        file={cropFile}
+        title={`Crop Slider ${index + 1}`}
+        aspectRatio={aspectClass === "aspect-[4/5]" ? 4 / 5 : 16 / 6}
+        outputWidth={aspectClass === "aspect-[4/5]" ? 1080 : 1920}
+        outputHeight={aspectClass === "aspect-[4/5]" ? 1350 : 720}
+        onCancel={() => setCropFile(null)}
+        onConfirm={({ dataUrl, base64 }) => {
+          onUpdate(index, {
+            preview: dataUrl,
+            imageBase64: base64,
+          });
+          setCropFile(null);
+        }}
+      />
     </section>
   );
 }

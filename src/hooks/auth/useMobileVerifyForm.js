@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
   clearAuthSession,
+  hasAuthenticatedSellerSession,
   requestInitialMobileOtp,
   saveMobileVerification,
   verifyInitialMobileNumber,
@@ -17,9 +18,14 @@ export function useMobileVerifyForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    if (hasAuthenticatedSellerSession()) {
+      router.replace("/");
+      return;
+    }
+
     clearAuthSession();
     logScreenView("init-mobile-verify", "Anonymous", "store");
-  }, []);
+  }, [router]);
 
   async function requestOtp() {
     if (!mobile) {

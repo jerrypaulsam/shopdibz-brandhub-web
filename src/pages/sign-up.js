@@ -5,9 +5,11 @@ import AuthField from "@/src/components/auth/AuthField";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 import AuthShell from "@/src/components/auth/AuthShell";
 import AuthTitle from "@/src/components/auth/AuthTitle";
+import { useSellerGuestRedirect } from "@/src/hooks/auth/useSellerGuestRedirect";
 import { useSignupForm } from "@/src/hooks/auth/useSignupForm";
 
 export default function SignUpPage() {
+  const isRedirecting = useSellerGuestRedirect();
   const {
     email,
     setEmail,
@@ -23,6 +25,16 @@ export default function SignUpPage() {
     isSubmitting,
     submitSignup,
   } = useSignupForm();
+
+  if (isRedirecting) {
+    return (
+      <AuthShell>
+        <div className="flex flex-1 items-center justify-center text-sm font-semibold text-white/60">
+          Redirecting to dashboard...
+        </div>
+      </AuthShell>
+    );
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();

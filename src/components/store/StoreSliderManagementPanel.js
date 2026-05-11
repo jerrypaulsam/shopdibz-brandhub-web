@@ -1,7 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
+import { useRef, useState } from "react";
 
 import AuthButton from "@/src/components/auth/AuthButton";
 import AuthMessage from "@/src/components/auth/AuthMessage";
+import AspectCropDialog from "@/src/components/media/AspectCropDialog";
 import StoreField from "./StoreField";
 import StoreSection from "./StoreSection";
 
@@ -32,6 +34,8 @@ export default function StoreSliderManagementPanel({
   isSubmitting,
   onSubmit,
 }) {
+  const fileInputRef = useRef(null);
+  const [cropFile, setCropFile] = useState(null);
   const aspectClass = currentAspectRatio === "4:5" ? "aspect-[4/5]" : "aspect-[16/6]";
   const shownGroups = productGroups.filter((group) =>
     String(group?.name || "")
@@ -41,18 +45,12 @@ export default function StoreSliderManagementPanel({
 
   function handleImageChange(event) {
     const file = event.target.files?.[0];
+    event.target.value = "";
 
     if (!file) {
       return;
     }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result || "");
-      setPreview(result);
-      setImageBase64(result.split(",")[1] || "");
-    };
-    reader.readAsDataURL(file);
+    setCropFile(file);
   }
 
   return (
@@ -188,10 +186,20 @@ export default function StoreSliderManagementPanel({
               <MetricCard label="View" value={mobileSliderSelection ? "Mobile" : "Desktop"} />
             </div>
 
-            <label className="block cursor-pointer rounded-sm border border-white/10 px-4 py-3 text-center text-sm font-bold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold">
+            <button
+              className="block w-full rounded-sm border border-white/10 px-4 py-3 text-center text-sm font-bold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+            >
               Select Replacement Image
-              <input className="hidden" type="file" accept="image/*" onChange={handleImageChange} />
-            </label>
+            </button>
+            <input
+              ref={fileInputRef}
+              className="hidden"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
 
             <div>
               <StoreField
@@ -253,6 +261,20 @@ export default function StoreSliderManagementPanel({
         <div className="mt-6 border-t border-white/10 pt-6 text-sm text-white/55">
           <p>Store plan: {storeInfo?.plan || "Free"}</p>
         </div>
+        <AspectCropDialog
+          open={Boolean(cropFile)}
+          file={cropFile}
+          title="Crop Replacement Slider"
+          aspectRatio={currentAspectRatio === "4:5" ? 4 / 5 : 16 / 6}
+          outputWidth={currentAspectRatio === "4:5" ? 1080 : 1920}
+          outputHeight={currentAspectRatio === "4:5" ? 1350 : 720}
+          onCancel={() => setCropFile(null)}
+          onConfirm={({ dataUrl, base64 }) => {
+            setPreview(dataUrl);
+            setImageBase64(base64);
+            setCropFile(null);
+          }}
+        />
       </StoreSection>
     </div>
   );

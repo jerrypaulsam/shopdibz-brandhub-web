@@ -63,6 +63,11 @@ export function useProductCategoryForm() {
 
   function chooseVariantMode(value) {
     setError("");
+    if (draftApi.draft.listingMode === "bulk") {
+      draftApi.updateDraft({
+        listingMode: "single",
+      });
+    }
     draftApi.updateDraft({
       variantMode: value,
     });
@@ -74,6 +79,16 @@ export function useProductCategoryForm() {
 
   function chooseListingMode(value) {
     setError("");
+    if (value === "bulk") {
+      draftApi.updateDraft({
+        listingMode: value,
+        variantMode: "without-variant",
+        variantType: "",
+        variations: [],
+      });
+      return;
+    }
+
     draftApi.updateDraft({
       listingMode: value,
     });
@@ -82,6 +97,11 @@ export function useProductCategoryForm() {
   async function continueToNext() {
     if (!draftApi.selection.category || !draftApi.selection.subCategory) {
       setError("Choose a category and subcategory to continue.");
+      return;
+    }
+
+    if (itemSubCategories.length && !draftApi.selection.itemSubCategory) {
+      setError("Choose an item subcategory to continue.");
       return;
     }
 

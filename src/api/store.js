@@ -1,5 +1,10 @@
 import { fetchStoreInfo, getDashboardSession } from "./dashboard";
-import { getAccessToken, updateAuthSession } from "./auth";
+import {
+  cacheStoreInfo,
+  getAccessToken,
+  getCachedStoreInfo,
+  updateAuthSession,
+} from "./auth";
 
 /**
  * @param {string} url
@@ -60,6 +65,29 @@ export function updateStoreInfo(payload) {
       });
     }
 
+    const cachedStore = getCachedStoreInfo();
+    if (cachedStore) {
+      cacheStoreInfo({
+        ...cachedStore,
+        name: payload.name,
+        url: payload.storeUrl || cachedStore.url,
+        email: payload.storeEmail,
+        link1: payload.link1,
+        link2: payload.link2,
+        cntNo: payload.contactNo,
+        desc: payload.description,
+        adrs: payload.address,
+        city: payload.city,
+        pCode: payload.pinCode,
+        state: payload.state,
+        active: payload.active,
+        shType: payload.shipType,
+        mode: payload.shipMode,
+        resell: payload.enableResell,
+        video: payload.storeVideo,
+      });
+    }
+
     return data;
   });
 }
@@ -73,12 +101,13 @@ export function updateStoreLogo(logoBase64) {
   });
 }
 
-export function updateSizeChart(chartBase64) {
+export function updateSizeChart(payload) {
   const session = getDashboardSession();
   return postStoreJson("/api/store/update-size-chart", {
     accessToken: session.accessToken,
     storeUrl: session.storeUrl,
-    chartBase64,
+    chartBase64: payload.base64,
+    filename: payload.filename,
   });
 }
 
@@ -91,6 +120,11 @@ export function updateStoreTheme(themeId) {
 
 export function fetchEditableStoreInfo() {
   const session = getDashboardSession();
+  const cachedStore = getCachedStoreInfo();
+
+  if (!session.storeUrl && cachedStore) {
+    return Promise.resolve(cachedStore);
+  }
 
   if (!session.storeUrl) {
     return Promise.resolve(null);

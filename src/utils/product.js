@@ -146,6 +146,10 @@ export function normalizePaginatedCollection(value) {
  * @returns {string}
  */
 export function getProductPrimaryImage(product) {
+  if (product?.image || product?.img) {
+    return String(product?.image || product?.img || "");
+  }
+
   const gallery =
     product?.prdtImg ||
     product?.images ||
@@ -163,7 +167,7 @@ export function getProductPrimaryImage(product) {
     );
   }
 
-  const variations = product?.prdtVari || product?.variations || [];
+  const variations = product?.prdtVari || product?.productVariations || product?.variations || [];
 
   if (Array.isArray(variations) && variations.length) {
     const firstVariation = variations[0];
@@ -188,7 +192,7 @@ export function getProductPrimaryImage(product) {
  * @returns {{ minPrice: number, maxPrice: number, minMrp: number, maxMrp: number }}
  */
 export function getProductPriceRange(product) {
-  const variations = product?.prdtVari || product?.variations || [];
+  const variations = product?.prdtVari || product?.productVariations || product?.variations || [];
 
   if (Array.isArray(variations) && variations.length) {
     const prices = variations.map((variation) => Number(variation?.price || 0));
@@ -235,7 +239,7 @@ export function getProductStockValue(product) {
     return directStock;
   }
 
-  const variations = product?.prdtVari || product?.variations || [];
+  const variations = product?.prdtVari || product?.productVariations || product?.variations || [];
 
   if (Array.isArray(variations) && variations.length) {
     return variations.reduce(
@@ -245,6 +249,106 @@ export function getProductStockValue(product) {
   }
 
   return 0;
+}
+
+/**
+ * @param {any} product
+ * @returns {string}
+ */
+export function getProductTitle(product) {
+  return String(product?.title || product?.tit || product?.name || "Untitled Product");
+}
+
+/**
+ * @param {any} product
+ * @returns {string}
+ */
+export function getProductCode(product) {
+  return String(
+    product?.productCode ||
+      product?.pCode ||
+      product?.product_code ||
+      product?.prdtCode ||
+      "",
+  );
+}
+
+/**
+ * @param {any} product
+ * @returns {number}
+ */
+export function getProductRating(product) {
+  return Number(product?.averageReview ?? product?.rating ?? product?.rat ?? 0);
+}
+
+/**
+ * @param {any} product
+ * @returns {number}
+ */
+export function getProductReviewCount(product) {
+  return Number(product?.countReview ?? product?.rCount ?? product?.rCnt ?? product?.reviewCount ?? 0);
+}
+
+/**
+ * @param {any} product
+ * @returns {boolean}
+ */
+export function getProductHasVariants(product) {
+  return Boolean(product?.variants ?? product?.var ?? false);
+}
+
+/**
+ * @param {any} product
+ * @returns {boolean}
+ */
+export function getProductApprovalStatus(product) {
+  return Boolean(product?.approved ?? product?.aprvd ?? false);
+}
+
+/**
+ * @param {any} product
+ * @returns {Array<any>}
+ */
+export function getProductVariations(product) {
+  return Array.isArray(product?.productVariations)
+    ? product.productVariations
+    : Array.isArray(product?.prdtVari)
+      ? product.prdtVari
+      : Array.isArray(product?.variations)
+        ? product.variations
+        : [];
+}
+
+/**
+ * @param {any} variation
+ * @returns {string}
+ */
+export function getVariationCode(variation) {
+  return String(variation?.variationCode || variation?.varCode || "");
+}
+
+/**
+ * @param {any} variation
+ * @returns {string}
+ */
+export function getVariationLabel(variation) {
+  return String(variation?.variation || variation?.vAtion || "Variation");
+}
+
+/**
+ * @param {any} variation
+ * @returns {string[]}
+ */
+export function getVariationTypeNames(variation) {
+  const variationTypes = Array.isArray(variation?.variationTypes)
+    ? variation.variationTypes
+    : Array.isArray(variation?.vTypes)
+      ? variation.vTypes
+      : [];
+
+  return variationTypes
+    .map((item) => String(item?.name || item?.tMap || "").trim())
+    .filter(Boolean);
 }
 
 /**

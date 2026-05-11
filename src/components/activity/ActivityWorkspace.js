@@ -37,6 +37,7 @@ import { ACTIVITY_PANELS } from "@/src/utils/activity";
  * @property {(value: string) => void} setBulkMode
  * @property {(value: string) => void} setGroupDiscount
  * @property {(value: string) => void} setGroupDiscountType
+ * @property {(payload: { fileName: string, base64: string }) => void} setGroupImageAsset
  * @property {(value: string) => void} setGroupName
  * @property {(value: string) => void} setInvoiceMonth
  * @property {(value: string) => void} setInvoiceYear
@@ -162,7 +163,7 @@ export default function ActivityWorkspace(props) {
               isPremium={props.isPremium}
               pricingUrl={props.pricingUrl}
               showOnHome={props.showOnHome}
-              onFileChange={(event) => props.onFileSelect(event, "group")}
+              onImageCropped={props.setGroupImageAsset}
               onGroupDiscountChange={props.setGroupDiscount}
               onGroupDiscountTypeChange={props.setGroupDiscountType}
               onGroupNameChange={props.setGroupName}

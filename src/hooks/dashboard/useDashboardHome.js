@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import {
   fetchDailyVisits,
+  getDashboardSession,
   fetchManagers,
   fetchOrders,
   fetchStoreInfo,
   fetchWeeklyAnalytics,
 } from "@/src/api/dashboard";
+import { getCachedStoreInfo } from "@/src/api/auth";
 import { logScreenView } from "@/src/api/analytics";
 
 const fallbackStore = {
@@ -43,7 +45,9 @@ const fallbackStore = {
  */
 export function useDashboardHome() {
   const router = useRouter();
-  const [storeInfo, setStoreInfo] = useState(fallbackStore);
+  const [storeInfo, setStoreInfo] = useState(() =>
+    normalizeStoreInfo(getCachedStoreInfo()),
+  );
   const [pendingOrders, setPendingOrders] = useState([]);
   const [managers, setManagers] = useState([]);
   const [weeklyAnalytics, setWeeklyAnalytics] = useState([]);
@@ -60,6 +64,19 @@ export function useDashboardHome() {
       setError("");
 
       try {
+        const session = getDashboardSession();
+        const cachedStore = getCachedStoreInfo();
+
+        if (!session.accessToken) {
+          await router.replace("/login");
+          return;
+        }
+
+        if (!session.storeUrl && !cachedStore?.url) {
+          await router.replace("/");
+          return;
+        }
+
         const [
           store,
           orders,
@@ -78,7 +95,8 @@ export function useDashboardHome() {
           return;
         }
 
-        const nextStore = store.status === "fulfilled" ? store.value : {};
+        const nextStore =
+          store.status === "fulfilled" ? store.value : cachedStore || {};
         const nextOrders = orders.status === "fulfilled" ? orders.value : {};
         const nextManagers =
           managerList.status === "fulfilled" ? managerList.value : {};
@@ -86,10 +104,7 @@ export function useDashboardHome() {
         const nextDailyVisits =
           dailyVisitResult.status === "fulfilled" ? dailyVisitResult.value : {};
 
-        const resolvedStoreInfo = {
-          ...fallbackStore,
-          ...nextStore,
-        };
+        const resolvedStoreInfo = normalizeStoreInfo(nextStore);
 
         setStoreInfo(resolvedStoreInfo);
         setPendingOrders(nextOrders.results || []);
@@ -207,4 +222,99 @@ export function useDashboardHome() {
  */
 function formatMoney(value) {
   return `Rs. ${Number(value || 0).toFixed(2)}`;
+}
+
+/**
+ * @param {any} value
+ * @returns {boolean}
+ */
+function toBoolean(value) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    return value === 1;
+  }
+
+  if (typeof value === "string") {
+    return value.toLowerCase() === "true" || value === "1";
+  }
+
+  return false;
+}
+
+/**
+ * @param {any[]} values
+ * @returns {any}
+ */
+function firstDefined(values) {
+  return values.find((value) => value !== undefined && value !== null);
+}
+
+/**
+ * @param {any[]} values
+ * @returns {number}
+ */
+function toNumber(values) {
+  const resolved = firstDefined(values);
+  const numeric = Number(resolved || 0);
+  return Number.isFinite(numeric) ? numeric : 0;
+}
+
+/**
+ * @param {any} raw
+ * @returns {any}
+ */
+function normalizeStoreInfo(raw) {
+  const store = raw || {};
+
+  return {
+    ...fallbackStore,
+    ...store,
+    name: firstDefined([store.name, store.storeName, fallbackStore.name]),
+    url: firstDefined([store.url, store.storeUrl, fallbackStore.url]),
+    logo: firstDefined([store.logo, store.storeLogo, fallbackStore.logo]),
+    description: firstDefined([
+      store.description,
+      store.desc,
+      fallbackStore.description,
+    ]),
+    prem: toBoolean(firstDefined([store.prem, store.isPremium])),
+    plan: String(firstDefined([store.plan, store.activePlan, fallbackStore.plan])),
+    earned: toNumber([store.earned, store.totalAmount]),
+    orders: toNumber([store.orders, store.totalOrders]),
+    pOrders: toNumber([store.pOrders, store.pendingOrders]),
+    packedOrders: toNumber([store.packedOrders, store.pacOrders]),
+    shippedOrders: toNumber([store.shippedOrders, store.shOrders]),
+    completedOrders: toNumber([store.completedOrders, store.comOrders]),
+    cancelledOrders: toNumber([store.cancelledOrders, store.canOrders]),
+    followers: toNumber([store.followers, store.folls]),
+    totalProducts: toNumber([store.totalProducts, store.productCount, store.totProds]),
+    countReview: toNumber([store.countReview, store.reviewCount, store.rCnt]),
+    level: toNumber([store.level]),
+    penalty: toNumber([store.penalty]),
+    wallet: toNumber([store.wallet, store.adWallet]),
+    dailyVisits: toNumber([store.dailyVisits, store.dVisits]),
+    averageShippingTime: toNumber([
+      store.averageShippingTime,
+      store.avgShippingTime,
+      store.avgShip,
+    ]),
+    totalProductViews: toNumber([
+      store.totalProductViews,
+      store.productViews,
+      store.prdtViews,
+    ]),
+    averageReview: toNumber([store.averageReview, store.rating, store.rAvg]),
+    points: toNumber([store.points]),
+    tin: String(firstDefined([store.tin, store.gstin, ""])),
+    bankVerify: firstDefined([store.bankVerify, store.bank_verify, store.bV]),
+    paywall: firstDefined([store.paywall]),
+    close: toBoolean(firstDefined([store.close, store.closed])),
+    userCode: firstDefined([store.userCode, store.uCode, ""]),
+    shipType: firstDefined([store.shipType, store.shType, "SE"]),
+    shipMode: firstDefined([store.shipMode, store.mode, "0"]),
+    storeTheme: String(firstDefined([store.storeTheme, store.theme, "0"])),
+  };
 }

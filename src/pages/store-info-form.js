@@ -1,7 +1,10 @@
 import Image from "next/image";
+import { useRouter } from "next/router";
+import { useState } from "react";
 import AuthButton from "@/src/components/auth/AuthButton";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 import DashboardShell from "@/src/components/dashboard/DashboardShell";
+import AspectCropDialog from "@/src/components/media/AspectCropDialog";
 import CollapsibleStoreSection from "@/src/components/store/CollapsibleStoreSection";
 import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
@@ -10,6 +13,8 @@ import ThemePicker from "@/src/components/store/ThemePicker";
 import { useStoreInfoForm } from "@/src/hooks/store/useStoreInfoForm";
 
 export default function StoreInfoFormPage() {
+  const router = useRouter();
+  const [logoCropFile, setLogoCropFile] = useState(null);
   const {
     form,
     storeInfo,
@@ -19,6 +24,7 @@ export default function StoreInfoFormPage() {
     sizeChartPreview,
     setSizeChartPreview,
     setSizeChartBase64,
+    setSizeChartFilename,
     connectorForm,
     message,
     isLoading,
@@ -41,6 +47,8 @@ export default function StoreInfoFormPage() {
   const shopifyConnected = storeConnected === "1";
   const wooCommerceConnected = storeConnected === "2";
   const isInitialSetup = !storeInfo;
+  const focusSection =
+    typeof router.query.section === "string" ? router.query.section : "";
 
   async function fileToBase64(file, onPreview, onBase64) {
     const reader = new FileReader();
@@ -57,6 +65,12 @@ export default function StoreInfoFormPage() {
     await submitInfo();
   }
 
+  const hasPendingLogo = Boolean(logoPreview && logoPreview !== (storeInfo?.logo || ""));
+  const hasPendingSizeChart = Boolean(sizeChartPreview);
+  const currentSizeGuide = storeInfo?.sizeGuide || "";
+  const currentSizeGuideIsPdf = /\.pdf(\?|#|$)/i.test(currentSizeGuide);
+  const pendingSizeGuideIsPdf = /\.pdf(\?|#|$)/i.test(sizeChartPreview);
+
   return (
     <DashboardShell>
       <div className="mx-auto max-w-[1280px] px-4 py-8 md:px-6">
@@ -67,7 +81,7 @@ export default function StoreInfoFormPage() {
                 title="Store Identity"
                 subtitle="Update the customer-facing identity, profile assets, and descriptive content for your brand."
                 badge={isInitialSetup ? "Setup" : "Live"}
-                defaultOpen
+                defaultOpen={!focusSection || focusSection === "identity"}
               >
                 <div className="flex flex-col items-center gap-5">
                   <label className="cursor-pointer">
@@ -90,20 +104,28 @@ export default function StoreInfoFormPage() {
                       accept="image/*"
                       onChange={(event) => {
                         const file = event.target.files?.[0];
+                        event.target.value = "";
                         if (file) {
-                          fileToBase64(file, setLogoPreview, setLogoBase64);
+                          setLogoCropFile(file);
                         }
                       }}
                     />
                   </label>
-                  <button
-                    className="rounded-sm border border-white/20 px-4 py-2 text-sm font-bold text-brand-white"
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={submitLogo}
-                  >
-                    Confirm Logo
-                  </button>
+                  {hasPendingLogo ? (
+                    <button
+                      className="cursor-pointer rounded-sm border border-white/20 px-4 py-2 text-sm font-bold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-60"
+                      type="button"
+                      disabled={isSubmitting}
+                      onClick={submitLogo}
+                    >
+                      {isSubmitting ? "Updating..." : "Confirm Logo"}
+                    </button>
+                  ) : null}
+                  {hasPendingLogo ? (
+                    <p className="text-center text-xs text-brand-gold">
+                      New logo selected. Confirm to upload it to your store.
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="mt-8 grid gap-5">
@@ -113,7 +135,24 @@ export default function StoreInfoFormPage() {
                   ) : null}
                   <StoreField label="Store Email" type="email" value={form.storeEmail} onChange={(value) => updateField("storeEmail", value)} />
                   <StoreField label="Description" multiline maxLength={1000} value={form.storeDescription} onChange={(value) => updateField("storeDescription", value)} />
-                  <StoreField label="Contact No." type="tel" value={form.contactNo} onChange={(value) => updateField("contactNo", value)} />
+                  <label className="block">
+                    <span className="text-sm font-semibold text-white/80">Contact No.</span>
+                    <div className="mt-3 flex items-center overflow-hidden rounded-[15px] border border-white/15 bg-transparent">
+                      <span className="border-r border-white/10 px-4 py-3 text-base font-semibold text-white/60">
+                        +91
+                      </span>
+                      <input
+                        className="w-full bg-transparent px-4 py-3 text-base text-brand-white outline-none placeholder:text-white/25"
+                        type="tel"
+                        inputMode="numeric"
+                        maxLength={10}
+                        value={form.contactNo}
+                        placeholder="10 digit mobile number"
+                        onChange={(event) => updateField("contactNo", event.target.value)}
+                      />
+                    </div>
+                    <p className="mt-2 text-xs text-white/40">Saved to the backend with +91 automatically.</p>
+                  </label>
                   <StoreField label="Store Video" helper="Enter YouTube Video ID or full YouTube URL" value={form.storeVideo} onChange={(value) => updateField("storeVideo", value)} />
                 </div>
               </CollapsibleStoreSection>
@@ -122,7 +161,7 @@ export default function StoreInfoFormPage() {
                 title="Address & Social"
                 subtitle="Configure pickup location and social discovery details."
                 badge={isInitialSetup ? "Required" : "Optional"}
-                defaultOpen={isInitialSetup}
+                defaultOpen={!focusSection ? isInitialSetup : focusSection === "address"}
               >
                 <div className="grid gap-5 md:grid-cols-2">
                   {isInitialSetup ? (
@@ -141,7 +180,7 @@ export default function StoreInfoFormPage() {
               <CollapsibleStoreSection
                 title="Fulfillment & Permissions"
                 subtitle="Shipping choices and seller-side operating controls."
-                defaultOpen
+                defaultOpen={!focusSection || focusSection === "fulfillment"}
               >
                 <div className="space-y-5">
                   <label className="block">
@@ -188,6 +227,7 @@ export default function StoreInfoFormPage() {
               <CollapsibleStoreSection
                 title="Store Theme"
                 subtitle="Premium theme options mirrored from the Flutter selector, but organised for web."
+                defaultOpen={focusSection === "theme"}
               >
                 <ThemePicker
                   value={form.themeId}
@@ -203,6 +243,7 @@ export default function StoreInfoFormPage() {
               <CollapsibleStoreSection
                 title="Size Chart & Storefront Assets"
                 subtitle="Keep customer-facing brand assets updated without burying them inside the main form."
+                defaultOpen={focusSection === "assets"}
               >
                 <div className="space-y-5">
                   <label className="block">
@@ -210,17 +251,19 @@ export default function StoreInfoFormPage() {
                     <input
                       className="mt-3 block w-full text-sm text-white/65 file:mr-4 file:rounded-sm file:border-0 file:bg-brand-gold file:px-4 file:py-2 file:font-bold file:text-brand-black"
                       type="file"
-                      accept="image/*"
+                      accept="image/*,.pdf,application/pdf"
                       onChange={(event) => {
                         const file = event.target.files?.[0];
+                        event.target.value = "";
                         if (file) {
+                          setSizeChartFilename(file.name || "");
                           fileToBase64(file, setSizeChartPreview, setSizeChartBase64);
                         }
                       }}
                     />
                   </label>
 
-                  {sizeChartPreview ? (
+                  {sizeChartPreview && !pendingSizeGuideIsPdf ? (
                     <div className="relative h-56 overflow-hidden rounded-sm border border-white/10 bg-white">
                       <Image
                         src={sizeChartPreview}
@@ -230,27 +273,48 @@ export default function StoreInfoFormPage() {
                         className="object-contain"
                       />
                     </div>
-                  ) : storeInfo?.sizeGuide ? (
+                  ) : sizeChartPreview && pendingSizeGuideIsPdf ? (
+                    <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-5 text-sm text-white/65">
+                      PDF selected and ready to upload.
+                    </div>
+                  ) : currentSizeGuide && !currentSizeGuideIsPdf ? (
                     <div className="relative h-56 overflow-hidden rounded-sm border border-white/10 bg-white">
                       <Image
-                        src={storeInfo.sizeGuide}
+                        src={currentSizeGuide}
                         alt="Current size guide"
                         fill
                         sizes="320px"
                         className="object-contain"
                       />
                     </div>
+                  ) : currentSizeGuide && currentSizeGuideIsPdf ? (
+                    <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-5 text-sm text-white/65">
+                      A PDF size guide is currently attached to this store.
+                    </div>
                   ) : null}
 
                   <div className="flex flex-wrap gap-3">
-                    <button
-                      className="rounded-sm border border-white/20 px-4 py-2 text-sm font-bold text-brand-white"
-                      type="button"
-                      disabled={isSubmitting}
-                      onClick={submitSizeChart}
-                    >
-                      Confirm Size Chart
-                    </button>
+                    {hasPendingSizeChart ? (
+                      <button
+                        className="cursor-pointer rounded-sm border border-white/20 px-4 py-2 text-sm font-bold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-60"
+                        type="button"
+                        disabled={isSubmitting}
+                        onClick={submitSizeChart}
+                      >
+                        {isSubmitting ? "Updating..." : "Confirm Size Guide"}
+                      </button>
+                    ) : null}
+
+                    {currentSizeGuide ? (
+                      <a
+                        className="inline-flex items-center rounded-sm border border-white/20 px-4 py-2 text-sm font-bold text-brand-white hover:text-brand-gold"
+                        href={currentSizeGuide}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Preview Size Guide
+                      </a>
+                    ) : null}
 
                     <a
                       className="inline-flex items-center rounded-sm border border-brand-gold/30 px-4 py-2 text-sm font-bold text-brand-gold hover:text-brand-white"
@@ -261,12 +325,18 @@ export default function StoreInfoFormPage() {
                       View My Store
                     </a>
                   </div>
+                  {hasPendingSizeChart ? (
+                    <p className="text-xs text-brand-gold">
+                      New size guide selected. Confirm to upload it to your store.
+                    </p>
+                  ) : null}
                 </div>
               </CollapsibleStoreSection>
 
               <CollapsibleStoreSection
                 title="External Store Sync"
                 subtitle="Connect Shopify or WooCommerce without turning the settings page into one long screen."
+                defaultOpen={focusSection === "sync"}
               >
                 <div className="space-y-6">
                   <div className="space-y-2 text-sm leading-6 text-white/60">
@@ -285,7 +355,7 @@ export default function StoreInfoFormPage() {
                     connected={shopifyConnected}
                     connectFields={
                       <>
-                        <StoreField label="Shopify Store URL" value={connectorForm.shopifyUrl} onChange={(value) => updateConnectorField("shopifyUrl", value)} />
+                        <StoreField label="Shopify Store URL" helper="Enter only the store subdomain, without .myshopify.com" value={connectorForm.shopifyUrl} onChange={(value) => updateConnectorField("shopifyUrl", value)} />
                         <StoreField label="Shopify Access Token" value={connectorForm.shopifyAccess} onChange={(value) => updateConnectorField("shopifyAccess", value)} />
                       </>
                     }
@@ -295,6 +365,7 @@ export default function StoreInfoFormPage() {
                     onSync={submitShopifySync}
                     onDisconnect={submitShopifyDisconnect}
                     isSubmitting={isSubmitting}
+                    tutorialUrl="https://www.youtube.com/watch?v=v_rqyBDTTQU"
                   />
 
                   <ConnectorBlock
@@ -318,6 +389,7 @@ export default function StoreInfoFormPage() {
                     onSync={submitWooCommerceSync}
                     onDisconnect={submitWooCommerceDisconnect}
                     isSubmitting={isSubmitting}
+                    tutorialUrl="https://drive.google.com/file/d/1Cx3GwUuPMpoa9t2NcNIPc6kPmEbOVjHb/view?usp=sharing"
                   />
                 </div>
               </CollapsibleStoreSection>
@@ -353,6 +425,20 @@ export default function StoreInfoFormPage() {
           </div>
         </form>
       </div>
+      <AspectCropDialog
+        open={Boolean(logoCropFile)}
+        file={logoCropFile}
+        title="Crop Store Logo"
+        aspectRatio={1}
+        outputWidth={1080}
+        shape="circle"
+        onCancel={() => setLogoCropFile(null)}
+        onConfirm={({ dataUrl, base64 }) => {
+          setLogoPreview(dataUrl);
+          setLogoBase64(base64);
+          setLogoCropFile(null);
+        }}
+      />
     </DashboardShell>
   );
 }
@@ -385,6 +471,7 @@ function StatusRow({ label, value }) {
  * onSync: () => Promise<void>,
  * onDisconnect: () => Promise<void>,
  * isSubmitting: boolean,
+ * tutorialUrl?: string,
  * }} props
  */
 function ConnectorBlock({
@@ -398,6 +485,7 @@ function ConnectorBlock({
   onSync,
   onDisconnect,
   isSubmitting,
+  tutorialUrl = "",
 }) {
   return (
     <div className="rounded-sm border border-white/10 p-4">
@@ -415,6 +503,16 @@ function ConnectorBlock({
       {!connected ? (
         <div className="mt-4 space-y-4">
           {connectFields}
+          {tutorialUrl ? (
+            <a
+              className="inline-flex text-sm font-bold text-brand-gold transition-colors hover:text-brand-white"
+              href={tutorialUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Tutorial
+            </a>
+          ) : null}
           <div className="max-w-xs">
             <AuthButton type="button" disabled={isSubmitting} onClick={onConnect}>
               {connectLabel}

@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import {
   clearAuthSession,
   getBrowserLocation,
+  hasAuthenticatedSellerSession,
   loginSeller,
   saveAuthSession,
 } from "@/src/api/auth";
@@ -16,9 +17,14 @@ export function useLoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    if (hasAuthenticatedSellerSession()) {
+      router.replace("/");
+      return;
+    }
+
     clearAuthSession();
     logScreenView("login_screen", "Anonymous", "store");
-  }, []);
+  }, [router]);
 
   async function submitLogin() {
     if (!email || !password) {

@@ -1,9 +1,11 @@
+import { useState } from "react";
 import Link from "next/link";
+import AspectCropDialog from "@/src/components/media/AspectCropDialog";
 import { PRODUCT_GROUP_DISCOUNT_TYPES } from "@/src/utils/activity";
 import ActivityFileInput from "./ActivityFileInput";
 
 /**
- * @param {{ groupName: string, groupDiscountType: string, groupDiscount: string, groupImageName: string, isActionLoading: boolean, isMobileVerified: boolean, isPremium: boolean, pricingUrl: string, showOnHome: boolean, onGroupNameChange: (value: string) => void, onGroupDiscountTypeChange: (value: string) => void, onGroupDiscountChange: (value: string) => void, onShowOnHomeChange: (value: boolean) => void, onFileChange: (event: import("react").ChangeEvent<HTMLInputElement>) => void, onSubmit: () => void }} props
+ * @param {{ groupName: string, groupDiscountType: string, groupDiscount: string, groupImageName: string, isActionLoading: boolean, isMobileVerified: boolean, isPremium: boolean, pricingUrl: string, showOnHome: boolean, onGroupNameChange: (value: string) => void, onGroupDiscountTypeChange: (value: string) => void, onGroupDiscountChange: (value: string) => void, onShowOnHomeChange: (value: boolean) => void, onImageCropped: (payload: { fileName: string, base64: string }) => void, onSubmit: () => void }} props
  */
 export default function ProductGroupCreatePanel({
   groupName,
@@ -19,9 +21,11 @@ export default function ProductGroupCreatePanel({
   onGroupDiscountTypeChange,
   onGroupDiscountChange,
   onShowOnHomeChange,
-  onFileChange,
+  onImageCropped,
   onSubmit,
 }) {
+  const [cropFile, setCropFile] = useState(null);
+
   return (
     <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
       <div className="flex flex-wrap items-center gap-3">
@@ -107,10 +111,16 @@ export default function ProductGroupCreatePanel({
         <ActivityFileInput
           accept="image/*"
           fileName={groupImageName}
-          helper="Upload a cover image for the group banner card."
+          helper="Upload a cover image for the group banner card. Preferred image size: 1134px x 634px."
           id="product-group-cover"
           label="Group banner image"
-          onChange={onFileChange}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.target.value = "";
+            if (file) {
+              setCropFile(file);
+            }
+          }}
         />
       </div>
 
@@ -151,6 +161,22 @@ export default function ProductGroupCreatePanel({
           </a>
         ) : null}
       </div>
+      <AspectCropDialog
+        open={Boolean(cropFile)}
+        file={cropFile}
+        title="Crop Product Group Banner"
+        aspectRatio={1134 / 634}
+        outputWidth={1134}
+        outputHeight={634}
+        onCancel={() => setCropFile(null)}
+        onConfirm={({ fileName, base64 }) => {
+          onImageCropped({
+            fileName,
+            base64,
+          });
+          setCropFile(null);
+        }}
+      />
     </section>
   );
 }

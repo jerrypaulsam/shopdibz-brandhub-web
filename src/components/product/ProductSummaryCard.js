@@ -1,9 +1,19 @@
 import Link from "next/link";
 import {
   getProductCategoryTrail,
+  getProductCode,
+  getProductHasVariants,
+  getProductApprovalStatus,
   getProductPriceRange,
   getProductPrimaryImage,
+  getProductRating,
+  getProductReviewCount,
   getProductStockValue,
+  getProductTitle,
+  getProductVariations,
+  getVariationCode,
+  getVariationLabel,
+  getVariationTypeNames,
 } from "@/src/utils/product";
 
 /**
@@ -31,26 +41,24 @@ export default function ProductSummaryCard({
   onRemoveFromPromotionFeed,
 }) {
   const slug = String(product?.slug || "");
-  const title = String(product?.title || product?.name || "Untitled Product");
+  const title = getProductTitle(product);
+  const productCode = getProductCode(product);
   const categoryTrail = getProductCategoryTrail(product);
   const imageUrl = getProductPrimaryImage(product);
   const stock = getProductStockValue(product);
   const priceRange = getProductPriceRange(product);
-  const rating = Number(product?.rating || 0);
-  const reviewCount = Number(product?.rCount || product?.reviewCount || 0);
+  const rating = getProductRating(product);
+  const reviewCount = getProductReviewCount(product);
   const sold = Number(product?.sold || 0);
   const views = Number(product?.vCnt || product?.views || 0);
-  const variations = Array.isArray(product?.productVariations)
-    ? product.productVariations
-    : Array.isArray(product?.prdtVari)
-      ? product.prdtVari
-      : [];
+  const variations = getProductVariations(product);
   const variationCount = variations.length;
   const firstVariationId = variationCount ? variations[0]?.id : 0;
   const isArchived = Boolean(product?.arch || product?.archived);
   const isPromoted = Boolean(product?.isPromoted || product?.promoted);
   const featuredStatus = Number(product?.feaStat ?? product?.featuredStatus ?? 3);
-  const approvalLabel = product?.aprvd ? "Approved" : "Pending";
+  const hasVariants = getProductHasVariants(product);
+  const approvalLabel = getProductApprovalStatus(product) ? "Approved" : "Pending";
   const canManagePromotion = !isArchived && typeof onAddToPromotionFeed === "function";
   const canRemovePromotion =
     featuredStatus >= 0 &&
@@ -78,19 +86,24 @@ export default function ProductSummaryCard({
         </div>
 
         <div className="p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_190px] lg:items-start">
             <div className="min-w-0">
               <div className="flex flex-wrap gap-2">
                 <Badge>{approvalLabel}</Badge>
-                <Badge>{variationCount ? "With Variant" : "Without Variant"}</Badge>
+                <Badge>{hasVariants ? "With Variant" : "Without Variant"}</Badge>
                 <Badge>{stock > 0 ? `Stock ${stock}` : "Out of Stock"}</Badge>
                 {isPromoted ? <Badge>Promoted</Badge> : null}
               </div>
-              <h3 className="mt-3 text-xl font-black text-brand-white">{title}</h3>
-              <p className="mt-2 text-sm text-white/45">{categoryTrail || "Uncategorised"}</p>
+              <h3 className="mt-3 max-w-full text-xl font-black leading-tight text-brand-white lg:pr-4">
+                <span className="block line-clamp-2">{title}</span>
+              </h3>
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/45">
+                <p>{categoryTrail || "Product listing"}</p>
+                {productCode ? <p className="font-semibold text-white/60">Code: {productCode}</p> : null}
+              </div>
             </div>
 
-            <div className="text-right">
+            <div className="rounded-sm border border-white/10 bg-black/20 p-4 text-left lg:min-w-[190px] lg:self-start lg:text-right">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
                 Price
               </p>
@@ -111,9 +124,16 @@ export default function ProductSummaryCard({
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <Metric label="Sold" value={String(sold)} />
-            <Metric label="Views" value={String(views)} />
+            <Metric label="Product Code" value={productCode || "---"} />
             <Metric label="Reviews" value={String(reviewCount)} />
             <Metric label="Rating" value={rating ? `${rating.toFixed(1)} / 5` : "0 / 5"} />
+          </div>
+
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <Metric label="Views" value={String(views)} />
+            <Metric label="Listing Type" value={hasVariants ? "Variant" : "Single"} />
+            <Metric label="Variation Count" value={String(variationCount)} />
+            <Metric label="Approval" value={approvalLabel} />
           </div>
 
           <div className="mt-5 flex flex-wrap gap-3">
@@ -125,7 +145,7 @@ export default function ProductSummaryCard({
             </Link>
             <Link
               className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
-              href={`/products/${slug}/edit?variant-mode=${variationCount ? "with-variant" : "without-variant"}`}
+              href={`/products/${slug}/edit?variant-mode=${hasVariants ? "with-variant" : "without-variant"}`}
             >
               Edit
             </Link>
@@ -137,7 +157,7 @@ export default function ProductSummaryCard({
             </Link>
             <Link
               className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
-              href={`/products/${slug}/edit?variant-mode=${variationCount ? "with-variant" : "without-variant"}&section=category`}
+              href={`/products/${slug}/edit?variant-mode=${hasVariants ? "with-variant" : "without-variant"}&section=category`}
             >
               Category
             </Link>
@@ -156,7 +176,7 @@ export default function ProductSummaryCard({
                 Boost
               </Link>
             ) : null}
-            {variationCount ? (
+            {hasVariants ? (
               <>
                 <Link
                   className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
@@ -263,11 +283,7 @@ export default function ProductSummaryCard({
               </div>
               <div className="mt-4 space-y-3">
                 {variations.slice(0, 3).map((variation) => {
-                  const variationTypes = Array.isArray(variation?.variationTypes)
-                    ? variation.variationTypes.map((item) => item?.name).filter(Boolean)
-                    : Array.isArray(variation?.vTypes)
-                      ? variation.vTypes.map((item) => item?.name || item?.tMap).filter(Boolean)
-                      : [];
+                  const variationTypes = getVariationTypeNames(variation);
 
                   return (
                     <div
@@ -276,10 +292,10 @@ export default function ProductSummaryCard({
                     >
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-brand-white">
-                          {variation?.variation || variation?.vAtion || "Variation"}
+                          {getVariationLabel(variation)}
                         </p>
                         <p className="mt-1 text-xs text-white/45">
-                          Code {variation?.variationCode || variation?.varCode || "-"}
+                          Code {getVariationCode(variation) || "-"}
                           {variationTypes.length ? ` / ${variationTypes.join(", ")}` : ""}
                         </p>
                       </div>

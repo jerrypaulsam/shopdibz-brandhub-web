@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { checkSellerEmailVerification, getAuthSession } from "@/src/api/auth";
+import {
+  checkSellerEmailVerification,
+  getAuthSession,
+  getCachedStoreInfo,
+} from "@/src/api/auth";
 import { fetchStoreInfo } from "@/src/api/dashboard";
 import { checkStoreVerification } from "@/src/api/store";
 
@@ -35,6 +39,7 @@ export function useAppBootstrap() {
           authSession?.user?.storeUrl ||
           authSession?.user?.store_url ||
           authSession?.storeUrl ||
+          getCachedStoreInfo()?.url ||
           "";
         const storeCreated = resolveBoolean(
           authSession?.user?.cre ?? authSession?.storeCreated,
@@ -77,7 +82,8 @@ export function useAppBootstrap() {
           return;
         }
 
-        const storeInfo = await fetchStoreInfo().catch(() => null);
+        const storeInfo =
+          (await fetchStoreInfo().catch(() => null)) || getCachedStoreInfo();
 
         if (storeInfo?.bankVerify === false) {
           await router.replace("/settings/bank/create");

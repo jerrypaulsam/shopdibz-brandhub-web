@@ -1,11 +1,48 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useRouter } from "next/router";
 import DashboardSidebar from "./DashboardSidebar";
+import {
+  getAuthSessionSnapshot,
+  subscribeAuthSession,
+} from "@/src/api/auth";
 
 /**
  * @param {{ children: import("react").ReactNode }} props
  */
 export default function DashboardShell({ children }) {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const session = useSyncExternalStore(
+    subscribeAuthSession,
+    getAuthSessionSnapshot,
+    () => null,
+  );
+  const parsedSession = useMemo(() => {
+    if (!session) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(session);
+    } catch {
+      return null;
+    }
+  }, [session]);
+  const hasAccessToken = Boolean(parsedSession?.data?.access || parsedSession?.access);
+
+  useEffect(() => {
+    if (!hasAccessToken) {
+      router.replace("/login");
+    }
+  }, [hasAccessToken, router]);
+
+  if (!hasAccessToken) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#0a0a0a] text-brand-white">
+        <p className="text-sm font-semibold text-white/60">Loading seller workspace...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-brand-white">

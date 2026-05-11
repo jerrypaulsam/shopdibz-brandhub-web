@@ -5,9 +5,11 @@ import AuthField from "@/src/components/auth/AuthField";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 import AuthShell from "@/src/components/auth/AuthShell";
 import AuthTitle from "@/src/components/auth/AuthTitle";
+import { useSellerGuestRedirect } from "@/src/hooks/auth/useSellerGuestRedirect";
 import { useMobileVerifyForm } from "@/src/hooks/auth/useMobileVerifyForm";
 
 export default function InitialMobileVerifyPage() {
+  const isRedirecting = useSellerGuestRedirect();
   const {
     mobile,
     setMobile,
@@ -19,6 +21,16 @@ export default function InitialMobileVerifyPage() {
     requestOtp,
     verifyOtp,
   } = useMobileVerifyForm();
+
+  if (isRedirecting) {
+    return (
+      <AuthShell title="Shopdibz Brand Hub" centeredBrand>
+        <div className="flex flex-1 items-center justify-center text-sm font-semibold text-white/60">
+          Redirecting to dashboard...
+        </div>
+      </AuthShell>
+    );
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();

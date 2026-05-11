@@ -206,6 +206,12 @@ export function useActivityWorkspace() {
     }
   }, []);
 
+  const setGroupImageAsset = useCallback(({ fileName, base64 }) => {
+    setActionError("");
+    setGroupImageName(fileName);
+    setGroupImageBase64(base64);
+  }, []);
+
   async function selectPanel(nextPanel) {
     await replaceActivityQuery({ panel: nextPanel });
   }
@@ -414,6 +420,7 @@ export function useActivityWorkspace() {
     setInvoiceMonth,
     setInvoiceYear,
     setShowOnHome,
+    setGroupImageAsset,
     setSpecialType,
     submitBulkUpdate,
     submitMonthlyInvoice,

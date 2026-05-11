@@ -13,6 +13,8 @@
 
 export const AUTH_STORAGE_KEY = "shopdibz_seller_auth";
 export const MOBILE_VERIFY_STORAGE_KEY = "shopdibz_mobile_verified";
+export const STORE_INFO_STORAGE_KEY = "shopdibz_store_info";
+export const AUTH_SESSION_EVENT = "shopdibz:auth-session-change";
 
 /**
  * @returns {Promise<string>}
@@ -201,7 +203,22 @@ export function saveAuthSession(authData) {
     return;
   }
 
-  window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
+  const nextSession = normalizeAuthSession(authData);
+  const cachedStore = getCachedStoreInfo();
+
+  if (cachedStore?.url && nextSession.storeUrl && cachedStore.url !== nextSession.storeUrl) {
+    window.localStorage.removeItem(STORE_INFO_STORAGE_KEY);
+  }
+
+  if (!nextSession.storeUrl) {
+    window.localStorage.removeItem(STORE_INFO_STORAGE_KEY);
+  }
+
+  window.localStorage.setItem(
+    AUTH_STORAGE_KEY,
+    JSON.stringify(nextSession),
+  );
+  dispatchAuthSessionChange();
 }
 
 /**
@@ -213,7 +230,7 @@ export function updateAuthSession(patch) {
   }
 
   const session = getAuthSession() || {};
-  const nextSession = {
+  const nextSession = normalizeAuthSession({
     ...session,
     ...patch,
     user: {
@@ -224,9 +241,10 @@ export function updateAuthSession(patch) {
       ...(session.data || {}),
       ...(patch.data || {}),
     },
-  };
+  });
 
   window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextSession));
+  dispatchAuthSessionChange();
 }
 
 /**
@@ -244,7 +262,7 @@ export function getAuthSession() {
   }
 
   try {
-    return JSON.parse(rawSession);
+    return normalizeAuthSession(JSON.parse(rawSession));
   } catch {
     return null;
   }
@@ -259,12 +277,251 @@ export function getAccessToken() {
   return authSession?.data?.access || authSession?.access || "";
 }
 
+/**
+ * @param {any} [session]
+ * @returns {boolean}
+ */
+export function hasAuthenticatedSellerSession(session = getAuthSession()) {
+  const normalizedSession = session ? normalizeAuthSession(session) : null;
+  const accessToken =
+    normalizedSession?.data?.access || normalizedSession?.access || "";
+
+  return Boolean(accessToken);
+}
+
+/**
+ * @param {any} [session]
+ * @returns {string}
+ */
+export function getSellerStoreUrl(session = getAuthSession()) {
+  const normalizedSession = session ? normalizeAuthSession(session) : null;
+
+  return (
+    normalizedSession?.user?.storeUrl ||
+    normalizedSession?.storeUrl ||
+    getCachedStoreInfo()?.url ||
+    ""
+  );
+}
+
+/**
+ * @param {any} [session]
+ * @returns {boolean}
+ */
+export function hasSellerDashboardSession(session = getAuthSession()) {
+  const normalizedSession = session ? normalizeAuthSession(session) : null;
+  const accessToken =
+    normalizedSession?.data?.access || normalizedSession?.access || "";
+  const storeUrl = getSellerStoreUrl(normalizedSession);
+
+  return Boolean(accessToken && storeUrl);
+}
+
 export function clearAuthSession() {
   if (typeof window === "undefined") {
     return;
   }
 
   window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  window.localStorage.removeItem(STORE_INFO_STORAGE_KEY);
+  dispatchAuthSessionChange();
+}
+
+/**
+ * @param {() => void} callback
+ * @returns {() => void}
+ */
+export function subscribeAuthSession(callback) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const handleChange = () => {
+    callback();
+  };
+
+  window.addEventListener(AUTH_SESSION_EVENT, handleChange);
+  window.addEventListener("storage", handleChange);
+
+  return () => {
+    window.removeEventListener(AUTH_SESSION_EVENT, handleChange);
+    window.removeEventListener("storage", handleChange);
+  };
+}
+
+/**
+ * @returns {string | null}
+ */
+export function getAuthSessionSnapshot() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.localStorage.getItem(AUTH_STORAGE_KEY);
+}
+
+function dispatchAuthSessionChange() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new Event(AUTH_SESSION_EVENT));
+}
+
+/**
+ * @param {any} storeInfo
+ */
+export function cacheStoreInfo(storeInfo) {
+  if (typeof window === "undefined" || !storeInfo) {
+    return;
+  }
+
+  window.localStorage.setItem(STORE_INFO_STORAGE_KEY, JSON.stringify(storeInfo));
+
+  updateAuthSession({
+    storeUrl: storeInfo?.url || "",
+    storeCreated: true,
+    verified: true,
+    user: {
+      storeUrl: storeInfo?.url || "",
+      email: storeInfo?.user?.email || "",
+      fName: storeInfo?.user?.fName || "",
+      lName: storeInfo?.user?.lName || "",
+      mobile: storeInfo?.user?.mobile || storeInfo?.user?.mob || "",
+      mob: storeInfo?.user?.mobile || storeInfo?.user?.mob || "",
+      owner:
+        storeInfo?.user?.owner ??
+        storeInfo?.user?.sSo ??
+        storeInfo?.user?.sSO ??
+        false,
+      eV:
+        storeInfo?.user?.emailVerify ??
+        storeInfo?.user?.eV ??
+        true,
+      cre: true,
+      ver: true,
+    },
+  });
+}
+
+/**
+ * @returns {any | null}
+ */
+export function getCachedStoreInfo() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const rawStoreInfo = window.localStorage.getItem(STORE_INFO_STORAGE_KEY);
+
+  if (!rawStoreInfo) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawStoreInfo);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * @param {any} rawSession
+ * @returns {any}
+ */
+export function normalizeAuthSession(rawSession) {
+  const session = rawSession || {};
+  const user = session.user || {};
+  const data = session.data || {};
+
+  return {
+    ...session,
+    access: session.access || data.access || "",
+    refresh: session.refresh || data.refresh || "",
+    storeUrl:
+      session.storeUrl ||
+      user.storeUrl ||
+      user.store_url ||
+      "",
+    storeCreated:
+      session.storeCreated ?? resolveBoolean(user.cre ?? session.cre),
+    verified:
+      session.verified ?? resolveBoolean(user.ver ?? session.ver),
+    emailVerified:
+      session.emailVerified ??
+      resolveBoolean(user.eV ?? user.emailVerified ?? session.eV),
+    mobileVerified:
+      session.mobileVerified ??
+      resolveBoolean(user.mV ?? user.mobileVerified ?? session.mV),
+    user: {
+      ...user,
+      uCode: user.uCode || session.uCode || "",
+      userCode: user.userCode || user.uCode || session.userCode || "",
+      email: user.email || session.email || data.email || "",
+      fName: user.fName || session.fName || "",
+      lName: user.lName || session.lName || "",
+      mobile: user.mobile || user.mob || session.mobile || "",
+      mob: user.mob || user.mobile || session.mobile || "",
+      owner:
+        user.owner ??
+        user.sSo ??
+        user.sSO ??
+        session.owner ??
+        false,
+      manager:
+        user.manager ??
+        user.sSm ??
+        user.sSM ??
+        false,
+      emailVerified:
+        user.emailVerify ??
+        user.emailVerified ??
+        resolveBoolean(user.eV),
+      eV:
+        user.eV ??
+        user.emailVerify ??
+        session.emailVerified ??
+        false,
+      mV:
+        user.mV ??
+        session.mobileVerified ??
+        false,
+      cre:
+        user.cre ??
+        session.storeCreated ??
+        false,
+      ver:
+        user.ver ??
+        session.verified ??
+        false,
+      storeUrl:
+        user.storeUrl ||
+        user.store_url ||
+        session.storeUrl ||
+        "",
+    },
+    data: {
+      ...data,
+      access: data.access || session.access || "",
+      refresh: data.refresh || session.refresh || "",
+    },
+  };
+}
+
+/**
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+function resolveBoolean(value) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value.toLowerCase() === "true";
+  }
+
+  return Boolean(value);
 }
 
 /**

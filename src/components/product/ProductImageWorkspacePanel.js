@@ -1,3 +1,5 @@
+import { useRef } from "react";
+
 import StoreSection from "@/src/components/store/StoreSection";
 import AuthButton from "@/src/components/auth/AuthButton";
 
@@ -17,6 +19,9 @@ export default function ProductImageWorkspacePanel({
   submit,
   isSubmitting,
 }) {
+  const addImagesInputRef = useRef(null);
+  const replaceInputRefs = useRef({});
+
   return (
     <div className="space-y-6">
       <StoreSection
@@ -39,20 +44,28 @@ export default function ProductImageWorkspacePanel({
                   Existing
                 </p>
                 <div className="mt-3 grid gap-2">
-                  <label className="cursor-pointer rounded-sm border border-white/10 px-3 py-2 text-center text-xs font-bold uppercase tracking-[0.16em] text-brand-white">
+                  <button
+                    className="rounded-sm border border-white/10 px-3 py-2 text-center text-xs font-bold uppercase tracking-[0.16em] text-brand-white"
+                    type="button"
+                    onClick={() => replaceInputRefs.current[image.id]?.click()}
+                  >
                     Replace
-                    <input
-                      className="hidden"
-                      accept="image/*"
-                      type="file"
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file) {
-                          replaceCurrentImage(image.id, file);
-                        }
-                      }}
-                    />
-                  </label>
+                  </button>
+                  <input
+                    ref={(node) => {
+                      replaceInputRefs.current[image.id] = node;
+                    }}
+                    className="hidden"
+                    accept="image/*"
+                    type="file"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      event.target.value = "";
+                      if (file) {
+                        replaceCurrentImage(image.id, file);
+                      }
+                    }}
+                  />
                   <button
                     className="rounded-sm border border-white/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-white"
                     type="button"
@@ -73,13 +86,27 @@ export default function ProductImageWorkspacePanel({
           </div>
         ) : null}
 
-        <label className="mt-6 flex min-h-44 cursor-pointer items-center justify-center rounded-sm border border-dashed border-white/15 bg-black/20 p-6 text-center">
+        <button
+          className="mt-6 flex min-h-44 w-full items-center justify-center rounded-sm border border-dashed border-white/15 bg-black/20 p-6 text-center"
+          type="button"
+          onClick={() => addImagesInputRef.current?.click()}
+        >
           <span>
             <span className="block text-sm font-bold text-brand-white">Select images</span>
             <span className="mt-2 block text-sm text-white/55">JPG or PNG</span>
           </span>
-          <input className="hidden" multiple accept="image/*" type="file" onChange={onFilesSelected} />
-        </label>
+        </button>
+        <input
+          ref={addImagesInputRef}
+          className="hidden"
+          multiple
+          accept="image/*"
+          type="file"
+          onChange={(event) => {
+            onFilesSelected(event);
+            event.target.value = "";
+          }}
+        />
 
         {selectedImages.length ? (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

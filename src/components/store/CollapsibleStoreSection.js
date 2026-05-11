@@ -39,7 +39,7 @@ export default function CollapsibleStoreSection({
           {subtitle ? <p className="mt-1 text-sm text-white/45">{subtitle}</p> : null}
         </div>
         <span className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-white/35">
-          Toggle
+          Open
         </span>
       </summary>
       <div className="border-t border-white/10 px-5 py-5 sm:px-6" id={id}>

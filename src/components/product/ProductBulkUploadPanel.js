@@ -81,7 +81,10 @@ export default function ProductBulkUploadPanel({
             className="hidden"
             accept=".xlsx,.xlsm,.xls"
             type="file"
-            onChange={onFileSelected}
+            onChange={(event) => {
+              onFileSelected(event);
+              event.target.value = "";
+            }}
           />
         </label>
       </StoreSection>

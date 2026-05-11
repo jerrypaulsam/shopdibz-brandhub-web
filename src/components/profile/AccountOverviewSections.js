@@ -1,8 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
+import { useRef, useState } from "react";
 
 import Link from "next/link";
 import AuthButton from "@/src/components/auth/AuthButton";
 import AuthMessage from "@/src/components/auth/AuthMessage";
+import AspectCropDialog from "@/src/components/media/AspectCropDialog";
 import StoreSection from "@/src/components/store/StoreSection";
 
 /**
@@ -80,20 +82,17 @@ export function HeaderImageSection({
   onSubmit,
   onDelete,
 }) {
+  const fileInputRef = useRef(null);
+  const [cropFile, setCropFile] = useState(null);
+
   function handleFileChange(event) {
     const file = event.target.files?.[0];
+    event.target.value = "";
 
     if (!file) {
       return;
     }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result || "");
-      setHeaderPreview(result);
-      setHeaderBase64(result.split(",")[1] || "");
-    };
-    reader.readAsDataURL(file);
+    setCropFile(file);
   }
 
   const currentImage = headerPreview || storeInfo?.headerImg || "";
@@ -114,16 +113,22 @@ export function HeaderImageSection({
       </div>
 
       <div className="mt-5 flex flex-wrap gap-4">
-        <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-sm border border-white/15 px-5 text-sm font-bold text-brand-white hover:border-brand-gold hover:text-brand-gold">
+        <button
+          className="inline-flex min-h-11 items-center justify-center rounded-sm border border-white/15 px-5 text-sm font-bold text-brand-white hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-50"
+          type="button"
+          disabled={!isPremium}
+          onClick={() => fileInputRef.current?.click()}
+        >
           Select Header Image
-          <input
-            className="hidden"
-            type="file"
-            accept="image/*"
-            disabled={!isPremium}
-            onChange={handleFileChange}
-          />
-        </label>
+        </button>
+        <input
+          ref={fileInputRef}
+          className="hidden"
+          type="file"
+          accept="image/*"
+          disabled={!isPremium}
+          onChange={handleFileChange}
+        />
         <div className="w-full max-w-xs">
           <AuthButton type="button" disabled={isSubmitting || !isPremium} onClick={onSubmit}>
             {isSubmitting ? "Updating..." : "Update Header"}
@@ -146,6 +151,20 @@ export function HeaderImageSection({
           {message || (!isPremium ? "Please upgrade to add a Website Header Image." : "")}
         </AuthMessage>
       </div>
+      <AspectCropDialog
+        open={Boolean(cropFile)}
+        file={cropFile}
+        title="Crop Header Image"
+        aspectRatio={5 / 1}
+        outputWidth={1500}
+        outputHeight={300}
+        onCancel={() => setCropFile(null)}
+        onConfirm={({ dataUrl, base64 }) => {
+          setHeaderPreview(dataUrl);
+          setHeaderBase64(base64);
+          setCropFile(null);
+        }}
+      />
     </StoreSection>
   );
 }

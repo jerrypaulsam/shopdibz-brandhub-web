@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
   getBrowserLocation,
+  hasAuthenticatedSellerSession,
   getMobileVerification,
   requestEmailOtp,
   saveAuthSession,
@@ -20,6 +21,11 @@ export function useSignupForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    if (hasAuthenticatedSellerSession()) {
+      router.replace("/");
+      return;
+    }
+
     const mobileVerification = getMobileVerification();
 
     if (!mobileVerification?.verified) {

@@ -3,12 +3,13 @@ import HorizontalBarChart from "./HorizontalBarChart";
 import LineChart from "./LineChart";
 
 /**
- * @param {{ analytics: any[], dailyVisits: any[], currentDailyVisits?: number }} props
+ * @param {{ analytics: any[], dailyVisits: any[], currentDailyVisits?: number, storeInfo?: any }} props
  */
 export default function WeeklyAnalytics({
   analytics,
   dailyVisits,
   currentDailyVisits = 0,
+  storeInfo,
 }) {
   const weeklyData = analytics.map((item) => ({
     label: formatRange(item.sDate, item.eDate),
@@ -26,6 +27,7 @@ export default function WeeklyAnalytics({
       value: Number(currentDailyVisits || 0),
     },
   ].filter((item, index, list) => item.value > 0 || index === list.length - 1);
+  const productViewsUnlocked = Boolean(storeInfo?.prem) && storeInfo?.plan === "P";
 
   if (!weeklyData.length && !visitData.length) {
     return null;
@@ -77,16 +79,39 @@ export default function WeeklyAnalytics({
             }))}
           />
         </ChartCard>
-        <ChartCard title="Weekly Product Views" subtitle="Updates every 24 hours">
-          <LineChart
-            axisLabel="Views (No.)"
-            stroke="#D4AF37"
-            data={weeklyData.map((item) => ({
-              label: item.label,
-              value: item.productViews,
-            }))}
-          />
-        </ChartCard>
+        <div className="relative">
+          <ChartCard title="Weekly Product Views" subtitle="Updates every 24 hours">
+            <div className={productViewsUnlocked ? "" : "pointer-events-none select-none blur-[5px] opacity-55"}>
+              <LineChart
+                axisLabel="Views (No.)"
+                stroke="#D4AF37"
+                data={weeklyData.map((item) => ({
+                  label: item.label,
+                  value: item.productViews,
+                }))}
+              />
+            </div>
+          </ChartCard>
+          {!productViewsUnlocked ? (
+            <div className="absolute inset-0 flex items-center justify-center p-6">
+              <div className="max-w-sm rounded-sm border border-brand-gold/20 bg-black/80 p-5 text-center backdrop-blur-sm">
+                <p className="text-sm font-bold text-brand-white">
+                  {storeInfo?.prem
+                    ? "Detailed product view analytics are available only on the Platinum plan."
+                    : "Please upgrade to access detailed product view analytics."}
+                </p>
+                <a
+                  className="mt-4 inline-flex min-h-11 items-center justify-center rounded-sm bg-[#2d5a42] px-5 text-sm font-bold text-brand-white"
+                  href={`https://loadapp.shopdibz.com/api/store/get/subscription_plans/?store_url=${storeInfo?.url || ""}`}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Upgrade
+                </a>
+              </div>
+            </div>
+          ) : null}
+        </div>
         <ChartCard title="Daily Store Visits">
           <LineChart axisLabel="Visits (No.)" stroke="#34d399" data={visitData} />
         </ChartCard>

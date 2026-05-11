@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useRef } from "react";
 import AuthButton from "@/src/components/auth/AuthButton";
 import StoreSection from "@/src/components/store/StoreSection";
 
@@ -12,13 +13,19 @@ export default function ProductImagePanel({
   submitProduct,
   isSubmitting,
 }) {
+  const fileInputRef = useRef(null);
+
   return (
     <div className="space-y-6">
       <StoreSection
         title="Product Images"
         subtitle="Upload up to six product images. The final create request is sent from this step so the media and payload arrive together."
       >
-        <label className="flex min-h-52 cursor-pointer items-center justify-center rounded-sm border border-dashed border-white/15 bg-black/20 p-6 text-center">
+        <button
+          className="flex min-h-52 w-full items-center justify-center rounded-sm border border-dashed border-white/15 bg-black/20 p-6 text-center"
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+        >
           <span>
             <span className="block text-sm font-bold text-brand-white">
               Select product images
@@ -27,14 +34,18 @@ export default function ProductImagePanel({
               JPG or PNG, up to 6 files
             </span>
           </span>
-          <input
-            className="hidden"
-            multiple
-            accept="image/*"
-            type="file"
-            onChange={onFilesSelected}
-          />
-        </label>
+        </button>
+        <input
+          ref={fileInputRef}
+          className="hidden"
+          multiple
+          accept="image/*"
+          type="file"
+          onChange={(event) => {
+            onFilesSelected(event);
+            event.target.value = "";
+          }}
+        />
 
         {images.length ? (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

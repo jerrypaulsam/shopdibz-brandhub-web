@@ -36,7 +36,10 @@ export default function DashboardHome() {
             onHide={() => setHidePremiumBanner(true)}
           />
         ) : null}
-        <DashboardHeader storeInfo={storeInfo} />
+        <DashboardHeader
+          storeInfo={storeInfo}
+          actions={<CreateActions storeInfo={storeInfo} />}
+        />
       </div>
 
       {error ? (
@@ -47,7 +50,6 @@ export default function DashboardHome() {
 
       <div className="mt-8 grid gap-6 2xl:grid-cols-[minmax(0,1fr)_360px]">
         <section className="min-w-0 space-y-8">
-          <CreateActions storeInfo={storeInfo} />
           <AnalyticsGrid cards={analyticsCards} />
           <OrderAttentionPanel storeInfo={storeInfo} />
           <section className="space-y-4">
@@ -66,6 +68,7 @@ export default function DashboardHome() {
             analytics={weeklyAnalytics}
             dailyVisits={dailyVisits}
             currentDailyVisits={storeInfo.dailyVisits}
+            storeInfo={storeInfo}
           />
 
           {isLoading ? (

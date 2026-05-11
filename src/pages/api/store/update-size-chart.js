@@ -8,7 +8,12 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", storeUrl = "", chartBase64 = "" } = req.body || {};
+  const {
+    accessToken = "",
+    storeUrl = "",
+    chartBase64 = "",
+    filename = "",
+  } = req.body || {};
 
   if (!accessToken || !storeUrl || !chartBase64) {
     res.status(400).json({ message: "Size chart upload fields are missing" });
@@ -22,9 +27,27 @@ export default async function handler(req, res) {
     file: {
       field: "chart",
       base64: chartBase64,
-      filename: `size-guide-${storeUrl}.jpg`,
+      filename: resolveFilename(filename, storeUrl),
     },
   });
 
   res.status(result.status).json(result.data);
+}
+
+function resolveFilename(filename, storeUrl) {
+  const normalized = String(filename || "").trim().toLowerCase();
+
+  if (normalized.endsWith(".pdf")) {
+    return `size-guide-${storeUrl}.pdf`;
+  }
+
+  if (normalized.endsWith(".png")) {
+    return `size-guide-${storeUrl}.png`;
+  }
+
+  if (normalized.endsWith(".webp")) {
+    return `size-guide-${storeUrl}.webp`;
+  }
+
+  return `size-guide-${storeUrl}.jpg`;
 }

@@ -1,8 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
+import { useRef, useState } from "react";
 
 import Link from "next/link";
 import AuthButton from "@/src/components/auth/AuthButton";
 import AuthMessage from "@/src/components/auth/AuthMessage";
+import AspectCropDialog from "@/src/components/media/AspectCropDialog";
 import StoreField from "./StoreField";
 import StoreSection from "./StoreSection";
 
@@ -26,20 +28,17 @@ export default function ProfileEditorPanel({
   onSubmitDetails,
   onSubmitPicture,
 }) {
+  const fileInputRef = useRef(null);
+  const [cropFile, setCropFile] = useState(null);
+
   async function handleFileChange(event) {
     const file = event.target.files?.[0];
+    event.target.value = "";
 
     if (!file) {
       return;
     }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result || "");
-      setProfilePreview(result);
-      setProfileBase64(result.split(",")[1] || "");
-    };
-    reader.readAsDataURL(file);
+    setCropFile(file);
   }
 
   return (
@@ -65,10 +64,20 @@ export default function ProfileEditorPanel({
             <InfoPill label="Plan" value={storeInfo?.plan || "Free"} />
           </div>
 
-          <label className="w-full cursor-pointer rounded-sm border border-white/10 px-4 py-3 text-center text-sm font-bold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold">
+          <button
+            className="w-full rounded-sm border border-white/10 px-4 py-3 text-center text-sm font-bold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+          >
             Select Image
-            <input className="hidden" type="file" accept="image/*" onChange={handleFileChange} />
-          </label>
+          </button>
+          <input
+            ref={fileInputRef}
+            className="hidden"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
 
           <AuthButton
             type="button"
@@ -135,6 +144,20 @@ export default function ProfileEditorPanel({
         <div className="mt-6">
           <AuthMessage>{message}</AuthMessage>
         </div>
+        <AspectCropDialog
+          open={Boolean(cropFile)}
+          file={cropFile}
+          title="Crop Profile Picture"
+          aspectRatio={1}
+          outputWidth={1080}
+          shape="circle"
+          onCancel={() => setCropFile(null)}
+          onConfirm={({ dataUrl, base64 }) => {
+            setProfilePreview(dataUrl);
+            setProfileBase64(base64);
+            setCropFile(null);
+          }}
+        />
       </StoreSection>
     </div>
   );

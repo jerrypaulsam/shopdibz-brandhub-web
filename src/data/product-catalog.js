@@ -4,7 +4,7 @@ import categoryData from "./product-categories.json";
  * @returns {Array<any>}
  */
 export function getProductCategories() {
-  return categoryData.filter((category) => category.active !== false);
+  return categoryData;
 }
 
 /**
@@ -21,7 +21,7 @@ export function findCategoryBySlug(slug) {
  */
 export function getSubCategories(categorySlug) {
   const category = findCategoryBySlug(categorySlug);
-  return (category?.sub || []).filter((item) => item.active !== false);
+  return category?.sub || [];
 }
 
 /**
@@ -44,7 +44,7 @@ export function findSubCategoryBySlug(categorySlug, subCategorySlug) {
  */
 export function getItemSubCategories(categorySlug, subCategorySlug) {
   const subCategory = findSubCategoryBySlug(categorySlug, subCategorySlug);
-  return (subCategory?.itemSub || []).filter((item) => item.active !== false);
+  return subCategory?.itemSub || [];
 }
 
 /**
