@@ -29,11 +29,6 @@ export default function OrderListPanel({
           <h1 className="mt-3 text-2xl font-extrabold text-brand-white">
             Seller fulfilment workspace
           </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-            Move between order stages, open a direct detail view, and keep
-            shipping actions tight enough that your team can work from links
-            instead of hidden tab state.
-          </p>
         </div>
 
         <aside className="rounded-sm border border-white/10 bg-[#121212] p-5">

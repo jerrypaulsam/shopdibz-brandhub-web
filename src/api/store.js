@@ -111,6 +111,31 @@ export function updateSizeChart(payload) {
   });
 }
 
+/**
+ * @param {{ base64: string, filename: string }} payload
+ * @returns {Promise<any>}
+ */
+export function uploadFounderWelcomeMessage(payload) {
+  const session = getDashboardSession();
+  return postStoreJson("/api/store/upload-welcome-voice", {
+    accessToken: session.accessToken,
+    storeUrl: session.storeUrl,
+    audioBase64: payload.base64,
+    filename: payload.filename,
+  });
+}
+
+/**
+ * @returns {Promise<any>}
+ */
+export function deleteFounderWelcomeMessage() {
+  const session = getDashboardSession();
+  return postStoreJson("/api/store/delete-welcome-voice", {
+    accessToken: session.accessToken,
+    storeUrl: session.storeUrl,
+  });
+}
+
 export function updateStoreTheme(themeId) {
   return postStoreJson("/api/store/update-theme", {
     accessToken: getAccessToken(),

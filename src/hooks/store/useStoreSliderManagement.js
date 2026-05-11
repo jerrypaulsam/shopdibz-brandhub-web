@@ -143,6 +143,7 @@ export function useStoreSliderManagement() {
     setLink,
     preview,
     setPreview,
+    imageBase64,
     setImageBase64,
     currentAspectRatio,
     preferredSize,

@@ -78,9 +78,7 @@ export default function ProductListPanel({
             </p>
             <h1 className="mt-3 text-3xl font-black text-brand-white">Products</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-              A route-driven catalog workspace for direct product management. Tabs
-              and category filters stay in the URL so the team can reopen the
-              exact product slice they were working in.
+              A route-driven catalog workspace for direct product management.
             </p>
           </div>
 

@@ -23,10 +23,6 @@ export default function ProductSearchSuggestionsPanel({
           Search Workspace
         </p>
         <h1 className="mt-3 text-3xl font-black text-brand-white">Search Titles</h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-          Start with a clean keyword, pick the closest title, and jump into a much
-          better catalog search experience than the old Flutter flow gave you.
-        </p>
 
         <div className="mt-6 flex flex-col gap-3 md:flex-row">
           <label className="flex min-h-12 flex-1 items-center rounded-sm border border-white/10 bg-black/20 px-4">

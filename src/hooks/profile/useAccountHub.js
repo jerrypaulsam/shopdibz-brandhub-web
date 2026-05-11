@@ -10,6 +10,7 @@ import {
 } from "@/src/api/profile";
 import { clearAuthSession } from "@/src/api/auth";
 import { logScreenView } from "@/src/api/analytics";
+import { useToast } from "@/src/components/app/ToastProvider";
 
 const sectionItems = [
   ["store-settings", "Store Settings"],
@@ -22,6 +23,7 @@ const sectionItems = [
 
 export function useAccountHub(section) {
   const router = useRouter();
+  const { showToast } = useToast();
   const [storeInfo, setStoreInfo] = useState(null);
   const [bannerImages, setBannerImages] = useState([]);
   const [headerPreview, setHeaderPreview] = useState("");
@@ -98,7 +100,13 @@ export function useAccountHub(section) {
       await updateStoreHeaderImage(headerBase64);
       const nextInfo = await fetchEditableStoreInfo();
       setStoreInfo(nextInfo);
+      setHeaderPreview(nextInfo?.headerImg ? "" : headerPreview);
+      setHeaderBase64("");
       setMessage("Header image updated successfully");
+      showToast({
+        message: "Header image updated successfully",
+        type: "success",
+      });
       return true;
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Header image update failed");
@@ -170,6 +178,7 @@ export function useAccountHub(section) {
     isOwner,
     headerPreview,
     setHeaderPreview,
+    headerBase64,
     setHeaderBase64,
     message,
     isLoading,

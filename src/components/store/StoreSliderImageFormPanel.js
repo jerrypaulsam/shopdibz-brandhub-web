@@ -98,15 +98,17 @@ export default function StoreSliderImageFormPanel({
 
           <AuthMessage>{message}</AuthMessage>
 
-          <div className="max-w-xs">
-            <AuthButton
-              type="button"
-              disabled={isLoading || isSubmitting}
-              onClick={onSubmit}
-            >
-              {isSubmitting ? "Publishing..." : "Publish Sliders"}
-            </AuthButton>
-          </div>
+          {filledSlots ? (
+            <div className="max-w-xs">
+              <AuthButton
+                type="button"
+                disabled={isLoading || isSubmitting}
+                onClick={onSubmit}
+              >
+                {isSubmitting ? "Publishing..." : "Publish Sliders"}
+              </AuthButton>
+            </div>
+          ) : null}
         </div>
       </StoreSection>
 

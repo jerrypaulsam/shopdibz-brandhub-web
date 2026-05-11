@@ -22,8 +22,7 @@ export default function ProductGroupProductsPanel({
         </p>
         <h1 className="mt-3 text-3xl font-black text-brand-white">Group Products</h1>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-          Products assigned to group {groupId || "-"}, with direct access into detail, edit,
-          image, and review routes.
+          Products assigned to group {groupId || "-"}.
         </p>
         <div className="mt-4 text-sm text-white/55">Total products {count}</div>
         {message ? <p className="mt-4 text-sm text-brand-gold">{message}</p> : null}

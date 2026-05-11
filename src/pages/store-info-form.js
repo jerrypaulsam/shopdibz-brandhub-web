@@ -6,6 +6,7 @@ import AuthMessage from "@/src/components/auth/AuthMessage";
 import DashboardShell from "@/src/components/dashboard/DashboardShell";
 import AspectCropDialog from "@/src/components/media/AspectCropDialog";
 import CollapsibleStoreSection from "@/src/components/store/CollapsibleStoreSection";
+import FounderWelcomeSection from "@/src/components/store/FounderWelcomeSection";
 import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
 import StoreToggleRow from "@/src/components/store/StoreToggleRow";
@@ -20,10 +21,13 @@ export default function StoreInfoFormPage() {
     storeInfo,
     logoPreview,
     setLogoPreview,
+    logoBase64,
     setLogoBase64,
     sizeChartPreview,
     setSizeChartPreview,
+    sizeChartBase64,
     setSizeChartBase64,
+    sizeChartFilename,
     setSizeChartFilename,
     connectorForm,
     message,
@@ -34,6 +38,8 @@ export default function StoreInfoFormPage() {
     submitInfo,
     submitLogo,
     submitSizeChart,
+    submitWelcomeMessage,
+    removeWelcomeMessage,
     submitTheme,
     submitShopifyConnection,
     submitShopifySync,
@@ -46,6 +52,7 @@ export default function StoreInfoFormPage() {
   const storeConnected = String(storeInfo?.storeConnected || "");
   const shopifyConnected = storeConnected === "1";
   const wooCommerceConnected = storeConnected === "2";
+  const lastSyncedLabel = formatSyncDate(storeInfo?.lastSynced || storeInfo?.last_synced || "");
   const isInitialSetup = !storeInfo;
   const focusSection =
     typeof router.query.section === "string" ? router.query.section : "";
@@ -65,11 +72,12 @@ export default function StoreInfoFormPage() {
     await submitInfo();
   }
 
-  const hasPendingLogo = Boolean(logoPreview && logoPreview !== (storeInfo?.logo || ""));
-  const hasPendingSizeChart = Boolean(sizeChartPreview);
+  const hasPendingLogo = Boolean(logoBase64);
+  const hasPendingSizeChart = Boolean(sizeChartBase64);
   const currentSizeGuide = storeInfo?.sizeGuide || "";
   const currentSizeGuideIsPdf = /\.pdf(\?|#|$)/i.test(currentSizeGuide);
-  const pendingSizeGuideIsPdf = /\.pdf(\?|#|$)/i.test(sizeChartPreview);
+  const pendingSizeGuideIsPdf = /\.pdf$/i.test(sizeChartFilename);
+  const welcomeAudioUrl = storeInfo?.welcome || storeInfo?.welcomeVoice || "";
 
   return (
     <DashboardShell>
@@ -333,6 +341,13 @@ export default function StoreInfoFormPage() {
                 </div>
               </CollapsibleStoreSection>
 
+              <FounderWelcomeSection
+                audioUrl={welcomeAudioUrl}
+                isSubmitting={isSubmitting}
+                onUpload={submitWelcomeMessage}
+                onDelete={removeWelcomeMessage}
+              />
+
               <CollapsibleStoreSection
                 title="External Store Sync"
                 subtitle="Connect Shopify or WooCommerce without turning the settings page into one long screen."
@@ -360,11 +375,15 @@ export default function StoreInfoFormPage() {
                       </>
                     }
                     connectLabel={isSubmitting ? "Saving..." : "Connect Shopify"}
+                    disabledReason={
+                      wooCommerceConnected ? "Disconnect WooCommerce before connecting Shopify." : ""
+                    }
                     onConnect={submitShopifyConnection}
                     syncLabel="Sync Shopify"
                     onSync={submitShopifySync}
                     onDisconnect={submitShopifyDisconnect}
                     isSubmitting={isSubmitting}
+                    lastSyncedLabel={lastSyncedLabel}
                     tutorialUrl="https://www.youtube.com/watch?v=v_rqyBDTTQU"
                   />
 
@@ -384,11 +403,15 @@ export default function StoreInfoFormPage() {
                       </>
                     }
                     connectLabel={isSubmitting ? "Saving..." : "Connect WooCommerce"}
+                    disabledReason={
+                      shopifyConnected ? "Disconnect Shopify before connecting WooCommerce." : ""
+                    }
                     onConnect={submitWooCommerceConnection}
                     syncLabel="Sync WooCommerce"
                     onSync={submitWooCommerceSync}
                     onDisconnect={submitWooCommerceDisconnect}
                     isSubmitting={isSubmitting}
+                    lastSyncedLabel={lastSyncedLabel}
                     tutorialUrl="https://drive.google.com/file/d/1Cx3GwUuPMpoa9t2NcNIPc6kPmEbOVjHb/view?usp=sharing"
                   />
                 </div>
@@ -466,11 +489,13 @@ function StatusRow({ label, value }) {
  * connected: boolean,
  * connectFields: import("react").ReactNode,
  * connectLabel: string,
+ * disabledReason?: string,
  * syncLabel: string,
  * onConnect: () => Promise<void>,
  * onSync: () => Promise<void>,
  * onDisconnect: () => Promise<void>,
  * isSubmitting: boolean,
+ * lastSyncedLabel?: string,
  * tutorialUrl?: string,
  * }} props
  */
@@ -480,65 +505,112 @@ function ConnectorBlock({
   connected,
   connectFields,
   connectLabel,
+  disabledReason = "",
   syncLabel,
   onConnect,
   onSync,
   onDisconnect,
   isSubmitting,
+  lastSyncedLabel = "",
   tutorialUrl = "",
 }) {
   return (
-    <div className="rounded-sm border border-white/10 p-4">
-      <div className="flex items-center justify-between gap-4">
+    <div className={`rounded-sm border p-4 ${connected ? "border-emerald-400/25 bg-emerald-950/10" : "border-white/10"}`}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h3 className="text-sm font-bold text-brand-white">{title}</h3>
           <p className="mt-1 text-xs text-white/45">{description}</p>
         </div>
         {connected ? (
-          <div className="rounded-full border border-emerald-400/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">
+          <div className="w-fit rounded-full border border-emerald-400/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">
             Connected
           </div>
         ) : null}
       </div>
       {!connected ? (
         <div className="mt-4 space-y-4">
-          {connectFields}
+          {disabledReason ? (
+            <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/55">
+              {disabledReason}
+            </div>
+          ) : (
+            connectFields
+          )}
           {tutorialUrl ? (
             <a
-              className="inline-flex text-sm font-bold text-brand-gold transition-colors hover:text-brand-white"
+              className="inline-flex min-h-10 items-center justify-center rounded-sm border border-brand-gold/40 bg-brand-gold px-4 text-sm font-extrabold text-brand-black transition-colors hover:border-brand-white hover:bg-brand-white"
               href={tutorialUrl}
               target="_blank"
               rel="noreferrer"
             >
-              Tutorial
+              View Tutorial
             </a>
           ) : null}
-          <div className="max-w-xs">
-            <AuthButton type="button" disabled={isSubmitting} onClick={onConnect}>
-              {connectLabel}
-            </AuthButton>
-          </div>
+          {!disabledReason ? (
+            <div className="max-w-xs">
+              <AuthButton type="button" disabled={isSubmitting} onClick={onConnect}>
+                {connectLabel}
+              </AuthButton>
+            </div>
+          ) : null}
         </div>
       ) : (
-        <div className="mt-4 flex flex-wrap gap-3">
-          <button
-            className="rounded-sm border border-white/20 px-4 py-2 text-sm font-bold text-brand-white"
-            type="button"
-            disabled={isSubmitting}
-            onClick={onSync}
-          >
-            {syncLabel}
-          </button>
-          <button
-            className="rounded-sm border border-red-400/30 px-4 py-2 text-sm font-bold text-red-300"
-            type="button"
-            disabled={isSubmitting}
-            onClick={onDisconnect}
-          >
-            Disconnect
-          </button>
+        <div className="mt-4 space-y-3">
+          {lastSyncedLabel ? (
+            <p className="text-xs font-semibold text-white/45">
+              Last synced: {lastSyncedLabel}
+            </p>
+          ) : null}
+          <div className="flex flex-wrap gap-3">
+            <button
+              className="rounded-sm border border-brand-gold/40 bg-brand-gold px-4 py-2 text-sm font-extrabold text-brand-black transition-colors hover:border-brand-white hover:bg-brand-white disabled:cursor-not-allowed disabled:opacity-60"
+              type="button"
+              disabled={isSubmitting}
+              onClick={onSync}
+            >
+              {syncLabel}
+            </button>
+            {tutorialUrl ? (
+              <a
+                className="inline-flex items-center rounded-sm border border-white/20 px-4 py-2 text-sm font-bold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
+                href={tutorialUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Tutorial
+              </a>
+            ) : null}
+            <button
+              className="rounded-sm border border-red-400/30 px-4 py-2 text-sm font-bold text-red-300 transition-colors hover:border-red-300 hover:text-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+              type="button"
+              disabled={isSubmitting}
+              onClick={onDisconnect}
+            >
+              Disconnect
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
+}
+
+function formatSyncDate(value) {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleString(undefined, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }

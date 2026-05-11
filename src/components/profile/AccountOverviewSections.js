@@ -76,12 +76,13 @@ export function StoreSlidersSection({ bannerImages }) {
 }
 
 /**
- * @param {{ storeInfo: any, headerPreview: string, setHeaderPreview: (value: string) => void, setHeaderBase64: (value: string) => void, message: string, isSubmitting: boolean, onSubmit: () => Promise<boolean>, onDelete: () => Promise<boolean> }} props
+ * @param {{ storeInfo: any, headerPreview: string, setHeaderPreview: (value: string) => void, headerBase64: string, setHeaderBase64: (value: string) => void, message: string, isSubmitting: boolean, onSubmit: () => Promise<boolean>, onDelete: () => Promise<boolean> }} props
  */
 export function HeaderImageSection({
   storeInfo,
   headerPreview,
   setHeaderPreview,
+  headerBase64,
   setHeaderBase64,
   message,
   isSubmitting,
@@ -135,11 +136,13 @@ export function HeaderImageSection({
           disabled={!isPremium}
           onChange={handleFileChange}
         />
-        <div className="w-full max-w-xs">
-          <AuthButton type="button" disabled={isSubmitting || !isPremium} onClick={onSubmit}>
-            {isSubmitting ? "Updating..." : "Update Header"}
-          </AuthButton>
-        </div>
+        {headerBase64 ? (
+          <div className="w-full max-w-xs">
+            <AuthButton type="button" disabled={isSubmitting || !isPremium} onClick={onSubmit}>
+              {isSubmitting ? "Updating..." : "Update Header"}
+            </AuthButton>
+          </div>
+        ) : null}
         {storeInfo?.headerImg ? (
           <button
             className="inline-flex min-h-11 items-center justify-center rounded-sm border border-red-400/30 px-5 text-sm font-bold text-red-300 hover:border-red-300 hover:text-red-100"

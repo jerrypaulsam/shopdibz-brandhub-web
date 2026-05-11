@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import {
   connectShopifyStore,
   connectWooCommerceStore,
+  deleteFounderWelcomeMessage,
   disconnectShopifyStore,
   disconnectWooCommerceStore,
   fetchEditableStoreInfo,
@@ -12,11 +13,14 @@ import {
   updateStoreInfo,
   updateStoreLogo,
   updateStoreTheme,
+  uploadFounderWelcomeMessage,
 } from "@/src/api/store";
 import { logScreenView } from "@/src/api/analytics";
+import { useToast } from "@/src/components/app/ToastProvider";
 
 export function useStoreInfoForm() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [form, setForm] = useState({
     storeName: "",
     storeUrl: "",
@@ -199,7 +203,12 @@ export function useStoreInfoForm() {
       await updateStoreLogo(logoBase64);
       setMessage("Logo Updated Successfully");
       setLogoBase64("");
-      await refreshStoreInfo();
+      const nextStoreInfo = await refreshStoreInfo();
+      setLogoPreview(nextStoreInfo?.logo || logoPreview);
+      showToast({
+        message: "Logo updated successfully",
+        type: "success",
+      });
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Logo update failed");
     } finally {
@@ -222,9 +231,65 @@ export function useStoreInfoForm() {
       setMessage("Size Chart Updated Successfully");
       setSizeChartBase64("");
       setSizeChartFilename("");
+      setSizeChartPreview("");
       await refreshStoreInfo();
+      showToast({
+        message: "Size guide updated successfully",
+        type: "success",
+      });
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Size chart update failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  /**
+   * @param {{ base64: string, filename: string }} payload
+   * @returns {Promise<boolean>}
+   */
+  async function submitWelcomeMessage(payload) {
+    if (!payload.base64) {
+      setMessage("Record a welcome message first.");
+      return false;
+    }
+
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await uploadFounderWelcomeMessage(payload);
+      await refreshStoreInfo();
+      setMessage("Welcome message uploaded");
+      showToast({
+        message: "Welcome message uploaded",
+        type: "success",
+      });
+      return true;
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Welcome message upload failed");
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function removeWelcomeMessage() {
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await deleteFounderWelcomeMessage();
+      await refreshStoreInfo();
+      setMessage("Welcome message deleted");
+      showToast({
+        message: "Welcome message deleted",
+        type: "success",
+      });
+      return true;
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Welcome message deletion failed");
+      return false;
     } finally {
       setIsSubmitting(false);
     }
@@ -402,6 +467,8 @@ export function useStoreInfoForm() {
     submitInfo,
     submitLogo,
     submitSizeChart,
+    submitWelcomeMessage,
+    removeWelcomeMessage,
     submitTheme,
     submitShopifyConnection,
     submitShopifySync,

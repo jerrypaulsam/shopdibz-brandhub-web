@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { fetchEditableStoreInfo } from "@/src/api/store";
 import { getAuthSession, updateSellerAccount, updateSellerProfilePicture } from "@/src/api/auth";
 import { logScreenView } from "@/src/api/analytics";
+import { useToast } from "@/src/components/app/ToastProvider";
 
 export function useProfileEditor() {
+  const { showToast } = useToast();
   const [storeInfo, setStoreInfo] = useState(null);
   const [fName, setFName] = useState("");
   const [lName, setLName] = useState("");
@@ -92,7 +94,17 @@ export function useProfileEditor() {
 
     try {
       await updateSellerProfilePicture(profileBase64);
+      const nextData = await fetchEditableStoreInfo();
+      const authSession = getAuthSession();
+      const nextUser = nextData?.user || authSession?.user || {};
+      setStoreInfo(nextData || storeInfo);
+      setProfilePreview(nextUser.proPic || profilePreview);
+      setProfileBase64("");
       setMessage("Profile Picture updated successfully");
+      showToast({
+        message: "Profile picture updated successfully",
+        type: "success",
+      });
       return true;
     } catch (error) {
       setMessage(
@@ -114,6 +126,7 @@ export function useProfileEditor() {
     setEmail,
     profilePreview,
     setProfilePreview,
+    profileBase64,
     setProfileBase64,
     message,
     isLoading,

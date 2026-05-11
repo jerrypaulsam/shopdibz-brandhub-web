@@ -36,10 +36,6 @@ export default function ProductSearchResultsPanel({
               Search Results
             </p>
             <h1 className="mt-3 text-3xl font-black text-brand-white">{label || query || "Search"}</h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-              Responsive result cards with direct links into product detail, edits, and
-              review management.
-            </p>
           </div>
 
           <div className="flex flex-wrap gap-3">

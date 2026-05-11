@@ -18,6 +18,7 @@ export default function StoreSliderManagementPage() {
     setLink,
     preview,
     setPreview,
+    imageBase64,
     setImageBase64,
     currentAspectRatio,
     preferredSize,
@@ -46,6 +47,7 @@ export default function StoreSliderManagementPage() {
           setLink={setLink}
           preview={preview}
           setPreview={setPreview}
+          imageBase64={imageBase64}
           setImageBase64={setImageBase64}
           currentAspectRatio={currentAspectRatio}
           preferredSize={preferredSize}

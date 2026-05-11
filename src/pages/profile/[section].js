@@ -30,6 +30,7 @@ export default function AccountSectionPage() {
     isOwner,
     headerPreview,
     setHeaderPreview,
+    headerBase64,
     setHeaderBase64,
     message,
     isLoading,
@@ -50,6 +51,7 @@ export default function AccountSectionPage() {
         isOwner,
         headerPreview,
         setHeaderPreview,
+        headerBase64,
         setHeaderBase64,
         message,
         isSubmitting,
@@ -77,6 +79,7 @@ function renderSection(section, props) {
         storeInfo={props.storeInfo}
         headerPreview={props.headerPreview}
         setHeaderPreview={props.setHeaderPreview}
+        headerBase64={props.headerBase64}
         setHeaderBase64={props.setHeaderBase64}
         message={props.message}
         isSubmitting={props.isSubmitting}

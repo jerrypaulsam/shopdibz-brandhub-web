@@ -9,7 +9,7 @@ import StoreField from "./StoreField";
 import StoreSection from "./StoreSection";
 
 /**
- * @param {{ storeInfo: any, fName: string, setFName: (value: string) => void, lName: string, setLName: (value: string) => void, email: string, setEmail: (value: string) => void, profilePreview: string, setProfilePreview: (value: string) => void, setProfileBase64: (value: string) => void, message: string, isLoading: boolean, isSubmitting: boolean, onSubmitDetails: () => Promise<boolean>, onSubmitPicture: () => Promise<boolean> }} props
+ * @param {{ storeInfo: any, fName: string, setFName: (value: string) => void, lName: string, setLName: (value: string) => void, email: string, setEmail: (value: string) => void, profilePreview: string, setProfilePreview: (value: string) => void, profileBase64: string, setProfileBase64: (value: string) => void, message: string, isLoading: boolean, isSubmitting: boolean, onSubmitDetails: () => Promise<boolean>, onSubmitPicture: () => Promise<boolean> }} props
  */
 export default function ProfileEditorPanel({
   storeInfo,
@@ -21,6 +21,7 @@ export default function ProfileEditorPanel({
   setEmail,
   profilePreview,
   setProfilePreview,
+  profileBase64,
   setProfileBase64,
   message,
   isLoading,
@@ -79,13 +80,15 @@ export default function ProfileEditorPanel({
             onChange={handleFileChange}
           />
 
-          <AuthButton
-            type="button"
-            disabled={isSubmitting || isLoading}
-            onClick={onSubmitPicture}
-          >
-            {isSubmitting ? "Updating..." : "Update Image"}
-          </AuthButton>
+          {profileBase64 ? (
+            <AuthButton
+              type="button"
+              disabled={isSubmitting || isLoading}
+              onClick={onSubmitPicture}
+            >
+              {isSubmitting ? "Updating..." : "Update Image"}
+            </AuthButton>
+          ) : null}
 
           <p className="text-center text-xs leading-5 text-white/45">
             Use a square image for the cleanest account avatar across the seller workspace.

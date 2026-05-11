@@ -136,11 +136,13 @@ export default function ProductImageWorkspacePanel({
         ) : null}
       </StoreSection>
 
-      <div className="max-w-xs">
-        <AuthButton type="button" disabled={isSubmitting} onClick={submit}>
-          {isSubmitting ? "Uploading..." : "Add Images"}
-        </AuthButton>
-      </div>
+      {selectedImages.length ? (
+        <div className="max-w-xs">
+          <AuthButton type="button" disabled={isSubmitting} onClick={submit}>
+            {isSubmitting ? "Uploading..." : "Add Images"}
+          </AuthButton>
+        </div>
+      ) : null}
     </div>
   );
 }

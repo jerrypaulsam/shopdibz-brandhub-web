@@ -17,7 +17,7 @@ export default function ProductGroupsPanel({
         </p>
         <h1 className="mt-3 text-3xl font-black text-brand-white">Product Groups</h1>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-          Grouped collections for seller-curated assortments, with direct routes into each group.
+          Grouped collections for seller-curated assortments.
         </p>
         {message ? <p className="mt-4 text-sm text-brand-gold">{message}</p> : null}
       </section>

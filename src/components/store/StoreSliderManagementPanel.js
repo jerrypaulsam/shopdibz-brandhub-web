@@ -8,7 +8,7 @@ import StoreField from "./StoreField";
 import StoreSection from "./StoreSection";
 
 /**
- * @param {{ storeInfo: any, productGroups: any[], filteredBanners: any[], mobileSliderSelection: boolean, setMobileSliderSelection: (value: boolean) => void, selectedBanner: any, selectBanner: (banner: any) => void, productGroupName: string, setProductGroupName: (value: string) => void, setProductGroupSlug: (value: string) => void, link: string, setLink: (value: string) => void, preview: string, setPreview: (value: string) => void, setImageBase64: (value: string) => void, currentAspectRatio: string, preferredSize: string, canUseExternalLinks: boolean, message: string, isLoading: boolean, isSubmitting: boolean, onSubmit: () => Promise<boolean> }} props
+ * @param {{ storeInfo: any, productGroups: any[], filteredBanners: any[], mobileSliderSelection: boolean, setMobileSliderSelection: (value: boolean) => void, selectedBanner: any, selectBanner: (banner: any) => void, productGroupName: string, setProductGroupName: (value: string) => void, setProductGroupSlug: (value: string) => void, link: string, setLink: (value: string) => void, preview: string, setPreview: (value: string) => void, imageBase64: string, setImageBase64: (value: string) => void, currentAspectRatio: string, preferredSize: string, canUseExternalLinks: boolean, message: string, isLoading: boolean, isSubmitting: boolean, onSubmit: () => Promise<boolean> }} props
  */
 export default function StoreSliderManagementPanel({
   storeInfo,
@@ -25,6 +25,7 @@ export default function StoreSliderManagementPanel({
   setLink,
   preview,
   setPreview,
+  imageBase64,
   setImageBase64,
   currentAspectRatio,
   preferredSize,
@@ -244,13 +245,15 @@ export default function StoreSliderManagementPanel({
               </p>
             )}
 
-            <AuthButton
-              type="button"
-              disabled={isSubmitting || isLoading}
-              onClick={onSubmit}
-            >
-              {isSubmitting ? "Updating..." : "Update Slider"}
-            </AuthButton>
+            {imageBase64 ? (
+              <AuthButton
+                type="button"
+                disabled={isSubmitting || isLoading}
+                onClick={onSubmit}
+              >
+                {isSubmitting ? "Updating..." : "Update Slider"}
+              </AuthButton>
+            ) : null}
           </div>
         ) : (
           <div className="py-12 text-center text-sm text-white/45">

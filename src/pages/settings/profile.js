@@ -13,6 +13,7 @@ export default function ProfileSettingsPage() {
     setEmail,
     profilePreview,
     setProfilePreview,
+    profileBase64,
     setProfileBase64,
     message,
     isLoading,
@@ -34,6 +35,7 @@ export default function ProfileSettingsPage() {
           setEmail={setEmail}
           profilePreview={profilePreview}
           setProfilePreview={setProfilePreview}
+          profileBase64={profileBase64}
           setProfileBase64={setProfileBase64}
           message={message}
           isLoading={isLoading}

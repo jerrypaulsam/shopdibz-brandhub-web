@@ -37,10 +37,6 @@ export default function ProductReviewsPanel({
               Product Feedback
             </p>
             <h1 className="mt-3 text-3xl font-black text-brand-white">Product Reviews</h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-              Customer sentiment, rating signals, and moderation votes in a cleaner SaaS
-              review surface.
-            </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
