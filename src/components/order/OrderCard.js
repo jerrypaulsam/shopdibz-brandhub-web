@@ -56,7 +56,10 @@ export default function OrderCard({ order, fallbackStatus = "" }) {
               </span>
             </div>
             <h3 className="mt-2 max-w-2xl text-base font-bold text-brand-white">
-              {getOrderProductTitle(order)}
+              <Link href={`/orders/${orderItemId}`}>
+                {getOrderProductTitle(order)}
+              </Link>
+
             </h3>
             {variantLabel ? (
               <p className="mt-2 text-sm font-semibold text-brand-gold">

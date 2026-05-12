@@ -94,11 +94,13 @@ export default function ProductSummaryCard({
               <div className="flex flex-wrap gap-2">
                 <Badge>{approvalLabel}</Badge>
                 <Badge>{hasVariants ? "With Variant" : "Without Variant"}</Badge>
-                <Badge>{stock > 0 ? `Stock ${stock}` : "Out of Stock"}</Badge>
+                <Badge>{hasVariants == false ? (stock > 0 ? `Stock ${stock}` : "Out of Stock") : "-"}</Badge>
                 {isPromoted ? <Badge>Promoted</Badge> : null}
               </div>
               <h3 className="mt-3 max-w-full text-xl font-black leading-tight text-brand-white lg:pr-4">
-                <span className="block line-clamp-2">{title}</span>
+                <Link href={`/products/${slug}`}>
+                  <span className="block line-clamp-2">{title}</span>
+                </Link>
               </h3>
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/45">
                 <p>{categoryTrail || "Product listing"}</p>
@@ -280,11 +282,11 @@ export default function ProductSummaryCard({
                       disabled={isActionLoading}
                       onClick={() => onAddToPromotionFeed?.(slug, Number(type))}
                     >
-                    Add to {label}
-                  </button>
-                ))}
-              </div>
-            ) : null}
+                      Add to {label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
 
             </div>
           ) : null}
