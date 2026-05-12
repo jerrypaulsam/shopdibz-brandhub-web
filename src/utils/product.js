@@ -382,7 +382,7 @@ export function getVariationCode(variation) {
  * @returns {string}
  */
 export function getVariationLabel(variation) {
-  return String(variation?.variation || variation?.vAtion || "Variation");
+  return titleCaseValue(variation?.variation || variation?.vAtion || "Variation");
 }
 
 /**
@@ -399,6 +399,17 @@ export function getVariationTypeNames(variation) {
   return variationTypes
     .map((item) => String(item?.name || item?.tMap || "").trim())
     .filter(Boolean);
+}
+
+/**
+ * @param {unknown} value
+ * @returns {string}
+ */
+export function titleCaseValue(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
 }
 
 /**

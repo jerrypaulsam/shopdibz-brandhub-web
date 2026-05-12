@@ -4,11 +4,13 @@ import {
   getCouponStatus,
   getCouponTypeLabel,
 } from "@/src/utils/coupons";
+import { useConfirm } from "@/src/components/app/ConfirmProvider";
 
 /**
  * @param {{ coupon: any, isDeleting: boolean, onDelete: (couponId: number) => Promise<void> }} props
  */
 export default function CouponCard({ coupon, isDeleting, onDelete }) {
+  const { confirm } = useConfirm();
   const couponId = Number(coupon?.id || 0);
   const code = String(coupon?.code || "COUPON");
   const status = getCouponStatus(coupon);
@@ -20,6 +22,20 @@ export default function CouponCard({ coupon, isDeleting, onDelete }) {
     String(coupon?.type || "") === "C"
       ? formatCouponMoney(coupon?.amount)
       : `${Number(coupon?.perc || 0)}%`;
+
+  async function handleDelete() {
+    const accepted = await confirm({
+      title: "Remove Coupon",
+      message: `Coupon ${code} will be removed from your active offers.`,
+      confirmLabel: "Remove Coupon",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
+    await onDelete(couponId);
+  }
 
   return (
     <article className="overflow-hidden rounded-sm border border-white/10 bg-[#121212]">
@@ -79,7 +95,7 @@ export default function CouponCard({ coupon, isDeleting, onDelete }) {
           className="min-h-10 rounded-sm border border-red-400/35 px-4 text-sm font-semibold text-red-300 transition-colors hover:border-red-300 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-50"
           type="button"
           disabled={isDeleting}
-          onClick={() => onDelete(couponId)}
+          onClick={handleDelete}
         >
           {isDeleting ? "Removing..." : "Remove"}
         </button>

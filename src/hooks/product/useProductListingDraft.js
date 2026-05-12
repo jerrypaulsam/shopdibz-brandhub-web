@@ -108,6 +108,7 @@ function encodeCurlyList(value) {
  * buildQuery: (patch?: Record<string, string>) => Record<string, string>,
  * requiredSelectionReady: boolean,
  * validateInfoStep: () => string[],
+ * validateInfoFields: () => Record<string, string>,
  * buildSingleProductPayload: (images: Array<{ base64: string, filename: string }>) => Record<string, unknown>,
  * buildVariantProductPayload: () => Record<string, unknown>,
  * gstOptions: typeof PRODUCT_GST_OPTIONS,
@@ -248,61 +249,21 @@ export function useProductListingDraft() {
   const requiredSelectionReady = Boolean(selection.category && selection.subCategory);
 
   const validateInfoStep = useCallback(() => {
-    /** @type {string[]} */
-    const errors = [];
+    const fieldErrors = validateInfoDraft({
+      draft,
+      isBookCategory,
+      requiredSelectionReady,
+    });
 
-    if (!requiredSelectionReady) {
-      errors.push("Choose a category and subcategory to continue.");
-    }
-    if (!draft.title.trim()) {
-      errors.push("Product title is required.");
-    }
-    if (!draft.gstRate) {
-      errors.push("GST rate is required.");
-    }
-    if (!draft.hsnCode.trim()) {
-      errors.push("HSN code is required.");
-    }
-    if (!draft.description.trim()) {
-      errors.push("Product description is required.");
-    }
-    if (!draft.manufacturerValue.trim()) {
-      errors.push("Manufacturer name is required.");
-    }
-    if (!draft.originCountryValue.trim()) {
-      errors.push("Country of origin is required.");
-    }
-    if (!isBookCategory && !draft.brand.trim()) {
-      errors.push("Brand name is required.");
-    }
-    if (isBookCategory && !draft.publisher.trim()) {
-      errors.push("Publisher name is required.");
-    }
+    return Object.values(fieldErrors);
+  }, [draft, isBookCategory, requiredSelectionReady]);
 
-    if (draft.variantMode === "without-variant") {
-      if (!draft.mrp.trim()) {
-        errors.push("MRP is required.");
-      }
-      if (!draft.price.trim()) {
-        errors.push("Selling price is required.");
-      }
-      if (!draft.skuCode.trim()) {
-        errors.push("SKU code is required.");
-      }
-      if (
-        Number(draft.price || 0) > 0 &&
-        Number(draft.mrp || 0) > 0 &&
-        Number(draft.price) > Number(draft.mrp)
-      ) {
-        errors.push("Selling price should be lower than MRP.");
-      }
-    }
-
-    if (draft.variantMode === "with-variant" && !draft.variations.length) {
-      errors.push("Add at least one variation.");
-    }
-
-    return errors;
+  const validateInfoFields = useCallback(() => {
+    return validateInfoDraft({
+      draft,
+      isBookCategory,
+      requiredSelectionReady,
+    });
   }, [draft, isBookCategory, requiredSelectionReady]);
 
   const addKeyword = useCallback((value) => {
@@ -521,7 +482,7 @@ export function useProductListingDraft() {
       return {
         cat: String(basePayload.cat || ""),
         subCat: String(basePayload.subCat || ""),
-        itemSub: basePayload.itemSub ? String(basePayload.itemSub) : "",
+        itemSub: basePayload.itemSub ? String(basePayload.itemSub) : null,
         prebook: draft.enablePrebooking,
         title: draft.title.trim(),
         hsn: draft.hsnCode.trim(),
@@ -546,7 +507,19 @@ export function useProductListingDraft() {
         showChart: draft.showSizeChart,
       },
       gst: "false",
-      variation: draft.variations.map(({ id, ...variation }) => variation),
+      variation: draft.variations.map((variation) => ({
+        price: variation.price,
+        mrp: variation.mrp,
+        in_stock: variation.inStock,
+        max_stock: variation.maxStock,
+        sku_code: variation.variationSkuCode,
+        variants: variation.variants,
+        variation_types: (variation.variationTypes || []).map((variationType) => ({
+          id: variationType.id,
+          name: variationType.name,
+          type_map: variationType.typeMap,
+        })),
+      })),
       shProfile: draft.shippingProfile,
       maxStock: "0",
     };
@@ -568,6 +541,7 @@ export function useProductListingDraft() {
     buildQuery,
     requiredSelectionReady,
     validateInfoStep,
+    validateInfoFields,
     buildSingleProductPayload,
     buildVariantProductPayload,
     gstOptions: PRODUCT_GST_OPTIONS,
@@ -587,4 +561,91 @@ export function useProductListingDraft() {
     routerReady: router.isReady,
     router,
   };
+}
+
+function validateInfoDraft({ draft, isBookCategory, requiredSelectionReady }) {
+  const errors = {};
+
+  if (!requiredSelectionReady) {
+    errors.category = "Choose a category and subcategory to continue.";
+  }
+  if (!draft.title.trim()) {
+    errors.title = "field required *";
+  } else if (draft.title.trim().length > 180) {
+    errors.title = "Max. 180 Characters";
+  }
+  if (!draft.gstRate) {
+    errors.gstRate = "field required *";
+  }
+  if (!draft.hsnCode.trim()) {
+    errors.hsnCode = "field required *";
+  }
+  if (!draft.description.trim()) {
+    errors.description = "* Required";
+  } else if (draft.description.trim().length > 6000) {
+    errors.description = "Max. 6000 Characters";
+  }
+  if (!draft.manufacturerValue.trim()) {
+    errors.manufacturerValue = "field required *";
+  }
+  if (!draft.originCountryValue.trim()) {
+    errors.originCountryValue = "field required *";
+  }
+  if (!isBookCategory && !draft.brand.trim()) {
+    errors.brand = "field required *";
+  }
+  if (isBookCategory && !draft.publisher.trim()) {
+    errors.publisher = "field required *";
+  }
+
+  if (draft.videoUrl.trim() && !isValidUrl(draft.videoUrl.trim())) {
+    errors.videoUrl = "Enter a Url";
+  }
+
+  if (draft.variantMode === "without-variant") {
+    if (!draft.mrp.trim()) {
+      errors.mrp = "field required *";
+    }
+    if (!draft.price.trim()) {
+      errors.price = "field required *";
+    }
+    if (!draft.skuCode.trim()) {
+      errors.skuCode = "field required *";
+    }
+    if (
+      Number(draft.price || 0) > 0 &&
+      Number(draft.mrp || 0) > 0 &&
+      Number(draft.price) > Number(draft.mrp)
+    ) {
+      errors.price = "Selling Price Should be lower than MRP";
+    }
+  }
+
+  if (draft.variantMode === "with-variant" && !draft.variations.length) {
+    errors.variations = "Please Add At least One Variation.";
+  }
+
+  draft.attributes.forEach((attribute) => {
+    if (!attribute.key.trim()) {
+      errors[`attribute-${attribute.id}-key`] = "* Required";
+    } else if (attribute.key.trim().length > 20) {
+      errors[`attribute-${attribute.id}-key`] = "Max. 20 Characters";
+    }
+    if (!attribute.value.trim()) {
+      errors[`attribute-${attribute.id}-value`] = "* Required";
+    } else if (attribute.value.trim().length > 20) {
+      errors[`attribute-${attribute.id}-value`] = "Max. 20 Characters";
+    }
+  });
+
+  return errors;
+}
+
+function isValidUrl(value) {
+  try {
+    new URL(value);
+    return true;
+  } catch {
+    return false;
+  }
 }

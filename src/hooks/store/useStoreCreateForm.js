@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { createStore, verifyGstNumber } from "@/src/api/store";
 import { logScreenView } from "@/src/api/analytics";
+import { useToast } from "@/src/components/app/ToastProvider";
 
 export function useStoreCreateForm() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [storeRegisteredName, setStoreRegisteredName] = useState("");
   const [storeRegistrationId, setStoreRegistrationId] = useState("");
   const [gstin, setGstin] = useState("");
@@ -16,6 +18,7 @@ export function useStoreCreateForm() {
   const [gstVerified, setGstVerified] = useState(false);
   const [gstVerificationFailed, setGstVerificationFailed] = useState(false);
   const [clearSignal, setClearSignal] = useState(0);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
     logScreenView("store_form", "Anonymous", "store");
@@ -23,14 +26,18 @@ export function useStoreCreateForm() {
 
   async function handleVerifyGst() {
     if (gstin.trim().length !== 15) {
+      const nextMessage = "GSTIN should be 15 characters";
       setGstVerificationFailed(true);
       setGstVerified(false);
-      setMessage("GSTIN should be 15 characters");
+      setFieldErrors({ gstin: nextMessage });
+      setMessage(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
       return;
     }
 
     setIsVerifyingGst(true);
     setMessage("");
+    setFieldErrors({});
 
     try {
       const data = await verifyGstNumber(gstin.trim());
@@ -39,28 +46,37 @@ export function useStoreCreateForm() {
       setGstVerified(true);
       setGstVerificationFailed(false);
       setMessage("Verification Successful");
+      showToast({ message: "Verification Successful", type: "success" });
     } catch {
+      const nextMessage = "Verification Failed";
       setGstVerificationFailed(true);
       setGstVerified(false);
-      setMessage("Verification Failed");
+      setMessage(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
     } finally {
       setIsVerifyingGst(false);
     }
   }
 
   async function submitForm() {
-    if (!storeRegisteredName || !storeRegistrationId || !gstin) {
-      setMessage("All required fields must be filled.");
-      return;
-    }
+    const errors = validateStoreCreateForm({
+      storeRegisteredName,
+      storeRegistrationId,
+      gstin,
+      signatureBase64,
+    });
 
-    if (!signatureBase64) {
-      setMessage("Signature is required.");
+    if (Object.keys(errors).length) {
+      const nextMessage = Object.values(errors)[0];
+      setFieldErrors(errors);
+      setMessage(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
       return;
     }
 
     setIsSubmitting(true);
     setMessage("");
+    setFieldErrors({});
 
     try {
       await createStore({
@@ -71,9 +87,12 @@ export function useStoreCreateForm() {
         signatureBase64,
         enable: true,
       });
+      showToast({ message: "Store Created", type: "success" });
       await router.replace("/settings/bank/create");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Something went wrong");
+      const nextMessage = error instanceof Error ? error.message : "Something went wrong";
+      setMessage(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -95,6 +114,7 @@ export function useStoreCreateForm() {
     signatureBase64,
     setSignatureBase64,
     message,
+    fieldErrors,
     isSubmitting,
     isVerifyingGst,
     gstVerified,
@@ -108,4 +128,23 @@ export function useStoreCreateForm() {
 
 function extractPanFromGstin(value) {
   return value.length >= 12 ? value.substring(2, 12) : "";
+}
+
+function validateStoreCreateForm(form) {
+  const errors = {};
+
+  if (form.gstin.trim().length !== 15) {
+    errors.gstin = "GSTIN should be 15 characters";
+  }
+  if (!form.storeRegisteredName.trim()) {
+    errors.storeRegisteredName = "Field required *";
+  }
+  if (!form.storeRegistrationId.trim()) {
+    errors.storeRegistrationId = "Field required *";
+  }
+  if (!form.signatureBase64) {
+    errors.signature = "Signature is required.";
+  }
+
+  return errors;
 }

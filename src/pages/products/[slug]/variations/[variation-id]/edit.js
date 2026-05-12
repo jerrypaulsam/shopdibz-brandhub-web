@@ -20,6 +20,7 @@ export default function ProductVariationUpdatePage() {
         <ProductVariationEditorPanel
           form={product.form}
           mappingOptions={product.mappingOptions}
+          fieldErrors={product.fieldErrors}
           setFormField={product.setFormField}
           submit={product.submit}
           isSubmitting={product.isSubmitting}

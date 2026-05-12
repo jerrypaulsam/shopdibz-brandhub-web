@@ -20,7 +20,8 @@ export default function AddNewVariationPage() {
         <ProductVariationEditorPanel
           form={product.form}
           mappingOptions={product.mappingOptions}
-          variationTypes={product.variationTypes}
+          lockedVariantType={product.lockedVariantType}
+          fieldErrors={product.fieldErrors}
           isNew
           setFormField={product.setFormField}
           submit={product.submit}

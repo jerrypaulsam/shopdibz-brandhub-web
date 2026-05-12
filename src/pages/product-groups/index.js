@@ -11,8 +11,12 @@ export default function ProductGroupsPage() {
         <ProductGroupsPanel
           groups={productGroups.groups}
           isLoading={productGroups.isLoading}
+          isSaving={productGroups.isSaving}
+          loadingGroupId={productGroups.loadingGroupId}
           message={productGroups.message}
           onOpenGroup={productGroups.openGroup}
+          onDeleteGroup={productGroups.removeGroup}
+          onSaveGroup={productGroups.saveGroup}
         />
       </div>
     </DashboardShell>

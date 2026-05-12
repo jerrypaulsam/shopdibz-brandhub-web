@@ -22,6 +22,7 @@ export default function ProductInfoPage() {
         shipZonesPreset={product.shipZonesPreset}
         shipExZonesPreset={product.shipExZonesPreset}
         variationTypes={product.variationTypes}
+        fieldErrors={product.fieldErrors}
         updateDraft={product.updateDraft}
         addKeyword={product.addKeyword}
         removeKeyword={product.removeKeyword}

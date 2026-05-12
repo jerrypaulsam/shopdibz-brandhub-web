@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { addNewVariationToProduct, fetchProductDetail } from "@/src/api/products";
-import { PRODUCT_VARIATION_MAPS, PRODUCT_VARIATION_TYPES } from "@/src/data/product-variation-options";
+import { useToast } from "@/src/components/app/ToastProvider";
+import { PRODUCT_VARIATION_MAPS } from "@/src/data/product-variation-options";
+import { getProductVariations } from "@/src/utils/product";
 
 /**
  * @returns {{
@@ -11,7 +13,7 @@ import { PRODUCT_VARIATION_MAPS, PRODUCT_VARIATION_TYPES } from "@/src/data/prod
  * isSubmitting: boolean,
  * error: string,
  * success: string,
- * variationTypes: string[],
+ * lockedVariantType: string,
  * mappingOptions: any[],
  * setFormField: (field: string, value: string) => void,
  * submit: () => Promise<void>,
@@ -20,6 +22,7 @@ import { PRODUCT_VARIATION_MAPS, PRODUCT_VARIATION_TYPES } from "@/src/data/prod
  */
 export function useAddNewVariationForm() {
   const router = useRouter();
+  const { showToast } = useToast();
   const slug = Array.isArray(router.query.slug) ? router.query.slug[0] : String(router.query.slug || "");
 
   const [product, setProduct] = useState(null);
@@ -36,6 +39,7 @@ export function useAddNewVariationForm() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
@@ -47,7 +51,16 @@ export function useAddNewVariationForm() {
       try {
         setIsLoading(true);
         const data = await fetchProductDetail(slug);
+        const productVariantType = getProductVariantType(data);
         setProduct(data);
+        if (!productVariantType) {
+          setError("Variation type could not be found for this product.");
+          return;
+        }
+        setForm((currentForm) => ({
+          ...currentForm,
+          variantType: productVariantType,
+        }));
       } catch (loadError) {
         setError(loadError instanceof Error ? loadError.message : "Product could not be loaded.");
       } finally {
@@ -59,6 +72,7 @@ export function useAddNewVariationForm() {
   }, [slug]);
 
   function setFormField(field, value) {
+    setFieldErrors((current) => ({ ...current, [field]: "" }));
     setForm((currentForm) => ({
       ...currentForm,
       [field]: value,
@@ -70,6 +84,17 @@ export function useAddNewVariationForm() {
       setError("");
       setSuccess("");
       setIsSubmitting(true);
+      const errors = validateVariationForm(form, true);
+
+      if (Object.keys(errors).length) {
+        const nextMessage = Object.values(errors)[0];
+        setFieldErrors(errors);
+        setError(nextMessage);
+        showToast({ message: nextMessage, type: "error" });
+        return;
+      }
+
+      setFieldErrors({});
 
       await addNewVariationToProduct({
         slug,
@@ -84,8 +109,9 @@ export function useAddNewVariationForm() {
       });
 
       setSuccess("Variation added successfully.");
+      showToast({ message: "New variation added to product.", type: "success" });
       setForm({
-        variantType: "",
+        variantType: form.variantType,
         name: "",
         typeMap: "",
         mrp: "",
@@ -95,11 +121,12 @@ export function useAddNewVariationForm() {
         maxStock: "1",
       });
     } catch (submitError) {
-      setError(
+      const nextMessage =
         submitError instanceof Error
           ? submitError.message
-          : "Variation could not be created.",
-      );
+          : "Variation could not be created.";
+      setError(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -111,11 +138,43 @@ export function useAddNewVariationForm() {
     isLoading,
     isSubmitting,
     error,
+    fieldErrors,
     success,
-    variationTypes: PRODUCT_VARIATION_TYPES,
+    lockedVariantType: form.variantType,
     mappingOptions: PRODUCT_VARIATION_MAPS[form.variantType] || [],
     setFormField,
     submit,
     slug,
   };
+}
+
+function getProductVariantType(product) {
+  const firstVariation = getProductVariations(product)[0];
+
+  return String(
+    firstVariation?.vAtion ||
+      firstVariation?.variation ||
+      product?.vAtion ||
+      product?.variation ||
+      "",
+  )
+    .trim()
+    .toLowerCase();
+}
+
+function validateVariationForm(form, requireVariantType) {
+  const errors = {};
+
+  if (requireVariantType && !form.variantType) errors.variantType = "field required *";
+  if (!form.name.trim()) errors.name = "field required *";
+  if (!form.typeMap.trim()) errors.typeMap = "field required *";
+  if (!form.mrp.trim()) errors.mrp = "field required *";
+  if (!form.price.trim()) errors.price = "field required *";
+  if (Number(form.price || 0) > Number(form.mrp || 0)) {
+    errors.price = "Selling Price Should be lower than MRP";
+  }
+  if (!form.variationSkuCode.trim()) errors.variationSkuCode = "field required *";
+  if (form.stock === "S" && !form.maxStock.trim()) errors.maxStock = "field required *";
+
+  return errors;
 }

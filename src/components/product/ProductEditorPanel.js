@@ -8,13 +8,14 @@ import {
 } from "@/src/data/product-variation-options";
 
 /**
- * @param {{ form: any, categories: any[], subCategories: any[], itemSubCategories: any[], setFormField: (field: string, value: any) => void, addAttribute: () => void, updateAttribute: (id: number, key: "key" | "value", value: string) => void, removeAttribute: (id: number) => void, addKeyword: (value: string) => string, removeKeyword: (value: string) => void, toggleShipZone: (value: string) => void, toggleShipExZone: (value: string) => void, submit: () => Promise<void>, isSubmitting: boolean }} props
+ * @param {{ form: any, categories: any[], subCategories: any[], itemSubCategories: any[], fieldErrors: Record<string, string>, setFormField: (field: string, value: any) => void, addAttribute: () => void, updateAttribute: (id: number, key: "key" | "value", value: string) => void, removeAttribute: (id: number) => void, addKeyword: (value: string) => string, removeKeyword: (value: string) => void, toggleShipZone: (value: string) => void, toggleShipExZone: (value: string) => void, submit: () => Promise<void>, isSubmitting: boolean }} props
  */
 export default function ProductEditorPanel({
   form,
   categories,
   subCategories,
   itemSubCategories,
+  fieldErrors = {},
   setFormField,
   addAttribute,
   updateAttribute,
@@ -56,6 +57,9 @@ export default function ProductEditorPanel({
                 </option>
               ))}
             </select>
+            {fieldErrors.categorySlug ? (
+              <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.categorySlug}</p>
+            ) : null}
           </label>
           <label className="block">
             <span className="text-sm font-semibold text-white/80">Subcategory</span>
@@ -71,6 +75,9 @@ export default function ProductEditorPanel({
                 </option>
               ))}
             </select>
+            {fieldErrors.subCategorySlug ? (
+              <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.subCategorySlug}</p>
+            ) : null}
           </label>
           {itemSubCategories.length ? (
             <label className="block">
@@ -90,10 +97,13 @@ export default function ProductEditorPanel({
                     {itemSubCategory.name}
                   </option>
                 ))}
-              </select>
-            </label>
+                </select>
+                {fieldErrors.itemSubCategorySlug ? (
+                  <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.itemSubCategorySlug}</p>
+                ) : null}
+              </label>
           ) : null}
-          <StoreField label="Title" value={form.title} onChange={(value) => setFormField("title", value)} />
+          <StoreField label="Title" value={form.title} error={fieldErrors.title} onChange={(value) => setFormField("title", value)} />
           <StoreField label="Brand" value={form.brand} onChange={(value) => setFormField("brand", value)} />
           <StoreField label="Publisher" value={form.publisher} onChange={(value) => setFormField("publisher", value)} />
         </div>
@@ -103,13 +113,13 @@ export default function ProductEditorPanel({
         <div className="grid gap-5 md:grid-cols-2">
           {!form.variants ? (
             <>
-              <StoreField label="MRP" value={form.mrp} onChange={(value) => setFormField("mrp", value)} />
-              <StoreField label="Price" value={form.price} onChange={(value) => setFormField("price", value)} />
-              <StoreField label="SKU Code" value={form.skuCode} onChange={(value) => setFormField("skuCode", value)} />
+              <StoreField label="MRP" value={form.mrp} error={fieldErrors.mrp} onChange={(value) => setFormField("mrp", value)} />
+              <StoreField label="Price" value={form.price} error={fieldErrors.price} onChange={(value) => setFormField("price", value)} />
+              <StoreField label="SKU Code" value={form.skuCode} error={fieldErrors.skuCode} onChange={(value) => setFormField("skuCode", value)} />
             </>
           ) : null}
           <StoreField label="Shipping Cost" value={form.shipCost} onChange={(value) => setFormField("shipCost", value)} />
-          <StoreField label="HSN Code" value={form.hsnCode} onChange={(value) => setFormField("hsnCode", value)} />
+          <StoreField label="HSN Code" value={form.hsnCode} error={fieldErrors.hsnCode} onChange={(value) => setFormField("hsnCode", value)} />
           <StoreField label="MPN / GTIN" value={form.mpn} onChange={(value) => setFormField("mpn", value)} />
           <label className="block">
             <span className="text-sm font-semibold text-white/80">GST Rate</span>
@@ -125,6 +135,9 @@ export default function ProductEditorPanel({
                 </option>
               ))}
             </select>
+            {fieldErrors.gstRate ? (
+              <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.gstRate}</p>
+            ) : null}
           </label>
         </div>
       </StoreSection>
@@ -159,6 +172,7 @@ export default function ProductEditorPanel({
             label="Description"
             multiline
             value={form.description}
+            error={fieldErrors.description}
             onChange={(value) => setFormField("description", value)}
           />
           <StoreField
@@ -169,17 +183,20 @@ export default function ProductEditorPanel({
           <StoreField
             label="Video URL"
             value={form.videoUrl}
+            error={fieldErrors.videoUrl}
             onChange={(value) => setFormField("videoUrl", value)}
           />
           <div className="grid gap-5 md:grid-cols-2">
             <StoreField
               label="Manufacturer"
               value={form.manufacturerValue}
+              error={fieldErrors.manufacturerValue}
               onChange={(value) => setFormField("manufacturerValue", value)}
             />
             <StoreField
               label="Country of Origin"
               value={form.originCountryValue}
+              error={fieldErrors.originCountryValue}
               onChange={(value) => setFormField("originCountryValue", value)}
             />
           </div>
@@ -190,11 +207,13 @@ export default function ProductEditorPanel({
                 <StoreField
                   label="Attribute Title"
                   value={attribute.key}
+                  error={fieldErrors[`attribute-${attribute.id}-key`]}
                   onChange={(value) => updateAttribute(attribute.id, "key", value)}
                 />
                 <StoreField
                   label="Attribute Value"
                   value={attribute.value}
+                  error={fieldErrors[`attribute-${attribute.id}-value`]}
                   onChange={(value) => updateAttribute(attribute.id, "value", value)}
                 />
                 <button

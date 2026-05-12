@@ -54,6 +54,7 @@ export function useStoreInfoForm() {
     wooCommerceSecret: "",
   });
   const [message, setMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -112,6 +113,8 @@ export function useStoreInfoForm() {
   }, []);
 
   function updateField(key, value) {
+    setFieldErrors((current) => ({ ...current, [key]: "" }));
+
     if (key === "contactNo") {
       const digitsOnly = String(value || "").replace(/\D/g, "").slice(0, 10);
       setForm((current) => ({
@@ -154,15 +157,18 @@ export function useStoreInfoForm() {
   }
 
   async function submitInfo() {
-    const validationMessage = validateStoreInfoForm(form, !storeInfo);
+    const validation = validateStoreInfoForm(form, !storeInfo);
 
-    if (validationMessage) {
-      setMessage(validationMessage);
+    if (validation.message) {
+      setFieldErrors(validation.errors);
+      setMessage(validation.message);
+      showToast({ message: validation.message, type: "error" });
       return;
     }
 
     setIsSubmitting(true);
     setMessage("");
+    setFieldErrors({});
 
     try {
       await updateStoreInfo({
@@ -184,9 +190,12 @@ export function useStoreInfoForm() {
         storeVideo: normalizeYoutubeLink(form.storeVideo),
       });
       setMessage("Store Info Updated Successfully");
+      showToast({ message: "Store Info Updated Successfully", type: "success" });
       await router.replace("/home");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Oops something went wrong");
+      const nextMessage = error instanceof Error ? error.message : "Oops something went wrong";
+      setMessage(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -460,6 +469,7 @@ export function useStoreInfoForm() {
     setSizeChartFilename,
     connectorForm,
     message,
+    fieldErrors,
     isLoading,
     isSubmitting,
     updateField,
@@ -482,76 +492,75 @@ export function useStoreInfoForm() {
 /**
  * @param {any} form
  * @param {boolean} isInitialSetup
- * @returns {string}
+ * @returns {{ errors: Record<string, string>, message: string }}
  */
 function validateStoreInfoForm(form, isInitialSetup) {
+  const errors = {};
+
   if (!form.storeName.trim()) {
-    return "Store name is required.";
+    errors.storeName = "field required *";
   }
 
   if (!form.storeEmail.trim()) {
-    return "Store email is required.";
-  }
-
-  if (!/^\S+@\S+\.\S+$/.test(form.storeEmail.trim())) {
-    return "Please enter a valid store email.";
+    errors.storeEmail = "field required *";
+  } else if (!/^\S+@\S+\.\S+$/.test(form.storeEmail.trim())) {
+    errors.storeEmail = "Please enter a valid store email.";
   }
 
   if (!form.contactNo.trim()) {
-    return "Contact number is required.";
-  }
-
-  if (!/^\d{10}$/.test(form.contactNo.trim())) {
-    return "Contact number must be 10 digits.";
+    errors.contactNo = "field required *";
+  } else if (!/^\d{10}$/.test(form.contactNo.trim())) {
+    errors.contactNo = "10 Digits Number";
   }
 
   if (!form.storeDescription.trim()) {
-    return "Store description is required.";
-  }
-
-  if (form.storeDescription.trim().length < 20) {
-    return "Store description should be at least 20 characters.";
+    errors.storeDescription = "field required *";
+  } else if (form.storeDescription.trim().length < 20) {
+    errors.storeDescription = "Store description should be at least 20 characters.";
   }
 
   if (isInitialSetup) {
     if (!form.storeUrl.trim()) {
-      return "Store ID is required.";
-    }
-
-    if (!/^[a-z0-9-]+$/.test(form.storeUrl.trim())) {
-      return "Store ID can only contain lowercase letters, numbers, and hyphens.";
+      errors.storeUrl = "field required *";
+    } else if (!/^[a-z0-9-]+$/.test(form.storeUrl.trim())) {
+      errors.storeUrl = "Use lowercase letters, numbers, and hyphens only.";
     }
 
     if (!form.storeAddress.trim()) {
-      return "Store address is required.";
+      errors.storeAddress = "field required *";
+    } else if (!/.*[0-9].*/.test(form.storeAddress.trim())) {
+      errors.storeAddress = "Should contain a plot no./flat no. etc";
     }
 
     if (!form.storeCity.trim()) {
-      return "City is required.";
+      errors.storeCity = "field required *";
     }
 
     if (!form.storeState.trim()) {
-      return "State is required.";
+      errors.storeState = "field required *";
     }
 
     if (!/^\d{6}$/.test(form.storePinCode.trim())) {
-      return "Pincode must be 6 digits.";
+      errors.storePinCode = "Pincode must be 6 digits.";
     }
   }
 
   if (form.shipType === "AS" && !["0", "1"].includes(String(form.shipMode))) {
-    return "Choose a shipping mode.";
+    errors.shipMode = "field required *";
   }
 
   if (form.storeVideo.trim()) {
     const normalized = normalizeYoutubeLink(form.storeVideo);
 
     if (!normalized) {
-      return "Please enter a valid YouTube video link or video ID.";
+      errors.storeVideo = "Please enter a valid YouTube video link or video ID.";
     }
   }
 
-  return "";
+  return {
+    errors,
+    message: Object.values(errors)[0] || "",
+  };
 }
 
 function normalizeYoutubeLink(value) {

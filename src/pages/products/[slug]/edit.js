@@ -22,6 +22,7 @@ export default function ProductUpdatePage() {
           categories={product.categories}
           subCategories={product.subCategories}
           itemSubCategories={product.itemSubCategories}
+          fieldErrors={product.fieldErrors}
           setFormField={product.setFormField}
           addAttribute={product.addAttribute}
           updateAttribute={product.updateAttribute}

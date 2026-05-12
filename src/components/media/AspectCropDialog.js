@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
  * aspectRatio: number,
  * outputWidth?: number,
  * outputHeight?: number,
+ * outputMimeType?: string,
  * shape?: "rect" | "circle",
  * onCancel: () => void,
  * onConfirm: (payload: { dataUrl: string, base64: string, fileName: string, mimeType: string }) => void,
@@ -21,6 +22,7 @@ export default function AspectCropDialog({
   aspectRatio,
   outputWidth = 1080,
   outputHeight,
+  outputMimeType,
   shape = "rect",
   onCancel,
   onConfirm,
@@ -37,6 +39,7 @@ export default function AspectCropDialog({
       aspectRatio={aspectRatio}
       outputWidth={outputWidth}
       outputHeight={outputHeight}
+      outputMimeType={outputMimeType}
       shape={shape}
       onCancel={onCancel}
       onConfirm={onConfirm}
@@ -50,6 +53,7 @@ function CropSession({
   aspectRatio,
   outputWidth,
   outputHeight,
+  outputMimeType,
   shape,
   onCancel,
   onConfirm,
@@ -220,7 +224,7 @@ function CropSession({
       targetHeight,
     );
 
-    const mimeType = normalizeMimeType(file.type);
+    const mimeType = normalizeMimeType(outputMimeType || file.type);
     const dataUrl = canvas.toDataURL(mimeType, 0.92);
     onConfirm({
       dataUrl,

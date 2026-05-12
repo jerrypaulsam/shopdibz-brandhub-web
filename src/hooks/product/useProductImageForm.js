@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createSingleProduct } from "@/src/api/products";
+import { useToast } from "@/src/components/app/ToastProvider";
 import { useProductListingDraft } from "./useProductListingDraft";
 
 /**
@@ -15,6 +16,7 @@ import { useProductListingDraft } from "./useProductListingDraft";
  */
 export function useProductImageForm() {
   const draftApi = useProductListingDraft();
+  const { showToast } = useToast();
   const [images, setImages] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -28,7 +30,9 @@ export function useProductImageForm() {
     }
 
     if (images.length + files.length > 6) {
-      setError("Only a maximum of 6 images can be uploaded.");
+      const nextMessage = "Only a maximum of six images can be uploaded for a product";
+      setError(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
       return;
     }
 
@@ -71,11 +75,14 @@ export function useProductImageForm() {
 
     if (errors.length) {
       setError(errors[0]);
+      showToast({ message: errors[0], type: "error" });
       return;
     }
 
     if (!images.length) {
-      setError("Upload at least one product image.");
+      const nextMessage = "Select at least one product image.";
+      setError(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
       return;
     }
 
@@ -90,14 +97,16 @@ export function useProductImageForm() {
         ),
       );
       setSuccess("Product created successfully.");
+      showToast({ message: "Product created successfully.", type: "success" });
       draftApi.resetDraft();
       await draftApi.router.replace("/home");
     } catch (submitError) {
-      setError(
+      const nextMessage =
         submitError instanceof Error
           ? submitError.message
-          : "Product could not be created.",
-      );
+          : "Product could not be created.";
+      setError(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
     } finally {
       setIsSubmitting(false);
     }

@@ -71,7 +71,7 @@ export default function HeroSection() {
                 </div>
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-gold">
-                    Seller Console
+                    Brand Console
                   </p>
                   <p className="mt-1 text-sm font-semibold text-brand-white">
                     Brand-first growth stack
@@ -116,7 +116,7 @@ export default function HeroSection() {
                 </p>
               </div>
 
-              <div className="rounded-sm border border-white/10 bg-black/30 p-5">
+              {/* <div className="rounded-sm border border-white/10 bg-black/30 p-5">
                 <p className="text-center text-[11px] font-bold uppercase tracking-[0.16em] text-white/45 xl:text-left">
                   Available on
                 </p>
@@ -128,7 +128,7 @@ export default function HeroSection() {
                     rel="noreferrer"
                   >
                     <Image
-                      src="/assets/images/google-play-badge.png"
+                      src="/assets/images/google_play_logo.svg"
                       alt="Google Play"
                       width={170}
                       height={50}
@@ -142,15 +142,16 @@ export default function HeroSection() {
                     rel="noreferrer"
                   >
                     <Image
-                      src="/assets/images/app-store.png"
+                      src="/assets/images/apple_store_logo.svg"
                       alt="App Store"
-                      width={170}
+                      width={170} 
                       height={50}
                       className="h-11 w-auto max-w-[170px] object-contain"
                     />
                   </a>
                 </div>
-              </div>
+              </div> */}
+              
             </div>
           </div>
         </aside>

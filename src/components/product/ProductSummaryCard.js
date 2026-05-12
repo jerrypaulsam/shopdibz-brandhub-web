@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Link from "next/link";
 import {
   getProductCategoryTrail,
@@ -54,6 +55,8 @@ export default function ProductSummaryCard({
   const views = Number(product?.vCnt || product?.views || 0);
   const variations = getProductVariations(product);
   const variationCount = variations.length;
+  const [showAllVariations, setShowAllVariations] = useState(false);
+  const visibleVariations = showAllVariations ? variations : variations.slice(0, 3);
   const firstVariationId = variationCount ? variations[0]?.id : 0;
   const isArchived = Boolean(product?.arch || product?.archived);
   const isPromoted = Boolean(product?.isPromoted || product?.promoted);
@@ -176,12 +179,12 @@ export default function ProductSummaryCard({
             </Link>
             {hasVariants ? (
               <>
-                <Link
+                {/* <Link
                   className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
                   href={`/products/${slug}/variations/${firstVariationId}/edit?variant-mode=with-variant`}
                 >
                   Edit Variant
-                </Link>
+                </Link> */}
                 <Link
                   className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
                   href={`/products/${slug}/new-variation`}
@@ -297,7 +300,7 @@ export default function ProductSummaryCard({
                 </p>
               </div>
               <div className="mt-4 space-y-3">
-                {variations.slice(0, 3).map((variation) => {
+                {visibleVariations.map((variation) => {
                   const variationTypes = getVariationTypeNames(variation);
 
                   return (
@@ -343,9 +346,13 @@ export default function ProductSummaryCard({
                 })}
               </div>
               {variationCount > 3 ? (
-                <p className="mt-4 text-xs text-white/35">
-                  Additional variations are available inside the product detail workspace.
-                </p>
+                <button
+                  className="mt-4 inline-flex items-center rounded-sm border border-white/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                  type="button"
+                  onClick={() => setShowAllVariations((current) => !current)}
+                >
+                  {showAllVariations ? "Show Less" : `Show All ${variationCount}`}
+                </button>
               ) : null}
             </div>
           ) : null}

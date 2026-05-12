@@ -5,7 +5,7 @@ import { PRODUCT_GROUP_DISCOUNT_TYPES } from "@/src/utils/activity";
 import ActivityFileInput from "./ActivityFileInput";
 
 /**
- * @param {{ groupName: string, groupDiscountType: string, groupDiscount: string, groupImageName: string, isActionLoading: boolean, isMobileVerified: boolean, isPremium: boolean, pricingUrl: string, showOnHome: boolean, onGroupNameChange: (value: string) => void, onGroupDiscountTypeChange: (value: string) => void, onGroupDiscountChange: (value: string) => void, onShowOnHomeChange: (value: boolean) => void, onImageCropped: (payload: { fileName: string, base64: string }) => void, onSubmit: () => void }} props
+ * @param {{ groupName: string, groupDiscountType: string, groupDiscount: string, groupImageName: string, isActionLoading: boolean, isPremium: boolean, pricingUrl: string, showOnHome: boolean, onGroupNameChange: (value: string) => void, onGroupDiscountTypeChange: (value: string) => void, onGroupDiscountChange: (value: string) => void, onShowOnHomeChange: (value: boolean) => void, onImageCropped: (payload: { fileName: string, base64: string }) => void, onSubmit: () => void }} props
  */
 export default function ProductGroupCreatePanel({
   groupName,
@@ -13,7 +13,6 @@ export default function ProductGroupCreatePanel({
   groupDiscount,
   groupImageName,
   isActionLoading,
-  isMobileVerified,
   isPremium,
   pricingUrl,
   showOnHome,
@@ -33,10 +32,6 @@ export default function ProductGroupCreatePanel({
           Product Group
         </p>
         <StatusPill label={isPremium ? "Premium" : "Upgrade required"} tone={isPremium ? "gold" : "red"} />
-        <StatusPill
-          label={isMobileVerified ? "Mobile verified" : "Mobile verification needed"}
-          tone={isMobileVerified ? "green" : "red"}
-        />
       </div>
 
       <h3 className="mt-3 text-xl font-extrabold text-brand-white">
@@ -141,15 +136,6 @@ export default function ProductGroupCreatePanel({
           Manage groups
         </Link>
 
-        {!isMobileVerified ? (
-          <Link
-            className="inline-flex min-h-11 items-center rounded-sm border border-brand-gold/30 px-5 text-sm font-semibold text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
-            href="/new-mobile-verify"
-          >
-            Verify mobile
-          </Link>
-        ) : null}
-
         {!isPremium && pricingUrl ? (
           <a
             className="inline-flex min-h-11 items-center rounded-sm border border-brand-gold/30 px-5 text-sm font-semibold text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
@@ -168,6 +154,7 @@ export default function ProductGroupCreatePanel({
         aspectRatio={1134 / 634}
         outputWidth={1134}
         outputHeight={634}
+        outputMimeType="image/jpeg"
         onCancel={() => setCropFile(null)}
         onConfirm={({ fileName, base64 }) => {
           onImageCropped({

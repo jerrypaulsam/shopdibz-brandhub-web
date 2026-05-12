@@ -77,7 +77,7 @@ export default function Footer() {
                 rel="noreferrer"
               >
                 <Image
-                  src="/assets/images/google-play-badge.png"
+                  src="/assets/images/google_play_logo.svg"
                   alt="Shopdibz Brand Hub on Google Play"
                   width={164}
                   height={48}
@@ -90,7 +90,7 @@ export default function Footer() {
                 rel="noreferrer"
               >
                 <Image
-                  src="/assets/images/app-store.png"
+                  src="/assets/images/apple_store_logo.svg"
                   alt="Shopdibz Brand Hub on App Store"
                   width={164}
                   height={48}

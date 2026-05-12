@@ -11,6 +11,7 @@ import {
 import { getCachedStoreInfo } from "@/src/api/auth";
 import { getDashboardSession } from "@/src/api/dashboard";
 import { logScreenView } from "@/src/api/analytics";
+import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { normalizePaginatedCollection } from "@/src/utils/product";
 import {
   getItemSubCategories,
@@ -68,6 +69,7 @@ function firstValue(value) {
  */
 export function useProductList() {
   const router = useRouter();
+  const { confirm } = useConfirm();
   const filters = useMemo(
     () => ({
       tab: firstValue(router.query.tab) || DEFAULT_QUERY.tab,
@@ -248,6 +250,16 @@ export function useProductList() {
   }
 
   async function deleteVariation(variationId) {
+    const accepted = await confirm({
+      title: "Delete Variation",
+      message: "This variation will be deleted permanently from the product.",
+      confirmLabel: "Delete Variation",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
     try {
       setMessage("");
       setLoadingSlug(`variation-${variationId}`);
@@ -262,7 +274,13 @@ export function useProductList() {
   }
 
   async function deleteProduct(slug) {
-    if (typeof window !== "undefined" && !window.confirm("Delete this product permanently?")) {
+    const accepted = await confirm({
+      title: "Delete Product",
+      message: "This product will be deleted permanently. This action cannot be undone.",
+      confirmLabel: "Delete Product",
+    });
+
+    if (!accepted) {
       return;
     }
 

@@ -6,6 +6,7 @@ const DEFAULT_TITLE = "Shopdibz Brand Hub | Sell Your Brand Online";
 const DEFAULT_DESCRIPTION =
   "Launch, manage, and grow your Indian brand with Shopdibz Brand Hub. Seller onboarding, catalog tools, campaigns, payouts, and operations in one place.";
 const DEFAULT_IMAGE = "https://brand.shopdibz.com/assets/logo/seller-logo.png";
+const FAVICON_ICO = "/favicon.ico";
 
 const PUBLIC_PATHS = new Set(["/", "/hub"]);
 
@@ -87,8 +88,9 @@ export default function SeoHead({ pathname, asPath }) {
       <meta name="twitter:title" content={DEFAULT_TITLE} />
       <meta name="twitter:description" content={DEFAULT_DESCRIPTION} />
       <meta name="twitter:image" content={DEFAULT_IMAGE} />
-      <link rel="canonical" href={canonicalUrl} />
-      <link rel="icon" href="/favicon.ico" />
+      <link rel="canonical" href={canonicalUrl} key="canonical" />
+      <link rel="icon" href={FAVICON_ICO} sizes="any" key="favicon-ico" />
+      <link rel="shortcut icon" href={FAVICON_ICO} key="shortcut-icon" />
       {!isPublic ? <meta name="robots" content="noindex,nofollow" /> : null}
       {isPublic ? (
         <>

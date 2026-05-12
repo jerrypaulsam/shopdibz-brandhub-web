@@ -4,6 +4,7 @@ import {
   fetchProductDetail,
   updateExistingVariation,
 } from "@/src/api/products";
+import { useToast } from "@/src/components/app/ToastProvider";
 import { PRODUCT_VARIATION_MAPS } from "@/src/data/product-variation-options";
 import { resolveActiveVariation } from "@/src/utils/product";
 
@@ -25,6 +26,7 @@ import { resolveActiveVariation } from "@/src/utils/product";
  */
 export function useProductVariationUpdateForm() {
   const router = useRouter();
+  const { showToast } = useToast();
   const slug = Array.isArray(router.query.slug) ? router.query.slug[0] : String(router.query.slug || "");
   const variationId = Array.isArray(router.query["variation-id"])
     ? router.query["variation-id"][0]
@@ -45,6 +47,7 @@ export function useProductVariationUpdateForm() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
@@ -91,6 +94,7 @@ export function useProductVariationUpdateForm() {
   const mappingOptions = PRODUCT_VARIATION_MAPS[form.variantType] || [];
 
   function setFormField(field, value) {
+    setFieldErrors((currentForm) => ({ ...currentForm, [field]: "" }));
     setForm((currentForm) => ({
       ...currentForm,
       [field]: value,
@@ -102,6 +106,17 @@ export function useProductVariationUpdateForm() {
       setError("");
       setSuccess("");
       setIsSubmitting(true);
+      const errors = validateVariationForm(form);
+
+      if (Object.keys(errors).length) {
+        const nextMessage = Object.values(errors)[0];
+        setFieldErrors(errors);
+        setError(nextMessage);
+        showToast({ message: nextMessage, type: "error" });
+        return;
+      }
+
+      setFieldErrors({});
 
       const existingVariationTypes = Array.isArray(variation?.vTypes)
         ? variation.vTypes
@@ -149,12 +164,14 @@ export function useProductVariationUpdateForm() {
       });
 
       setSuccess("Variation updated successfully.");
+      showToast({ message: "Variation Updated Successfully", type: "success" });
     } catch (submitError) {
-      setError(
+      const nextMessage =
         submitError instanceof Error
           ? submitError.message
-          : "Variation could not be updated.",
-      );
+          : "Variation could not be updated.";
+      setError(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -167,6 +184,7 @@ export function useProductVariationUpdateForm() {
     isLoading,
     isSubmitting,
     error,
+    fieldErrors,
     success,
     mappingOptions,
     setFormField,
@@ -174,4 +192,20 @@ export function useProductVariationUpdateForm() {
     slug,
     variationId,
   };
+}
+
+function validateVariationForm(form) {
+  const errors = {};
+
+  if (!form.name.trim()) errors.name = "field required *";
+  if (!form.typeMap.trim()) errors.typeMap = "field required *";
+  if (!form.mrp.trim()) errors.mrp = "field required *";
+  if (!form.price.trim()) errors.price = "field required *";
+  if (Number(form.price || 0) > Number(form.mrp || 0)) {
+    errors.price = "Selling Price Should be lower than MRP";
+  }
+  if (!form.variationSkuCode.trim()) errors.variationSkuCode = "field required *";
+  if (form.stock === "S" && !form.maxStock.trim()) errors.maxStock = "field required *";
+
+  return errors;
 }

@@ -420,6 +420,33 @@ export function fetchProductGroups(payload = {}) {
 }
 
 /**
+ * @param {{ groupId: number, name: string, active: boolean, show: boolean }} payload
+ * @returns {Promise<any>}
+ */
+export function updateProductGroup(payload) {
+  const session = getDashboardSession();
+  return postProductJson("/api/store/update-product-group", {
+    accessToken: session.accessToken,
+    groupId: payload.groupId,
+    name: payload.name,
+    active: payload.active,
+    show: payload.show,
+  });
+}
+
+/**
+ * @param {{ groupId: number }} payload
+ * @returns {Promise<any>}
+ */
+export function deleteProductGroup(payload) {
+  const session = getDashboardSession();
+  return postProductJson("/api/store/delete-product-group", {
+    accessToken: session.accessToken,
+    groupId: payload.groupId,
+  });
+}
+
+/**
  * @param {{ groupId: number, page?: number }} payload
  * @returns {Promise<any>}
  */

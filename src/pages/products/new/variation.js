@@ -18,8 +18,10 @@ export default function ProductVariationPage() {
         form={product.form}
         mappingOptions={product.mappingOptions}
         error={product.error}
+        fieldErrors={product.fieldErrors}
         setFormField={product.setFormField}
         addCurrentVariation={product.addCurrentVariation}
+        finishVariations={product.finishVariations}
         removeVariation={product.removeVariation}
       />
     </ProductFlowLayout>

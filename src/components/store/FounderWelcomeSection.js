@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import AuthButton from "@/src/components/auth/AuthButton";
+import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import StoreSection from "@/src/components/store/StoreSection";
 
 const MAX_RECORDING_SECONDS = 25;
@@ -14,6 +15,7 @@ export default function FounderWelcomeSection({
   onUpload,
   onDelete,
 }) {
+  const { confirm } = useConfirm();
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
   const timerRef = useRef(null);
@@ -128,6 +130,20 @@ export default function FounderWelcomeSection({
     }
   }
 
+  async function handleDelete() {
+    const accepted = await confirm({
+      title: "Delete Welcome Message",
+      message: "This live founder welcome audio will be removed from your storefront.",
+      confirmLabel: "Delete Audio",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
+    await onDelete();
+  }
+
   return (
     <StoreSection
       title="Founder's Welcome Message"
@@ -146,7 +162,7 @@ export default function FounderWelcomeSection({
                   className="inline-flex min-h-11 w-full items-center justify-center rounded-sm border border-red-400/30 px-5 text-sm font-bold text-red-300 transition-colors hover:border-red-300 hover:text-red-100 disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
                   type="button"
                   disabled={isSubmitting}
-                  onClick={onDelete}
+                  onClick={handleDelete}
                 >
                   {isSubmitting ? "Deleting..." : "Delete"}
                 </button>

@@ -2,9 +2,10 @@ import Link from "next/link";
 import AuthButton from "@/src/components/auth/AuthButton";
 import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
+import { titleCaseValue } from "@/src/utils/product";
 
 /**
- * @param {{ draft: any, selectionSummary: string, isBookCategory: boolean, gstOptions: Array<any>, shipZonesPreset: string[], shipExZonesPreset: string[], variationTypes: string[], updateDraft: (value: any) => void, addKeyword: (value: string) => string, removeKeyword: (value: string) => void, addAttribute: () => void, updateAttribute: (id: number, key: "key" | "value", value: string) => void, removeAttribute: (id: number) => void, removeVariation: (id: number) => void, toggleShipZone: (value: string) => void, toggleShipExZone: (value: string) => void, chooseVariantType: (value: string) => Promise<void>, submitInfoForm: () => Promise<void>, isSubmitting: boolean, buildQuery: (patch?: Record<string, string>) => Record<string, string> }} props
+ * @param {{ draft: any, selectionSummary: string, isBookCategory: boolean, gstOptions: Array<any>, shipZonesPreset: string[], shipExZonesPreset: string[], variationTypes: string[], fieldErrors: Record<string, string>, updateDraft: (value: any) => void, addKeyword: (value: string) => string, removeKeyword: (value: string) => void, addAttribute: () => void, updateAttribute: (id: number, key: "key" | "value", value: string) => void, removeAttribute: (id: number) => void, removeVariation: (id: number) => void, toggleShipZone: (value: string) => void, toggleShipExZone: (value: string) => void, chooseVariantType: (value: string) => Promise<void>, submitInfoForm: () => Promise<void>, isSubmitting: boolean, buildQuery: (patch?: Record<string, string>) => Record<string, string> }} props
  */
 export default function ProductInfoPanel({
   draft,
@@ -14,6 +15,7 @@ export default function ProductInfoPanel({
   shipZonesPreset,
   shipExZonesPreset,
   variationTypes,
+  fieldErrors = {},
   updateDraft,
   addKeyword,
   removeKeyword,
@@ -73,18 +75,21 @@ export default function ProductInfoPanel({
             label="Title"
             value={draft.title}
             maxLength={180}
+            error={fieldErrors.title}
             onChange={(value) => updateDraft({ title: value })}
           />
           {!isBookCategory ? (
             <StoreField
               label="Brand Name"
               value={draft.brand}
+              error={fieldErrors.brand}
               onChange={(value) => updateDraft({ brand: value })}
             />
           ) : (
             <StoreField
               label="Name of Publisher"
               value={draft.publisher}
+              error={fieldErrors.publisher}
               onChange={(value) => updateDraft({ publisher: value })}
             />
           )}
@@ -94,12 +99,14 @@ export default function ProductInfoPanel({
                 label="MRP"
                 type="number"
                 value={draft.mrp}
+                error={fieldErrors.mrp}
                 onChange={(value) => updateDraft({ mrp: value })}
               />
               <StoreField
                 label="Selling Price"
                 type="number"
                 value={draft.price}
+                error={fieldErrors.price}
                 onChange={(value) => updateDraft({ price: value })}
               />
             </>
@@ -151,16 +158,21 @@ export default function ProductInfoPanel({
                 </option>
               ))}
             </select>
+            {fieldErrors.gstRate ? (
+              <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.gstRate}</p>
+            ) : null}
           </label>
           <StoreField
             label="HSN Code"
             value={draft.hsnCode}
+            error={fieldErrors.hsnCode}
             onChange={(value) => updateDraft({ hsnCode: value })}
           />
           {draft.variantMode === "without-variant" ? (
             <StoreField
               label="SKU Code"
               value={draft.skuCode}
+              error={fieldErrors.skuCode}
               onChange={(value) => updateDraft({ skuCode: value })}
             />
           ) : null}
@@ -172,11 +184,13 @@ export default function ProductInfoPanel({
           <StoreField
             label="Manufacturer"
             value={draft.manufacturerValue}
+            error={fieldErrors.manufacturerValue}
             onChange={(value) => updateDraft({ manufacturerValue: value })}
           />
           <StoreField
             label="Country of Origin"
             value={draft.originCountryValue}
+            error={fieldErrors.originCountryValue}
             onChange={(value) => updateDraft({ originCountryValue: value })}
           />
         </div>
@@ -187,11 +201,13 @@ export default function ProductInfoPanel({
               <StoreField
                 label="Attribute Title"
                 value={attribute.key}
+                error={fieldErrors[`attribute-${attribute.id}-key`]}
                 onChange={(value) => updateAttribute(attribute.id, "key", value)}
               />
               <StoreField
                 label="Attribute Value"
                 value={attribute.value}
+                error={fieldErrors[`attribute-${attribute.id}-value`]}
                 onChange={(value) => updateAttribute(attribute.id, "value", value)}
               />
               <button
@@ -224,6 +240,7 @@ export default function ProductInfoPanel({
             maxLength={6000}
             helper="Supports HTML tags in the description as well."
             value={draft.description}
+            error={fieldErrors.description}
             onChange={(value) => updateDraft({ description: value })}
           />
           {!isBookCategory ? (
@@ -237,6 +254,7 @@ export default function ProductInfoPanel({
           <StoreField
             label="Video URL (YouTube)"
             value={draft.videoUrl}
+            error={fieldErrors.videoUrl}
             onChange={(value) => updateDraft({ videoUrl: value })}
           />
         </div>
@@ -282,14 +300,18 @@ export default function ProductInfoPanel({
                 onChange={(value) => updateDraft({ maxStock: value })}
               />
             ) : null}
+            {fieldErrors.variations ? (
+              <p className="text-sm font-semibold text-red-300">{fieldErrors.variations}</p>
+            ) : null}
           </div>
         ) : (
           <div className="space-y-5">
             <label className="block">
               <span className="text-sm font-semibold text-white/80">Variation Type</span>
               <select
-                className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
+                className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none disabled:cursor-not-allowed disabled:opacity-60"
                 value={draft.variantType}
+                disabled={draft.variations.length > 0}
                 onChange={(event) => chooseVariantType(event.target.value)}
               >
                 <option className="bg-black" value="">
@@ -297,14 +319,33 @@ export default function ProductInfoPanel({
                 </option>
                 {variationTypes.map((variationType) => (
                   <option className="bg-black" key={variationType} value={variationType}>
-                    {variationType.toUpperCase()}
+                    {titleCaseValue(variationType)}
                   </option>
                 ))}
               </select>
+              {draft.variations.length ? (
+                <p className="mt-2 text-xs text-white/45">
+                  Variation type is locked to {titleCaseValue(draft.variantType)} while variants exist.
+                </p>
+              ) : null}
             </label>
 
             {draft.variations.length ? (
               <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm font-bold text-brand-white">
+                    Added {titleCaseValue(draft.variantType)} Options
+                  </p>
+                  <Link
+                    className="rounded-sm border border-brand-gold/40 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-gold hover:border-brand-gold hover:text-brand-white"
+                    href={{
+                      pathname: "/products/new/variation",
+                      query: buildQuery(),
+                    }}
+                  >
+                    Add Another
+                  </Link>
+                </div>
                 {draft.variations.map((variation) => (
                   <div
                     className="rounded-sm border border-white/10 bg-black/20 p-4"

@@ -12,6 +12,11 @@ import {
 export default function DashboardShell({ children }) {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const hasHydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getHydratedSnapshot,
+    getServerHydrationSnapshot,
+  );
   const session = useSyncExternalStore(
     subscribeAuthSession,
     getAuthSessionSnapshot,
@@ -31,12 +36,12 @@ export default function DashboardShell({ children }) {
   const hasAccessToken = Boolean(parsedSession?.data?.access || parsedSession?.access);
 
   useEffect(() => {
-    if (!hasAccessToken) {
+    if (hasHydrated && router.isReady && !hasAccessToken) {
       router.replace("/login");
     }
-  }, [hasAccessToken, router]);
+  }, [hasAccessToken, hasHydrated, router, router.isReady]);
 
-  if (!hasAccessToken) {
+  if (!hasHydrated || !hasAccessToken) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#0a0a0a] text-brand-white">
         <p className="text-sm font-semibold text-white/60">Loading seller workspace...</p>
@@ -79,4 +84,16 @@ export default function DashboardShell({ children }) {
       </div>
     </main>
   );
+}
+
+function subscribeToHydration() {
+  return () => {};
+}
+
+function getHydratedSnapshot() {
+  return true;
+}
+
+function getServerHydrationSnapshot() {
+  return false;
 }

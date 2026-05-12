@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import Script from "next/script";
 import { useRouter } from "next/router";
 import MaintenanceScreen from "@/src/components/app/MaintenanceScreen";
+import ConfirmProvider from "@/src/components/app/ConfirmProvider";
 import SeoHead from "@/src/components/app/SeoHead";
 import ToastProvider from "@/src/components/app/ToastProvider";
 
@@ -45,27 +46,29 @@ export default function App({ Component, pageProps }) {
 
   return (
     <ToastProvider>
-      <SeoHead pathname={router.pathname} asPath={router.asPath} />
-      {analyticsId ? (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`}
-            strategy="afterInteractive"
-          />
-          <Script id="shopdibz-analytics" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              window.gtag = gtag;
-              gtag('js', new Date());
-              gtag('config', '${analyticsId}', {
-                page_path: window.location.pathname,
-              });
-            `}
-          </Script>
-        </>
-      ) : null}
-      <Component {...pageProps} />
+      <ConfirmProvider>
+        <SeoHead pathname={router.pathname} asPath={router.asPath} />
+        {analyticsId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="shopdibz-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                window.gtag = gtag;
+                gtag('js', new Date());
+                gtag('config', '${analyticsId}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        ) : null}
+        <Component {...pageProps} />
+      </ConfirmProvider>
     </ToastProvider>
   );
 }

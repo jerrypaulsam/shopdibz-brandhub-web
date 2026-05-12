@@ -31,6 +31,7 @@ export default function StoreInfoFormPage() {
     setSizeChartFilename,
     connectorForm,
     message,
+    fieldErrors,
     isLoading,
     isSubmitting,
     updateField,
@@ -137,15 +138,15 @@ export default function StoreInfoFormPage() {
                 </div>
 
                 <div className="mt-8 grid gap-5">
-                  <StoreField label="Store Name" value={form.storeName} onChange={(value) => updateField("storeName", value)} />
+                  <StoreField label="Store Name" value={form.storeName} error={fieldErrors.storeName} onChange={(value) => updateField("storeName", value)} />
                   {isInitialSetup ? (
-                    <StoreField label="Store ID" value={form.storeUrl} helper="Example: mystore, fashionstore, etc." onChange={(value) => updateField("storeUrl", value)} />
+                    <StoreField label="Store ID" value={form.storeUrl} helper="Example: mystore, fashionstore, etc." error={fieldErrors.storeUrl} onChange={(value) => updateField("storeUrl", value)} />
                   ) : null}
-                  <StoreField label="Store Email" type="email" value={form.storeEmail} onChange={(value) => updateField("storeEmail", value)} />
-                  <StoreField label="Description" multiline maxLength={1000} value={form.storeDescription} onChange={(value) => updateField("storeDescription", value)} />
+                  <StoreField label="Store Email" type="email" value={form.storeEmail} error={fieldErrors.storeEmail} onChange={(value) => updateField("storeEmail", value)} />
+                  <StoreField label="Description" multiline maxLength={1000} value={form.storeDescription} error={fieldErrors.storeDescription} onChange={(value) => updateField("storeDescription", value)} />
                   <label className="block">
                     <span className="text-sm font-semibold text-white/80">Contact No.</span>
-                    <div className="mt-3 flex items-center overflow-hidden rounded-[15px] border border-white/15 bg-transparent">
+                    <div className={`mt-3 flex items-center overflow-hidden rounded-[15px] border bg-transparent ${fieldErrors.contactNo ? "border-red-400/70" : "border-white/15"}`}>
                       <span className="border-r border-white/10 px-4 py-3 text-base font-semibold text-white/60">
                         +91
                       </span>
@@ -159,9 +160,13 @@ export default function StoreInfoFormPage() {
                         onChange={(event) => updateField("contactNo", event.target.value)}
                       />
                     </div>
-                    <p className="mt-2 text-xs text-white/40">Saved to the backend with +91 automatically.</p>
+                    {fieldErrors.contactNo ? (
+                      <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.contactNo}</p>
+                    ) : (
+                      <p className="mt-2 text-xs text-white/40">Saved to the backend with +91 automatically.</p>
+                    )}
                   </label>
-                  <StoreField label="Store Video" helper="Enter YouTube Video ID or full YouTube URL" value={form.storeVideo} onChange={(value) => updateField("storeVideo", value)} />
+                  <StoreField label="Store Video" helper="Enter YouTube Video ID or full YouTube URL" value={form.storeVideo} error={fieldErrors.storeVideo} onChange={(value) => updateField("storeVideo", value)} />
                 </div>
               </CollapsibleStoreSection>
 
@@ -174,10 +179,10 @@ export default function StoreInfoFormPage() {
                 <div className="grid gap-5 md:grid-cols-2">
                   {isInitialSetup ? (
                     <>
-                      <StoreField label="Store Address" value={form.storeAddress} onChange={(value) => updateField("storeAddress", value)} />
-                      <StoreField label="City" value={form.storeCity} onChange={(value) => updateField("storeCity", value)} />
-                      <StoreField label="State" value={form.storeState} onChange={(value) => updateField("storeState", value)} />
-                      <StoreField label="Pincode" type="tel" value={form.storePinCode} onChange={(value) => updateField("storePinCode", value)} />
+                      <StoreField label="Store Address" value={form.storeAddress} error={fieldErrors.storeAddress} onChange={(value) => updateField("storeAddress", value)} />
+                      <StoreField label="City" value={form.storeCity} error={fieldErrors.storeCity} onChange={(value) => updateField("storeCity", value)} />
+                      <StoreField label="State" value={form.storeState} error={fieldErrors.storeState} onChange={(value) => updateField("storeState", value)} />
+                      <StoreField label="Pincode" type="tel" value={form.storePinCode} error={fieldErrors.storePinCode} onChange={(value) => updateField("storePinCode", value)} />
                     </>
                   ) : null}
                   <StoreField label="ScrapItt Username" value={form.link1} onChange={(value) => updateField("link1", value)} />
@@ -324,14 +329,14 @@ export default function StoreInfoFormPage() {
                       </a>
                     ) : null}
 
-                    <a
+                    {/* <a
                       className="inline-flex items-center rounded-sm border border-brand-gold/30 px-4 py-2 text-sm font-bold text-brand-gold hover:text-brand-white"
                       href={storeInfo?.url ? `https://www.shopdibz.com/store/${storeInfo.url}?utm_source=brand_hub&utm_medium=organic&utm_content=${storeInfo.url}` : "#"}
                       target="_blank"
                       rel="noreferrer"
                     >
                       View My Store
-                    </a>
+                    </a> */}
                   </div>
                   {hasPendingSizeChart ? (
                     <p className="text-xs text-brand-gold">

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import StoreSection from "@/src/components/store/StoreSection";
+import { titleCaseValue } from "@/src/utils/product";
 
 /**
  * @param {{
@@ -56,6 +57,12 @@ export default function ProductDetailPanel({
   onMakeCoverImage,
 }) {
   const imageList = product?.var ? activeVariation?.imgs || [] : product?.prdtImg || [];
+  const variationImageGroups = product?.var
+    ? (product?.prdtVari || []).map((variation) => ({
+        variation,
+        images: variation?.imgs || [],
+      }))
+    : [];
   const currentPrice = product?.var ? activeVariation?.price : product?.prdtInfo?.price;
   const currentMrp = product?.var ? activeVariation?.mrp : product?.prdtInfo?.mrp;
   const currentStock = product?.var ? activeVariation?.mStock : product?.mStock;
@@ -69,53 +76,66 @@ export default function ProductDetailPanel({
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,420px)]">
         <StoreSection
           title="Media"
-          subtitle="Primary product media and direct image actions from the detail workspace."
+          subtitle={
+            product?.var
+              ? "Variant listings keep images per variation. The active variation controls direct image actions."
+              : "Primary product media and direct image actions from the detail workspace."
+          }
         >
-          {imageList.length ? (
+          {product?.var ? (
+            variationImageGroups.some((group) => group.images.length) ? (
+              <div className="space-y-5">
+                {variationImageGroups.map((group) =>
+                  group.images.length ? (
+                    <div
+                      className="rounded-sm border border-white/10 bg-black/20 p-4"
+                      key={group.variation?.id}
+                    >
+                      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-sm font-bold text-brand-white">
+                          {titleCaseValue(group.variation?.vAtion)} / {group.variation?.vTypes?.[0]?.name} / {group.variation?.vTypes?.[0]?.tMap}
+                        </p>
+                        <Link
+                          className="rounded-sm border border-white/15 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                          href={`/products/${product.slug}/variations/${group.variation?.id}/images?variant-mode=${variantMode}`}
+                        >
+                          Manage
+                        </Link>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {group.images.map((image) => (
+                          <MediaCard
+                            key={image.id}
+                            image={image}
+                            title={title}
+                            canManage={Number(group.variation?.id || 0) === Number(activeVariation?.id || 0)}
+                            imageActionLoadingId={imageActionLoadingId}
+                            onMakeCoverImage={onMakeCoverImage}
+                            onRemoveImage={onRemoveImage}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ) : null,
+                )}
+              </div>
+            ) : (
+              <div className="rounded-sm border border-dashed border-white/15 bg-black/20 p-8 text-sm text-white/55">
+                No images uploaded yet.
+              </div>
+            )
+          ) : imageList.length ? (
             <div className="grid gap-4 md:grid-cols-2">
               {imageList.map((image) => (
-                <div className="rounded-sm border border-white/10 bg-black/20 p-3" key={image.id}>
-                  <div className="relative aspect-square overflow-hidden rounded-sm bg-white">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      alt={title}
-                      className="h-full w-full object-contain"
-                      src={image.images || ""}
-                    />
-                    {image.cover ? (
-                      <span className="absolute left-3 top-3 rounded-full border border-brand-gold/30 bg-black/70 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-gold">
-                        Cover
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="mt-3 space-y-3">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
-                      {image.cover ? "Cover image" : "Gallery image"}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {!image.cover ? (
-                        <button
-                          className="inline-flex items-center gap-2 rounded-sm border border-white/10 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-white hover:border-brand-gold hover:text-brand-gold"
-                          type="button"
-                          disabled={imageActionLoadingId === `cover-${image.id}`}
-                          onClick={() => onMakeCoverImage(image.id)}
-                        >
-                          <ActionIcon type="star" />
-                          {imageActionLoadingId === `cover-${image.id}` ? "Saving..." : "Make Cover"}
-                        </button>
-                      ) : null}
-                      <button
-                        className="inline-flex items-center gap-2 rounded-sm border border-red-400/35 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-red-300 hover:border-red-300 hover:text-red-200"
-                        type="button"
-                        disabled={imageActionLoadingId === `remove-${image.id}`}
-                        onClick={() => onRemoveImage(image.id)}
-                      >
-                        <ActionIcon type="trash" />
-                        {imageActionLoadingId === `remove-${image.id}` ? "Removing..." : "Delete"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <MediaCard
+                  key={image.id}
+                  image={image}
+                  title={title}
+                  canManage
+                  imageActionLoadingId={imageActionLoadingId}
+                  onMakeCoverImage={onMakeCoverImage}
+                  onRemoveImage={onRemoveImage}
+                />
               ))}
             </div>
           ) : (
@@ -239,7 +259,7 @@ export default function ProductDetailPanel({
                   onClick={() => onSelectVariation(variation.id)}
                 >
                   <p className="text-sm font-bold text-brand-white">
-                    {variation.vAtion} / {variation.vTypes?.[0]?.name} / {variation.vTypes?.[0]?.tMap}
+                    {titleCaseValue(variation.vAtion)} / {variation.vTypes?.[0]?.name} / {variation.vTypes?.[0]?.tMap}
                   </p>
                   <p className="mt-1 text-sm text-white/55">
                     Rs. {Number(variation.price || 0).toFixed(2)} / MRP Rs.{" "}
@@ -511,6 +531,66 @@ export default function ProductDetailPanel({
           </div>
         </StoreSection>
       ) : null}
+    </div>
+  );
+}
+
+function MediaCard({
+  image,
+  title,
+  canManage,
+  imageActionLoadingId,
+  onMakeCoverImage,
+  onRemoveImage,
+}) {
+  return (
+    <div className="rounded-sm border border-white/10 bg-black/20 p-3">
+      <div className="relative aspect-square overflow-hidden rounded-sm bg-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          alt={title}
+          className="h-full w-full object-contain"
+          src={image.images || ""}
+        />
+        {image.cover ? (
+          <span className="absolute left-3 top-3 rounded-full border border-brand-gold/30 bg-black/70 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-gold">
+            Cover
+          </span>
+        ) : null}
+      </div>
+      <div className="mt-3 space-y-3">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
+          {image.cover ? "Cover image" : "Gallery image"}
+        </p>
+        {canManage ? (
+          <div className="flex flex-wrap gap-2">
+            {!image.cover ? (
+              <button
+                className="inline-flex items-center gap-2 rounded-sm border border-white/10 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                type="button"
+                disabled={imageActionLoadingId === `cover-${image.id}`}
+                onClick={() => onMakeCoverImage(image.id)}
+              >
+                <ActionIcon type="star" />
+                {imageActionLoadingId === `cover-${image.id}` ? "Saving..." : "Make Cover"}
+              </button>
+            ) : null}
+            <button
+              className="inline-flex items-center gap-2 rounded-sm border border-red-400/35 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-red-300 hover:border-red-300 hover:text-red-200"
+              type="button"
+              disabled={imageActionLoadingId === `remove-${image.id}`}
+              onClick={() => onRemoveImage(image.id)}
+            >
+              <ActionIcon type="trash" />
+              {imageActionLoadingId === `remove-${image.id}` ? "Removing..." : "Delete"}
+            </button>
+          </div>
+        ) : (
+          <p className="text-xs text-white/40">
+            Select this variation to make cover or delete images here.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 
 import Link from "next/link";
 import AuthButton from "@/src/components/auth/AuthButton";
+import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 import AspectCropDialog from "@/src/components/media/AspectCropDialog";
 import StoreSection from "@/src/components/store/StoreSection";
@@ -89,6 +90,7 @@ export function HeaderImageSection({
   onSubmit,
   onDelete,
 }) {
+  const { confirm } = useConfirm();
   const fileInputRef = useRef(null);
   const [cropFile, setCropFile] = useState(null);
 
@@ -104,6 +106,20 @@ export function HeaderImageSection({
 
   const currentImage = headerPreview || storeInfo?.headerImg || "";
   const isPremium = storeInfo?.prem;
+
+  async function handleDelete() {
+    const accepted = await confirm({
+      title: "Remove Header Image",
+      message: "The current website header image will be removed from your storefront.",
+      confirmLabel: "Remove Header",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
+    await onDelete();
+  }
 
   return (
     <StoreSection title="Website Header Image">
@@ -148,7 +164,7 @@ export function HeaderImageSection({
             className="inline-flex min-h-11 items-center justify-center rounded-sm border border-red-400/30 px-5 text-sm font-bold text-red-300 hover:border-red-300 hover:text-red-100"
             type="button"
             disabled={!isPremium}
-            onClick={onDelete}
+            onClick={handleDelete}
           >
             Remove Header
           </button>
@@ -182,6 +198,22 @@ export function HeaderImageSection({
  * @param {{ isOwner: boolean, isSubmitting: boolean, onDeactivate: () => Promise<boolean> }} props
  */
 export function AccountSettingsSection({ isOwner, isSubmitting, onDeactivate }) {
+  const { confirm } = useConfirm();
+
+  async function handleDeactivate() {
+    const accepted = await confirm({
+      title: "Deactivate Account",
+      message: "This seller account will be deactivated and you will be signed out immediately.",
+      confirmLabel: "Deactivate",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
+    await onDeactivate();
+  }
+
   return (
     <StoreSection title="Account Settings">
       <div className="space-y-4 text-sm">
@@ -198,7 +230,7 @@ export function AccountSettingsSection({ isOwner, isSubmitting, onDeactivate }) 
           className="flex w-full items-center justify-between rounded-sm border border-red-400/20 px-4 py-3 text-left text-red-300 hover:border-red-300/40 hover:text-red-100"
           type="button"
           disabled={isSubmitting}
-          onClick={onDeactivate}
+          onClick={handleDeactivate}
         >
           <span className="font-semibold">Deactivate Account</span>
           <span className="text-xs uppercase tracking-[0.14em]">Danger</span>

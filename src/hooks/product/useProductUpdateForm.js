@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchProductDetail, updateExistingProduct } from "@/src/api/products";
+import { useToast } from "@/src/components/app/ToastProvider";
 import {
   buildAttributePayload,
   encodePseudoArray,
@@ -39,6 +40,7 @@ import {
  */
 export function useProductUpdateForm() {
   const router = useRouter();
+  const { showToast } = useToast();
   const slug = Array.isArray(router.query.slug) ? router.query.slug[0] : String(router.query.slug || "");
 
   const [form, setForm] = useState({
@@ -75,6 +77,7 @@ export function useProductUpdateForm() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState("");
 
   const categories = useMemo(() => getProductCategories(), []);
@@ -149,6 +152,7 @@ export function useProductUpdateForm() {
   }, [slug]);
 
   function setFormField(field, value) {
+    setFieldErrors((current) => ({ ...current, [field]: "" }));
     setForm((currentForm) => ({
       ...currentForm,
       [field]: value,
@@ -223,6 +227,17 @@ export function useProductUpdateForm() {
       setIsSubmitting(true);
       setError("");
       setSuccess("");
+      const errors = validateProductUpdateForm(form, itemSubCategories.length > 0);
+
+      if (Object.keys(errors).length) {
+        const nextMessage = Object.values(errors)[0];
+        setFieldErrors(errors);
+        setError(nextMessage);
+        showToast({ message: nextMessage, type: "error" });
+        return;
+      }
+
+      setFieldErrors({});
 
       const selectedCategory = categories.find((category) => category.slug === form.categorySlug);
       const selectedSubCategory = subCategories.find(
@@ -274,12 +289,14 @@ export function useProductUpdateForm() {
       });
 
       setSuccess("Product updated successfully.");
+      showToast({ message: "Product updated successfully.", type: "success" });
     } catch (submitError) {
-      setError(
+      const nextMessage =
         submitError instanceof Error
           ? submitError.message
-          : "Product could not be updated.",
-      );
+          : "Product could not be updated.";
+      setError(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -291,6 +308,7 @@ export function useProductUpdateForm() {
     isLoading,
     isSubmitting,
     error,
+    fieldErrors,
     success,
     categories,
     subCategories,
@@ -306,4 +324,59 @@ export function useProductUpdateForm() {
     slug,
     variantMode: form.variants ? "with-variant" : "without-variant",
   };
+}
+
+function validateProductUpdateForm(form, hasItemSubCategories) {
+  const errors = {};
+
+  if (!form.categorySlug) errors.categorySlug = "field required *";
+  if (!form.subCategorySlug) errors.subCategorySlug = "field required *";
+  if (hasItemSubCategories && !form.itemSubCategorySlug) {
+    errors.itemSubCategorySlug = "field required *";
+  }
+  if (!form.title.trim()) errors.title = "field required *";
+  if (!form.variants) {
+    if (!form.mrp.trim()) errors.mrp = "field required *";
+    if (!form.price.trim()) errors.price = "field required *";
+    if (!form.skuCode.trim()) errors.skuCode = "field required *";
+    if (Number(form.price || 0) > Number(form.mrp || 0)) {
+      errors.price = "Selling Price Should be lower than MRP";
+    }
+  }
+  if (!form.hsnCode.trim()) errors.hsnCode = "field required *";
+  if (!form.gstRate) errors.gstRate = "field required *";
+  if (!form.description.trim()) {
+    errors.description = "* Required";
+  } else if (form.description.trim().length > 6000) {
+    errors.description = "Max. 6000 Characters";
+  }
+  if (!form.manufacturerValue.trim()) errors.manufacturerValue = "field required *";
+  if (!form.originCountryValue.trim()) errors.originCountryValue = "field required *";
+  if (form.videoUrl.trim() && !isValidUrl(form.videoUrl.trim())) {
+    errors.videoUrl = "Enter a Url";
+  }
+
+  form.attributes.forEach((attribute) => {
+    if (!attribute.key.trim()) {
+      errors[`attribute-${attribute.id}-key`] = "* Required";
+    } else if (attribute.key.trim().length > 20) {
+      errors[`attribute-${attribute.id}-key`] = "Max. 20 Characters";
+    }
+    if (!attribute.value.trim()) {
+      errors[`attribute-${attribute.id}-value`] = "* Required";
+    } else if (attribute.value.trim().length > 20) {
+      errors[`attribute-${attribute.id}-value`] = "Max. 20 Characters";
+    }
+  });
+
+  return errors;
+}
+
+function isValidUrl(value) {
+  try {
+    new URL(value);
+    return true;
+  } catch {
+    return false;
+  }
 }

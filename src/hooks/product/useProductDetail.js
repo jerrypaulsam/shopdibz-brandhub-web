@@ -17,6 +17,7 @@ import {
   parsePseudoArray,
   resolveActiveVariation,
 } from "@/src/utils/product";
+import { useConfirm } from "@/src/components/app/ConfirmProvider";
 
 /**
  * @returns {{
@@ -52,6 +53,7 @@ import {
  */
 export function useProductDetail() {
   const router = useRouter();
+  const { confirm } = useConfirm();
   const isReady = router.isReady;
   const slug = Array.isArray(router.query.slug) ? router.query.slug[0] : router.query.slug;
   const variationId = Array.isArray(router.query["variation-id"])
@@ -199,6 +201,16 @@ export function useProductDetail() {
   }
 
   async function deleteVariation(nextVariationId) {
+    const accepted = await confirm({
+      title: "Delete Variation",
+      message: "This variation will be removed permanently from the product.",
+      confirmLabel: "Delete Variation",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
     try {
       setError("");
       await deleteExistingVariation({ variationId: nextVariationId });
@@ -243,6 +255,16 @@ export function useProductDetail() {
   }
 
   async function removeAnswer(answerId) {
+    const accepted = await confirm({
+      title: "Delete Answer",
+      message: "This seller answer will be removed from the product question thread.",
+      confirmLabel: "Delete Answer",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
     try {
       setQuestionsError("");
       await deleteProductAnswer({ answerId });
@@ -288,6 +310,16 @@ export function useProductDetail() {
   }
 
   async function removeImage(imageId) {
+    const accepted = await confirm({
+      title: "Delete Image",
+      message: "This product image will be removed permanently from the listing.",
+      confirmLabel: "Delete Image",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
     try {
       setImageActionLoadingId(`remove-${imageId}`);
       await removeExistingProductImage({ imageId });

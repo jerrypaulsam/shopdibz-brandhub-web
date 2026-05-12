@@ -1,5 +1,5 @@
 /**
- * @param {{ label: string, value: string, onChange: (value: string) => void, placeholder?: string, type?: string, helper?: string, maxLength?: number, disabled?: boolean, multiline?: boolean }} props
+ * @param {{ label: string, value: string, onChange: (value: string) => void, placeholder?: string, type?: string, helper?: string, error?: string, maxLength?: number, disabled?: boolean, multiline?: boolean }} props
  */
 export default function StoreField({
   label,
@@ -8,12 +8,15 @@ export default function StoreField({
   placeholder,
   type = "text",
   helper,
+  error,
   maxLength,
   disabled = false,
   multiline = false,
 }) {
   const className =
-    "mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none transition-colors placeholder:text-white/25 focus:border-brand-gold disabled:cursor-not-allowed disabled:opacity-60";
+    `mt-3 w-full rounded-[15px] border bg-transparent px-4 py-3 text-base text-brand-white outline-none transition-colors placeholder:text-white/25 focus:border-brand-gold disabled:cursor-not-allowed disabled:opacity-60 ${
+      error ? "border-red-400/70" : "border-white/15"
+    }`;
 
   return (
     <label className="block">
@@ -38,7 +41,11 @@ export default function StoreField({
           onChange={(event) => onChange(event.target.value)}
         />
       )}
-      {helper ? <p className="mt-2 text-xs text-white/40">{helper}</p> : null}
+      {error ? (
+        <p className="mt-2 text-xs font-semibold text-red-300">{error}</p>
+      ) : helper ? (
+        <p className="mt-2 text-xs text-white/40">{helper}</p>
+      ) : null}
     </label>
   );
 }

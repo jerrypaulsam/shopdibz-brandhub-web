@@ -7,9 +7,9 @@ const brands = [
     url: "https://www.shopdibz.com/store/rangrezz",
   },
   {
-    name: "Luna & Love",
-    logo: "https://shopdibz-main-1.s3.amazonaws.com/media/store/store_logos/881bf438039341b68a7d65106a4c52e9/storeLogo-pixelz_es2OPtr.jpg",
-    url: "https://www.shopdibz.com/store/lunalove",
+    name: "Nailzen",
+    logo: "https://shopdibz-main-1.s3.amazonaws.com/media/store/store_logos/cee23d5bedc84603a336263b151a4cc1/storeLogo-.jpg",
+    url: "https://www.shopdibz.com/store/nailzen",
   },
   {
     name: "Niira",
@@ -37,10 +37,10 @@ const brands = [
     url: "https://www.shopdibz.com/store/branche",
   },
   {
-    name: "Your Brand",
-    logo: null,
-    url: null,
-    placeholder: true,
+    name: "The Shirtcraft",
+    logo: "https://shopdibz-main-1.s3.amazonaws.com/media/store/store_logos/98899e2dea5a472a8124df444256e56d/shirt-craft-logo.jpg",
+    url: "https://www.shopdibz.com/store/theshirtcraft",
+    placeholder: false,
   },
 ];
 

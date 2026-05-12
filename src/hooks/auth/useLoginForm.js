@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
-  clearAuthSession,
   getBrowserLocation,
   hasAuthenticatedSellerSession,
   loginSeller,
@@ -22,7 +21,6 @@ export function useLoginForm() {
       return;
     }
 
-    clearAuthSession();
     logScreenView("login_screen", "Anonymous", "store");
   }, [router]);
 

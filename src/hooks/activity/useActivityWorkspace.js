@@ -14,7 +14,6 @@ import {
   firstActivityQuery,
   formatInvoicePeriod,
   getActivityPricingUrl,
-  hasVerifiedMobile,
   isPremiumStore,
   normalizeActivityGroups,
   PRODUCT_GROUP_DISCOUNT_TYPES,
@@ -80,10 +79,6 @@ export function useActivityWorkspace() {
 
   const pricingUrl = useMemo(() => getActivityPricingUrl(storeInfo), [storeInfo]);
   const isPremium = useMemo(() => isPremiumStore(storeInfo), [storeInfo]);
-  const isMobileVerified = useMemo(
-    () => hasVerifiedMobile(storeInfo),
-    [storeInfo],
-  );
   const selectedInvoiceLabel = useMemo(
     () => formatInvoicePeriod(month, year),
     [month, year],
@@ -342,11 +337,6 @@ export function useActivityWorkspace() {
       return;
     }
 
-    if (!isMobileVerified) {
-      setActionError("Verify mobile before creating a product group.");
-      return;
-    }
-
     if (!groupName.trim()) {
       setActionError("Please enter a group name.");
       return;
@@ -399,7 +389,6 @@ export function useActivityWorkspace() {
     groupsCount,
     isActionLoading,
     isLoading,
-    isMobileVerified,
     isPremium,
     message,
     month,

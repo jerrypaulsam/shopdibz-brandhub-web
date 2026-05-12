@@ -22,6 +22,7 @@ export default function StoreCreateFormPage() {
     signatureBase64,
     setSignatureBase64,
     message,
+    fieldErrors,
     isSubmitting,
     isVerifyingGst,
     gstVerified,
@@ -56,6 +57,7 @@ export default function StoreCreateFormPage() {
                 value={gstin}
                 placeholder="GSTIN"
                 maxLength={15}
+                error={fieldErrors.gstin}
                 onChange={setGstin}
               />
               <button
@@ -73,6 +75,7 @@ export default function StoreCreateFormPage() {
                 placeholder="Registered Store Name"
                 helper="Name as in GST details"
                 disabled={!gstVerificationFailed && gstVerified}
+                error={fieldErrors.storeRegisteredName}
                 onChange={setStoreRegisteredName}
               />
 
@@ -81,6 +84,7 @@ export default function StoreCreateFormPage() {
                 value={storeRegistrationId}
                 placeholder="PAN Number"
                 disabled={!gstVerificationFailed && gstVerified}
+                error={fieldErrors.storeRegistrationId}
                 onChange={setStoreRegistrationId}
               />
 
@@ -99,6 +103,11 @@ export default function StoreCreateFormPage() {
               clearSignal={clearSignal}
               onChange={setSignatureBase64}
             />
+            {fieldErrors.signature ? (
+              <p className="mt-3 text-sm font-semibold text-red-300">
+                {fieldErrors.signature}
+              </p>
+            ) : null}
             <div className="mt-4 flex justify-center">
               <button
                 className="rounded-full border border-white/20 px-6 py-2 text-sm font-bold text-brand-white"

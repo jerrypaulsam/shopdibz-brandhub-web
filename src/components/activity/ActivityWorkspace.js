@@ -21,7 +21,6 @@ import { ACTIVITY_PANELS } from "@/src/utils/activity";
  * @property {number} groupsCount
  * @property {boolean} isActionLoading
  * @property {boolean} isLoading
- * @property {boolean} isMobileVerified
  * @property {boolean} isPremium
  * @property {string} message
  * @property {string} month
@@ -80,10 +79,6 @@ export default function ActivityWorkspace(props) {
               value={props.isPremium ? "Premium" : "Standard"}
             />
             <MetaCard
-              label="Mobile verification"
-              value={props.isMobileVerified ? "Complete" : "Pending"}
-            />
-            <MetaCard
               label="Product groups"
               value={String(props.groupsCount)}
             />
@@ -140,7 +135,6 @@ export default function ActivityWorkspace(props) {
               groupImageName={props.groupImageName}
               groupName={props.groupName}
               isActionLoading={props.isActionLoading}
-              isMobileVerified={props.isMobileVerified}
               isPremium={props.isPremium}
               pricingUrl={props.pricingUrl}
               showOnHome={props.showOnHome}

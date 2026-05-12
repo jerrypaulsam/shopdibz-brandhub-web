@@ -178,20 +178,6 @@ export function isPremiumStore(storeInfo) {
 }
 
 /**
- * @param {any} storeInfo
- * @returns {boolean}
- */
-export function hasVerifiedMobile(storeInfo) {
-  const mobile =
-    storeInfo?.user?.mobile ||
-    storeInfo?.user?.phone ||
-    storeInfo?.mobile ||
-    "";
-
-  return Boolean(String(mobile).trim());
-}
-
-/**
  * @param {string | number} month
  * @param {string | number} year
  * @returns {string}

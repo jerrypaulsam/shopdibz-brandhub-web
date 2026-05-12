@@ -12,10 +12,12 @@ import {
 } from "@/src/api/orders";
 import { getDashboardSession } from "@/src/api/dashboard";
 import { logScreenView } from "@/src/api/analytics";
+import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { firstQueryValue, normalizeOrderDetail } from "@/src/utils/orders";
 
 export function useOrderDetail() {
   const router = useRouter();
+  const { confirm } = useConfirm();
   const orderId = Number(firstQueryValue(router.query["order-id"]) || 0);
 
   const [order, setOrder] = useState(null);
@@ -195,6 +197,16 @@ export function useOrderDetail() {
       return;
     }
 
+    const accepted = await confirm({
+      title: "Cancel Order",
+      message: `Order ${order?.order?.id || orderId} will be cancelled. This should only be used while the order is still pending.`,
+      confirmLabel: "Cancel Order",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
     const result = await runAction("cancel", () =>
       cancelOrder({
         orderId,
@@ -324,14 +336,16 @@ export function useOrderDetail() {
   }
 
   async function revealPhone() {
-    if (typeof window !== "undefined") {
-      const accepted = window.confirm(
-        "Contacting customers through personal numbers is strictly prohibited. Communication should only be order-related. Use in-app chat whenever possible. Violation of this policy can lead to store closure.\n\nDo you want to reveal the mobile number?",
-      );
+    const accepted = await confirm({
+      title: "Reveal Customer Number",
+      message:
+        "Personal-number contact is only allowed for order-related communication. Use in-app chat whenever possible. Policy violations can lead to store closure.",
+      confirmLabel: "Reveal Number",
+      tone: "default",
+    });
 
-      if (!accepted) {
-        return;
-      }
+    if (!accepted) {
+      return;
     }
 
     setIsPhoneVisible((current) => !current);

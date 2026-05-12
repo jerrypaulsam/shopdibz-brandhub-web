@@ -17,6 +17,10 @@ export function useAppBootstrap() {
     let isCurrent = true;
 
     async function bootstrap() {
+      if (!router.isReady) {
+        return;
+      }
+
       const resumePath = resolveResumePath(router.asPath);
       const authSession = getAuthSession();
       const accessToken = authSession?.data?.access || authSession?.access || "";
@@ -101,7 +105,12 @@ export function useAppBootstrap() {
           return;
         }
 
-        await router.replace(resumePath || "/home");
+        if (resumePath) {
+          await router.replace(resumePath);
+          return;
+        }
+
+        await router.replace("/home");
       } catch (bootstrapError) {
         if (isCurrent) {
           setError(
@@ -119,7 +128,7 @@ export function useAppBootstrap() {
     return () => {
       isCurrent = false;
     };
-  }, [router]);
+  }, [router, router.asPath, router.isReady]);
 
   return {
     isChecking,

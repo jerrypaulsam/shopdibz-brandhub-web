@@ -1,19 +1,24 @@
 import AuthButton from "@/src/components/auth/AuthButton";
 import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
+import { titleCaseValue } from "@/src/utils/product";
 
 /**
- * @param {{ draft: any, form: any, mappingOptions: Array<any>, error: string, setFormField: (field: string, value: string) => void, addCurrentVariation: () => Promise<void>, removeVariation: (id: number) => void }} props
+ * @param {{ draft: any, form: any, mappingOptions: Array<any>, error: string, fieldErrors: Record<string, string>, setFormField: (field: string, value: string) => void, addCurrentVariation: () => Promise<void>, finishVariations: () => Promise<void>, removeVariation: (id: number) => void }} props
  */
 export default function ProductVariationPanel({
   draft,
   form,
   mappingOptions,
   error,
+  fieldErrors = {},
   setFormField,
   addCurrentVariation,
+  finishVariations,
   removeVariation,
 }) {
+  const variantTypeLabel = titleCaseValue(draft.variantType || "Variation");
+
   return (
     <div className="space-y-6">
       <StoreSection
@@ -22,13 +27,14 @@ export default function ProductVariationPanel({
       >
         <div className="grid gap-5 md:grid-cols-2">
           <StoreField
-            label={`${draft.variantType || "Variation"} Name`}
+            label={`${variantTypeLabel} Name`}
             value={form.name}
+            error={fieldErrors.name}
             onChange={(value) => setFormField("name", value)}
           />
 
           <label className="block">
-            <span className="text-sm font-semibold text-white/80">Map To {draft.variantType}</span>
+            <span className="text-sm font-semibold text-white/80">Map To {variantTypeLabel}</span>
             <select
               className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
               value={form.typeMap}
@@ -53,23 +59,29 @@ export default function ProductVariationPanel({
                 );
               })}
             </select>
+            {fieldErrors.typeMap ? (
+              <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.typeMap}</p>
+            ) : null}
           </label>
 
           <StoreField
             label="MRP"
             type="number"
             value={form.mrp}
+            error={fieldErrors.mrp}
             onChange={(value) => setFormField("mrp", value)}
           />
           <StoreField
             label="Selling Price"
             type="number"
             value={form.price}
+            error={fieldErrors.price}
             onChange={(value) => setFormField("price", value)}
           />
           <StoreField
             label="SKU Code"
             value={form.variationSkuCode}
+            error={fieldErrors.variationSkuCode}
             onChange={(value) => setFormField("variationSkuCode", value)}
           />
           <label className="block">
@@ -91,6 +103,7 @@ export default function ProductVariationPanel({
             <StoreField
               label="Quantity"
               value={form.maxStock}
+              error={fieldErrors.maxStock}
               onChange={(value) => setFormField("maxStock", value)}
             />
           ) : null}
@@ -100,7 +113,7 @@ export default function ProductVariationPanel({
 
         <div className="mt-6 max-w-xs">
           <AuthButton type="button" onClick={addCurrentVariation}>
-            Add Variant
+            Add {variantTypeLabel} Option
           </AuthButton>
         </div>
       </StoreSection>
@@ -138,6 +151,16 @@ export default function ProductVariationPanel({
           </p>
         )}
       </StoreSection>
+
+      <div className="max-w-xs">
+        <AuthButton
+          type="button"
+          disabled={!draft.variations.length}
+          onClick={finishVariations}
+        >
+          Done With Variations
+        </AuthButton>
+      </div>
     </div>
   );
 }
