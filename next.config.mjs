@@ -3,6 +3,8 @@ const nextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  trailingSlash: true,
+  
   images: {
     remotePatterns: [
       {

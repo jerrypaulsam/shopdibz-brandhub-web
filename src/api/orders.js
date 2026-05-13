@@ -159,7 +159,7 @@ export function fetchOrderInvoice(orderId) {
   const storeUrl =
     getSellerStoreUrl() || getCachedStoreInfo()?.url || session.storeUrl;
 
-  return getOrderJson("/api/orders/invoice", {
+  return getOrderJson(`/api/orders/invoice/${storeUrl}/order/${orderId}/web/`, {
     accessToken: session.accessToken,
     query: {
       storeUrl,

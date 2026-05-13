@@ -231,6 +231,8 @@ export function useOrderDetail() {
       }
 
       const data = await fetchOrderInvoice(orderId);
+      console.log(data);
+
       const invoicePayload = String(data?.data || data?.url || "");
 
       if (invoicePayload && typeof window !== "undefined") {
