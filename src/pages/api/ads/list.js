@@ -8,7 +8,9 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", storeUrl = "", status = "DRAFT", page = "1" } = req.query || {};
+  const { storeUrl = "", status = "DRAFT", page = "1" } = req.query || {};
+  const authHeader = String(req.headers.authorization || "");
+  const accessToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
 
   if (!accessToken || !storeUrl) {
     res.status(400).json({ message: "Access token and store URL are required" });

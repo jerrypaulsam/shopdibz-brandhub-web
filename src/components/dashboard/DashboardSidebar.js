@@ -40,11 +40,18 @@ const menuItems = [
 ];
 
 /**
- * @param {{ onNavigate?: () => void }} props
+ * @param {{ hasStoreUrl?: boolean, onNavigate?: () => void }} props
  */
-export default function DashboardSidebar({ onNavigate }) {
+export default function DashboardSidebar({ hasStoreUrl = true, onNavigate }) {
   const { showToast } = useToast();
   const [isDownloadsOpen, setIsDownloadsOpen] = useState(false);
+
+  function showStoreUrlRequiredToast() {
+    showToast({
+      message: "Complete store setup first. Other sections unlock after your store URL is created.",
+      type: "info",
+    });
+  }
 
   async function logout() {
     await logoutSeller().catch(() => null);
@@ -109,8 +116,13 @@ export default function DashboardSidebar({ onNavigate }) {
 
       <div className="mt-6 space-y-2">
         {menuItems.map((item) => {
+          const isLocked = !hasStoreUrl;
           const classes =
-            "flex min-h-11 w-full items-center gap-3 rounded-sm px-3 text-sm font-semibold text-white/72 transition-colors hover:bg-white/5 hover:text-brand-gold";
+            `flex min-h-11 w-full items-center gap-3 rounded-sm px-3 text-sm font-semibold transition-colors ${
+              isLocked
+                ? "cursor-not-allowed text-white/35"
+                : "text-white/72 hover:bg-white/5 hover:text-brand-gold"
+            }`;
 
           if (item.kind === "route") {
             return (
@@ -118,9 +130,18 @@ export default function DashboardSidebar({ onNavigate }) {
                 className={classes}
                 href={item.href}
                 key={item.label}
-                onClick={onNavigate}
+                aria-disabled={isLocked}
+                onClick={(event) => {
+                  if (isLocked) {
+                    event.preventDefault();
+                    showStoreUrlRequiredToast();
+                    return;
+                  }
+
+                  onNavigate?.();
+                }}
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-white/10 text-brand-gold">
+                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border ${isLocked ? "border-white/5 text-white/25" : "border-white/10 text-brand-gold"}`}>
                   <SidebarGlyph name={item.icon} />
                 </span>
                 {item.label}
@@ -134,6 +155,11 @@ export default function DashboardSidebar({ onNavigate }) {
               key={item.label}
               type="button"
               onClick={() => {
+                if (isLocked) {
+                  showStoreUrlRequiredToast();
+                  return;
+                }
+
                 if (item.kind === "preview") {
                   openPreview();
                   return;
@@ -156,7 +182,7 @@ export default function DashboardSidebar({ onNavigate }) {
                 onNavigate?.();
               }}
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-white/10 text-brand-gold">
+              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border ${isLocked ? "border-white/5 text-white/25" : "border-white/10 text-brand-gold"}`}>
                 <SidebarGlyph name={item.icon} />
               </span>
               {item.label}

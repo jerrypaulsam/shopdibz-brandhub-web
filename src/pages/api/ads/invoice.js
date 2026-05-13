@@ -8,7 +8,9 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", campaignId = "" } = req.query || {};
+  const { campaignId = "" } = req.query || {};
+  const authHeader = String(req.headers.authorization || "");
+  const accessToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
 
   if (!accessToken || !campaignId) {
     res.status(400).json({ message: "Access token and campaign ID are required" });

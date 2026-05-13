@@ -186,13 +186,95 @@ export async function postAuthJson(url, payload) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data?.message || data?.detail || "Request failed");
+    throw new Error(getAuthErrorMessage(url, response.status, response.statusText, data));
   }
 
   return {
     statusCode: response.status,
     data,
   };
+}
+
+/**
+ * @param {string} url
+ * @param {number} status
+ * @param {string} statusMessage
+ * @param {unknown} data
+ * @returns {string}
+ */
+function getAuthErrorMessage(url, status, statusMessage, data) {
+  const apiMessage = getApiErrorMessage(data);
+
+  if (apiMessage) {
+    return apiMessage;
+  }
+
+  if (url === "/api/auth/login") {
+    if (status === 401) {
+      return statusMessage
+        ? `Invalid Credentials : ${statusMessage}`
+        : "Invalid Credentials";
+    }
+
+    if (status === 404) {
+      return "User not found.";
+    }
+
+    if (status === 403) {
+      return "Forbidden.";
+    }
+
+    if (status === 500) {
+      return "Something went wrong! Please try again later";
+    }
+
+    return "Invalid Credentials";
+  }
+
+  if (url === "/api/auth/signup") {
+    if (status === 409) {
+      return "Account With Email Already Exists.";
+    }
+
+    return "BAD REQUEST. CONTACT SUPPORT!";
+  }
+
+  if (url === "/api/auth/mobile-otp") {
+    if (status === 403) {
+      return "Mobile Number Already Exists.";
+    }
+
+    return "Oops something went wrong.";
+  }
+
+  if (url === "/api/auth/verify-mobile") {
+    if (status === 400) {
+      return "Mobile Verification Failed. Check OTP or try again.";
+    }
+
+    return "Oops something went wrong.";
+  }
+
+  return statusMessage || "Request failed";
+}
+
+/**
+ * @param {unknown} data
+ * @returns {string}
+ */
+function getApiErrorMessage(data) {
+  if (typeof data === "string") {
+    return data.trim();
+  }
+
+  if (!data || typeof data !== "object") {
+    return "";
+  }
+
+  const message = "message" in data ? data.message : "";
+  const detail = "detail" in data ? data.detail : "";
+
+  return String(message || detail || "").trim();
 }
 
 /**

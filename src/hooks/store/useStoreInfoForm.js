@@ -72,26 +72,7 @@ export function useStoreInfoForm() {
         }
 
         setStoreInfo(data);
-        setForm((current) => ({
-          ...current,
-          storeName: data.name || "",
-          storeUrl: data.url || "",
-          storeEmail: data.storeEmail || data.email || "",
-          storeAddress: data.address || data.adrs || "",
-          storeCity: data.city || "",
-          storeState: data.state || "",
-          storePinCode: data.pCode || data.pinCode || "",
-          storeDescription: data.description || data.desc || "",
-          contactNo: String(data.contactNo || data.cntNo || "").replace("+91", ""),
-          storeVideo: data.storeVideo || data.video || "",
-          link1: data.link1 || "",
-          link2: data.link2 || "",
-          shipType: data.shipType || data.shType || "SE",
-          shipMode: data.shipMode || data.mode || "0",
-          activateStore: data.active ?? true,
-          enableReselling: data.enableResell ?? data.resell ?? false,
-          themeId: String(data.storeTheme || data.theme || "0"),
-        }));
+        applyStoreInfoToForm(data, setForm);
         setLogoPreview(data.logo || "");
         setMessage("");
         logScreenView("store_info_form", data.url || "Anonymous", "store");
@@ -150,7 +131,14 @@ export function useStoreInfoForm() {
     const data = await fetchEditableStoreInfo();
 
     if (data) {
-      setStoreInfo(data);
+      const hasResolvedStoreUrl = Boolean(data.url || storeInfo?.url || form.storeUrl);
+
+      if (hasResolvedStoreUrl) {
+        setStoreInfo(data);
+      }
+
+      applyStoreInfoToForm(data, setForm, { preserveCurrent: true });
+      setLogoPreview(data.logo || "");
     }
 
     return data;
@@ -187,7 +175,9 @@ export function useStoreInfoForm() {
         shipType: form.shipType,
         shipMode: form.shipMode,
         enableResell: form.enableReselling,
-        storeVideo: normalizeYoutubeLink(form.storeVideo),
+        storeVideo: form.storeVideo.trim()
+          ? normalizeYoutubeLink(form.storeVideo)
+          : "",
       });
       setMessage("Store Info Updated Successfully");
       showToast({ message: "Store Info Updated Successfully", type: "success" });
@@ -212,8 +202,7 @@ export function useStoreInfoForm() {
       await updateStoreLogo(logoBase64);
       setMessage("Logo Updated Successfully");
       setLogoBase64("");
-      const nextStoreInfo = await refreshStoreInfo();
-      setLogoPreview(nextStoreInfo?.logo || logoPreview);
+      await refreshStoreInfo();
       showToast({
         message: "Logo updated successfully",
         type: "success",
@@ -487,6 +476,86 @@ export function useStoreInfoForm() {
     submitWooCommerceSync,
     submitWooCommerceDisconnect,
   };
+}
+
+/**
+ * @param {any} data
+ * @param {(updater: (current: any) => any) => void} setForm
+ * @param {{ preserveCurrent?: boolean }} [options]
+ */
+function applyStoreInfoToForm(data, setForm, options = {}) {
+  const preserveCurrent = Boolean(options.preserveCurrent);
+
+  setForm((current) => ({
+    ...current,
+    storeName: pickStoreValue(data.name, current.storeName, preserveCurrent),
+    storeUrl: pickStoreValue(data.url, current.storeUrl, preserveCurrent),
+    storeEmail: pickStoreValue(
+      data.storeEmail || data.email,
+      current.storeEmail,
+      preserveCurrent,
+    ),
+    storeAddress: pickStoreValue(
+      data.address || data.adrs,
+      current.storeAddress,
+      preserveCurrent,
+    ),
+    storeCity: pickStoreValue(data.city, current.storeCity, preserveCurrent),
+    storeState: pickStoreValue(data.state, current.storeState, preserveCurrent),
+    storePinCode: pickStoreValue(
+      data.pCode || data.pinCode,
+      current.storePinCode,
+      preserveCurrent,
+    ),
+    storeDescription: pickStoreValue(
+      data.description || data.desc,
+      current.storeDescription,
+      preserveCurrent,
+    ),
+    contactNo: pickStoreValue(
+      String(data.contactNo || data.cntNo || "").replace("+91", ""),
+      current.contactNo,
+      preserveCurrent,
+    ),
+    storeVideo: pickStoreValue(
+      data.storeVideo || data.video,
+      current.storeVideo,
+      preserveCurrent,
+    ),
+    link1: pickStoreValue(data.link1, current.link1, preserveCurrent),
+    link2: pickStoreValue(data.link2, current.link2, preserveCurrent),
+    shipType: pickStoreValue(data.shipType || data.shType || "SE", current.shipType, preserveCurrent),
+    shipMode: pickStoreValue(data.shipMode || data.mode || "0", current.shipMode, preserveCurrent),
+    activateStore:
+      preserveCurrent && (data.active === undefined || data.active === null)
+        ? current.activateStore
+        : (data.active ?? true),
+    enableReselling:
+      preserveCurrent && data.enableResell === undefined && data.resell === undefined
+        ? current.enableReselling
+        : (data.enableResell ?? data.resell ?? false),
+    themeId: pickStoreValue(
+      String(data.storeTheme || data.theme || "0"),
+      current.themeId,
+      preserveCurrent,
+    ),
+  }));
+}
+
+/**
+ * @param {unknown} incoming
+ * @param {string} fallback
+ * @param {boolean} preserveCurrent
+ * @returns {string}
+ */
+function pickStoreValue(incoming, fallback, preserveCurrent) {
+  const nextValue = String(incoming ?? "");
+
+  if (preserveCurrent && !nextValue.trim()) {
+    return fallback;
+  }
+
+  return nextValue;
 }
 
 /**

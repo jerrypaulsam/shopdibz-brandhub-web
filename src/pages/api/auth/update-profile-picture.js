@@ -1,5 +1,13 @@
 import { API_BASE_URL, SHOPDIBZ_URLS } from "@/src/api/config";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "8mb",
+    },
+  },
+};
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");

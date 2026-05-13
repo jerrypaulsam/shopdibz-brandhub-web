@@ -117,13 +117,13 @@ export function useDashboardHome() {
           return;
         }
 
-        if (resolvedStoreInfo?.paywall === false) {
-          await router.replace("/onboard-payment");
+        if (resolvedStoreInfo?.close === true) {
+          await router.replace("/store-closed");
           return;
         }
 
-        if (resolvedStoreInfo?.close === true) {
-          await router.replace("/store-closed");
+        if (resolvedStoreInfo?.paywall === false) {
+          await router.replace("/onboard-payment");
           return;
         }
 

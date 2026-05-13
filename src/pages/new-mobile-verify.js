@@ -61,8 +61,9 @@ export default function InitialMobileVerifyPage() {
               label="Mobile Number"
               value={mobile}
               type="tel"
-              placeholder="+91"
+              placeholder="+91 [Enter 10 digit number]"
               autoComplete="tel"
+              maxLength={10}
               onChange={setMobile}
             />
 

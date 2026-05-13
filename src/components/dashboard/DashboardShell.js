@@ -5,6 +5,7 @@ import {
   getAuthSessionSnapshot,
   subscribeAuthSession,
 } from "@/src/api/auth";
+import { fetchStoreInfo, getDashboardSession } from "@/src/api/dashboard";
 
 /**
  * @param {{ children: import("react").ReactNode }} props
@@ -12,6 +13,7 @@ import {
 export default function DashboardShell({ children }) {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
   const hasHydrated = useSyncExternalStore(
     subscribeToHydration,
     getHydratedSnapshot,
@@ -34,6 +36,11 @@ export default function DashboardShell({ children }) {
     }
   }, [session]);
   const hasAccessToken = Boolean(parsedSession?.data?.access || parsedSession?.access);
+  const hasStoreUrl = Boolean(
+    parsedSession?.user?.storeUrl ||
+      parsedSession?.user?.store_url ||
+      parsedSession?.storeUrl,
+  );
 
   useEffect(() => {
     if (hasHydrated && router.isReady && !hasAccessToken) {
@@ -41,7 +48,66 @@ export default function DashboardShell({ children }) {
     }
   }, [hasAccessToken, hasHydrated, router, router.isReady]);
 
-  if (!hasHydrated || !hasAccessToken) {
+  useEffect(() => {
+    let isCurrent = true;
+
+    async function verifyWorkspaceAccess() {
+      if (!hasHydrated || !router.isReady || !hasAccessToken) {
+        return;
+      }
+
+      if (isPaywallAllowedPath(router.asPath)) {
+        if (isCurrent) {
+          setIsCheckingAccess(false);
+        }
+        return;
+      }
+
+      const session = getDashboardSession();
+
+      if (!session.storeUrl) {
+        if (isCurrent) {
+          setIsCheckingAccess(false);
+        }
+        return;
+      }
+
+      try {
+        const storeInfo = await fetchStoreInfo();
+
+        if (!isCurrent) {
+          return;
+        }
+
+        if (storeInfo?.close === true) {
+          await router.replace("/store-closed");
+          return;
+        }
+
+        if (storeInfo?.paywall === false) {
+          await router.replace("/onboard-payment");
+          return;
+        }
+      } catch {
+        if (!isCurrent) {
+          return;
+        }
+      }
+
+      if (isCurrent) {
+        setIsCheckingAccess(false);
+      }
+    }
+
+    setIsCheckingAccess(true);
+    verifyWorkspaceAccess();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [hasAccessToken, hasHydrated, router, router.asPath, router.isReady]);
+
+  if (!hasHydrated || !hasAccessToken || isCheckingAccess) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#0a0a0a] text-brand-white">
         <p className="text-sm font-semibold text-white/60">Loading seller workspace...</p>
@@ -53,7 +119,7 @@ export default function DashboardShell({ children }) {
     <main className="min-h-screen bg-[#0a0a0a] text-brand-white">
       <div className="flex min-h-screen">
         <aside className="hidden w-72 shrink-0 border-r border-white/10 bg-[#121212] xl:block">
-          <DashboardSidebar />
+          <DashboardSidebar hasStoreUrl={hasStoreUrl} />
         </aside>
 
         {isMenuOpen ? (
@@ -65,7 +131,10 @@ export default function DashboardShell({ children }) {
               onClick={() => setIsMenuOpen(false)}
             />
             <aside className="relative h-full w-72 overflow-y-auto bg-[#121212]">
-              <DashboardSidebar onNavigate={() => setIsMenuOpen(false)} />
+              <DashboardSidebar
+                hasStoreUrl={hasStoreUrl}
+                onNavigate={() => setIsMenuOpen(false)}
+              />
             </aside>
           </div>
         ) : null}
@@ -96,4 +165,20 @@ function getHydratedSnapshot() {
 
 function getServerHydrationSnapshot() {
   return false;
+}
+
+/**
+ * @param {string} path
+ * @returns {boolean}
+ */
+function isPaywallAllowedPath(path) {
+  const value = String(path || "");
+
+  return [
+    "/onboard-payment",
+    "/awaiting-verification",
+    "/store-form",
+    "/store-info-form",
+    "/settings/bank/create",
+  ].some((prefix) => value === prefix || value.startsWith(`${prefix}?`));
 }

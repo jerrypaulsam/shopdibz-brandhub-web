@@ -4,6 +4,8 @@ import {
   checkSellerEmailVerification,
   getAuthSession,
   getCachedStoreInfo,
+  requestEmailOtp,
+  updateAuthSession,
 } from "@/src/api/auth";
 import { fetchStoreInfo } from "@/src/api/dashboard";
 import { checkStoreVerification } from "@/src/api/store";
@@ -33,12 +35,28 @@ export function useAppBootstrap() {
       }
 
       try {
-        const emailVerified = await resolveEmailVerification(authSession);
+        const emailVerified = await checkSellerEmailVerification();
 
         if (!emailVerified) {
+          updateAuthSession({
+            emailVerified: false,
+            user: {
+              emailVerified: false,
+              eV: false,
+            },
+          });
+          await requestEmailOtp().catch(() => null);
           await router.replace("/init-email-verify");
           return;
         }
+
+        updateAuthSession({
+          emailVerified: true,
+          user: {
+            emailVerified: true,
+            eV: true,
+          },
+        });
 
         const storeUrl =
           authSession?.user?.storeUrl ||
@@ -95,13 +113,13 @@ export function useAppBootstrap() {
           return;
         }
 
-        if (storeInfo?.paywall === false) {
-          await router.replace("/onboard-payment");
+        if (storeInfo?.close === true) {
+          await router.replace("/store-closed");
           return;
         }
 
-        if (storeInfo?.close === true) {
-          await router.replace("/store-closed");
+        if (storeInfo?.paywall === false) {
+          await router.replace("/onboard-payment");
           return;
         }
 
@@ -170,23 +188,6 @@ function resolveResumePath(value) {
   }
 
   return path;
-}
-
-/**
- * @param {any} authSession
- * @returns {Promise<boolean>}
- */
-async function resolveEmailVerification(authSession) {
-  const sessionFlag =
-    authSession?.user?.eV ??
-    authSession?.user?.emailVerified ??
-    authSession?.emailVerified;
-
-  if (sessionFlag !== undefined && sessionFlag !== null && sessionFlag !== "") {
-    return resolveBoolean(sessionFlag);
-  }
-
-  return checkSellerEmailVerification();
 }
 
 /**

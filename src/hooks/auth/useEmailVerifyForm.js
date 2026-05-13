@@ -5,6 +5,7 @@ import {
   getAuthSession,
   logoutSeller,
   requestEmailOtp,
+  updateAuthSession,
   verifyEmailOtp,
 } from "@/src/api/auth";
 import { logScreenView } from "@/src/api/analytics";
@@ -40,6 +41,13 @@ export function useEmailVerifyForm() {
 
     try {
       await verifyEmailOtp({ otp });
+      updateAuthSession({
+        emailVerified: true,
+        user: {
+          emailVerified: true,
+          eV: true,
+        },
+      });
       setOtp("");
       setMessage("Email Verified");
       await router.replace("/store-form");

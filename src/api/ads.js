@@ -25,19 +25,25 @@ async function postAdsJson(url, payload) {
 
 /**
  * @param {string} url
- * @param {Record<string, string | number>} query
+ * @param {{ query?: Record<string, string | number>, accessToken?: string }} options
  * @returns {Promise<any>}
  */
-async function getAdsJson(url, query) {
+async function getAdsJson(url, options = {}) {
   const search = new URLSearchParams();
 
-  Object.entries(query).forEach(([key, value]) => {
+  Object.entries(options.query || {}).forEach(([key, value]) => {
     if (value !== "" && value !== undefined && value !== null) {
       search.set(key, String(value));
     }
   });
 
-  const response = await fetch(`${url}?${search.toString()}`);
+  const response = await fetch(`${url}${search.toString() ? `?${search.toString()}` : ""}`, {
+    headers: options.accessToken
+      ? {
+          Authorization: `Bearer ${options.accessToken}`,
+        }
+      : undefined,
+  });
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -56,9 +62,11 @@ export function fetchAdCampaigns(payload) {
 
   return getAdsJson("/api/ads/list", {
     accessToken: session.accessToken,
-    storeUrl: session.storeUrl,
-    status: payload.status,
-    page: payload.page,
+    query: {
+      storeUrl: session.storeUrl,
+      status: payload.status,
+      page: payload.page,
+    },
   });
 }
 
@@ -111,7 +119,9 @@ export function fetchCampaignInvoice(campaignId) {
 
   return getAdsJson("/api/ads/invoice", {
     accessToken: session.accessToken,
-    campaignId,
+    query: {
+      campaignId,
+    },
   });
 }
 

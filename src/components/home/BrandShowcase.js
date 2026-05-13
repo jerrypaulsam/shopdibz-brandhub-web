@@ -55,12 +55,12 @@ export default function BrandShowcase() {
           Handpicked Indian Boutiques
         </h2>
 
-        <div className="mt-14 grid justify-center gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-14 flex flex-wrap justify-center gap-4 sm:gap-5">
           {brands.map((brand) =>
             brand.placeholder ? (
               <div
                 key={brand.name}
-                className="group flex min-h-[244px] flex-col items-center justify-center rounded-sm border border-dashed border-brand-gold/35 bg-brand-white p-6 text-center shadow-[0_18px_45px_rgba(0,0,0,0.04)]"
+                className="group flex min-h-[244px] w-[calc(50%-0.5rem)] min-w-0 flex-col items-center justify-center rounded-sm border border-dashed border-brand-gold/35 bg-brand-white p-5 text-center shadow-[0_18px_45px_rgba(0,0,0,0.04)] sm:w-[calc(50%-0.625rem)] sm:p-6 md:w-[calc(33.333%-0.875rem)] xl:w-[calc(25%-0.9375rem)]"
               >
                 <span className="mx-auto flex h-[112px] w-[112px] items-center justify-center rounded-sm border border-dashed border-brand-gold/35 bg-brand-soft p-3 text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
                   Coming Soon
@@ -75,7 +75,7 @@ export default function BrandShowcase() {
             ) : (
               <a
                 key={brand.name}
-                className="group mx-auto w-full max-w-[320px] rounded-sm border border-black/[0.04] bg-brand-white p-6 text-center shadow-[0_18px_45px_rgba(0,0,0,0.04)] transition-transform hover:-translate-y-1"
+                className="group w-[calc(50%-0.5rem)] min-w-0 rounded-sm border border-black/[0.04] bg-brand-white p-5 text-center shadow-[0_18px_45px_rgba(0,0,0,0.04)] transition-transform hover:-translate-y-1 sm:w-[calc(50%-0.625rem)] sm:p-6 md:w-[calc(33.333%-0.875rem)] xl:w-[calc(25%-0.9375rem)]"
                 href={brand.url}
                 target="_blank"
                 rel="noreferrer"

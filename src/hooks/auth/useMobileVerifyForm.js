@@ -27,6 +27,10 @@ export function useMobileVerifyForm() {
     logScreenView("init-mobile-verify", "Anonymous", "store");
   }, [router]);
 
+  function updateMobile(value) {
+    setMobile(normalizeMobileInput(value));
+  }
+
   async function requestOtp() {
     if (!mobile) {
       setMessage("Enter Mobile Number");
@@ -37,7 +41,8 @@ export function useMobileVerifyForm() {
     setMessage("");
 
     try {
-      await requestInitialMobileOtp({ mobile });
+      const normalizedMobile = getIndianMobileNumber(mobile);
+      await requestInitialMobileOtp({ mobile: normalizedMobile });
       setMobileOtpSend(true);
       setMessage("OTP Send To Your Mobile Number.");
     } catch (error) {
@@ -59,8 +64,9 @@ export function useMobileVerifyForm() {
     setMessage("");
 
     try {
-      await verifyInitialMobileNumber({ mobile, otp });
-      saveMobileVerification(mobile);
+      const normalizedMobile = getIndianMobileNumber(mobile);
+      await verifyInitialMobileNumber({ mobile: normalizedMobile, otp });
+      saveMobileVerification(normalizedMobile);
       setMessage("Mobile number verified");
       await router.replace("/sign-up");
     } catch (error) {
@@ -77,7 +83,7 @@ export function useMobileVerifyForm() {
 
   return {
     mobile,
-    setMobile,
+    setMobile: updateMobile,
     otp,
     setOtp,
     mobileOtpSend,
@@ -86,4 +92,26 @@ export function useMobileVerifyForm() {
     requestOtp,
     verifyOtp,
   };
+}
+
+/**
+ * @param {string} value
+ * @returns {string}
+ */
+function normalizeMobileInput(value) {
+  const digitsOnly = String(value || "").replace(/\D/g, "");
+
+  if (digitsOnly.startsWith("91")) {
+    return digitsOnly.slice(2, 12);
+  }
+
+  return digitsOnly.slice(0, 10);
+}
+
+/**
+ * @param {string} value
+ * @returns {string}
+ */
+function getIndianMobileNumber(value) {
+  return `+91${normalizeMobileInput(value)}`;
 }

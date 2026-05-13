@@ -1,6 +1,14 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "8mb",
+    },
+  },
+};
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -10,8 +18,8 @@ export default async function handler(req, res) {
 
   const { accessToken = "", storeUrl = "", logoBase64 = "" } = req.body || {};
 
-  if (!accessToken || !storeUrl || !logoBase64) {
-    res.status(400).json({ message: "Logo upload fields are missing" });
+  if (!accessToken || !logoBase64) {
+    res.status(400).json({ message: "Access token and logo are required" });
     return;
   }
 
@@ -22,7 +30,7 @@ export default async function handler(req, res) {
     file: {
       field: "logo",
       base64: logoBase64,
-      filename: `store-logo-${storeUrl}.jpg`,
+      filename: storeUrl ? `storeLogo-${storeUrl}.jpg` : "storeLogo.jpg",
     },
   });
 
