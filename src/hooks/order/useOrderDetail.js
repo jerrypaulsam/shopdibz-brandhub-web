@@ -231,27 +231,13 @@ export function useOrderDetail() {
       }
 
       const data = await fetchOrderInvoice(orderId);
-      console.log(data);
+
+      console.log("data", data);
 
       const invoicePayload = String(data?.data || data?.url || "");
 
       if (invoicePayload && typeof window !== "undefined") {
-        if (
-          invoicePayload.startsWith("<!DOCTYPE") ||
-          invoicePayload.startsWith("<html") ||
-          invoicePayload.startsWith("<")
-        ) {
-          const invoiceBlob = new Blob([invoicePayload], {
-            type: "text/html;charset=utf-8",
-          });
-          const objectUrl = URL.createObjectURL(invoiceBlob);
-          window.open(objectUrl, "_blank", "noopener,noreferrer");
-          window.setTimeout(() => {
-            URL.revokeObjectURL(objectUrl);
-          }, 60000);
-        } else {
-          window.open(invoicePayload, "_blank", "noopener,noreferrer");
-        }
+        window.open(invoicePayload, "_blank", "noopener,noreferrer");
       } else {
         setActionError("Invoice unavailable");
         return;

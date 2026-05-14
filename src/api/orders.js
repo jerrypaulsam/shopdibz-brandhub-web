@@ -46,6 +46,8 @@ async function getOrderJson(url, options = {}) {
   });
 
   const queryString = search.toString();
+  // console.log(url+queryString);
+
   const response = await fetch(`${url}${queryString ? `?${queryString}` : ""}`, {
     headers: options.accessToken
       ? {
@@ -159,12 +161,12 @@ export function fetchOrderInvoice(orderId) {
   const storeUrl =
     getSellerStoreUrl() || getCachedStoreInfo()?.url || session.storeUrl;
 
-  return getOrderJson(`/api/orders/invoice/${storeUrl}/order/${orderId}/web/`, {
+  return getOrderJson(`/api/payments/invoice/${storeUrl}/order/${orderId}/web/`, {
     accessToken: session.accessToken,
-    query: {
-      storeUrl,
-      orderId,
-    },
+    // query: {
+    //   storeUrl,
+    //   orderId,
+    // },
   });
 }
 
