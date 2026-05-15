@@ -8,13 +8,15 @@ import StoreField from "./StoreField";
 import StoreSection from "./StoreSection";
 
 /**
- * @param {{ storeInfo: any, productGroups: any[], bannerImages: any[], hasPublishedSliderSet: boolean, mobileSliderSelection: boolean, setMobileSliderSelection: (value: boolean) => void, slots: any[], updateSlot: (index: number, patch: Record<string, string>) => void, preferredSize: string, currentAspectRatio: string, canUseExternalLinks: boolean, message: string, isLoading: boolean, isSubmitting: boolean, onSubmit: () => Promise<boolean> }} props
+ * @param {{ storeInfo: any, productGroups: any[], bannerImages: any[], currentSliderCount: number, requiredSlotCount: number, maxSliderCount: number, mobileSliderSelection: boolean, setMobileSliderSelection: (value: boolean) => void, slots: any[], updateSlot: (index: number, patch: Record<string, string>) => void, preferredSize: string, currentAspectRatio: string, canUseExternalLinks: boolean, message: string, isLoading: boolean, isSubmitting: boolean, onSubmit: () => Promise<boolean> }} props
  */
 export default function StoreSliderImageFormPanel({
   storeInfo,
   productGroups,
   bannerImages,
-  hasPublishedSliderSet,
+  currentSliderCount,
+  requiredSlotCount,
+  maxSliderCount,
   mobileSliderSelection,
   setMobileSliderSelection,
   slots,
@@ -29,13 +31,23 @@ export default function StoreSliderImageFormPanel({
 }) {
   const aspectClass = currentAspectRatio === "4:5" ? "aspect-[4/5]" : "aspect-[16/6]";
   const filledSlots = slots.filter((slot) => slot.imageBase64).length;
-  const canPublishCurrentSet = !hasPublishedSliderSet;
+  const canPublishCurrentSet = requiredSlotCount > 0;
+  const publishButtonLabel =
+    requiredSlotCount === 1 ? "Add Slider" : "Publish Sliders";
+  const publishTitle =
+    requiredSlotCount === 1
+      ? "Add Missing Slider"
+      : "Publish Website Sliders";
+  const publishSubtitle =
+    requiredSlotCount === 1
+      ? "This view already has one live slider. Add the remaining creative to complete the set."
+      : "Publish a two-banner slider set and keep mobile and desktop creative separate.";
 
   return (
     <div className="space-y-6">
       <StoreSection
-        title="Update Website Sliders"
-        subtitle="Publish exactly two banners per set and keep mobile and desktop creative separate."
+        title={publishTitle}
+        subtitle={publishSubtitle}
       >
         <div className="space-y-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -76,7 +88,10 @@ export default function StoreSliderImageFormPanel({
 
             <div className="grid gap-3 sm:grid-cols-2">
               <MetricCard label="Aspect Ratio" value={currentAspectRatio} />
-              <MetricCard label="Ready Slots" value={`${filledSlots} / 2`} />
+              <MetricCard
+                label="Ready Slots"
+                value={`${filledSlots} / ${requiredSlotCount}`}
+              />
             </div>
           </div>
 
@@ -84,19 +99,25 @@ export default function StoreSliderImageFormPanel({
             Preferred Size: {preferredSize}
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            {slots.map((slot, index) => (
-              <BannerSlotEditor
-                index={index}
-                slot={slot}
-                productGroups={productGroups}
-                canUseExternalLinks={canUseExternalLinks}
-                onUpdate={updateSlot}
-                aspectClass={aspectClass}
-                key={`slot-${index}`}
-              />
-            ))}
-          </div>
+          {requiredSlotCount ? (
+            <div className="grid gap-6 lg:grid-cols-2">
+              {slots.map((slot, index) => (
+                <BannerSlotEditor
+                  index={index}
+                  slot={slot}
+                  productGroups={productGroups}
+                  canUseExternalLinks={canUseExternalLinks}
+                  onUpdate={updateSlot}
+                  aspectClass={aspectClass}
+                  key={`slot-${index}`}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-4 text-sm text-white/60">
+              This {mobileSliderSelection ? "mobile" : "desktop"} slider set already has {maxSliderCount} live sliders.
+            </div>
+          )}
 
           <AuthMessage>{message}</AuthMessage>
 
@@ -107,14 +128,9 @@ export default function StoreSliderImageFormPanel({
                 disabled={isLoading || isSubmitting}
                 onClick={onSubmit}
               >
-                {isSubmitting ? "Publishing..." : "Publish Sliders"}
+                {isSubmitting ? "Publishing..." : publishButtonLabel}
               </AuthButton>
             </div>
-          ) : null}
-          {hasPublishedSliderSet ? (
-            <AuthMessage>
-              This slider set is already published. Manage the live sliders instead of publishing a duplicate set.
-            </AuthMessage>
           ) : null}
         </div>
       </StoreSection>
@@ -157,10 +173,15 @@ export default function StoreSliderImageFormPanel({
 
       <StoreSection title="Publishing Notes">
         <div className="space-y-3 text-sm leading-6 text-white/60">
-          <p>Exactly two slider images are required for each publish action.</p>
+          <p>
+            Each view supports up to {maxSliderCount} live sliders, and this form only asks for the missing ones.
+          </p>
           <p>Product group links are optional and help route traffic into curated collections.</p>
           <p>
             External links are {canUseExternalLinks ? "available on this plan." : "available only on the Platinum plan."}
+          </p>
+          <p>
+            Current live sliders: {currentSliderCount} / {maxSliderCount}
           </p>
           <p>Store plan: {storeInfo?.plan || "Free"}</p>
         </div>

@@ -1,4 +1,5 @@
 import AuthButton from "@/src/components/auth/AuthButton";
+import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 
 /**
@@ -11,6 +12,23 @@ export default function AwaitingVerificationPanel({
   isLoggingOut,
   onLogout,
 }) {
+  const { confirm } = useConfirm();
+
+  async function handleLogout() {
+    const accepted = await confirm({
+      title: "Logout",
+      message: "Are you sure you want to log out of Brand Hub?",
+      confirmLabel: "Logout",
+      cancelLabel: "Stay Logged In",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
+    await onLogout();
+  }
+
   return (
     <section className="mx-auto flex w-full max-w-[640px] flex-col items-center rounded-[16px] border border-white/10 bg-[#121212] px-6 py-10 text-center shadow-2xl sm:px-10">
       <div className="flex h-28 w-28 items-center justify-center rounded-full border border-brand-gold/20 bg-brand-black">
@@ -44,7 +62,7 @@ export default function AwaitingVerificationPanel({
           Watch Tutorials
         </a>
         <div className="w-full sm:w-[220px]">
-          <AuthButton disabled={isLoggingOut} type="button" onClick={onLogout}>
+          <AuthButton disabled={isLoggingOut} type="button" onClick={handleLogout}>
             {isLoggingOut ? "Logging Out..." : "Logout"}
           </AuthButton>
         </div>

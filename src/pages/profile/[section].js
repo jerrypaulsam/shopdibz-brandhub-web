@@ -108,6 +108,7 @@ function renderSection(section, props) {
     return (
       <SubscriptionSection
         storeInfo={props.storeInfo}
+        message={props.message}
         isSubmitting={props.isSubmitting}
         onCancel={props.cancelSubscription}
       />

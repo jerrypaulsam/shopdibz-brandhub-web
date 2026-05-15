@@ -255,9 +255,9 @@ export function AccountSettingsSection({ isOwner, isSubmitting, onDeactivate }) 
 }
 
 /**
- * @param {{ storeInfo: any, isSubmitting: boolean, onCancel: () => Promise<boolean> }} props
+ * @param {{ storeInfo: any, message: string, isSubmitting: boolean, onCancel: () => Promise<boolean> }} props
  */
-export function SubscriptionSection({ storeInfo, isSubmitting, onCancel }) {
+export function SubscriptionSection({ storeInfo, message, isSubmitting, onCancel }) {
   const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
   const planCode = storeInfo?.plan || "F";
   const storeUrl = storeInfo?.url || "";
@@ -276,6 +276,7 @@ export function SubscriptionSection({ storeInfo, isSubmitting, onCancel }) {
   return (
     <StoreSection title="Store Subscription">
       <div className="space-y-4">
+        <AuthMessage>{message}</AuthMessage>
         <InfoRow label="Store Plan" value={planLabel} />
         {planCode === "F" ? (
           subscriptionUrl ? (

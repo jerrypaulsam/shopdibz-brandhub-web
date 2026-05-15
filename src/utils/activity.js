@@ -178,6 +178,19 @@ export function isPremiumStore(storeInfo) {
 }
 
 /**
+ * @param {any} storeInfo
+ * @returns {string}
+ */
+export function getStorePlanCode(storeInfo) {
+  return String(
+    storeInfo?.planCode ||
+      storeInfo?.plan?.code ||
+      storeInfo?.plan ||
+      "",
+  ).trim().toUpperCase();
+}
+
+/**
  * @param {string | number} month
  * @param {string | number} year
  * @returns {string}

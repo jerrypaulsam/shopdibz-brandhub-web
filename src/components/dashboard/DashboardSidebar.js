@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { clearAuthSession, logoutSeller } from "@/src/api/auth";
+import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { useToast } from "@/src/components/app/ToastProvider";
 import { PRODUCT_BULK_TEMPLATE_URLS } from "@/src/data/product-variation-options";
 
@@ -35,7 +36,7 @@ const menuItems = [
     label: "Downloads",
     icon: "download",
     kind: "notice",
-    notice: "Download templates will be connected in the next pass.",
+    notice: "Download templates will be available soon.",
   },
 ];
 
@@ -43,6 +44,7 @@ const menuItems = [
  * @param {{ hasStoreUrl?: boolean, onNavigate?: () => void }} props
  */
 export default function DashboardSidebar({ hasStoreUrl = true, onNavigate }) {
+  const { confirm } = useConfirm();
   const { showToast } = useToast();
   const [isDownloadsOpen, setIsDownloadsOpen] = useState(false);
 
@@ -176,7 +178,7 @@ export default function DashboardSidebar({ hasStoreUrl = true, onNavigate }) {
                       ? "Feeds is available in the Brand Hub app. Please view it there."
                       : item.label === "Customer Insights"
                         ? "Customer Insights is coming soon."
-                        : item.notice || "This section is still being connected.",
+                        : item.notice || "This section will be available soon.",
                   type: "info",
                 });
                 onNavigate?.();
@@ -196,6 +198,17 @@ export default function DashboardSidebar({ hasStoreUrl = true, onNavigate }) {
         href="/"
         onClick={async (event) => {
           event.preventDefault();
+          const accepted = await confirm({
+            title: "Logout",
+            message: "Are you sure you want to log out of Brand Hub?",
+            confirmLabel: "Logout",
+            cancelLabel: "Stay Logged In",
+          });
+
+          if (!accepted) {
+            return;
+          }
+
           await logout();
           onNavigate?.();
         }}

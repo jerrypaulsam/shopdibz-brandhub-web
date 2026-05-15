@@ -4,7 +4,6 @@ import {
   cancelOrder,
   fetchOrderDetail,
   fetchOrderInvoice,
-  fetchOrderShippingLabel,
   markOrderPacked,
   sendOrderMessage,
   updateOrderStatus,
@@ -31,6 +30,7 @@ export function useOrderDetail() {
   const [actionError, setActionError] = useState("");
   const [busyAction, setBusyAction] = useState("");
   const [isPhoneVisible, setIsPhoneVisible] = useState(false);
+  const documentOrderId = Number(order?.order?.id || 0);
 
   const loadOrder = useCallback(async () => {
     if (!router.isReady) {
@@ -234,7 +234,12 @@ export function useOrderDetail() {
         return;
       }
 
-      const data = await fetchOrderInvoice(orderId);
+      if (!documentOrderId) {
+        setActionError("Invoice unavailable");
+        return;
+      }
+
+      const data = await fetchOrderInvoice(documentOrderId);
 
       const invoicePayload = resolveOrderDocumentUrl(
         String(data?.data || data?.url || ""),
@@ -270,27 +275,17 @@ export function useOrderDetail() {
         return;
       }
 
-      const inlineLabelUrl = resolveOrderDocumentUrl(
-        String(order?.labelUrl || ""),
-      );
-
-      if (inlineLabelUrl && typeof window !== "undefined") {
-        window.open(inlineLabelUrl, "_blank", "noopener,noreferrer");
-        setActionMessage("Shipping label opened in a new tab.");
-        return;
-      }
-
-      const data = await fetchOrderShippingLabel(orderId);
       const labelUrl = resolveOrderDocumentUrl(
-        String(data?.data || data?.url || ""),
+        String(order?.labelUrl || ""),
       );
 
       if (labelUrl && typeof window !== "undefined") {
         window.open(labelUrl, "_blank", "noopener,noreferrer");
         setActionMessage("Shipping label opened in a new tab.");
-      } else {
-        setActionError("Kindly try again in a few minutes.");
+        return;
       }
+
+      setActionError("Kindly try again in a few minutes.");
     } catch (error) {
       setActionError(
         error instanceof Error

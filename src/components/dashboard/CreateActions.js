@@ -175,16 +175,10 @@ export default function CreateActions({ storeInfo }) {
               />
               <ProductRouteButton
                 label="Verify Listing Sheet"
-                description="Open the bulk workspace for template validation before final listing upload."
+                description="Open a dedicated sheet-check workspace before you submit any bulk listing."
                 onClick={() => {
                   setIsProductDialogOpen(false);
-                  router.push({
-                    pathname: "/products/new/category",
-                    query: {
-                      "listing-mode": "bulk",
-                      "variant-mode": "without-variant",
-                    },
-                  });
+                  router.push("/products/verify-listing-sheet");
                 }}
               />
             </div>

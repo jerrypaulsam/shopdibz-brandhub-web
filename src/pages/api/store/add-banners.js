@@ -25,8 +25,8 @@ export default async function handler(req, res) {
     links = [],
   } = req.body || {};
 
-  if (!accessToken || !storeUrl || !Array.isArray(images) || images.length !== 2) {
-    res.status(400).json({ message: "Access token, store URL, and exactly 2 images are required" });
+  if (!accessToken || !storeUrl || !Array.isArray(images) || images.length < 1 || images.length > 2) {
+    res.status(400).json({ message: "Access token, store URL, and 1 or 2 images are required" });
     return;
   }
 

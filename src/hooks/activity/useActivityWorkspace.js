@@ -14,6 +14,7 @@ import {
   firstActivityQuery,
   formatInvoicePeriod,
   getActivityPricingUrl,
+  getStorePlanCode,
   isPremiumStore,
   normalizeActivityGroups,
   PRODUCT_GROUP_DISCOUNT_TYPES,
@@ -79,6 +80,14 @@ export function useActivityWorkspace() {
 
   const pricingUrl = useMemo(() => getActivityPricingUrl(storeInfo), [storeInfo]);
   const isPremium = useMemo(() => isPremiumStore(storeInfo), [storeInfo]);
+  const planCode = useMemo(() => getStorePlanCode(storeInfo), [storeInfo]);
+  const productGroupBlockedMessage = useMemo(() => {
+    if (!isPremium) {
+      return "Please upgrade your plan to create product groups.";
+    }
+
+    return "";
+  }, [isPremium]);
   const selectedInvoiceLabel = useMemo(
     () => formatInvoicePeriod(month, year),
     [month, year],
@@ -333,7 +342,7 @@ export function useActivityWorkspace() {
 
   async function submitProductGroupCreate() {
     if (!isPremium) {
-      setActionError("Please upgrade your plan to create more product groups.");
+      setActionError("Please upgrade your plan to create product groups.");
       return;
     }
 
@@ -390,9 +399,11 @@ export function useActivityWorkspace() {
     isActionLoading,
     isLoading,
     isPremium,
+    planCode,
     message,
     month,
     pricingUrl,
+    productGroupBlockedMessage,
     selectedInvoiceLabel,
     showOnHome,
     specialFileName,

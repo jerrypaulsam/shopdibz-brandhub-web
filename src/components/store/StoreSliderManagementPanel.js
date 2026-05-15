@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { useRef, useState } from "react";
+import Link from "next/link";
 
 import AuthButton from "@/src/components/auth/AuthButton";
 import AuthMessage from "@/src/components/auth/AuthMessage";
@@ -9,12 +10,13 @@ import StoreField from "./StoreField";
 import StoreSection from "./StoreSection";
 
 /**
- * @param {{ storeInfo: any, productGroups: any[], filteredBanners: any[], mobileSliderSelection: boolean, setMobileSliderSelection: (value: boolean) => void, selectedBanner: any, selectBanner: (banner: any) => void, productGroupName: string, setProductGroupName: (value: string) => void, setProductGroupSlug: (value: string) => void, link: string, setLink: (value: string) => void, preview: string, setPreview: (value: string) => void, imageBase64: string, setImageBase64: (value: string) => void, currentAspectRatio: string, preferredSize: string, canUseExternalLinks: boolean, message: string, isLoading: boolean, isSubmitting: boolean, onSubmit: () => Promise<boolean>, onDelete: (bannerId: number) => Promise<boolean> }} props
+ * @param {{ storeInfo: any, productGroups: any[], filteredBanners: any[], currentSliderCount: number, mobileSliderSelection: boolean, setMobileSliderSelection: (value: boolean) => void, selectedBanner: any, selectBanner: (banner: any) => void, productGroupName: string, setProductGroupName: (value: string) => void, setProductGroupSlug: (value: string) => void, link: string, setLink: (value: string) => void, preview: string, setPreview: (value: string) => void, imageBase64: string, setImageBase64: (value: string) => void, currentAspectRatio: string, preferredSize: string, canUseExternalLinks: boolean, message: string, isLoading: boolean, isSubmitting: boolean, onSubmit: () => Promise<boolean>, onDelete: (bannerId: number) => Promise<boolean> }} props
  */
 export default function StoreSliderManagementPanel({
   storeInfo,
   productGroups,
   filteredBanners,
+  currentSliderCount,
   mobileSliderSelection,
   setMobileSliderSelection,
   selectedBanner,
@@ -41,6 +43,10 @@ export default function StoreSliderManagementPanel({
   const fileInputRef = useRef(null);
   const [cropFile, setCropFile] = useState(null);
   const aspectClass = currentAspectRatio === "4:5" ? "aspect-[4/5]" : "aspect-[16/6]";
+  const remainingSliderCount = Math.max(0, 2 - currentSliderCount);
+  const addSliderHref = mobileSliderSelection
+    ? "/store-slider-image-form?view=mobile"
+    : "/store-slider-image-form?view=desktop";
   const shownGroups = productGroups.filter((group) =>
     String(group?.name || "")
       .toLowerCase()
@@ -115,6 +121,22 @@ export default function StoreSliderManagementPanel({
               <MetricCard label="Preferred Size" value={preferredSize} compact />
             </div>
           </div>
+
+          {remainingSliderCount ? (
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-brand-gold/20 bg-[#17130a] px-4 py-3">
+              <p className="text-sm text-brand-gold">
+                {remainingSliderCount === 1
+                  ? "This view has 1 live slider. Add 1 more to complete the set."
+                  : "This view has no live sliders yet. Publish 2 to create the set."}
+              </p>
+              <Link
+                className="inline-flex min-h-10 items-center rounded-sm border border-brand-gold/30 px-4 text-sm font-bold text-brand-gold transition-colors hover:border-brand-gold hover:bg-brand-gold hover:text-brand-black"
+                href={addSliderHref}
+              >
+                {remainingSliderCount === 1 ? "Add 1 More Slider" : "Publish 2 Sliders"}
+              </Link>
+            </div>
+          ) : null}
 
           {isLoading ? (
             <p className="mt-6 text-sm text-white/45">Loading live sliders...</p>

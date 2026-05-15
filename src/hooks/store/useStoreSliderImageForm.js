@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { addStoreBanners, fetchBannerImages, fetchEditableStoreInfo, fetchProductGroups } from "@/src/api/store";
 import { logScreenView } from "@/src/api/analytics";
 
+const MAX_SLIDERS_PER_VIEW = 2;
+
 const initialSlot = () => ({
   preview: "",
   imageBase64: "",
@@ -10,12 +12,20 @@ const initialSlot = () => ({
   link: "",
 });
 
+/**
+ * @param {number} count
+ * @returns {ReturnType<typeof initialSlot>[]}
+ */
+function buildSlots(count) {
+  return Array.from({ length: count }, () => initialSlot());
+}
+
 export function useStoreSliderImageForm(initialMobileSliderSelection = false) {
   const [storeInfo, setStoreInfo] = useState(null);
   const [bannerImages, setBannerImages] = useState([]);
   const [productGroups, setProductGroups] = useState([]);
   const [mobileSliderSelection, setMobileSliderSelection] = useState(initialMobileSliderSelection);
-  const [slots, setSlots] = useState([initialSlot(), initialSlot()]);
+  const [slots, setSlots] = useState(() => buildSlots(MAX_SLIDERS_PER_VIEW));
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,6 +86,12 @@ export function useStoreSliderImageForm(initialMobileSliderSelection = false) {
 
   const currentAspectRatio = mobileSliderSelection ? "4:5" : "16:6";
   const canUseExternalLinks = storeInfo?.plan === "P";
+  const currentSliderCount = filteredBannerImages.length;
+  const requiredSlotCount = Math.max(0, MAX_SLIDERS_PER_VIEW - currentSliderCount);
+
+  useEffect(() => {
+    setSlots(buildSlots(requiredSlotCount));
+  }, [requiredSlotCount, mobileSliderSelection]);
 
   function updateSlot(index, patch) {
     setSlots((current) =>
@@ -91,8 +107,17 @@ export function useStoreSliderImageForm(initialMobileSliderSelection = false) {
       return false;
     }
 
-    if (slots.some((slot) => !slot.imageBase64)) {
-      setMessage("Exactly 2 images are required to update sliders.");
+    if (!requiredSlotCount) {
+      setMessage("This slider set already has the maximum 2 live sliders.");
+      return false;
+    }
+
+    if (slots.length !== requiredSlotCount || slots.some((slot) => !slot.imageBase64)) {
+      setMessage(
+        requiredSlotCount === 1
+          ? "Add the remaining slider image to continue."
+          : "Add 2 slider images to continue.",
+      );
       return false;
     }
 
@@ -111,11 +136,10 @@ export function useStoreSliderImageForm(initialMobileSliderSelection = false) {
         productGroupSlugs: slots.map((slot) => slot.productGroupSlug || ""),
         links: slots.map((slot) => (canUseExternalLinks ? slot.link : "")),
       });
-      setMessage("Banner Updated.");
+      setMessage("Slider set updated.");
 
       const nextBanners = await fetchBannerImages().catch(() => ({ results: [] }));
       setBannerImages(nextBanners?.results || []);
-      setSlots([initialSlot(), initialSlot()]);
       return true;
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Slider publish failed");
@@ -129,7 +153,9 @@ export function useStoreSliderImageForm(initialMobileSliderSelection = false) {
     storeInfo,
     productGroups,
     bannerImages: filteredBannerImages,
-    hasPublishedSliderSet: filteredBannerImages.length > 0,
+    currentSliderCount,
+    requiredSlotCount,
+    maxSliderCount: MAX_SLIDERS_PER_VIEW,
     mobileSliderSelection,
     setMobileSliderSelection,
     slots,

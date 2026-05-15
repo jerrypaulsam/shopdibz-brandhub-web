@@ -7,6 +7,7 @@ export default function StoreSliderManagementPage() {
     storeInfo,
     productGroups,
     filteredBanners,
+    currentSliderCount,
     mobileSliderSelection,
     setMobileSliderSelection,
     selectedBanner,
@@ -40,6 +41,7 @@ export default function StoreSliderManagementPage() {
           storeInfo={storeInfo}
           productGroups={productGroups}
           filteredBanners={filteredBanners}
+          currentSliderCount={currentSliderCount}
           mobileSliderSelection={mobileSliderSelection}
           setMobileSliderSelection={setMobileSliderSelection}
           selectedBanner={selectedBanner}

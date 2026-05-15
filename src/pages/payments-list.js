@@ -8,7 +8,7 @@ export default function PaymentsListPage() {
   return (
     <DashboardShell>
       <PaymentsWorkspace
-        subtitle="A cleaner seller payout workspace with route-driven tabs and direct fee-breakdown links, while still using the original Flutter payment endpoints."
+        subtitle="Track seller payouts, review fee breakdowns, and stay on top of payment status."
         title="Seller payout command center"
         {...paymentState}
         onClosePayment={paymentState.closePayment}

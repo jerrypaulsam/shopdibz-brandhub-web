@@ -1,5 +1,6 @@
 import DashboardShell from "@/src/components/dashboard/DashboardShell";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import StoreSliderImageFormPanel from "@/src/components/store/StoreSliderImageFormPanel";
 import { useStoreSliderImageForm } from "@/src/hooks/store/useStoreSliderImageForm";
 
@@ -10,7 +11,9 @@ export default function StoreSliderImageFormPage() {
     storeInfo,
     productGroups,
     bannerImages,
-    hasPublishedSliderSet,
+    currentSliderCount,
+    requiredSlotCount,
+    maxSliderCount,
     mobileSliderSelection,
     setMobileSliderSelection,
     slots,
@@ -24,6 +27,16 @@ export default function StoreSliderImageFormPage() {
     submitForm,
   } = useStoreSliderImageForm(initialMobileSliderSelection);
 
+  useEffect(() => {
+    if (!router.isReady) {
+      return;
+    }
+
+    setMobileSliderSelection(
+      String(router.query.view || "").toLowerCase() === "mobile",
+    );
+  }, [router.isReady, router.query.view, setMobileSliderSelection]);
+
   return (
     <DashboardShell>
       <div className="mx-auto max-w-[1280px] px-4 py-8 md:px-6">
@@ -34,7 +47,9 @@ export default function StoreSliderImageFormPage() {
           storeInfo={storeInfo}
           productGroups={productGroups}
           bannerImages={bannerImages}
-          hasPublishedSliderSet={hasPublishedSliderSet}
+          currentSliderCount={currentSliderCount}
+          requiredSlotCount={requiredSlotCount}
+          maxSliderCount={maxSliderCount}
           mobileSliderSelection={mobileSliderSelection}
           setMobileSliderSelection={setMobileSliderSelection}
           slots={slots}

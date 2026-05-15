@@ -4,9 +4,11 @@ import AuthField from "@/src/components/auth/AuthField";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 import AuthShell from "@/src/components/auth/AuthShell";
 import AuthTitle from "@/src/components/auth/AuthTitle";
+import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { useEmailVerifyForm } from "@/src/hooks/auth/useEmailVerifyForm";
 
 export default function InitialEmailVerifyPage() {
+  const { confirm } = useConfirm();
   const {
     otp,
     setOtp,
@@ -23,13 +25,28 @@ export default function InitialEmailVerifyPage() {
     await verifyOtp();
   }
 
+  async function handleLogout() {
+    const accepted = await confirm({
+      title: "Logout",
+      message: "Are you sure you want to log out of Brand Hub?",
+      confirmLabel: "Logout",
+      cancelLabel: "Stay Logged In",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
+    await logout();
+  }
+
   return (
     <AuthShell title="Verify Email">
       <div className="absolute right-5 top-5">
         <button
           className="rounded-sm border border-white/30 px-4 py-2 text-sm font-bold text-brand-white hover:border-brand-gold hover:text-brand-gold"
           type="button"
-          onClick={logout}
+          onClick={handleLogout}
         >
           Logout
         </button>

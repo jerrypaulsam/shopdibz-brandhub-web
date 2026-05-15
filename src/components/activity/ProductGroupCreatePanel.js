@@ -5,7 +5,7 @@ import { PRODUCT_GROUP_DISCOUNT_TYPES } from "@/src/utils/activity";
 import ActivityFileInput from "./ActivityFileInput";
 
 /**
- * @param {{ groupName: string, groupDiscountType: string, groupDiscount: string, groupImageName: string, isActionLoading: boolean, isPremium: boolean, pricingUrl: string, showOnHome: boolean, onGroupNameChange: (value: string) => void, onGroupDiscountTypeChange: (value: string) => void, onGroupDiscountChange: (value: string) => void, onShowOnHomeChange: (value: boolean) => void, onImageCropped: (payload: { fileName: string, base64: string }) => void, onSubmit: () => void }} props
+ * @param {{ groupName: string, groupDiscountType: string, groupDiscount: string, groupImageName: string, isActionLoading: boolean, isCreateDisabled: boolean, isPremium: boolean, blockedMessage: string, pricingUrl: string, showOnHome: boolean, onGroupNameChange: (value: string) => void, onGroupDiscountTypeChange: (value: string) => void, onGroupDiscountChange: (value: string) => void, onShowOnHomeChange: (value: boolean) => void, onImageCropped: (payload: { fileName: string, base64: string }) => void, onSubmit: () => void }} props
  */
 export default function ProductGroupCreatePanel({
   groupName,
@@ -13,7 +13,9 @@ export default function ProductGroupCreatePanel({
   groupDiscount,
   groupImageName,
   isActionLoading,
+  isCreateDisabled,
   isPremium,
+  blockedMessage,
   pricingUrl,
   showOnHome,
   onGroupNameChange,
@@ -24,6 +26,7 @@ export default function ProductGroupCreatePanel({
   onSubmit,
 }) {
   const [cropFile, setCropFile] = useState(null);
+  const isFormDisabled = isActionLoading || isCreateDisabled;
 
   return (
     <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
@@ -42,13 +45,20 @@ export default function ProductGroupCreatePanel({
         codes and manage visibility.
       </p>
 
+      {blockedMessage ? (
+        <div className="mt-4 rounded-sm border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+          {blockedMessage}
+        </div>
+      ) : null}
+
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <label className="block">
           <span className="text-sm font-semibold text-brand-white">Group name</span>
           <input
-            className="mt-2 min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-4 text-sm text-brand-white outline-none transition-colors focus:border-brand-gold/50"
+            className="mt-2 min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-4 text-sm text-brand-white outline-none transition-colors focus:border-brand-gold/50 disabled:cursor-not-allowed disabled:opacity-50"
             maxLength={30}
             type="text"
+            disabled={isFormDisabled}
             value={groupName}
             onChange={(event) => onGroupNameChange(event.target.value)}
           />
@@ -57,7 +67,8 @@ export default function ProductGroupCreatePanel({
         <label className="block">
           <span className="text-sm font-semibold text-brand-white">Offer type</span>
           <select
-            className="mt-2 min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-4 text-sm text-brand-white outline-none transition-colors focus:border-brand-gold/50"
+            className="mt-2 min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-4 text-sm text-brand-white outline-none transition-colors focus:border-brand-gold/50 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={isFormDisabled}
             value={groupDiscountType}
             onChange={(event) => onGroupDiscountTypeChange(event.target.value)}
           >
@@ -72,9 +83,10 @@ export default function ProductGroupCreatePanel({
         <label className="block">
           <span className="text-sm font-semibold text-brand-white">Discount</span>
           <input
-            className="mt-2 min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-4 text-sm text-brand-white outline-none transition-colors focus:border-brand-gold/50"
+            className="mt-2 min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-4 text-sm text-brand-white outline-none transition-colors focus:border-brand-gold/50 disabled:cursor-not-allowed disabled:opacity-50"
             inputMode="numeric"
             type="number"
+            disabled={isFormDisabled}
             value={groupDiscount}
             onChange={(event) => onGroupDiscountChange(event.target.value)}
           />
@@ -91,11 +103,13 @@ export default function ProductGroupCreatePanel({
             <ToggleButton
               active={showOnHome}
               label="Yes"
+              disabled={isFormDisabled}
               onClick={() => onShowOnHomeChange(true)}
             />
             <ToggleButton
               active={!showOnHome}
               label="No"
+              disabled={isFormDisabled}
               onClick={() => onShowOnHomeChange(false)}
             />
           </div>
@@ -108,6 +122,7 @@ export default function ProductGroupCreatePanel({
           fileName={groupImageName}
           helper="Upload a cover image for the group banner card. Preferred image size: 1134px x 634px."
           id="product-group-cover"
+          disabled={isFormDisabled}
           label="Group banner image"
           onChange={(event) => {
             const file = event.target.files?.[0];
@@ -123,7 +138,7 @@ export default function ProductGroupCreatePanel({
         <button
           className="min-h-11 rounded-sm bg-brand-red px-5 text-sm font-semibold text-brand-white transition-colors hover:bg-[#ff6969] disabled:cursor-not-allowed disabled:opacity-50"
           type="button"
-          disabled={isActionLoading}
+          disabled={isFormDisabled}
           onClick={onSubmit}
         >
           {isActionLoading ? "Creating..." : "Create product group"}
@@ -169,17 +184,18 @@ export default function ProductGroupCreatePanel({
 }
 
 /**
- * @param {{ active: boolean, label: string, onClick: () => void }} props
+ * @param {{ active: boolean, label: string, disabled?: boolean, onClick: () => void }} props
  */
-function ToggleButton({ active, label, onClick }) {
+function ToggleButton({ active, label, disabled = false, onClick }) {
   return (
     <button
       className={`min-h-11 rounded-sm border px-5 text-sm font-semibold transition-colors ${
         active
           ? "border-brand-gold/60 bg-brand-gold/10 text-brand-white"
           : "border-white/10 bg-black/20 text-white/65 hover:border-white/20"
-      }`}
+      } disabled:cursor-not-allowed disabled:opacity-50`}
       type="button"
+      disabled={disabled}
       onClick={onClick}
     >
       {label}

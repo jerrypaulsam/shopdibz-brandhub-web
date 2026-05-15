@@ -4,7 +4,7 @@
  */
 function extractApiErrorMessage(data) {
   if (typeof data === "string") {
-    return data.trim();
+    return sanitizeApiErrorMessage(data);
   }
 
   if (!data || typeof data !== "object") {
@@ -15,7 +15,37 @@ function extractApiErrorMessage(data) {
   const detail = "detail" in data ? data.detail : "";
   const error = "error" in data ? data.error : "";
 
-  return String(message || detail || error || "").trim();
+  return sanitizeApiErrorMessage(String(message || detail || error || ""));
+}
+
+/**
+ * @param {string} value
+ * @returns {string}
+ */
+function sanitizeApiErrorMessage(value) {
+  const normalized = String(value || "").trim();
+
+  if (!normalized || looksLikeHtmlError(normalized)) {
+    return "";
+  }
+
+  return normalized;
+}
+
+/**
+ * @param {string} value
+ * @returns {boolean}
+ */
+function looksLikeHtmlError(value) {
+  const normalized = value.trim().toLowerCase();
+
+  return (
+    normalized.startsWith("<!doctype html") ||
+    normalized.startsWith("<html") ||
+    normalized.includes("<body") ||
+    normalized.includes("<head") ||
+    normalized.includes("</html>")
+  );
 }
 
 /**

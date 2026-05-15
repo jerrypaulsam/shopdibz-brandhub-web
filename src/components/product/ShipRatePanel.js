@@ -16,7 +16,7 @@ export default function ShipRatePanel({
     <div className="space-y-6">
       <StoreSection
         title="Shipping Rate Calculator"
-        subtitle="A cleaner web version of the rate check flow from Flutter."
+        subtitle="Check estimated shipping rates before you confirm fulfilment."
       >
         <div className="grid gap-5 md:grid-cols-2">
           <StoreField label="Pickup Pin" value={form.pickupPin} onChange={(value) => setFormField("pickupPin", value)} />

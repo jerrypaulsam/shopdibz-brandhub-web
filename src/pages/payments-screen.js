@@ -8,7 +8,7 @@ export default function PaymentsScreenPage() {
   return (
     <DashboardShell>
       <PaymentsWorkspace
-        subtitle="This keeps parity with the legacy Flutter payments screen, but uses the same upgraded responsive workspace as the main payments route."
+        subtitle="Track payouts and review payment updates in a focused workspace."
         title="Payments screen"
         {...paymentState}
         onClosePayment={paymentState.closePayment}

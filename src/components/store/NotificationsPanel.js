@@ -34,7 +34,7 @@ export default function NotificationsPanel({
   return (
     <StoreSection
       title="Notifications"
-      subtitle="Seller hub alerts mirrored from the Flutter notification stream."
+      subtitle="Seller hub alerts for orders, reviews, payments, and store updates."
     >
       {message ? <p className="mb-4 text-sm text-brand-gold">{message}</p> : null}
       <div className="space-y-3">

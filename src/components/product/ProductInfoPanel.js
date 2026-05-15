@@ -379,7 +379,7 @@ export default function ProductInfoPanel({
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           {[
-            ["enablePrebooking", "Enable Prebooking", "Platinum behavior on Flutter is kept as a normal toggle on web for now."],
+            ["enablePrebooking", "Enable Prebooking", "Turn this on when customers should be allowed to place advance orders before stock is ready."],
             ["showSizeChart", "Show Size Chart", "Enable this when the store-level size guide should appear for this product."],
             ["shippingProfile", "Shipping Profile", "Turn this on when the product has restricted delivery zones instead of all-India shipping."],
           ].map(([key, label, helper]) => (

@@ -22,9 +22,11 @@ import { ACTIVITY_PANELS } from "@/src/utils/activity";
  * @property {boolean} isActionLoading
  * @property {boolean} isLoading
  * @property {boolean} isPremium
+ * @property {string} planCode
  * @property {string} message
  * @property {string} month
  * @property {string} pricingUrl
+ * @property {string} productGroupBlockedMessage
  * @property {string} selectedInvoiceLabel
  * @property {boolean} showOnHome
  * @property {string} specialFileName
@@ -76,7 +78,7 @@ export default function ActivityWorkspace(props) {
           <div className="mt-4 space-y-3">
             <MetaCard
               label="Store plan"
-              value={props.isPremium ? "Premium" : "Standard"}
+              value={props.planCode || (props.isPremium ? "Premium" : "Standard")}
             />
             <MetaCard
               label="Product groups"
@@ -135,7 +137,9 @@ export default function ActivityWorkspace(props) {
               groupImageName={props.groupImageName}
               groupName={props.groupName}
               isActionLoading={props.isActionLoading}
+              isCreateDisabled={!props.isPremium}
               isPremium={props.isPremium}
+              blockedMessage={props.productGroupBlockedMessage}
               pricingUrl={props.pricingUrl}
               showOnHome={props.showOnHome}
               onImageCropped={props.setGroupImageAsset}
@@ -217,17 +221,6 @@ export default function ActivityWorkspace(props) {
             </Link>
           </section>
 
-          <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
-            <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-brand-white">
-              Flow notes
-            </h2>
-            <ul className="mt-4 space-y-3 text-sm leading-6 text-white/60">
-              <li>Bulk update keeps product vs variation mode in the URL.</li>
-              <li>Special uploads keep the selected promo type in the URL.</li>
-              <li>Invoice month and year stay shareable for finance follow-up.</li>
-              <li>Product group creation respects premium and mobile checks from Flutter.</li>
-            </ul>
-          </section>
         </aside>
       </section>
     </div>

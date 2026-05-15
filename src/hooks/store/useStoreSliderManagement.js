@@ -71,6 +71,7 @@ export function useStoreSliderManagement() {
     ? "1080 x 1350 px (4:5)"
     : "1920 x 720 px (16:6)";
   const canUseExternalLinks = storeInfo?.plan === "P";
+  const currentSliderCount = filteredBanners.length;
 
   function selectBanner(banner) {
     setSelectedBanner(banner);
@@ -171,6 +172,7 @@ export function useStoreSliderManagement() {
     storeInfo,
     productGroups,
     filteredBanners,
+    currentSliderCount,
     mobileSliderSelection,
     setMobileSliderSelection,
     selectedBanner,

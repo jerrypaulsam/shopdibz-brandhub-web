@@ -43,7 +43,7 @@ export default function BulkUpdatePanel({
         <ActivityFileInput
           accept=".xls,.xlsx,.xlsm"
           fileName={fileName}
-          helper="Supported: XLS, XLSX, XLSM. Flutter used the same bulk-sheet flow."
+          helper="Supported: XLS, XLSX, XLSM."
           id="bulk-update-file"
           label="Bulk sheet"
           onChange={onFileChange}

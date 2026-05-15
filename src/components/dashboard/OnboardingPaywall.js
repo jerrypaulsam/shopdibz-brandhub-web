@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { clearAuthSession, logoutSeller } from "@/src/api/auth";
+import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { logScreenView } from "@/src/api/analytics";
 import { API_BASE_URL, SHOPDIBZ_URLS } from "@/src/api/config";
 
@@ -16,6 +17,7 @@ const advantages = [
  * @param {{ storeInfo: any }} props
  */
 export default function OnboardingPaywall({ storeInfo }) {
+  const { confirm } = useConfirm();
   const [clickedButton, setClickedButton] = useState(false);
 
   useEffect(() => {
@@ -27,6 +29,17 @@ export default function OnboardingPaywall({ storeInfo }) {
   }, [storeInfo?.url]);
 
   async function handleLogout() {
+    const accepted = await confirm({
+      title: "Logout",
+      message: "Are you sure you want to log out of Brand Hub?",
+      confirmLabel: "Logout",
+      cancelLabel: "Stay Logged In",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
     await logoutSeller().catch(() => null);
     clearAuthSession();
     if (typeof window !== "undefined") {

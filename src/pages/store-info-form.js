@@ -239,7 +239,7 @@ export default function StoreInfoFormPage() {
 
               <CollapsibleStoreSection
                 title="Store Theme"
-                subtitle="Premium theme options mirrored from the Flutter selector, but organised for web."
+                subtitle="Choose the storefront theme that best matches your brand."
                 defaultOpen={focusSection === "theme"}
               >
                 <ThemePicker
@@ -437,7 +437,7 @@ export default function StoreInfoFormPage() {
               <StoreSection title="Editing Guidance">
                 <div className="space-y-4 text-sm leading-6 text-white/60">
                   <p>Core storefront settings are grouped to make repeated updates quicker on desktop and mobile.</p>
-                  <p>Initial setup keeps address and store ID visible because those are required to complete the original Flutter onboarding contract.</p>
+                  <p>Initial setup keeps address and store ID visible because those details are required to complete store activation.</p>
                   <p>Later edits keep those setup-only fields tucked away so the seller is not forced through the same long form every time.</p>
                 </div>
               </StoreSection>

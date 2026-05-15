@@ -1,5 +1,5 @@
 /**
- * @param {{ id: string, label: string, helper: string, fileName: string, accept: string, onChange: (event: import("react").ChangeEvent<HTMLInputElement>) => void }} props
+ * @param {{ id: string, label: string, helper: string, fileName: string, accept: string, disabled?: boolean, onChange: (event: import("react").ChangeEvent<HTMLInputElement>) => void }} props
  */
 export default function ActivityFileInput({
   id,
@@ -7,11 +7,16 @@ export default function ActivityFileInput({
   helper,
   fileName,
   accept,
+  disabled = false,
   onChange,
 }) {
   return (
     <label
-      className="block cursor-pointer rounded-sm border border-dashed border-white/20 bg-black/20 p-5 transition-colors hover:border-brand-gold/40"
+      className={`block rounded-sm border border-dashed border-white/20 bg-black/20 p-5 transition-colors ${
+        disabled
+          ? "cursor-not-allowed opacity-50"
+          : "cursor-pointer hover:border-brand-gold/40"
+      }`}
       htmlFor={id}
     >
       <input
@@ -19,6 +24,7 @@ export default function ActivityFileInput({
         className="sr-only"
         type="file"
         accept={accept}
+        disabled={disabled}
         onChange={(event) => {
           onChange(event);
           event.target.value = "";
