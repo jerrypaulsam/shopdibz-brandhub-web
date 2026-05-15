@@ -13,7 +13,11 @@ import {
 import { getDashboardSession } from "@/src/api/dashboard";
 import { logScreenView } from "@/src/api/analytics";
 import { useConfirm } from "@/src/components/app/ConfirmProvider";
-import { firstQueryValue, normalizeOrderDetail } from "@/src/utils/orders";
+import {
+  firstQueryValue,
+  normalizeOrderDetail,
+  resolveOrderDocumentUrl,
+} from "@/src/utils/orders";
 
 export function useOrderDetail() {
   const router = useRouter();
@@ -232,9 +236,9 @@ export function useOrderDetail() {
 
       const data = await fetchOrderInvoice(orderId);
 
-      console.log("data", data);
-
-      const invoicePayload = String(data?.data || data?.url || "");
+      const invoicePayload = resolveOrderDocumentUrl(
+        String(data?.data || data?.url || ""),
+      );
 
       if (invoicePayload && typeof window !== "undefined") {
         window.open(invoicePayload, "_blank", "noopener,noreferrer");
@@ -245,8 +249,10 @@ export function useOrderDetail() {
 
       setActionMessage("Invoice opened in a new tab.");
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Invoice unavailable";
       setActionError(
-        error instanceof Error ? error.message : "Invoice unavailable",
+        String(errorMessage).includes("404") ? "Invoice unavailable" : errorMessage,
       );
     } finally {
       setBusyAction("");
@@ -264,7 +270,9 @@ export function useOrderDetail() {
         return;
       }
 
-      const inlineLabelUrl = String(order?.labelUrl || "");
+      const inlineLabelUrl = resolveOrderDocumentUrl(
+        String(order?.labelUrl || ""),
+      );
 
       if (inlineLabelUrl && typeof window !== "undefined") {
         window.open(inlineLabelUrl, "_blank", "noopener,noreferrer");
@@ -273,7 +281,9 @@ export function useOrderDetail() {
       }
 
       const data = await fetchOrderShippingLabel(orderId);
-      const labelUrl = String(data?.data || data?.url || "");
+      const labelUrl = resolveOrderDocumentUrl(
+        String(data?.data || data?.url || ""),
+      );
 
       if (labelUrl && typeof window !== "undefined") {
         window.open(labelUrl, "_blank", "noopener,noreferrer");
@@ -286,6 +296,31 @@ export function useOrderDetail() {
         error instanceof Error
           ? error.message
           : "Shipping label unavailable",
+      );
+    } finally {
+      setBusyAction("");
+    }
+  }
+
+  async function openCreditNote() {
+    try {
+      setBusyAction("credit-note");
+      setActionError("");
+      setActionMessage("");
+
+      const creditNoteUrl = resolveOrderDocumentUrl(
+        String(order?.creditNoteUrl || order?.CnUrl || ""),
+      );
+
+      if (creditNoteUrl && typeof window !== "undefined") {
+        window.open(creditNoteUrl, "_blank", "noopener,noreferrer");
+        setActionMessage("Credit note opened in a new tab.");
+      } else {
+        setActionError("Credit note unavailable");
+      }
+    } catch (error) {
+      setActionError(
+        error instanceof Error ? error.message : "Credit note unavailable",
       );
     } finally {
       setBusyAction("");
@@ -355,6 +390,7 @@ export function useOrderDetail() {
     submitCancel,
     submitMessage,
     openInvoice,
+    openCreditNote,
     openShippingLabel,
     refresh: loadOrder,
   };

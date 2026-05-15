@@ -1,5 +1,6 @@
 import { getDashboardSession, fetchStoreInfo } from "./dashboard";
 import { getCachedStoreInfo, getSellerStoreUrl } from "./auth";
+import { resolveApiErrorMessage } from "./error";
 
 /**
  * @param {string} url
@@ -27,7 +28,12 @@ async function getPaymentJson(url, options = {}) {
 
   if (!response.ok) {
     throw new Error(
-      data?.message || data?.detail || data?.error || "Payment request failed",
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Payment request failed",
+        notFound: "Payment details unavailable.",
+      }),
     );
   }
 

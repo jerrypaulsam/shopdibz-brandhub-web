@@ -3,10 +3,13 @@ import { useRouter } from "next/router";
 import {
   deleteProductGroup,
   fetchProductGroups,
+  updateProductGroupCover,
   updateProductGroup,
+  uploadProductGroupSheet,
 } from "@/src/api/products";
 import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { useToast } from "@/src/components/app/ToastProvider";
+import { readFileAsBase64 } from "@/src/utils/activity";
 import { normalizeProductGroupList } from "@/src/utils/product";
 
 export function useProductGroups() {
@@ -53,6 +56,13 @@ export function useProductGroups() {
       setLoadingGroupId(Number(group.groupId || 0));
       setMessage("");
       await updateProductGroup(group);
+      if (group.imageBase64) {
+        await updateProductGroupCover({
+          groupId: Number(group.groupId || 0),
+          imageBase64: group.imageBase64,
+          fileName: group.fileName || "group-cover.jpg",
+        });
+      }
       setGroups((currentGroups) =>
         currentGroups.map((currentGroup) =>
           Number(currentGroup?.id || 0) === Number(group.groupId || 0)
@@ -115,6 +125,53 @@ export function useProductGroups() {
     }
   }
 
+  async function uploadGroupSheet(groupId, file) {
+    const nextGroupId = Number(groupId || 0);
+
+    if (!nextGroupId || !file) {
+      return false;
+    }
+
+    const lowerName = String(file.name || "").toLowerCase();
+    const isAcceptedFile =
+      lowerName.endsWith(".xls") ||
+      lowerName.endsWith(".xlsx") ||
+      lowerName.endsWith(".xlsm");
+
+    if (!isAcceptedFile) {
+      const nextMessage = "Upload an XLS, XLSX, or XLSM product group sheet.";
+      setMessage(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
+      return false;
+    }
+
+    try {
+      setIsSaving(true);
+      setLoadingGroupId(nextGroupId);
+      setMessage("");
+      const fileBase64 = await readFileAsBase64(file);
+      await uploadProductGroupSheet({
+        groupId: nextGroupId,
+        fileBase64,
+        fileName: file.name || `prdtGroup-${nextGroupId}.xlsm`,
+      });
+      const nextMessage =
+        "Sheet has been uploaded. We will notify you once products are added.";
+      setMessage(nextMessage);
+      showToast({ message: nextMessage, type: "success" });
+      return true;
+    } catch (error) {
+      const nextMessage =
+        error instanceof Error ? error.message : "Product group sheet could not be uploaded";
+      setMessage(nextMessage);
+      showToast({ message: nextMessage, type: "error" });
+      return false;
+    } finally {
+      setLoadingGroupId(0);
+      setIsSaving(false);
+    }
+  }
+
   return {
     groups,
     isLoading,
@@ -124,5 +181,6 @@ export function useProductGroups() {
     openGroup,
     removeGroup,
     saveGroup,
+    uploadGroupSheet,
   };
 }

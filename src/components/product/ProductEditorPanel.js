@@ -8,13 +8,12 @@ import {
 } from "@/src/data/product-variation-options";
 
 /**
- * @param {{ form: any, categories: any[], subCategories: any[], itemSubCategories: any[], fieldErrors: Record<string, string>, setFormField: (field: string, value: any) => void, addAttribute: () => void, updateAttribute: (id: number, key: "key" | "value", value: string) => void, removeAttribute: (id: number) => void, addKeyword: (value: string) => string, removeKeyword: (value: string) => void, toggleShipZone: (value: string) => void, toggleShipExZone: (value: string) => void, submit: () => Promise<void>, isSubmitting: boolean }} props
+ * @param {{ form: any, categoryTrail: string, isBookCategory: boolean, fieldErrors: Record<string, string>, setFormField: (field: string, value: any) => void, addAttribute: () => void, updateAttribute: (id: number, key: "key" | "value", value: string) => void, removeAttribute: (id: number) => void, addKeyword: (value: string) => string, removeKeyword: (value: string) => void, toggleShipZone: (value: string) => void, toggleShipExZone: (value: string) => void, submit: () => Promise<void>, isSubmitting: boolean }} props
  */
 export default function ProductEditorPanel({
   form,
-  categories,
-  subCategories,
-  itemSubCategories,
+  categoryTrail,
+  isBookCategory,
   fieldErrors = {},
   setFormField,
   addAttribute,
@@ -41,71 +40,31 @@ export default function ProductEditorPanel({
 
   return (
     <div className="space-y-6">
-      <StoreSection title="Catalog Path & Identity">
+      {categoryTrail ? (
+        <StoreSection title="Catalog Context">
+          <div className="grid gap-5 md:grid-cols-2">
+            <label className="block md:col-span-2">
+              <span className="text-sm font-semibold text-white/80">Category Path</span>
+              <input
+                className="mt-3 w-full cursor-not-allowed rounded-[15px] border border-white/15 bg-black/20 px-4 py-3 text-base text-white/65 outline-none"
+                type="text"
+                value={categoryTrail}
+                disabled
+                readOnly
+              />
+            </label>
+          </div>
+        </StoreSection>
+      ) : null}
+
+      <StoreSection title="Core Details">
         <div className="grid gap-5 md:grid-cols-2">
-          <label className="block">
-            <span className="text-sm font-semibold text-white/80">Category</span>
-            <select
-              className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
-              value={form.categorySlug}
-              onChange={(event) => setFormField("categorySlug", event.target.value)}
-            >
-              <option className="bg-black" value="">Select category</option>
-              {categories.map((category) => (
-                <option className="bg-black" key={category.slug} value={category.slug}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            {fieldErrors.categorySlug ? (
-              <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.categorySlug}</p>
-            ) : null}
-          </label>
-          <label className="block">
-            <span className="text-sm font-semibold text-white/80">Subcategory</span>
-            <select
-              className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
-              value={form.subCategorySlug}
-              onChange={(event) => setFormField("subCategorySlug", event.target.value)}
-            >
-              <option className="bg-black" value="">Select subcategory</option>
-              {subCategories.map((subCategory) => (
-                <option className="bg-black" key={subCategory.slug} value={subCategory.slug}>
-                  {subCategory.name}
-                </option>
-              ))}
-            </select>
-            {fieldErrors.subCategorySlug ? (
-              <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.subCategorySlug}</p>
-            ) : null}
-          </label>
-          {itemSubCategories.length ? (
-            <label className="block">
-              <span className="text-sm font-semibold text-white/80">Item Subcategory</span>
-              <select
-                className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
-                value={form.itemSubCategorySlug}
-                onChange={(event) => setFormField("itemSubCategorySlug", event.target.value)}
-              >
-                <option className="bg-black" value="">Select item subcategory</option>
-                {itemSubCategories.map((itemSubCategory) => (
-                  <option
-                    className="bg-black"
-                    key={itemSubCategory.slug}
-                    value={itemSubCategory.slug}
-                  >
-                    {itemSubCategory.name}
-                  </option>
-                ))}
-                </select>
-                {fieldErrors.itemSubCategorySlug ? (
-                  <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.itemSubCategorySlug}</p>
-                ) : null}
-              </label>
-          ) : null}
           <StoreField label="Title" value={form.title} error={fieldErrors.title} onChange={(value) => setFormField("title", value)} />
-          <StoreField label="Brand" value={form.brand} onChange={(value) => setFormField("brand", value)} />
-          <StoreField label="Publisher" value={form.publisher} onChange={(value) => setFormField("publisher", value)} />
+          {!isBookCategory ? (
+            <StoreField label="Brand" value={form.brand} error={fieldErrors.brand} onChange={(value) => setFormField("brand", value)} />
+          ) : (
+            <StoreField label="Publisher" value={form.publisher} error={fieldErrors.publisher} onChange={(value) => setFormField("publisher", value)} />
+          )}
         </div>
       </StoreSection>
 
@@ -120,7 +79,7 @@ export default function ProductEditorPanel({
           ) : null}
           <StoreField label="Shipping Cost" value={form.shipCost} onChange={(value) => setFormField("shipCost", value)} />
           <StoreField label="HSN Code" value={form.hsnCode} error={fieldErrors.hsnCode} onChange={(value) => setFormField("hsnCode", value)} />
-          <StoreField label="MPN / GTIN" value={form.mpn} onChange={(value) => setFormField("mpn", value)} />
+          <StoreField label={isBookCategory ? "ISBN" : "MPN / GTIN"} value={form.mpn} onChange={(value) => setFormField("mpn", value)} />
           <label className="block">
             <span className="text-sm font-semibold text-white/80">GST Rate</span>
             <select
@@ -148,6 +107,7 @@ export default function ProductEditorPanel({
             <span className="text-sm font-semibold text-white/80">Keywords</span>
             <input
               className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none placeholder:text-white/30"
+              maxLength={10}
               placeholder="Press enter or comma after each keyword"
               type="text"
               onKeyDown={handleKeywordKeyDown}
@@ -175,11 +135,13 @@ export default function ProductEditorPanel({
             error={fieldErrors.description}
             onChange={(value) => setFormField("description", value)}
           />
-          <StoreField
-            label="Brand Certificate URL"
-            value={form.brandCertificate}
-            onChange={(value) => setFormField("brandCertificate", value)}
-          />
+          {!isBookCategory ? (
+            <StoreField
+              label="Brand Certificate URL"
+              value={form.brandCertificate}
+              onChange={(value) => setFormField("brandCertificate", value)}
+            />
+          ) : null}
           <StoreField
             label="Video URL"
             value={form.videoUrl}

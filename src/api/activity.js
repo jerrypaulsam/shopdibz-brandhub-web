@@ -1,5 +1,6 @@
 import { getDashboardSession } from "./dashboard";
 import { getCachedStoreInfo, getSellerStoreUrl } from "./auth";
+import { resolveApiErrorMessage } from "./error";
 
 function resolveActivitySession() {
   const session = getDashboardSession();
@@ -28,7 +29,14 @@ async function postActivityJson(url, payload) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data?.message || data?.detail || data?.error || "Activity request failed");
+    throw new Error(
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Activity request failed",
+        paymentRequired: "Please upgrade your plan to continue.",
+      }),
+    );
   }
 
   return data;

@@ -1,8 +1,9 @@
 import { useState } from "react";
+import AspectCropDialog from "@/src/components/media/AspectCropDialog";
 import { normalizeRemoteAssetUrl } from "@/src/utils/product";
 
 /**
- * @param {{ groups: any[], isLoading: boolean, isSaving: boolean, loadingGroupId: number, message: string, onOpenGroup: (groupId: number) => Promise<void>, onSaveGroup: (group: { groupId: number, name: string, active: boolean, show: boolean }) => Promise<boolean>, onDeleteGroup: (groupId: number) => Promise<boolean> }} props
+ * @param {{ groups: any[], isLoading: boolean, isSaving: boolean, loadingGroupId: number, message: string, onOpenGroup: (groupId: number) => Promise<void>, onSaveGroup: (group: { groupId: number, name: string, active: boolean, show: boolean, imageBase64?: string, fileName?: string }) => Promise<boolean>, onDeleteGroup: (groupId: number) => Promise<boolean>, onUploadGroupSheet: (groupId: number, file: File) => Promise<boolean> }} props
  */
 export default function ProductGroupsPanel({
   groups,
@@ -13,12 +14,17 @@ export default function ProductGroupsPanel({
   onOpenGroup,
   onSaveGroup,
   onDeleteGroup,
+  onUploadGroupSheet,
 }) {
   const [editingGroup, setEditingGroup] = useState(null);
   const [editName, setEditName] = useState("");
   const [editStatus, setEditStatus] = useState("Active");
   const [editHome, setEditHome] = useState("No");
   const [editError, setEditError] = useState("");
+  const [cropFile, setCropFile] = useState(null);
+  const [editImageBase64, setEditImageBase64] = useState("");
+  const [editImageName, setEditImageName] = useState("");
+  const [editImagePreview, setEditImagePreview] = useState("");
 
   function openEditor(group) {
     setEditingGroup(group);
@@ -26,6 +32,9 @@ export default function ProductGroupsPanel({
     setEditStatus(group?.active ? "Active" : "Inactive");
     setEditHome(group?.show ? "Yes" : "No");
     setEditError("");
+    setEditImageBase64("");
+    setEditImageName("");
+    setEditImagePreview(normalizeRemoteAssetUrl(group?.cImg || group?.image || ""));
   }
 
   async function submitEdit(event) {
@@ -41,10 +50,13 @@ export default function ProductGroupsPanel({
       name: String(editName).trim(),
       active: editStatus === "Active",
       show: editHome === "Yes",
+      imageBase64: editImageBase64 || undefined,
+      fileName: editImageName || undefined,
     });
 
     if (isSaved) {
       setEditingGroup(null);
+      setCropFile(null);
     }
   }
 
@@ -116,7 +128,7 @@ export default function ProductGroupsPanel({
                     {/* <p className="text-sm font-semibold text-white/50">
                       Open the group to review included products.
                     </p> */}
-                    <div className="grid grid-cols-3 gap-2 sm:flex">
+                    <div className="grid grid-cols-2 gap-2 sm:flex">
                       <button
                         className="rounded-sm border border-brand-gold/40 bg-brand-gold/10 px-4 py-2 text-sm font-bold text-brand-gold hover:bg-brand-gold hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
                         type="button"
@@ -125,6 +137,28 @@ export default function ProductGroupsPanel({
                       >
                         Edit
                       </button>
+                      <label
+                        className={`rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white ${
+                          isSaving
+                            ? "cursor-not-allowed opacity-60"
+                            : "cursor-pointer hover:border-brand-gold hover:text-brand-gold"
+                        }`}
+                      >
+                        <input
+                          className="hidden"
+                          type="file"
+                          accept=".xls,.xlsx,.xlsm"
+                          disabled={isSaving}
+                          onChange={async (event) => {
+                            const file = event.target.files?.[0];
+                            event.target.value = "";
+                            if (file) {
+                              await onUploadGroupSheet(groupId, file);
+                            }
+                          }}
+                        />
+                        {isGroupLoading ? "Uploading..." : "Upload Sheet"}
+                      </label>
                       <button
                         className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-60"
                         type="button"
@@ -221,6 +255,51 @@ export default function ProductGroupsPanel({
                 </label>
               </div>
 
+              <div className="rounded-sm border border-white/10 bg-black/20 p-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <div className="h-24 w-full overflow-hidden rounded-sm border border-white/10 bg-black/25 sm:w-40">
+                    {editImagePreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        alt={editName || "Product group cover"}
+                        className="h-full w-full object-cover"
+                        src={editImagePreview}
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-xs font-semibold text-white/35">
+                        No cover image
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/45">
+                      Cover Image
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-white/55">
+                      Upload and crop a fresh banner image for this product group card.
+                    </p>
+                    <label className="mt-3 inline-flex cursor-pointer items-center rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold">
+                      <input
+                        className="hidden"
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          event.target.value = "";
+                          if (file) {
+                            setCropFile(file);
+                          }
+                        }}
+                      />
+                      {editImageName ? "Change cover image" : "Upload cover image"}
+                    </label>
+                    {editImageName ? (
+                      <p className="mt-2 text-xs text-brand-gold">{editImageName}</p>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+
               {editError ? <p className="text-sm font-semibold text-red-300">{editError}</p> : null}
             </div>
 
@@ -243,6 +322,22 @@ export default function ProductGroupsPanel({
           </form>
         </div>
       ) : null}
+      <AspectCropDialog
+        open={Boolean(cropFile)}
+        file={cropFile}
+        title="Crop Product Group Cover"
+        aspectRatio={1134 / 634}
+        outputWidth={1134}
+        outputHeight={634}
+        outputMimeType="image/jpeg"
+        onCancel={() => setCropFile(null)}
+        onConfirm={({ dataUrl, base64, fileName }) => {
+          setEditImageBase64(base64);
+          setEditImageName(fileName);
+          setEditImagePreview(dataUrl);
+          setCropFile(null);
+        }}
+      />
     </div>
   );
 }

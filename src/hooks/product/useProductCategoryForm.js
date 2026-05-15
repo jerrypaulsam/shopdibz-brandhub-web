@@ -63,11 +63,6 @@ export function useProductCategoryForm() {
 
   function chooseVariantMode(value) {
     setError("");
-    if (draftApi.draft.listingMode === "bulk") {
-      draftApi.updateDraft({
-        listingMode: "single",
-      });
-    }
     draftApi.updateDraft({
       variantMode: value,
     });
@@ -82,7 +77,6 @@ export function useProductCategoryForm() {
     if (value === "bulk") {
       draftApi.updateDraft({
         listingMode: value,
-        variantMode: "without-variant",
         variantType: "",
         variations: [],
       });

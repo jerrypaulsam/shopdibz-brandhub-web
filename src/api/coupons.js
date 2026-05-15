@@ -1,4 +1,5 @@
 import { getDashboardSession } from "./dashboard";
+import { resolveApiErrorMessage } from "./error";
 
 /**
  * @param {string} url
@@ -18,7 +19,12 @@ async function postCouponJson(url, payload) {
 
   if (!response.ok) {
     throw new Error(
-      data?.message || data?.detail || data?.error || "Coupon request failed",
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Coupon request failed",
+        notFound: "Coupon unavailable.",
+      }),
     );
   }
 
@@ -44,7 +50,12 @@ async function getCouponJson(url, query) {
 
   if (!response.ok) {
     throw new Error(
-      data?.message || data?.detail || data?.error || "Coupon request failed",
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Coupon request failed",
+        notFound: "Coupon unavailable.",
+      }),
     );
   }
 

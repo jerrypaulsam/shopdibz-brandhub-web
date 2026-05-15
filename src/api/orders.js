@@ -1,5 +1,6 @@
 import { getDashboardSession } from "./dashboard";
 import { getCachedStoreInfo, getSellerStoreUrl } from "./auth";
+import { resolveApiErrorMessage } from "./error";
 
 /**
  * @param {string} url
@@ -24,7 +25,12 @@ async function postOrderJson(url, options = {}) {
 
   if (!response.ok) {
     throw new Error(
-      data?.message || data?.detail || data?.error || "Order request failed",
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Order request failed",
+        notFound: "Order details unavailable.",
+      }),
     );
   }
 
@@ -59,7 +65,12 @@ async function getOrderJson(url, options = {}) {
 
   if (!response.ok) {
     throw new Error(
-      data?.message || data?.detail || data?.error || "Order request failed",
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Order request failed",
+        notFound: "Order details unavailable.",
+      }),
     );
   }
 
@@ -161,12 +172,12 @@ export function fetchOrderInvoice(orderId) {
   const storeUrl =
     getSellerStoreUrl() || getCachedStoreInfo()?.url || session.storeUrl;
 
-  return getOrderJson(`/api/payments/invoice/${storeUrl}/order/${orderId}/web/`, {
+  return getOrderJson("/api/orders/invoice", {
     accessToken: session.accessToken,
-    // query: {
-    //   storeUrl,
-    //   orderId,
-    // },
+    query: {
+      storeUrl,
+      orderId,
+    },
   });
 }
 

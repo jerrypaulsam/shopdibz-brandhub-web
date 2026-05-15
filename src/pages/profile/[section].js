@@ -70,7 +70,12 @@ function renderSection(section, props) {
   }
 
   if (section === "store-sliders") {
-    return <StoreSlidersSection bannerImages={props.bannerImages} />;
+    return (
+      <StoreSlidersSection
+        storeInfo={props.storeInfo}
+        bannerImages={props.bannerImages}
+      />
+    );
   }
 
   if (section === "header-image") {

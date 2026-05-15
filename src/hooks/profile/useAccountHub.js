@@ -88,6 +88,11 @@ export function useAccountHub(section) {
     false;
 
   async function submitHeaderImage() {
+    if (!storeInfo?.prem) {
+      setMessage("Please upgrade to add a Website Header Image.");
+      return false;
+    }
+
     if (!headerBase64) {
       setMessage("Select a header image first.");
       return false;
@@ -117,6 +122,11 @@ export function useAccountHub(section) {
   }
 
   async function removeHeaderImage() {
+    if (!storeInfo?.prem) {
+      setMessage("Please upgrade to add a Website Header Image.");
+      return false;
+    }
+
     setIsSubmitting(true);
     setMessage("");
 

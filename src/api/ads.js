@@ -1,4 +1,5 @@
 import { getDashboardSession, fetchStoreInfo } from "./dashboard";
+import { resolveApiErrorMessage } from "./error";
 
 /**
  * @param {string} url
@@ -17,7 +18,14 @@ async function postAdsJson(url, payload) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data?.message || data?.detail || data?.error || "Campaign request failed");
+    throw new Error(
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Campaign request failed",
+        notFound: "Campaign unavailable.",
+      }),
+    );
   }
 
   return data;
@@ -47,7 +55,14 @@ async function getAdsJson(url, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data?.message || data?.detail || data?.error || "Campaign request failed");
+    throw new Error(
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Campaign request failed",
+        notFound: "Campaign unavailable.",
+      }),
+    );
   }
 
   return data;

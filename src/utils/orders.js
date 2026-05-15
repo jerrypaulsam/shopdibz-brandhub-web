@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "@/src/api/config";
+
 export const ORDER_TABS = [
   {
     slug: "pending",
@@ -354,12 +356,37 @@ export function normalizeOrderDetail(raw) {
     shipCompany: order?.shipCompany ?? order?.comp ?? "",
     assistedShip: Boolean(order?.assistedShip),
     rto: Boolean(order?.rto),
-    labelUrl: order?.labelUrl || "",
+    labelUrl: resolveOrderDocumentUrl(order?.labelUrl || ""),
+    creditNoteUrl: resolveOrderDocumentUrl(
+      order?.CnUrl ?? order?.cnUrl ?? order?.creditNoteUrl ?? "",
+    ),
     customizationText:
       order?.customizationText ?? order?.cText ?? "",
     userCode: order?.userCode ?? order?.uCode ?? "",
     pickUpSchedule: order?.pickUpSchedule ?? order?.pSch ?? "",
   };
+}
+
+/**
+ * @param {string} value
+ * @returns {string}
+ */
+export function resolveOrderDocumentUrl(value) {
+  const source = String(value || "").trim();
+
+  if (!source) {
+    return "";
+  }
+
+  try {
+    return new URL(source).toString();
+  } catch {
+    try {
+      return new URL(source, API_BASE_URL).toString();
+    } catch {
+      return source;
+    }
+  }
 }
 
 /**

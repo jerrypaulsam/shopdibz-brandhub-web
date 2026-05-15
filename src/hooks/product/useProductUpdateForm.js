@@ -1,19 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchProductDetail, updateExistingProduct } from "@/src/api/products";
 import { useToast } from "@/src/components/app/ToastProvider";
+import { getProductCategories } from "@/src/data/product-catalog";
 import {
   buildAttributePayload,
+  getProductCategoryTrail,
   encodePseudoArray,
   parseProductAttributes,
   parsePseudoArray,
   attributeMapToRows,
 } from "@/src/utils/product";
-import {
-  getProductCategories,
-  getSubCategories,
-  getItemSubCategories,
-} from "@/src/data/product-catalog";
 
 /**
  * @returns {{
@@ -23,9 +20,9 @@ import {
  * isSubmitting: boolean,
  * error: string,
  * success: string,
- * categories: any[],
- * subCategories: any[],
- * itemSubCategories: any[],
+ * categoryTrail: string,
+ * isBookCategory: boolean,
+ * fieldErrors: Record<string, string>,
  * addAttribute: () => void,
  * updateAttribute: (id: number, key: "key" | "value", value: string) => void,
  * removeAttribute: (id: number) => void,
@@ -36,17 +33,15 @@ import {
  * submit: () => Promise<void>,
  * slug: string,
  * variantMode: string,
- * }}
+ * }} [options]
  */
-export function useProductUpdateForm() {
+export function useProductUpdateForm(options = {}) {
   const router = useRouter();
   const { showToast } = useToast();
+  const enabled = options.enabled ?? true;
   const slug = Array.isArray(router.query.slug) ? router.query.slug[0] : String(router.query.slug || "");
 
   const [form, setForm] = useState({
-    categorySlug: "",
-    subCategorySlug: "",
-    itemSubCategorySlug: "",
     title: "",
     brand: "",
     brandCertificate: "",
@@ -74,25 +69,17 @@ export function useProductUpdateForm() {
     videoUrl: "",
     variants: false,
   });
+  const [categoryTrail, setCategoryTrail] = useState("");
+  const [isBookCategory, setIsBookCategory] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState("");
 
-  const categories = useMemo(() => getProductCategories(), []);
-  const subCategories = useMemo(
-    () => getSubCategories(form.categorySlug),
-    [form.categorySlug],
-  );
-  const itemSubCategories = useMemo(
-    () => getItemSubCategories(form.categorySlug, form.subCategorySlug),
-    [form.categorySlug, form.subCategorySlug],
-  );
-
   useEffect(() => {
     async function load() {
-      if (!slug) {
+      if (!enabled || !slug) {
         return;
       }
 
@@ -100,20 +87,12 @@ export function useProductUpdateForm() {
         setIsLoading(true);
         setError("");
         const data = await fetchProductDetail(slug);
-        const categoriesList = getProductCategories();
-        const selectedCategory =
-          categoriesList.find((category) => category.id === data.category) || null;
-        const selectedSubCategory =
-          selectedCategory?.sub?.find((subCategory) => subCategory.id === data.sub_cat) || null;
-        const selectedItemSubCategory =
-          selectedSubCategory?.itemSub?.find((item) => item.id === data.item_sub_cat) ||
-          null;
         const attributes = parseProductAttributes(data.prdtInfo?.att);
+        const categories = getProductCategories();
 
+        setCategoryTrail(resolveUpdateCategoryTrail(data, categories));
+        setIsBookCategory(Number(data.sub_cat || data.subCat || 0) === 50);
         setForm({
-          categorySlug: selectedCategory?.slug || "",
-          subCategorySlug: selectedSubCategory?.slug || "",
-          itemSubCategorySlug: selectedItemSubCategory?.slug || "",
           title: data.title || "",
           brand: data.prdtInfo?.brd || "",
           brandCertificate: data.prdtInfo?.brdCert || "",
@@ -149,7 +128,7 @@ export function useProductUpdateForm() {
     }
 
     load();
-  }, [slug]);
+  }, [enabled, slug]);
 
   function setFormField(field, value) {
     setFieldErrors((current) => ({ ...current, [field]: "" }));
@@ -227,7 +206,7 @@ export function useProductUpdateForm() {
       setIsSubmitting(true);
       setError("");
       setSuccess("");
-      const errors = validateProductUpdateForm(form, itemSubCategories.length > 0);
+      const errors = validateProductUpdateForm(form, isBookCategory);
 
       if (Object.keys(errors).length) {
         const nextMessage = Object.values(errors)[0];
@@ -238,14 +217,6 @@ export function useProductUpdateForm() {
       }
 
       setFieldErrors({});
-
-      const selectedCategory = categories.find((category) => category.slug === form.categorySlug);
-      const selectedSubCategory = subCategories.find(
-        (subCategory) => subCategory.slug === form.subCategorySlug,
-      );
-      const selectedItem = itemSubCategories.find(
-        (itemSubCategory) => itemSubCategory.slug === form.itemSubCategorySlug,
-      );
 
       const attributes = buildAttributePayload(
         form.attributes,
@@ -263,9 +234,9 @@ export function useProductUpdateForm() {
           hsn: form.hsnCode,
           info: {
             keywords: encodePseudoArray(form.keywords),
-            brand: form.brand,
-            genCert: form.brandCertificate,
-            publisher: form.publisher,
+            brand: isBookCategory ? "" : form.brand,
+            genCert: isBookCategory ? "" : form.brandCertificate,
+            publisher: isBookCategory ? form.publisher : "",
             price: form.price,
             mrp: form.mrp,
             in_stock: form.stock,
@@ -282,9 +253,6 @@ export function useProductUpdateForm() {
           },
           maxStock: Number(form.maxStock || 0),
           variants: "False",
-          cat: selectedCategory?.id || 0,
-          subCat: selectedSubCategory?.id || 0,
-          itemSub: selectedItem?.id || null,
         },
       });
 
@@ -310,9 +278,8 @@ export function useProductUpdateForm() {
     error,
     fieldErrors,
     success,
-    categories,
-    subCategories,
-    itemSubCategories,
+    categoryTrail,
+    isBookCategory,
     addAttribute,
     updateAttribute,
     removeAttribute,
@@ -326,15 +293,12 @@ export function useProductUpdateForm() {
   };
 }
 
-function validateProductUpdateForm(form, hasItemSubCategories) {
+function validateProductUpdateForm(form, isBookCategory) {
   const errors = {};
 
-  if (!form.categorySlug) errors.categorySlug = "field required *";
-  if (!form.subCategorySlug) errors.subCategorySlug = "field required *";
-  if (hasItemSubCategories && !form.itemSubCategorySlug) {
-    errors.itemSubCategorySlug = "field required *";
-  }
   if (!form.title.trim()) errors.title = "field required *";
+  if (!isBookCategory && !form.brand.trim()) errors.brand = "field required *";
+  if (isBookCategory && !form.publisher.trim()) errors.publisher = "field required *";
   if (!form.variants) {
     if (!form.mrp.trim()) errors.mrp = "field required *";
     if (!form.price.trim()) errors.price = "field required *";
@@ -370,6 +334,28 @@ function validateProductUpdateForm(form, hasItemSubCategories) {
   });
 
   return errors;
+}
+
+function resolveUpdateCategoryTrail(product, categories) {
+  const directTrail = getProductCategoryTrail(product);
+
+  if (directTrail) {
+    return directTrail;
+  }
+
+  const categoryId = Number(product?.category || product?.cat || 0);
+  const subCategoryId = Number(product?.sub_cat || product?.subCat || 0);
+  const itemSubCategoryId = Number(product?.item_sub_cat || product?.itemSubCat || 0);
+
+  const category = categories.find((item) => Number(item.id) === categoryId) || null;
+  const subCategory =
+    category?.sub?.find((item) => Number(item.id) === subCategoryId) || null;
+  const itemSubCategory =
+    subCategory?.itemSub?.find((item) => Number(item.id) === itemSubCategoryId) || null;
+
+  return [category?.name, subCategory?.name, itemSubCategory?.name]
+    .filter(Boolean)
+    .join(" / ");
 }
 
 function isValidUrl(value) {

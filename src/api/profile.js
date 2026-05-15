@@ -5,6 +5,7 @@ import {
   updateAuthSession,
 } from "./auth";
 import { getDashboardSession } from "./dashboard";
+import { resolveApiErrorMessage } from "./error";
 
 /**
  * @param {string} url
@@ -23,7 +24,14 @@ async function postProfileJson(url, payload) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data?.message || "Profile request failed");
+    throw new Error(
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Profile request failed",
+        notFound: "Requested profile data unavailable.",
+      }),
+    );
   }
 
   return data;

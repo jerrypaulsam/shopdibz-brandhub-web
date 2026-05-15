@@ -27,11 +27,15 @@ export default function StoreSliderManagementPage() {
     isLoading,
     isSubmitting,
     submitUpdate,
+    removeBanner,
   } = useStoreSliderManagement();
 
   return (
     <DashboardShell>
       <div className="mx-auto max-w-[1320px] px-4 py-8 md:px-6">
+        {storeInfo && !storeInfo.prem ? (
+          <UpgradeCard message="Please upgrade your plan to manage Website Sliders." />
+        ) : null}
         <StoreSliderManagementPanel
           storeInfo={storeInfo}
           productGroups={productGroups}
@@ -56,8 +60,17 @@ export default function StoreSliderManagementPage() {
           isLoading={isLoading}
           isSubmitting={isSubmitting}
           onSubmit={submitUpdate}
+          onDelete={removeBanner}
         />
       </div>
     </DashboardShell>
+  );
+}
+
+function UpgradeCard({ message }) {
+  return (
+    <div className="mb-6 rounded-sm border border-brand-gold/20 bg-[#17130a] px-4 py-3 text-sm text-brand-gold">
+      {message}
+    </div>
   );
 }

@@ -5,6 +5,7 @@ import {
   getCachedStoreInfo,
   updateAuthSession,
 } from "./auth";
+import { resolveApiErrorMessage } from "./error";
 
 /**
  * @param {string} url
@@ -23,7 +24,15 @@ async function postStoreJson(url, payload) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data?.message || "Store request failed");
+    throw new Error(
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Store request failed",
+        notFound: "Store data unavailable.",
+        paymentRequired: "Please upgrade your plan to continue.",
+      }),
+    );
   }
 
   return data;
@@ -267,6 +276,19 @@ export function updateStoreBanner(payload) {
     imageBase64: payload.imageBase64,
     productGroupSlug: payload.productGroupSlug,
     link: payload.link || "",
+  });
+}
+
+/**
+ * @param {number} bannerId
+ * @returns {Promise<any>}
+ */
+export function deleteStoreBanner(bannerId) {
+  const session = getDashboardSession();
+
+  return postStoreJson("/api/store/delete-banner", {
+    accessToken: session.accessToken,
+    bannerId,
   });
 }
 

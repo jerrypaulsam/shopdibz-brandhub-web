@@ -2,13 +2,14 @@ import AuthButton from "@/src/components/auth/AuthButton";
 import StoreSection from "@/src/components/store/StoreSection";
 
 /**
- * @param {{ draft: any, selectionSummary: string, fileName: string, onFileSelected: (event: import("react").ChangeEvent<HTMLInputElement>) => Promise<void>, submitBulkCreate: () => Promise<void>, submitBulkVerify: () => Promise<void>, isSubmitting: boolean, templateLinks: { create: string, sample: string } }} props
+ * @param {{ draft: any, selectionSummary: string, fileName: string, onFileSelected: (event: import("react").ChangeEvent<HTMLInputElement>) => Promise<void>, onChooseVariantMode: (value: string) => void, submitBulkCreate: () => Promise<void>, submitBulkVerify: () => Promise<void>, isSubmitting: boolean, templateLinks: { create: string, sample: string } }} props
  */
 export default function ProductBulkUploadPanel({
   draft,
   selectionSummary,
   fileName,
   onFileSelected,
+  onChooseVariantMode,
   submitBulkCreate,
   submitBulkVerify,
   isSubmitting,
@@ -41,6 +42,31 @@ export default function ProductBulkUploadPanel({
               {draft.variantMode === "with-variant" ? "With variant" : "Without variant"}
             </p>
           </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          {[
+            ["without-variant", "Without Variant"],
+            ["with-variant", "With Variant"],
+          ].map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={`rounded-sm border p-5 text-left transition-colors ${
+                draft.variantMode === value
+                  ? "border-brand-gold bg-brand-gold/10"
+                  : "border-white/10 bg-black/20 hover:border-brand-gold"
+              }`}
+              onClick={() => onChooseVariantMode(value)}
+            >
+              <p className="text-sm font-bold text-brand-white">{label}</p>
+              <p className="mt-2 text-sm leading-6 text-white/55">
+                {value === "with-variant"
+                  ? "Use the variation template and verification contract."
+                  : "Use the parent-product sheet without variation rows."}
+              </p>
+            </button>
+          ))}
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
@@ -91,7 +117,7 @@ export default function ProductBulkUploadPanel({
 
       <div className="grid gap-4 md:max-w-[520px] md:grid-cols-2">
         <AuthButton type="button" disabled={isSubmitting} onClick={submitBulkVerify}>
-          {isSubmitting ? "Working..." : "Verify Sheet"}
+          {isSubmitting ? "Working..." : "Verify Listing Sheet"}
         </AuthButton>
         <AuthButton type="button" disabled={isSubmitting} onClick={submitBulkCreate}>
           {isSubmitting ? "Working..." : "Submit Bulk Listing"}

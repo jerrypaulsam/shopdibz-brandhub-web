@@ -3,12 +3,13 @@ import { useRef, useState } from "react";
 
 import AuthButton from "@/src/components/auth/AuthButton";
 import AuthMessage from "@/src/components/auth/AuthMessage";
+import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import AspectCropDialog from "@/src/components/media/AspectCropDialog";
 import StoreField from "./StoreField";
 import StoreSection from "./StoreSection";
 
 /**
- * @param {{ storeInfo: any, productGroups: any[], filteredBanners: any[], mobileSliderSelection: boolean, setMobileSliderSelection: (value: boolean) => void, selectedBanner: any, selectBanner: (banner: any) => void, productGroupName: string, setProductGroupName: (value: string) => void, setProductGroupSlug: (value: string) => void, link: string, setLink: (value: string) => void, preview: string, setPreview: (value: string) => void, imageBase64: string, setImageBase64: (value: string) => void, currentAspectRatio: string, preferredSize: string, canUseExternalLinks: boolean, message: string, isLoading: boolean, isSubmitting: boolean, onSubmit: () => Promise<boolean> }} props
+ * @param {{ storeInfo: any, productGroups: any[], filteredBanners: any[], mobileSliderSelection: boolean, setMobileSliderSelection: (value: boolean) => void, selectedBanner: any, selectBanner: (banner: any) => void, productGroupName: string, setProductGroupName: (value: string) => void, setProductGroupSlug: (value: string) => void, link: string, setLink: (value: string) => void, preview: string, setPreview: (value: string) => void, imageBase64: string, setImageBase64: (value: string) => void, currentAspectRatio: string, preferredSize: string, canUseExternalLinks: boolean, message: string, isLoading: boolean, isSubmitting: boolean, onSubmit: () => Promise<boolean>, onDelete: (bannerId: number) => Promise<boolean> }} props
  */
 export default function StoreSliderManagementPanel({
   storeInfo,
@@ -34,7 +35,9 @@ export default function StoreSliderManagementPanel({
   isLoading,
   isSubmitting,
   onSubmit,
+  onDelete,
 }) {
+  const { confirm } = useConfirm();
   const fileInputRef = useRef(null);
   const [cropFile, setCropFile] = useState(null);
   const aspectClass = currentAspectRatio === "4:5" ? "aspect-[4/5]" : "aspect-[16/6]";
@@ -52,6 +55,20 @@ export default function StoreSliderManagementPanel({
       return;
     }
     setCropFile(file);
+  }
+
+  async function handleDelete(bannerId) {
+    const accepted = await confirm({
+      title: "Remove Slider",
+      message: "This live slider will be removed from your storefront.",
+      confirmLabel: "Remove Slider",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
+    await onDelete(bannerId);
   }
 
   return (
@@ -104,38 +121,55 @@ export default function StoreSliderManagementPanel({
           ) : filteredBanners.length ? (
             <div className="mt-6 grid gap-5 lg:grid-cols-2">
               {filteredBanners.map((banner) => (
-                <button
-                  className={`overflow-hidden rounded-sm border text-left transition-colors ${
+                <div
+                  className={`overflow-hidden rounded-sm border transition-colors ${
                     selectedBanner?.id === banner.id
                       ? "border-brand-gold"
                       : "border-white/10 hover:border-brand-gold/40"
                   }`}
-                  type="button"
-                  onClick={() => selectBanner(banner)}
                   key={banner.id}
                 >
-                  <div className={`relative ${aspectClass} bg-brand-black`}>
-                    <img
-                      src={banner.image}
-                      alt="Live slider"
-                      className="h-full w-full object-cover"
-                    />
+                  <button
+                    className="block w-full text-left"
+                    type="button"
+                    onClick={() => selectBanner(banner)}
+                  >
+                    <div className={`relative ${aspectClass} bg-brand-black`}>
+                      <img
+                        src={banner.image}
+                        alt="Live slider"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-3 text-sm">
+                      <span className="font-bold text-brand-white">
+                        Slider #{banner.id}
+                      </span>
+                      <span className="text-xs font-bold uppercase tracking-[0.14em] text-brand-gold">
+                        {selectedBanner?.id === banner.id ? "Selected" : "Edit"}
+                      </span>
+                    </div>
+                  </button>
+                  <div className="border-t border-white/10 px-4 py-3">
+                    <button
+                      className="text-xs font-bold uppercase tracking-[0.12em] text-red-300 hover:text-red-100"
+                      type="button"
+                      disabled={isSubmitting}
+                      onClick={() => handleDelete(banner.id)}
+                    >
+                      Remove Slider
+                    </button>
                   </div>
-                  <div className="flex items-center justify-between px-4 py-3 text-sm">
-                    <span className="font-bold text-brand-white">
-                      Slider #{banner.id}
-                    </span>
-                    <span className="text-xs font-bold uppercase tracking-[0.14em] text-brand-gold">
-                      {selectedBanner?.id === banner.id ? "Selected" : "Edit"}
-                    </span>
-                  </div>
-                </button>
+                </div>
               ))}
             </div>
           ) : (
             <div className="mt-8 rounded-sm border border-white/10 bg-black/20 px-6 py-12 text-center">
               <p className="text-base font-bold text-brand-white">
                 No active sliders found for this view.
+              </p>
+              <p className="mt-3 text-sm text-white/45">
+                Use the publish flow when you want to create a new 2-image carousel set.
               </p>
             </div>
           )}
@@ -144,7 +178,7 @@ export default function StoreSliderManagementPanel({
         <StoreSection title="Workspace Notes">
           <div className="flex flex-col items-center gap-4 text-center">
             <p className="text-sm text-white/60">
-              Pick a live slider on the left, replace the creative, then update its destination if needed.
+              Pick a live slider on the left, replace the creative, or remove it from the storefront if needed.
             </p>
             <div className="grid w-full gap-3 sm:grid-cols-2">
               <MetricCard label="Visible Sliders" value={String(filteredBanners.length)} />

@@ -118,6 +118,7 @@ export default function ProductInfoPanel({
             <span className="text-sm font-semibold text-white/80">Product Keywords</span>
             <input
               className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none placeholder:text-white/30"
+              maxLength={10}
               placeholder="Press enter or comma after each keyword"
               type="text"
               onKeyDown={handleKeywordKeyDown}

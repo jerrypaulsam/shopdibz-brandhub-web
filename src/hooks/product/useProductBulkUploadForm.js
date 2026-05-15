@@ -27,6 +27,17 @@ export function useProductBulkUploadForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  function chooseVariantMode(value) {
+    setError("");
+    setSuccess("");
+    draftApi.updateDraft({
+      variantMode: value,
+      listingMode: "bulk",
+      variantType: "",
+      variations: [],
+    });
+  }
+
   const templateLinks = {
     create:
       PRODUCT_BULK_TEMPLATE_URLS.create[draftApi.draft.variantMode] ||
@@ -39,6 +50,19 @@ export function useProductBulkUploadForm() {
   async function onFileSelected(event) {
     const file = event.target.files?.[0];
     if (!file) {
+      return;
+    }
+
+    const fileName = String(file.name || "");
+    const lowerName = fileName.toLowerCase();
+    const isAcceptedFile =
+      lowerName.endsWith(".xls") ||
+      lowerName.endsWith(".xlsx") ||
+      lowerName.endsWith(".xlsm");
+
+    if (!isAcceptedFile) {
+      setError("Upload an XLS, XLSX, or XLSM listing sheet.");
+      setSuccess("");
       return;
     }
 
@@ -134,6 +158,7 @@ export function useProductBulkUploadForm() {
     error,
     success,
     onFileSelected,
+    chooseVariantMode,
     submitBulkCreate,
     submitBulkVerify,
     templateLinks,

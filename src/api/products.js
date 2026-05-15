@@ -1,4 +1,5 @@
 import { getDashboardSession } from "./dashboard";
+import { resolveApiErrorMessage } from "./error";
 
 /**
  * @param {string} url
@@ -18,7 +19,12 @@ async function postProductJson(url, payload) {
 
   if (!response.ok) {
     throw new Error(
-      data?.message || data?.detail || data?.error || "Product request failed",
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Product request failed",
+        notFound: "Product unavailable.",
+      }),
     );
   }
 
@@ -50,7 +56,12 @@ async function getProductJson(url, options = {}) {
 
   if (!response.ok) {
     throw new Error(
-      data?.message || data?.detail || data?.error || "Product request failed",
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Product request failed",
+        notFound: "Product unavailable.",
+      }),
     );
   }
 
@@ -130,6 +141,18 @@ export function fetchProductDetail(slug) {
 export function updateExistingProduct(payload) {
   const session = getDashboardSession();
   return postProductJson("/api/products/update", {
+    accessToken: session.accessToken,
+    ...payload,
+  });
+}
+
+/**
+ * @param {Record<string, unknown>} payload
+ * @returns {Promise<any>}
+ */
+export function updateProductCategory(payload) {
+  const session = getDashboardSession();
+  return postProductJson("/api/products/update-category", {
     accessToken: session.accessToken,
     ...payload,
   });
@@ -435,6 +458,20 @@ export function updateProductGroup(payload) {
 }
 
 /**
+ * @param {{ groupId: number, imageBase64: string, fileName: string }} payload
+ * @returns {Promise<any>}
+ */
+export function updateProductGroupCover(payload) {
+  const session = getDashboardSession();
+  return postProductJson("/api/store/update-product-group-cover", {
+    accessToken: session.accessToken,
+    groupId: payload.groupId,
+    imageBase64: payload.imageBase64,
+    fileName: payload.fileName,
+  });
+}
+
+/**
  * @param {{ groupId: number }} payload
  * @returns {Promise<any>}
  */
@@ -443,6 +480,21 @@ export function deleteProductGroup(payload) {
   return postProductJson("/api/store/delete-product-group", {
     accessToken: session.accessToken,
     groupId: payload.groupId,
+  });
+}
+
+/**
+ * @param {{ groupId: number, fileBase64: string, fileName: string }} payload
+ * @returns {Promise<any>}
+ */
+export function uploadProductGroupSheet(payload) {
+  const session = getDashboardSession();
+  return postProductJson("/api/store/product-group-bulk-upload", {
+    accessToken: session.accessToken,
+    storeUrl: session.storeUrl,
+    groupId: payload.groupId,
+    fileBase64: payload.fileBase64,
+    fileName: payload.fileName,
   });
 }
 

@@ -25,7 +25,7 @@ import {
 } from "@/src/utils/orders";
 
 /**
- * @param {{ order: any, isLoading: boolean, message: string, actionMessage: string, actionError: string, busyAction: string, isPhoneVisible: boolean, onTogglePhone: (value: boolean) => void, onSubmitPack: (payload: { packageWidth: number, packageLength: number, packageHeight: number, packageWeight: number }) => Promise<void>, onSubmitTracking: (payload: { company: string, trackingNo: string, trackingUrl: string }) => Promise<void>, onSubmitDelivered: () => Promise<void>, onSubmitCancel: (payload: { reasonId: number, detail: string }) => Promise<void>, onSubmitMessage: (message: string) => Promise<void>, onOpenInvoice: () => Promise<void>, onOpenShippingLabel: () => Promise<void> }} props
+ * @param {{ order: any, isLoading: boolean, message: string, actionMessage: string, actionError: string, busyAction: string, isPhoneVisible: boolean, onTogglePhone: (value: boolean) => void, onSubmitPack: (payload: { packageWidth: number, packageLength: number, packageHeight: number, packageWeight: number }) => Promise<void>, onSubmitTracking: (payload: { company: string, trackingNo: string, trackingUrl: string }) => Promise<void>, onSubmitDelivered: () => Promise<void>, onSubmitCancel: (payload: { reasonId: number, detail: string }) => Promise<void>, onSubmitMessage: (message: string) => Promise<void>, onOpenInvoice: () => Promise<void>, onOpenCreditNote: () => Promise<void>, onOpenShippingLabel: () => Promise<void> }} props
  */
 export default function OrderDetailPanel({
   order,
@@ -42,6 +42,7 @@ export default function OrderDetailPanel({
   onSubmitCancel,
   onSubmitMessage,
   onOpenInvoice,
+  onOpenCreditNote,
   onOpenShippingLabel,
 }) {
   const [packForm, setPackForm] = useState({
@@ -61,6 +62,7 @@ export default function OrderDetailPanel({
   });
   const [messageText, setMessageText] = useState("");
   const [isMessageComposerOpen, setIsMessageComposerOpen] = useState(false);
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
 
   const status = getOrderStatusCode(order);
   const variantLabel = getOrderVariantLabel(order);
@@ -166,20 +168,21 @@ export default function OrderDetailPanel({
             >
               {busyAction === "invoice" ? "Opening..." : "Print Invoice"}
             </button>
+            {status === "DD" && order?.creditNoteUrl ? (
+              <button
+                className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-40"
+                type="button"
+                disabled={busyAction === "credit-note"}
+                onClick={onOpenCreditNote}
+              >
+                {busyAction === "credit-note"
+                  ? "Opening..."
+                  : "Download Credit Note"}
+              </button>
+            ) : null}
           </div>
         </div>
       </section>
-
-      {order?.customizationText ? (
-        <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
-            Customization Message
-          </p>
-          <p className="mt-3 text-base font-semibold leading-7 text-brand-white">
-            {order.customizationText}
-          </p>
-        </section>
-      ) : null}
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_320px] 2xl:grid-cols-[minmax(0,1.55fr)_340px]">
         <div className="space-y-6">
@@ -240,6 +243,25 @@ export default function OrderDetailPanel({
               <InfoRow label="Coupon Used" value={order?.order?.coupon} />
             </div>
           </article>
+
+          {order?.customizationText ? (
+            <section className="rounded-sm border border-amber-400/30 bg-amber-500/10 p-5 shadow-[0_0_0_1px_rgba(251,191,36,0.08)]">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-sm border border-amber-300/30 bg-amber-300/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-amber-200">
+                  Important
+                </span>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-100">
+                  Customer Customization Note
+                </p>
+              </div>
+              <p className="mt-3 max-w-4xl text-base font-semibold leading-7 text-brand-white">
+                {order.customizationText}
+              </p>
+              <p className="mt-3 text-sm leading-6 text-amber-100/80">
+                Review this note before packing or dispatch to avoid misses on customized orders and reduce return risk.
+              </p>
+            </section>
+          ) : null}
 
           <article className="rounded-sm border border-white/10 bg-[#121212] p-5">
             <h2 className="text-lg font-extrabold text-brand-white">
@@ -365,6 +387,17 @@ export default function OrderDetailPanel({
                 label={busyAction === "invoice" ? "Opening..." : "Print Invoice"}
                 onClick={onOpenInvoice}
               />
+              {status === "DD" && order?.creditNoteUrl ? (
+                <SecondaryButton
+                  disabled={busyAction === "credit-note"}
+                  label={
+                    busyAction === "credit-note"
+                      ? "Opening..."
+                      : "Download Credit Note"
+                  }
+                  onClick={onOpenCreditNote}
+                />
+              ) : null}
               {canMessageCustomer(order) ? (
                 <SecondaryButton
                   disabled={busyAction === "message"}
@@ -495,7 +528,10 @@ export default function OrderDetailPanel({
 
           {canCancelOrder(order) ? (
             <ActionCard
+              collapsible
               description="Cancellation is only allowed while the order is still in the pending stage."
+              isOpen={isCancelOpen}
+              onToggle={() => setIsCancelOpen((current) => !current)}
               title="Cancel order"
             >
               <label className="space-y-2 text-sm text-white/60">
@@ -605,14 +641,55 @@ export default function OrderDetailPanel({
 }
 
 /**
- * @param {{ title: string, description: string, children: import("react").ReactNode }} props
+ * @param {{ title: string, description: string, children: import("react").ReactNode, collapsible?: boolean, isOpen?: boolean, onToggle?: () => void }} props
  */
-function ActionCard({ title, description, children }) {
+function ActionCard({
+  title,
+  description,
+  children,
+  collapsible = false,
+  isOpen = true,
+  onToggle,
+}) {
   return (
     <article className="rounded-sm border border-white/10 bg-[#121212] p-5">
-      <h2 className="text-base font-extrabold text-brand-white">{title}</h2>
-      <p className="mt-2 text-sm leading-6 text-white/55">{description}</p>
-      <div className="mt-4 space-y-4">{children}</div>
+      {collapsible ? (
+        <button
+          className="flex w-full items-start justify-between gap-4 text-left"
+          type="button"
+          onClick={onToggle}
+        >
+          <div>
+            <h2 className="text-base font-extrabold text-brand-white">{title}</h2>
+            <p className="mt-2 text-sm leading-6 text-white/55">{description}</p>
+          </div>
+          <span
+            className={`mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-white/10 text-white/65 transition-transform ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.8"
+              viewBox="0 0 24 24"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </span>
+        </button>
+      ) : (
+        <>
+          <h2 className="text-base font-extrabold text-brand-white">{title}</h2>
+          <p className="mt-2 text-sm leading-6 text-white/55">{description}</p>
+        </>
+      )}
+      {(!collapsible || isOpen) ? (
+        <div className="mt-4 space-y-4">{children}</div>
+      ) : null}
     </article>
   );
 }

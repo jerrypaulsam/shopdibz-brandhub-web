@@ -1,4 +1,5 @@
 import { cacheStoreInfo, getAuthSession, getCachedStoreInfo } from "./auth";
+import { resolveApiErrorMessage } from "./error";
 
 /**
  * @typedef {Object} DashboardSession
@@ -49,7 +50,14 @@ async function getDashboardJson(url, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data?.message || "Dashboard request failed");
+    throw new Error(
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Dashboard request failed",
+        notFound: "Dashboard data unavailable.",
+      }),
+    );
   }
 
   return data;

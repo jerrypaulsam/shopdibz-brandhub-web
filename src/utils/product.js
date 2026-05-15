@@ -283,7 +283,16 @@ export function getProductCategoryTrail(product) {
  * @returns {number}
  */
 export function getProductStockValue(product) {
-  const directStock = Number(product?.mStock || product?.stock || 0);
+  const directStockCandidates = [product?.mStock, product?.stock];
+  const directStock = directStockCandidates.reduce((bestValue, candidate) => {
+    const parsed = Number(candidate);
+
+    if (Number.isFinite(parsed) && parsed > bestValue) {
+      return parsed;
+    }
+
+    return bestValue;
+  }, 0);
 
   if (directStock > 0) {
     return directStock;
@@ -293,7 +302,22 @@ export function getProductStockValue(product) {
 
   if (Array.isArray(variations) && variations.length) {
     return variations.reduce(
-      (sum, variation) => sum + Number(variation?.mStock || variation?.stock || 0),
+      (sum, variation) => {
+        const variationStock = [variation?.mStock, variation?.stock].reduce(
+          (bestValue, candidate) => {
+            const parsed = Number(candidate);
+
+            if (Number.isFinite(parsed) && parsed > bestValue) {
+              return parsed;
+            }
+
+            return bestValue;
+          },
+          0,
+        );
+
+        return sum + variationStock;
+      },
       0,
     );
   }

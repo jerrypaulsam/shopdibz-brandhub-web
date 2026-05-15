@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchBannerImages, fetchEditableStoreInfo, fetchProductGroups, updateStoreBanner } from "@/src/api/store";
+import { deleteStoreBanner, fetchBannerImages, fetchEditableStoreInfo, fetchProductGroups, updateStoreBanner } from "@/src/api/store";
 import { logScreenView } from "@/src/api/analytics";
 
 export function useStoreSliderManagement() {
@@ -82,7 +82,17 @@ export function useStoreSliderManagement() {
     setMessage("");
   }
 
+  async function refreshBanners() {
+    const nextBanners = await fetchBannerImages().catch(() => ({ results: [] }));
+    setBannerImages(nextBanners?.results || []);
+  }
+
   async function submitUpdate() {
+    if (!storeInfo?.prem) {
+      setMessage("Please upgrade your plan to manage sliders.");
+      return false;
+    }
+
     if (!selectedBanner) {
       setMessage("Select a slider first.");
       return false;
@@ -109,9 +119,7 @@ export function useStoreSliderManagement() {
         link: canUseExternalLinks ? link : "",
       });
       setMessage("Update Successful.");
-
-      const nextBanners = await fetchBannerImages().catch(() => ({ results: [] }));
-      setBannerImages(nextBanners?.results || []);
+      await refreshBanners();
       setSelectedBanner(null);
       setProductGroupName("");
       setProductGroupSlug("");
@@ -121,6 +129,38 @@ export function useStoreSliderManagement() {
       return true;
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Slider update failed");
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function removeBanner(bannerId) {
+    if (!storeInfo?.prem) {
+      setMessage("Please upgrade your plan to manage sliders.");
+      return false;
+    }
+
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await deleteStoreBanner(bannerId);
+      await refreshBanners();
+
+      if (selectedBanner?.id === bannerId) {
+        setSelectedBanner(null);
+        setPreview("");
+        setImageBase64("");
+        setProductGroupName("");
+        setProductGroupSlug("");
+        setLink("");
+      }
+
+      setMessage("Slider removed.");
+      return true;
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Slider deletion failed");
       return false;
     } finally {
       setIsSubmitting(false);
@@ -152,6 +192,7 @@ export function useStoreSliderManagement() {
     isLoading,
     isSubmitting,
     submitUpdate,
+    removeBanner,
   };
 }
 

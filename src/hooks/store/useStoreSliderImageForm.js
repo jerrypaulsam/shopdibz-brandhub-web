@@ -10,11 +10,11 @@ const initialSlot = () => ({
   link: "",
 });
 
-export function useStoreSliderImageForm() {
+export function useStoreSliderImageForm(initialMobileSliderSelection = false) {
   const [storeInfo, setStoreInfo] = useState(null);
   const [bannerImages, setBannerImages] = useState([]);
   const [productGroups, setProductGroups] = useState([]);
-  const [mobileSliderSelection, setMobileSliderSelection] = useState(false);
+  const [mobileSliderSelection, setMobileSliderSelection] = useState(initialMobileSliderSelection);
   const [slots, setSlots] = useState([initialSlot(), initialSlot()]);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -86,6 +86,11 @@ export function useStoreSliderImageForm() {
   }
 
   async function submitForm() {
+    if (!storeInfo?.prem) {
+      setMessage("Please upgrade your plan to manage sliders.");
+      return false;
+    }
+
     if (slots.some((slot) => !slot.imageBase64)) {
       setMessage("Exactly 2 images are required to update sliders.");
       return false;
@@ -124,6 +129,7 @@ export function useStoreSliderImageForm() {
     storeInfo,
     productGroups,
     bannerImages: filteredBannerImages,
+    hasPublishedSliderSet: filteredBannerImages.length > 0,
     mobileSliderSelection,
     setMobileSliderSelection,
     slots,

@@ -122,6 +122,7 @@ function encodeCurlyList(value) {
  * addVariation: (value: Record<string, string>) => string[],
  * removeVariation: (id: number) => void,
  * routeToStep: (step: string, patch?: Record<string, string>) => Promise<boolean>,
+ * replaceDraftQuery: (patch?: Record<string, string>) => Promise<boolean>,
  * clearVariantState: () => void,
  * clearSelectionState: () => void,
  * getSelectionSummary: () => string,
@@ -145,23 +146,57 @@ export function useProductListingDraft() {
     [router.query],
   );
 
-  const draft = useMemo(
-    () => ({
-      ...storedDraft,
-      categorySlug: routeDraft.categorySlug || storedDraft.categorySlug,
-      subCategorySlug: routeDraft.subCategorySlug || storedDraft.subCategorySlug,
-      itemSubCategorySlug:
-        routeDraft.itemSubCategorySlug || storedDraft.itemSubCategorySlug,
-      listingMode: routeDraft.listingMode || storedDraft.listingMode,
-      variantMode: routeDraft.variantMode || storedDraft.variantMode,
-      variantType: routeDraft.variantType || storedDraft.variantType,
-    }),
-    [routeDraft, storedDraft],
-  );
+  const draft = storedDraft;
 
   useEffect(() => {
     saveDraftToStorage(storedDraft);
   }, [storedDraft]);
+
+  const syncSelectionFromUrl = useCallback(() => {
+    if (!router.isReady) {
+      return;
+    }
+
+    setDraft((currentDraft) => {
+      const nextDraft = {
+        ...currentDraft,
+        ...(routeDraft.categorySlug
+          ? { categorySlug: routeDraft.categorySlug }
+          : {}),
+        ...(routeDraft.subCategorySlug
+          ? { subCategorySlug: routeDraft.subCategorySlug }
+          : {}),
+        ...(routeDraft.itemSubCategorySlug
+          ? { itemSubCategorySlug: routeDraft.itemSubCategorySlug }
+          : {}),
+        ...(routeDraft.listingMode
+          ? { listingMode: routeDraft.listingMode }
+          : {}),
+        ...(routeDraft.variantMode
+          ? { variantMode: routeDraft.variantMode }
+          : {}),
+        ...(routeDraft.variantType
+          ? { variantType: routeDraft.variantType }
+          : {}),
+      };
+
+      if (JSON.stringify(nextDraft) === JSON.stringify(currentDraft)) {
+        return currentDraft;
+      }
+
+      return nextDraft;
+    });
+  }, [routeDraft, router.isReady]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      syncSelectionFromUrl();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [syncSelectionFromUrl]);
 
   const selection = useMemo(
     () =>
@@ -208,9 +243,6 @@ export function useProductListingDraft() {
     }
   }, []);
 
-  const syncSelectionFromUrl = useCallback(() => {
-  }, []);
-
   const buildQuery = useCallback(
     (patch = {}) => {
       const query = {
@@ -243,6 +275,19 @@ export function useProductListingDraft() {
         pathname: `/products/new/${step}`,
         query: buildQuery(patch),
       }),
+    [buildQuery, router],
+  );
+
+  const replaceDraftQuery = useCallback(
+    async (patch = {}) =>
+      router.replace(
+        {
+          pathname: router.pathname,
+          query: buildQuery(patch),
+        },
+        undefined,
+        { shallow: true },
+      ),
     [buildQuery, router],
   );
 
@@ -555,6 +600,7 @@ export function useProductListingDraft() {
     addVariation,
     removeVariation,
     routeToStep,
+    replaceDraftQuery,
     clearVariantState,
     clearSelectionState,
     getSelectionSummary,

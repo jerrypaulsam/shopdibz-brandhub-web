@@ -19,6 +19,7 @@ export default function ProductBulkPage() {
         selectionSummary={product.getSelectionSummary()}
         fileName={product.fileName}
         onFileSelected={product.onFileSelected}
+        onChooseVariantMode={product.chooseVariantMode}
         submitBulkCreate={product.submitBulkCreate}
         submitBulkVerify={product.submitBulkVerify}
         isSubmitting={product.isSubmitting}

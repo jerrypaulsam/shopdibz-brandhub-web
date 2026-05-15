@@ -24,6 +24,11 @@ export default async function handler(req, res) {
       accessToken: String(accessToken),
     });
 
+    if (result.status === 404) {
+      res.status(404).json({ message: "Invoice unavailable" });
+      return;
+    }
+
     res.status(result.status).json(result.data);
   } catch (error) {
     res.status(500).json({

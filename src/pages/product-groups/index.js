@@ -17,6 +17,7 @@ export default function ProductGroupsPage() {
           onOpenGroup={productGroups.openGroup}
           onDeleteGroup={productGroups.removeGroup}
           onSaveGroup={productGroups.saveGroup}
+          onUploadGroupSheet={productGroups.uploadGroupSheet}
         />
       </div>
     </DashboardShell>

@@ -37,6 +37,7 @@ export const SHOPDIBZ_URLS = {
   notifications: "/api/notifications/all/seller/",
   reviewVoting: "/api/store/store_feedback/",
   products: "/api/products/",
+  updateCategory: "/api/products/category/",
   search: "/api/search/",
   sellerPanel: "/api/store/seller_panel/",
   bulkCreateProducts: "/api/products/bulkCreate/",

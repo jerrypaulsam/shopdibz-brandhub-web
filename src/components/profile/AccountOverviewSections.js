@@ -42,15 +42,17 @@ export function StoreSettingsSection({ storeInfo }) {
 }
 
 /**
- * @param {{ bannerImages: any[] }} props
+ * @param {{ storeInfo: any, bannerImages: any[] }} props
  */
-export function StoreSlidersSection({ bannerImages }) {
+export function StoreSlidersSection({ storeInfo, bannerImages }) {
   const desktopCount = bannerImages.filter(
     (item) => !(item?.for_mobile ?? item?.forMobile),
   ).length;
   const mobileCount = bannerImages.filter(
     (item) => Boolean(item?.for_mobile ?? item?.forMobile),
   ).length;
+  const hasAnySlider = desktopCount > 0 || mobileCount > 0;
+  const isPremium = Boolean(storeInfo?.prem);
 
   return (
     <StoreSection title="Store Sliders">
@@ -59,18 +61,30 @@ export function StoreSlidersSection({ bannerImages }) {
         <MetricCard label="Mobile Sliders" value={`${mobileCount}`} />
       </div>
       <div className="mt-5 flex flex-wrap gap-4">
-        <Link
-          className="text-sm font-bold text-brand-gold hover:text-brand-white"
-          href="/store-slider-management"
-        >
-          Manage Live Sliders
-        </Link>
-        <Link
-          className="text-sm font-bold text-brand-gold hover:text-brand-white"
-          href="/store-slider-image-form"
-        >
-          Publish New Sliders
-        </Link>
+        {isPremium ? (
+          <>
+            {hasAnySlider ? (
+              <Link
+                className="text-sm font-bold text-brand-gold hover:text-brand-white"
+                href="/store-slider-management"
+              >
+                Manage Live Sliders
+              </Link>
+            ) : (
+              <Link
+                className="text-sm font-bold text-brand-gold hover:text-brand-white"
+                href="/store-slider-image-form"
+              >
+                Publish Slider Images
+              </Link>
+            )}
+          </>
+        ) : null}
+      </div>
+      <div className="mt-4">
+        <AuthMessage>
+          {!isPremium ? "Please upgrade to manage Website Sliders." : ""}
+        </AuthMessage>
       </div>
     </StoreSection>
   );

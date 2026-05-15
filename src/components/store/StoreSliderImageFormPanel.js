@@ -8,12 +8,13 @@ import StoreField from "./StoreField";
 import StoreSection from "./StoreSection";
 
 /**
- * @param {{ storeInfo: any, productGroups: any[], bannerImages: any[], mobileSliderSelection: boolean, setMobileSliderSelection: (value: boolean) => void, slots: any[], updateSlot: (index: number, patch: Record<string, string>) => void, preferredSize: string, currentAspectRatio: string, canUseExternalLinks: boolean, message: string, isLoading: boolean, isSubmitting: boolean, onSubmit: () => Promise<boolean> }} props
+ * @param {{ storeInfo: any, productGroups: any[], bannerImages: any[], hasPublishedSliderSet: boolean, mobileSliderSelection: boolean, setMobileSliderSelection: (value: boolean) => void, slots: any[], updateSlot: (index: number, patch: Record<string, string>) => void, preferredSize: string, currentAspectRatio: string, canUseExternalLinks: boolean, message: string, isLoading: boolean, isSubmitting: boolean, onSubmit: () => Promise<boolean> }} props
  */
 export default function StoreSliderImageFormPanel({
   storeInfo,
   productGroups,
   bannerImages,
+  hasPublishedSliderSet,
   mobileSliderSelection,
   setMobileSliderSelection,
   slots,
@@ -28,6 +29,7 @@ export default function StoreSliderImageFormPanel({
 }) {
   const aspectClass = currentAspectRatio === "4:5" ? "aspect-[4/5]" : "aspect-[16/6]";
   const filledSlots = slots.filter((slot) => slot.imageBase64).length;
+  const canPublishCurrentSet = !hasPublishedSliderSet;
 
   return (
     <div className="space-y-6">
@@ -98,7 +100,7 @@ export default function StoreSliderImageFormPanel({
 
           <AuthMessage>{message}</AuthMessage>
 
-          {filledSlots ? (
+          {filledSlots && canPublishCurrentSet ? (
             <div className="max-w-xs">
               <AuthButton
                 type="button"
@@ -108,6 +110,11 @@ export default function StoreSliderImageFormPanel({
                 {isSubmitting ? "Publishing..." : "Publish Sliders"}
               </AuthButton>
             </div>
+          ) : null}
+          {hasPublishedSliderSet ? (
+            <AuthMessage>
+              This slider set is already published. Manage the live sliders instead of publishing a duplicate set.
+            </AuthMessage>
           ) : null}
         </div>
       </StoreSection>

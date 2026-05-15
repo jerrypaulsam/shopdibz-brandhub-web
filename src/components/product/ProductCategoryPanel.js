@@ -114,32 +114,44 @@ export default function ProductCategoryPanel({
           ))}
         </div>
 
-        {draft.listingMode === "single" ? (
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            {[
-              ["without-variant", "Without Variant", "Use one SKU with one image set and direct stock tracking."],
-              ["with-variant", "With Variant", "Keep size, colour, weight, material, or flavour combinations under one listing."],
-            ].map(([value, label, copy]) => (
-              <button
-                className={`rounded-sm border p-5 text-left transition-colors ${
-                  draft.variantMode === value
-                    ? "border-brand-gold bg-brand-gold/10"
-                    : "border-white/10 hover:border-white/20"
-                }`}
-                key={value}
-                type="button"
-                onClick={() => chooseVariantMode(value)}
-              >
-                <p className="text-sm font-bold text-brand-white">{label}</p>
-                <p className="mt-2 text-sm leading-6 text-white/55">{copy}</p>
-              </button>
-            ))}
-          </div>
-        ) : (
+        <div className="mt-5 grid gap-4 lg:grid-cols-2">
+          {[
+            [
+              "without-variant",
+              "Without Variant",
+              draft.listingMode === "bulk"
+                ? "Use the non-variation bulk sheet and validation flow."
+                : "Use one SKU with one image set and direct stock tracking.",
+            ],
+            [
+              "with-variant",
+              "With Variant",
+              draft.listingMode === "bulk"
+                ? "Use the variation bulk sheet so each row maps to the correct variation contract."
+                : "Keep size, colour, weight, material, or flavour combinations under one listing.",
+            ],
+          ].map(([value, label, copy]) => (
+            <button
+              className={`rounded-sm border p-5 text-left transition-colors ${
+                draft.variantMode === value
+                  ? "border-brand-gold bg-brand-gold/10"
+                  : "border-white/10 hover:border-white/20"
+              }`}
+              key={value}
+              type="button"
+              onClick={() => chooseVariantMode(value)}
+            >
+              <p className="text-sm font-bold text-brand-white">{label}</p>
+              <p className="mt-2 text-sm leading-6 text-white/55">{copy}</p>
+            </button>
+          ))}
+        </div>
+
+        {draft.listingMode === "bulk" ? (
           <div className="mt-5 rounded-sm border border-white/10 bg-black/20 px-4 py-4 text-sm leading-6 text-white/55">
-            Bulk listing uses the sheet upload branch, so variation choice is handled in the upload workflow instead of here.
+            Bulk listing keeps the same variant choice all the way through template download, sheet verification, and final upload.
           </div>
-        )}
+        ) : null}
       </StoreSection>
 
       <div className="max-w-xs">

@@ -1,4 +1,5 @@
 import { getAccessToken } from "./auth";
+import { resolveApiErrorMessage } from "./error";
 
 /**
  * @param {string} url
@@ -17,7 +18,13 @@ async function postBankJson(url, payload) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data?.message || "Bank request failed");
+    throw new Error(
+      resolveApiErrorMessage({
+        status: response.status,
+        data,
+        fallback: "Bank request failed",
+      }),
+    );
   }
 
   return data;
