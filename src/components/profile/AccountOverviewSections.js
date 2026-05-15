@@ -7,6 +7,7 @@ import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 import AspectCropDialog from "@/src/components/media/AspectCropDialog";
 import StoreSection from "@/src/components/store/StoreSection";
+import { getStoreSliderMeta } from "@/src/utils/store-slider-routing";
 
 /**
  * @param {{ storeInfo: any }} props
@@ -45,45 +46,29 @@ export function StoreSettingsSection({ storeInfo }) {
  * @param {{ storeInfo: any, bannerImages: any[] }} props
  */
 export function StoreSlidersSection({ storeInfo, bannerImages }) {
-  const desktopCount = bannerImages.filter(
-    (item) => !(item?.for_mobile ?? item?.forMobile),
-  ).length;
-  const mobileCount = bannerImages.filter(
-    (item) => Boolean(item?.for_mobile ?? item?.forMobile),
-  ).length;
-  const hasAnySlider = desktopCount > 0 || mobileCount > 0;
-  const isPremium = Boolean(storeInfo?.prem);
+  const sliderMeta = getStoreSliderMeta(storeInfo, bannerImages);
 
   return (
     <StoreSection title="Store Sliders">
       <div className="grid gap-4 sm:grid-cols-2">
-        <MetricCard label="Desktop Sliders" value={`${desktopCount}`} />
-        <MetricCard label="Mobile Sliders" value={`${mobileCount}`} />
+        <MetricCard label="Desktop Sliders" value={`${sliderMeta.desktopCount}`} />
+        <MetricCard label="Mobile Sliders" value={`${sliderMeta.mobileCount}`} />
       </div>
       <div className="mt-5 flex flex-wrap gap-4">
-        {isPremium ? (
+        {sliderMeta.isPremium ? (
           <>
-            {hasAnySlider ? (
-              <Link
-                className="text-sm font-bold text-brand-gold hover:text-brand-white"
-                href="/store-slider-management"
-              >
-                Manage Live Sliders
-              </Link>
-            ) : (
-              <Link
-                className="text-sm font-bold text-brand-gold hover:text-brand-white"
-                href="/store-slider-image-form"
-              >
-                Publish Slider Images
-              </Link>
-            )}
+            <Link
+              className="text-sm font-bold text-brand-gold hover:text-brand-white"
+              href={sliderMeta.primaryActionHref}
+            >
+              {sliderMeta.primaryActionLabel}
+            </Link>
           </>
         ) : null}
       </div>
       <div className="mt-4">
         <AuthMessage>
-          {!isPremium ? "Please upgrade to manage Website Sliders." : ""}
+          {!sliderMeta.isPremium ? "Please upgrade to manage Website Sliders." : ""}
         </AuthMessage>
       </div>
     </StoreSection>

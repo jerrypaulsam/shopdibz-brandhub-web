@@ -9,16 +9,16 @@ import { resolveApiErrorMessage } from "./error";
 
 /**
  * @param {string} url
- * @param {Record<string, unknown>} payload
+ * @param {{ method?: string, payload?: Record<string, unknown> }} [options]
  * @returns {Promise<any>}
  */
-async function postStoreJson(url, payload) {
+async function requestStoreJson(url, options = {}) {
   const response = await fetch(url, {
-    method: "POST",
+    method: options.method || "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload),
+    body: options.payload ? JSON.stringify(options.payload) : undefined,
   });
 
   const data = await response.json().catch(() => ({}));
@@ -36,6 +36,18 @@ async function postStoreJson(url, payload) {
   }
 
   return data;
+}
+
+/**
+ * @param {string} url
+ * @param {Record<string, unknown>} payload
+ * @returns {Promise<any>}
+ */
+async function postStoreJson(url, payload) {
+  return requestStoreJson(url, {
+    method: "POST",
+    payload,
+  });
 }
 
 export function verifyGstNumber(gstn) {
@@ -117,6 +129,17 @@ export function updateSizeChart(payload) {
     storeUrl: session.storeUrl,
     chartBase64: payload.base64,
     filename: payload.filename,
+  });
+}
+
+export function deleteSizeChart() {
+  const session = getDashboardSession();
+  return requestStoreJson("/api/store/update-size-chart", {
+    method: "DELETE",
+    payload: {
+      accessToken: session.accessToken,
+      storeUrl: session.storeUrl,
+    },
   });
 }
 

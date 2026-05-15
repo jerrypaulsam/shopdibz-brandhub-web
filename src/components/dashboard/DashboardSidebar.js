@@ -5,48 +5,77 @@ import { clearAuthSession, logoutSeller } from "@/src/api/auth";
 import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { useToast } from "@/src/components/app/ToastProvider";
 import { PRODUCT_BULK_TEMPLATE_URLS } from "@/src/data/product-variation-options";
+import { getStoreSliderMeta } from "@/src/utils/store-slider-routing";
 
-const menuItems = [
-  { label: "Dashboard", href: "/home", icon: "dashboard", kind: "route" },
-  { label: "Products", href: "/products-list", icon: "tag", kind: "route" },
-  { label: "New Product", href: "/products/new/category", icon: "plus-box", kind: "route" },
-  { label: "Orders", href: "/orders-list?tab=pending", icon: "stream", kind: "route" },
-  { label: "Coupons", href: "/coupons-list", icon: "ticket", kind: "route" },
-  { label: "Payments", href: "/payments-list?tab=pending", icon: "wallet", kind: "route" },
-  { label: "Ads", href: "/campaigns-list", icon: "rocket", kind: "route" },
-  { label: "Product Groups", href: "/product-groups", icon: "grid", kind: "route" },
-  { label: "Activity", href: "/activity", icon: "activity", kind: "route" },
-  { label: "Store Preview", icon: "eye", kind: "preview" },
-  { label: "Penalties", href: "/penalty-reasons", icon: "alert", kind: "route" },
-  { label: "Notifications", href: "/notifications", icon: "bell", kind: "route" },
-  { label: "Store Reviews", href: "/store-reviews", icon: "star", kind: "route" },
-  { label: "Store Sliders", href: "/store-slider-management", icon: "image", kind: "route" },
-  { label: "New Sliders", href: "/store-slider-image-form", icon: "image-plus", kind: "route" },
-  { label: "Profile", href: "/profile", icon: "user", kind: "route" },
-  { label: "Bank Details", href: "/settings/bank", icon: "bank", kind: "route" },
-  { label: "Change Password", href: "/settings/change-password", icon: "key", kind: "route" },
-  { label: "Feeds", icon: "megaphone", kind: "notice", notice: "Feeds is still coming soon." },
-  {
-    label: "Customer Insights",
-    icon: "users",
-    kind: "notice",
-    notice: "Customer Insights is a premium feature and is still coming soon.",
-  },
-  {
-    label: "Downloads",
-    icon: "download",
-    kind: "notice",
-    notice: "Download templates will be available soon.",
-  },
-];
+function buildMenuSections(sliderItem) {
+  return [
+    {
+      title: "Workspace",
+      items: [
+        { label: "Dashboard", href: "/home", icon: "dashboard", kind: "route" },
+        { label: "Orders", href: "/orders-list?tab=pending", icon: "stream", kind: "route" },
+        { label: "Products", href: "/products-list", icon: "tag", kind: "route" },
+        { label: "New Product", href: "/products/new/category", icon: "plus-box", kind: "route" },
+        { label: "Product Groups", href: "/product-groups", icon: "grid", kind: "route" },
+        { label: "Coupons", href: "/coupons-list", icon: "ticket", kind: "route" },
+        { label: "Ads", href: "/campaigns-list", icon: "rocket", kind: "route" },
+        { label: "Payments", href: "/payments-list?tab=pending", icon: "wallet", kind: "route" },
+        { label: "Activity", href: "/activity", icon: "activity", kind: "route" },
+      ],
+    },
+    {
+      title: "Storefront",
+      items: [
+        { label: "Store Preview", icon: "eye", kind: "preview" },
+        { label: "Store Reviews", href: "/store-reviews", icon: "star", kind: "route" },
+        sliderItem,
+        { label: "Notifications", href: "/notifications", icon: "bell", kind: "route" },
+      ],
+    },
+    {
+      title: "Account",
+      items: [
+        { label: "Profile", href: "/profile", icon: "user", kind: "route" },
+        { label: "Bank Details", href: "/settings/bank", icon: "bank", kind: "route" },
+        { label: "Change Password", href: "/settings/change-password", icon: "key", kind: "route" },
+        { label: "Penalties", href: "/penalty-reasons", icon: "alert", kind: "route" },
+        { label: "Feeds", icon: "megaphone", kind: "notice", notice: "Feeds is still coming soon." },
+        {
+          label: "Customer Insights",
+          icon: "users",
+          kind: "notice",
+          notice: "Customer Insights is a premium feature and is still coming soon.",
+        },
+        {
+          label: "Downloads",
+          icon: "download",
+          kind: "notice",
+          notice: "Download templates will be available soon.",
+        },
+      ],
+    },
+  ];
+}
 
 /**
- * @param {{ hasStoreUrl?: boolean, onNavigate?: () => void }} props
+ * @param {{ hasStoreUrl?: boolean, storeInfo?: any, bannerImages?: any[], onNavigate?: () => void }} props
  */
-export default function DashboardSidebar({ hasStoreUrl = true, onNavigate }) {
+export default function DashboardSidebar({
+  hasStoreUrl = true,
+  storeInfo = null,
+  bannerImages = [],
+  onNavigate,
+}) {
   const { confirm } = useConfirm();
   const { showToast } = useToast();
   const [isDownloadsOpen, setIsDownloadsOpen] = useState(false);
+  const sliderMeta = getStoreSliderMeta(storeInfo, bannerImages);
+  const menuSections = buildMenuSections({
+    label: sliderMeta.navLabel,
+    href: sliderMeta.sidebarHref,
+    icon: sliderMeta.hasAnySlider ? "image" : "image-plus",
+    kind: "route",
+  });
 
   function showStoreUrlRequiredToast() {
     showToast({
@@ -116,81 +145,90 @@ export default function DashboardSidebar({ hasStoreUrl = true, onNavigate }) {
         </p>
       </div>
 
-      <div className="mt-6 space-y-2">
-        {menuItems.map((item) => {
-          const isLocked = !hasStoreUrl;
-          const classes =
-            `flex min-h-11 w-full items-center gap-3 rounded-sm px-3 text-sm font-semibold transition-colors ${
-              isLocked
-                ? "cursor-not-allowed text-white/35"
-                : "text-white/72 hover:bg-white/5 hover:text-brand-gold"
-            }`;
+      <div className="mt-6 space-y-5">
+        {menuSections.map((section) => (
+          <div key={section.title}>
+            <p className="px-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/28">
+              {section.title}
+            </p>
+            <div className="mt-2 space-y-2">
+              {section.items.map((item) => {
+                const isLocked = !hasStoreUrl;
+                const classes =
+                  `flex min-h-11 w-full items-center gap-3 rounded-sm px-3 text-sm font-semibold transition-colors ${
+                    isLocked
+                      ? "cursor-not-allowed text-white/35"
+                      : "text-white/72 hover:bg-white/5 hover:text-brand-gold"
+                  }`;
 
-          if (item.kind === "route") {
-            return (
-              <Link
-                className={classes}
-                href={item.href}
-                key={item.label}
-                aria-disabled={isLocked}
-                onClick={(event) => {
-                  if (isLocked) {
-                    event.preventDefault();
-                    showStoreUrlRequiredToast();
-                    return;
-                  }
+                if (item.kind === "route") {
+                  return (
+                    <Link
+                      className={classes}
+                      href={item.href}
+                      key={item.label}
+                      aria-disabled={isLocked}
+                      onClick={(event) => {
+                        if (isLocked) {
+                          event.preventDefault();
+                          showStoreUrlRequiredToast();
+                          return;
+                        }
 
-                  onNavigate?.();
-                }}
-              >
-                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border ${isLocked ? "border-white/5 text-white/25" : "border-white/10 text-brand-gold"}`}>
-                  <SidebarGlyph name={item.icon} />
-                </span>
-                {item.label}
-              </Link>
-            );
-          }
-
-          return (
-            <button
-              className={classes}
-              key={item.label}
-              type="button"
-              onClick={() => {
-                if (isLocked) {
-                  showStoreUrlRequiredToast();
-                  return;
+                        onNavigate?.();
+                      }}
+                    >
+                      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border ${isLocked ? "border-white/5 text-white/25" : "border-white/10 text-brand-gold"}`}>
+                        <SidebarGlyph name={item.icon} />
+                      </span>
+                      {item.label}
+                    </Link>
+                  );
                 }
 
-                if (item.kind === "preview") {
-                  openPreview();
-                  return;
-                }
+                return (
+                  <button
+                    className={classes}
+                    key={item.label}
+                    type="button"
+                    onClick={() => {
+                      if (isLocked) {
+                        showStoreUrlRequiredToast();
+                        return;
+                      }
 
-                if (item.label === "Downloads") {
-                  setIsDownloadsOpen(true);
-                  return;
-                }
+                      if (item.kind === "preview") {
+                        openPreview();
+                        return;
+                      }
 
-                showToast({
-                  message:
-                    item.label === "Feeds"
-                      ? "Feeds is available in the Brand Hub app. Please view it there."
-                      : item.label === "Customer Insights"
-                        ? "Customer Insights is coming soon."
-                        : item.notice || "This section will be available soon.",
-                  type: "info",
-                });
-                onNavigate?.();
-              }}
-            >
-              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border ${isLocked ? "border-white/5 text-white/25" : "border-white/10 text-brand-gold"}`}>
-                <SidebarGlyph name={item.icon} />
-              </span>
-              {item.label}
-            </button>
-          );
-        })}
+                      if (item.label === "Downloads") {
+                        setIsDownloadsOpen(true);
+                        return;
+                      }
+
+                      showToast({
+                        message:
+                          item.label === "Feeds"
+                            ? "Feeds is available in the Brand Hub app. Please view it there."
+                            : item.label === "Customer Insights"
+                              ? "Customer Insights is coming soon."
+                              : item.notice || "This section will be available soon.",
+                        type: "info",
+                      });
+                      onNavigate?.();
+                    }}
+                  >
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border ${isLocked ? "border-white/5 text-white/25" : "border-white/10 text-brand-gold"}`}>
+                      <SidebarGlyph name={item.icon} />
+                    </span>
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       <Link

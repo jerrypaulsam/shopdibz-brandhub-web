@@ -18,7 +18,6 @@ const actions = [
 export default function CreateActions({ storeInfo }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
-  const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const authSession = useSyncExternalStore(
     subscribeAuthSession,
     getAuthSessionSnapshot,
@@ -74,7 +73,7 @@ export default function CreateActions({ storeInfo }) {
     }
 
     if (key === "product") {
-      setIsProductDialogOpen(true);
+      router.push("/products/new/category");
       return;
     }
 
@@ -109,99 +108,7 @@ export default function CreateActions({ storeInfo }) {
           </button>
         ))}
       </div>
-      {isProductDialogOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">
-          <div className="w-full max-w-xl rounded-sm border border-white/10 bg-[#121212] p-6 shadow-2xl">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
-                  Product Actions
-                </p>
-                <h2 className="mt-2 text-2xl font-black text-brand-white">
-                  Verify And List Products
-                </h2>
-              </div>
-              <button
-                className="rounded-sm border border-white/10 px-3 py-1.5 text-sm font-bold text-white/60 hover:border-white/30 hover:text-brand-white"
-                type="button"
-                onClick={() => setIsProductDialogOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-
-            <div className="mt-6 grid gap-3">
-              <ProductRouteButton
-                label="Without Variation"
-                description="Open the single-product flow with the non-variation contract."
-                onClick={() => {
-                  setIsProductDialogOpen(false);
-                  router.push({
-                    pathname: "/products/new/category",
-                    query: {
-                      "listing-mode": "single",
-                      "variant-mode": "without-variant",
-                    },
-                  });
-                }}
-              />
-              <ProductRouteButton
-                label="With Variation"
-                description="Open the single-product flow with variation mapping enabled."
-                onClick={() => {
-                  setIsProductDialogOpen(false);
-                  router.push({
-                    pathname: "/products/new/category",
-                    query: {
-                      "listing-mode": "single",
-                      "variant-mode": "with-variant",
-                    },
-                  });
-                }}
-              />
-              <ProductRouteButton
-                label="Bulk Listing"
-                description="Choose category, pick with or without variant, then upload the bulk sheet."
-                onClick={() => {
-                  setIsProductDialogOpen(false);
-                  router.push({
-                    pathname: "/products/new/category",
-                    query: {
-                      "listing-mode": "bulk",
-                      "variant-mode": "without-variant",
-                    },
-                  });
-                }}
-              />
-              <ProductRouteButton
-                label="Verify Listing Sheet"
-                description="Open a dedicated sheet-check workspace before you submit any bulk listing."
-                onClick={() => {
-                  setIsProductDialogOpen(false);
-                  router.push("/products/verify-listing-sheet");
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      ) : null}
     </section>
-  );
-}
-
-/**
- * @param {{ label: string, description: string, onClick: () => void }} props
- */
-function ProductRouteButton({ label, description, onClick }) {
-  return (
-    <button
-      className="rounded-sm border border-white/10 bg-black/20 p-4 text-left transition-colors hover:border-brand-gold hover:bg-brand-gold/10"
-      type="button"
-      onClick={onClick}
-    >
-      <p className="text-sm font-bold text-brand-white">{label}</p>
-      <p className="mt-2 text-sm leading-6 text-white/55">{description}</p>
-    </button>
   );
 }
 

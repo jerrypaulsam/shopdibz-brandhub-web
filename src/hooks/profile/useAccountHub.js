@@ -11,15 +11,7 @@ import {
 import { clearAuthSession } from "@/src/api/auth";
 import { logScreenView } from "@/src/api/analytics";
 import { useToast } from "@/src/components/app/ToastProvider";
-
-const sectionItems = [
-  ["store-settings", "Store Settings"],
-  ["store-sliders", "Store Sliders"],
-  ["header-image", "Header Image"],
-  ["account-settings", "Account Settings"],
-  ["subscription", "Subscription"],
-  ["support", "Support"],
-];
+import { getStoreSliderMeta } from "@/src/utils/store-slider-routing";
 
 export function useAccountHub(section) {
   const router = useRouter();
@@ -71,14 +63,25 @@ export function useAccountHub(section) {
   }, []);
 
   const sectionNav = useMemo(
-    () =>
-      sectionItems.map(([value, label]) => ({
+    () => {
+      const sliderMeta = getStoreSliderMeta(storeInfo, bannerImages);
+      const sectionItems = [
+        ["store-settings", "Store Settings"],
+        ["header-image", "Header Image"],
+        ["store-sliders", sliderMeta.navLabel],
+        ["subscription", "Subscription"],
+        ["account-settings", "Account Settings"],
+        ["support", "Support"],
+      ];
+
+      return sectionItems.map(([value, label]) => ({
         value,
         label,
         href: `/profile/${value}`,
         active: value === section,
-      })),
-    [section],
+      }));
+    },
+    [bannerImages, section, storeInfo],
   );
 
   const session = getProfileSession();

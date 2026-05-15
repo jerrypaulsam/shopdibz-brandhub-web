@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
   connectShopifyStore,
+  deleteSizeChart,
   connectWooCommerceStore,
   deleteFounderWelcomeMessage,
   disconnectShopifyStore,
@@ -242,6 +243,34 @@ export function useStoreInfoForm() {
     }
   }
 
+  async function removeSizeChart() {
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await deleteSizeChart();
+      setSizeChartBase64("");
+      setSizeChartFilename("");
+      setSizeChartPreview("");
+      await refreshStoreInfo();
+      setMessage("Size guide removed");
+      showToast({
+        message: "Size guide removed",
+        type: "success",
+      });
+      return true;
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Size guide removal failed");
+      showToast({
+        message: error instanceof Error ? error.message : "Size guide removal failed",
+        type: "error",
+      });
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   /**
    * @param {{ base64: string, filename: string }} payload
    * @returns {Promise<boolean>}
@@ -466,6 +495,7 @@ export function useStoreInfoForm() {
     submitInfo,
     submitLogo,
     submitSizeChart,
+    removeSizeChart,
     submitWelcomeMessage,
     removeWelcomeMessage,
     submitTheme,

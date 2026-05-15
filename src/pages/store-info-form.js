@@ -12,6 +12,7 @@ import StoreSection from "@/src/components/store/StoreSection";
 import StoreToggleRow from "@/src/components/store/StoreToggleRow";
 import ThemePicker from "@/src/components/store/ThemePicker";
 import { useStoreInfoForm } from "@/src/hooks/store/useStoreInfoForm";
+import { getPaymentsPricingUrl } from "@/src/utils/payments";
 
 export default function StoreInfoFormPage() {
   const router = useRouter();
@@ -39,6 +40,7 @@ export default function StoreInfoFormPage() {
     submitInfo,
     submitLogo,
     submitSizeChart,
+    removeSizeChart,
     submitWelcomeMessage,
     removeWelcomeMessage,
     submitTheme,
@@ -53,6 +55,8 @@ export default function StoreInfoFormPage() {
   const storeConnected = String(storeInfo?.storeConnected || "");
   const shopifyConnected = storeConnected === "1";
   const wooCommerceConnected = storeConnected === "2";
+  const showShopifyConnector = !wooCommerceConnected;
+  const showWooCommerceConnector = !shopifyConnected;
   const lastSyncedLabel = formatSyncDate(storeInfo?.lastSynced || storeInfo?.last_synced || "");
   const isInitialSetup = !storeInfo;
   const focusSection =
@@ -76,9 +80,11 @@ export default function StoreInfoFormPage() {
   const hasPendingLogo = Boolean(logoBase64);
   const hasPendingSizeChart = Boolean(sizeChartBase64);
   const currentSizeGuide = storeInfo?.sizeGuide || "";
-  const currentSizeGuideIsPdf = /\.pdf(\?|#|$)/i.test(currentSizeGuide);
-  const pendingSizeGuideIsPdf = /\.pdf$/i.test(sizeChartFilename);
+  const currentSizeGuideIsPdf = isPdfAsset(currentSizeGuide);
+  const pendingSizeGuideIsPdf = isPdfAsset(sizeChartPreview || sizeChartFilename);
   const welcomeAudioUrl = storeInfo?.welcome || storeInfo?.welcomeVoice || "";
+  const isPremiumThemeAccess = Boolean(storeInfo?.prem);
+  const pricingUrl = getPaymentsPricingUrl(storeInfo);
 
   return (
     <DashboardShell>
@@ -239,17 +245,48 @@ export default function StoreInfoFormPage() {
 
               <CollapsibleStoreSection
                 title="Store Theme"
-                subtitle="Choose the storefront theme that best matches your brand."
+                subtitle={
+                  isPremiumThemeAccess
+                    ? "Choose the storefront theme that best matches your brand."
+                    : "Premium storefront themes are available after you upgrade your plan."
+                }
                 defaultOpen={focusSection === "theme"}
               >
-                <ThemePicker
-                  value={form.themeId}
-                  onChange={(value) => updateField("themeId", value)}
-                />
-                <div className="mt-5 max-w-xs">
-                  <AuthButton type="button" disabled={isSubmitting} onClick={submitTheme}>
-                    {isSubmitting ? "Updating..." : "Update Theme"}
-                  </AuthButton>
+                <div className="relative">
+                  <div className={!isPremiumThemeAccess ? "pointer-events-none select-none blur-[3px] opacity-50" : ""}>
+                    <ThemePicker
+                      value={form.themeId}
+                      onChange={(value) => updateField("themeId", value)}
+                    />
+                    <div className="mt-5 max-w-xs">
+                      <AuthButton type="button" disabled={isSubmitting || !isPremiumThemeAccess} onClick={submitTheme}>
+                        {isSubmitting ? "Updating..." : "Update Theme"}
+                      </AuthButton>
+                    </div>
+                  </div>
+
+                  {!isPremiumThemeAccess ? (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-full max-w-md rounded-sm border border-brand-gold/25 bg-[#17130a]/95 px-5 py-5 text-center shadow-2xl">
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
+                          Premium Feature
+                        </p>
+                        <p className="mt-3 text-sm leading-6 text-white/70">
+                          Upgrade your plan to unlock storefront theme customization.
+                        </p>
+                        {pricingUrl ? (
+                          <a
+                            className="mt-4 inline-flex min-h-10 items-center rounded-sm border border-brand-gold/30 px-4 text-sm font-bold text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
+                            href={pricingUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Upgrade plan
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </CollapsibleStoreSection>
 
@@ -329,6 +366,17 @@ export default function StoreInfoFormPage() {
                       </a>
                     ) : null}
 
+                    {currentSizeGuide && !hasPendingSizeChart ? (
+                      <button
+                        className="inline-flex items-center rounded-sm border border-red-400/30 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-red-200 transition-colors hover:border-red-300 hover:text-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        type="button"
+                        disabled={isSubmitting}
+                        onClick={removeSizeChart}
+                      >
+                        {isSubmitting ? "Removing..." : "Remove Size Guide"}
+                      </button>
+                    ) : null}
+
                     {/* <a
                       className="inline-flex items-center rounded-sm border border-brand-gold/30 px-4 py-2 text-sm font-bold text-brand-gold hover:text-brand-white"
                       href={storeInfo?.url ? `https://www.shopdibz.com/store/${storeInfo.url}?utm_source=brand_hub&utm_medium=organic&utm_content=${storeInfo.url}` : "#"}
@@ -365,60 +413,58 @@ export default function StoreInfoFormPage() {
                     <p>Use matching SKU codes across Shopdibz and your external store.</p>
                   </div>
 
-                  <ConnectorBlock
-                    title="Shopify"
-                    description={
-                      shopifyConnected
-                        ? "Connected"
-                        : "Connect your Shopify store and enable sync."
-                    }
-                    connected={shopifyConnected}
-                    connectFields={
-                      <>
-                        <StoreField label="Shopify Store URL" helper="Enter only the store subdomain, without .myshopify.com" value={connectorForm.shopifyUrl} onChange={(value) => updateConnectorField("shopifyUrl", value)} />
-                        <StoreField label="Shopify Access Token" value={connectorForm.shopifyAccess} onChange={(value) => updateConnectorField("shopifyAccess", value)} />
-                      </>
-                    }
-                    connectLabel={isSubmitting ? "Saving..." : "Connect Shopify"}
-                    disabledReason={
-                      wooCommerceConnected ? "Disconnect WooCommerce before connecting Shopify." : ""
-                    }
-                    onConnect={submitShopifyConnection}
-                    syncLabel="Sync Shopify"
-                    onSync={submitShopifySync}
-                    onDisconnect={submitShopifyDisconnect}
-                    isSubmitting={isSubmitting}
-                    lastSyncedLabel={lastSyncedLabel}
-                    tutorialUrl="https://www.youtube.com/watch?v=v_rqyBDTTQU"
-                  />
+                  {showShopifyConnector ? (
+                    <ConnectorBlock
+                      title="Shopify"
+                      description={
+                        shopifyConnected
+                          ? "Connected"
+                          : "Connect your Shopify store and enable sync."
+                      }
+                      connected={shopifyConnected}
+                      connectFields={
+                        <>
+                          <StoreField label="Shopify Store URL" helper="Enter only the store subdomain, without .myshopify.com" value={connectorForm.shopifyUrl} onChange={(value) => updateConnectorField("shopifyUrl", value)} />
+                          <StoreField label="Shopify Access Token" value={connectorForm.shopifyAccess} onChange={(value) => updateConnectorField("shopifyAccess", value)} />
+                        </>
+                      }
+                      connectLabel={isSubmitting ? "Saving..." : "Connect Shopify"}
+                      onConnect={submitShopifyConnection}
+                      syncLabel="Sync Shopify"
+                      onSync={submitShopifySync}
+                      onDisconnect={submitShopifyDisconnect}
+                      isSubmitting={isSubmitting}
+                      lastSyncedLabel={lastSyncedLabel}
+                      tutorialUrl="https://www.youtube.com/watch?v=v_rqyBDTTQU"
+                    />
+                  ) : null}
 
-                  <ConnectorBlock
-                    title="WooCommerce"
-                    description={
-                      wooCommerceConnected
-                        ? "Connected"
-                        : "Connect your WooCommerce store and start syncing products."
-                    }
-                    connected={wooCommerceConnected}
-                    connectFields={
-                      <>
-                        <StoreField label="WooCommerce Store URL" value={connectorForm.wooCommerceUrl} onChange={(value) => updateConnectorField("wooCommerceUrl", value)} />
-                        <StoreField label="WooCommerce Consumer Key" value={connectorForm.wooCommerceKey} onChange={(value) => updateConnectorField("wooCommerceKey", value)} />
-                        <StoreField label="WooCommerce Consumer Secret" value={connectorForm.wooCommerceSecret} onChange={(value) => updateConnectorField("wooCommerceSecret", value)} />
-                      </>
-                    }
-                    connectLabel={isSubmitting ? "Saving..." : "Connect WooCommerce"}
-                    disabledReason={
-                      shopifyConnected ? "Disconnect Shopify before connecting WooCommerce." : ""
-                    }
-                    onConnect={submitWooCommerceConnection}
-                    syncLabel="Sync WooCommerce"
-                    onSync={submitWooCommerceSync}
-                    onDisconnect={submitWooCommerceDisconnect}
-                    isSubmitting={isSubmitting}
-                    lastSyncedLabel={lastSyncedLabel}
-                    tutorialUrl="https://drive.google.com/file/d/1Cx3GwUuPMpoa9t2NcNIPc6kPmEbOVjHb/view?usp=sharing"
-                  />
+                  {showWooCommerceConnector ? (
+                    <ConnectorBlock
+                      title="WooCommerce"
+                      description={
+                        wooCommerceConnected
+                          ? "Connected"
+                          : "Connect your WooCommerce store and start syncing products."
+                      }
+                      connected={wooCommerceConnected}
+                      connectFields={
+                        <>
+                          <StoreField label="WooCommerce Store URL" value={connectorForm.wooCommerceUrl} onChange={(value) => updateConnectorField("wooCommerceUrl", value)} />
+                          <StoreField label="WooCommerce Consumer Key" value={connectorForm.wooCommerceKey} onChange={(value) => updateConnectorField("wooCommerceKey", value)} />
+                          <StoreField label="WooCommerce Consumer Secret" value={connectorForm.wooCommerceSecret} onChange={(value) => updateConnectorField("wooCommerceSecret", value)} />
+                        </>
+                      }
+                      connectLabel={isSubmitting ? "Saving..." : "Connect WooCommerce"}
+                      onConnect={submitWooCommerceConnection}
+                      syncLabel="Sync WooCommerce"
+                      onSync={submitWooCommerceSync}
+                      onDisconnect={submitWooCommerceDisconnect}
+                      isSubmitting={isSubmitting}
+                      lastSyncedLabel={lastSyncedLabel}
+                      tutorialUrl="https://drive.google.com/file/d/1Cx3GwUuPMpoa9t2NcNIPc6kPmEbOVjHb/view?usp=sharing"
+                    />
+                  ) : null}
                 </div>
               </CollapsibleStoreSection>
             </div>
@@ -469,6 +515,29 @@ export default function StoreInfoFormPage() {
       />
     </DashboardShell>
   );
+}
+
+function isPdfAsset(value) {
+  const normalized = String(value || "").trim();
+
+  if (!normalized) {
+    return false;
+  }
+
+  if (/^data:application\/pdf(?:;|,)/i.test(normalized)) {
+    return true;
+  }
+
+  if (/\.pdf(?:\?|#|$)/i.test(normalized)) {
+    return true;
+  }
+
+  try {
+    const parsed = new URL(normalized);
+    return /\.pdf$/i.test(parsed.pathname);
+  } catch {
+    return false;
+  }
 }
 
 /**

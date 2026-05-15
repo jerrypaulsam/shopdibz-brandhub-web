@@ -6,6 +6,7 @@ import {
   subscribeAuthSession,
 } from "@/src/api/auth";
 import { fetchStoreInfo, getDashboardSession } from "@/src/api/dashboard";
+import { fetchBannerImages } from "@/src/api/store";
 
 /**
  * @param {{ children: import("react").ReactNode }} props
@@ -14,6 +15,8 @@ export default function DashboardShell({ children }) {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCheckingAccess, setIsCheckingAccess] = useState(true);
+  const [sidebarStoreInfo, setSidebarStoreInfo] = useState(null);
+  const [sidebarBannerImages, setSidebarBannerImages] = useState([]);
   const hasHydrated = useSyncExternalStore(
     subscribeToHydration,
     getHydratedSnapshot,
@@ -52,6 +55,8 @@ export default function DashboardShell({ children }) {
     let isCurrent = true;
 
     async function verifyWorkspaceAccess() {
+      setIsCheckingAccess(true);
+
       if (!hasHydrated || !router.isReady || !hasAccessToken) {
         return;
       }
@@ -73,11 +78,17 @@ export default function DashboardShell({ children }) {
       }
 
       try {
-        const storeInfo = await fetchStoreInfo();
+        const [storeInfo, banners] = await Promise.all([
+          fetchStoreInfo(),
+          fetchBannerImages().catch(() => ({ results: [] })),
+        ]);
 
         if (!isCurrent) {
           return;
         }
+
+        setSidebarStoreInfo(storeInfo || null);
+        setSidebarBannerImages(banners?.results || []);
 
         if (storeInfo?.close === true) {
           await router.replace("/store-closed");
@@ -99,7 +110,6 @@ export default function DashboardShell({ children }) {
       }
     }
 
-    setIsCheckingAccess(true);
     verifyWorkspaceAccess();
 
     return () => {
@@ -119,7 +129,11 @@ export default function DashboardShell({ children }) {
     <main className="min-h-screen bg-[#0a0a0a] text-brand-white">
       <div className="flex min-h-screen">
         <aside className="hidden w-72 shrink-0 border-r border-white/10 bg-[#121212] xl:block">
-          <DashboardSidebar hasStoreUrl={hasStoreUrl} />
+          <DashboardSidebar
+            hasStoreUrl={hasStoreUrl}
+            storeInfo={sidebarStoreInfo}
+            bannerImages={sidebarBannerImages}
+          />
         </aside>
 
         {isMenuOpen ? (
@@ -133,6 +147,8 @@ export default function DashboardShell({ children }) {
             <aside className="relative h-full w-72 overflow-y-auto bg-[#121212]">
               <DashboardSidebar
                 hasStoreUrl={hasStoreUrl}
+                storeInfo={sidebarStoreInfo}
+                bannerImages={sidebarBannerImages}
                 onNavigate={() => setIsMenuOpen(false)}
               />
             </aside>

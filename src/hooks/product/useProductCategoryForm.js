@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getProductCategories, getSubCategories, getItemSubCategories } from "@/src/data/product-catalog";
 import { PRODUCT_VARIANT_MODES } from "@/src/data/product-variation-options";
 import { useProductListingDraft } from "./useProductListingDraft";
@@ -22,6 +22,7 @@ import { useProductListingDraft } from "./useProductListingDraft";
 export function useProductCategoryForm() {
   const draftApi = useProductListingDraft();
   const [error, setError] = useState("");
+  const hasInitializedCategoryStep = useRef(false);
 
   const categories = useMemo(() => getProductCategories(), []);
   const subCategories = useMemo(
@@ -36,6 +37,43 @@ export function useProductCategoryForm() {
       ),
     [draftApi.draft.categorySlug, draftApi.draft.subCategorySlug],
   );
+
+  useEffect(() => {
+    if (!draftApi.routerReady || hasInitializedCategoryStep.current) {
+      return;
+    }
+
+    hasInitializedCategoryStep.current = true;
+
+    const listingMode =
+      readQueryValue(draftApi.router.query["listing-mode"]) || "single";
+    const variantMode =
+      readQueryValue(draftApi.router.query["variant-mode"]) || "without-variant";
+    const variantType =
+      variantMode === "with-variant"
+        ? readQueryValue(draftApi.router.query["variation-type"])
+        : "";
+
+    draftApi.resetDraft();
+    draftApi.updateDraft({
+      listingMode,
+      variantMode,
+      variantType,
+    });
+
+    void draftApi.router.replace(
+      {
+        pathname: draftApi.router.pathname,
+        query: {
+          "listing-mode": listingMode,
+          "variant-mode": variantMode,
+          ...(variantType ? { "variation-type": variantType } : {}),
+        },
+      },
+      undefined,
+      { shallow: true },
+    );
+  }, [draftApi]);
 
   function chooseCategory(value) {
     setError("");
@@ -122,4 +160,12 @@ export function useProductCategoryForm() {
     chooseListingMode,
     continueToNext,
   };
+}
+
+function readQueryValue(queryValue) {
+  if (Array.isArray(queryValue)) {
+    return queryValue[0] || "";
+  }
+
+  return typeof queryValue === "string" ? queryValue : "";
 }

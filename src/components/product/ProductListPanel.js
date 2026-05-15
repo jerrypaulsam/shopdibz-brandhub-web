@@ -90,6 +90,12 @@ export default function ProductListPanel({
               Search Catalog
             </Link>
             <Link
+              className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
+              href="/products/verify-listing-sheet"
+            >
+              Verify Listing Sheet
+            </Link>
+            <Link
               className="rounded-sm border border-brand-gold bg-brand-gold px-4 py-2 text-sm font-semibold text-brand-black transition-colors hover:bg-[#f5d279]"
               href="/products/new/category"
             >

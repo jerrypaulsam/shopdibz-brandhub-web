@@ -1,5 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
-import { submitStoreForm } from "@/src/api/serverStoreProxy";
+import { requestStoreJsonWithAuth, submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export const config = {
   api: {
@@ -10,20 +10,31 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
+  if (req.method !== "POST" && req.method !== "DELETE") {
+    res.setHeader("Allow", "POST, DELETE");
     res.status(405).json({ message: "Method not allowed" });
     return;
   }
 
-  const {
-    accessToken = "",
-    storeUrl = "",
-    chartBase64 = "",
-    filename = "",
-  } = req.body || {};
+  const { accessToken = "", storeUrl = "", chartBase64 = "", filename = "" } = req.body || {};
 
-  if (!accessToken || !storeUrl || !chartBase64) {
+  if (!accessToken || !storeUrl) {
+    res.status(400).json({ message: "Access token and store URL are required" });
+    return;
+  }
+
+  if (req.method === "DELETE") {
+    const result = await requestStoreJsonWithAuth({
+      endpoint: `${SHOPDIBZ_URLS.updateSizeChart}${storeUrl}/`,
+      accessToken,
+      method: "DELETE",
+    });
+
+    res.status(result.status).json(result.data);
+    return;
+  }
+
+  if (!chartBase64) {
     res.status(400).json({ message: "Size chart upload fields are missing" });
     return;
   }
