@@ -3,11 +3,9 @@ import { NextResponse } from 'next/server'
 export function middleware(request) {
   const authHeader = request.headers.get('authorization')
 
-  // 1. Validate that the header exists AND is specifically for Basic Auth
-  if (authHeader && authHeader.startsWith('Basic ')) {
+  if (authHeader) {
     try {
-      // Safely extract the encoded credentials
-      const encoded = authHeader.substring(6).trim()
+      const encoded = authHeader.split(' ')[1]
       const decoded = atob(encoded)
       const [user, password] = decoded.split(':')
 
@@ -18,14 +16,12 @@ export function middleware(request) {
         return NextResponse.next()
       }
     } catch (e) {
-      // 2. CRITICAL FIX: Log the error message as a string, NOT the raw error object.
-      // This prevents the Edge Runtime serialization crash.
-      console.error('Basic Auth Decode Error:', e instanceof Error ? e.message : String(e))
+      // Silent catch: falls through to the prompt
     }
   }
 
-  // 3. Use NextResponse instead of the standard Web Response for Next.js consistency
-  return new NextResponse('Authentication required', {
+  // Strictly formatted standard Web Response
+  return new Response('Authentication required', {
     status: 401,
     headers: {
       'WWW-Authenticate': 'Basic realm="Secure Area"',
