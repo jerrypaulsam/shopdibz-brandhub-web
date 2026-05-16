@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // turbopack: {
-  //   root: process.cwd(),
-  // },
-  // trailingSlash: true,
+  turbopack: {
+    root: process.cwd(),
+  },
+  trailingSlash: true,
   
   images: {
     remotePatterns: [
