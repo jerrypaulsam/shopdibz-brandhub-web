@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server'
 
 export function middleware(request) {
-  const basicAuth = request.headers.get('authorization')
+  const authHeader = request.headers.get('authorization')
 
-  if (basicAuth) {
-    const authValue = basicAuth.split(' ')[1]
-    const [user, password] = atob(authValue).split(':')
+  if (authHeader) {
+    const encoded = authHeader.split(' ')[1]
+
+    const decoded = Buffer.from(encoded, 'base64').toString('utf-8')
+
+    const [user, password] = decoded.split(':')
 
     if (
       user === process.env.BASIC_AUTH_USER &&
@@ -24,14 +27,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - api
-     * - static files
-     * - images
-     * - favicon
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!_next|favicon.ico).*)'],
 }
