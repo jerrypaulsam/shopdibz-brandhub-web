@@ -68,6 +68,9 @@ export default function App({ Component, pageProps }) {
                   });
                 `}
               </Script>
+
+              <meta name="robots" content="noindex,nofollow" /> {/* REMOVE LATER */}
+              
             </>
           ) : null}
           <Component {...pageProps} />
