@@ -8,6 +8,13 @@ import {
  * @param {{ payment: any, isActive: boolean, onOpen: (paymentId: number) => void }} props
  */
 export default function PaymentCard({ payment, isActive, onOpen }) {
+  const paymentTitle =
+    payment?.title ||
+    payment?.productTitle ||
+    payment?.productName ||
+    payment?.name ||
+    "";
+
   return (
     <article
       className={`rounded-sm border p-4 transition-colors ${
@@ -18,9 +25,11 @@ export default function PaymentCard({ payment, isActive, onOpen }) {
     >
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/35">
-            Order #{payment.orderId}
-          </p>
+          {paymentTitle ? (
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/35">
+              {paymentTitle}
+            </p>
+          ) : null}
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <span
               className={`inline-flex items-center rounded-sm border px-2.5 py-1 text-xs font-bold uppercase tracking-[0.14em] ${getPaymentStatusTone(payment.statusLabel)}`}

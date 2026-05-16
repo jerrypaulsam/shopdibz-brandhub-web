@@ -9,24 +9,27 @@ export default function OrderAttentionPanel({ storeInfo }) {
       label: "Pending",
       value: Number(storeInfo?.pOrders || 0),
       href: "/orders-list?tab=pending",
-      tone: "border-amber-400/30 bg-amber-400/10 text-amber-200",
+      tone:
+        "border-amber-400/30 bg-amber-400/10 text-amber-200 [html[data-theme='light']_&]:text-amber-700",
     },
     {
       label: "Packed",
       value: Number(storeInfo?.packedOrders || 0),
       href: "/orders-list?tab=packed",
-      tone: "border-sky-400/30 bg-sky-400/10 text-sky-200",
+      tone:
+        "border-sky-400/30 bg-sky-400/10 text-sky-200 [html[data-theme='light']_&]:text-sky-700",
     },
     {
       label: "Shipped",
       value: Number(storeInfo?.shippedOrders || 0),
       href: "/orders-list?tab=shipped",
-      tone: "border-violet-400/30 bg-violet-400/10 text-violet-200",
+      tone:
+        "border-violet-400/30 bg-violet-400/10 text-violet-200 [html[data-theme='light']_&]:text-violet-700",
     },
   ];
 
   return (
-    <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
+    <section className="theme-surface rounded-sm border p-5">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
@@ -64,7 +67,7 @@ export default function OrderAttentionPanel({ storeInfo }) {
                 Open
               </span>
             </div>
-            <p className="mt-3 text-sm text-white/70">
+            <p className="mt-3 text-sm opacity-80">
               {item.value > 0
                 ? "Orders are waiting for seller action."
                 : "Nothing waiting in this queue right now."}

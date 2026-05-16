@@ -88,15 +88,15 @@ export default function ProductDetailPanel({
                 {variationImageGroups.map((group) =>
                   group.images.length ? (
                     <div
-                      className="rounded-sm border border-white/10 bg-black/20 p-4"
+                      className="theme-surface-soft rounded-sm border p-4"
                       key={group.variation?.id}
                     >
-                      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                        <p className="text-sm font-bold text-brand-white">
+                      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="min-w-0 text-sm font-bold text-brand-white">
                           {titleCaseValue(group.variation?.vAtion)} / {group.variation?.vTypes?.[0]?.name} / {group.variation?.vTypes?.[0]?.tMap}
                         </p>
                         <Link
-                          className="rounded-sm border border-white/15 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                          className="theme-action-neutral inline-flex min-h-9 items-center justify-center self-start rounded-sm border px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] transition-colors"
                           href={`/products/${product.slug}/variations/${group.variation?.id}/images?variant-mode=${variantMode}`}
                         >
                           Manage
@@ -146,7 +146,7 @@ export default function ProductDetailPanel({
 
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
-              className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold"
+              className="theme-action-neutral inline-flex min-h-10 items-center justify-center rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
               href={
                 product?.var
                   ? `/products/${product.slug}/variations/${activeVariation?.id}/images`
@@ -157,14 +157,14 @@ export default function ProductDetailPanel({
             </Link>
             {product?.var ? (
               <Link
-                className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                className="theme-action-neutral inline-flex min-h-10 items-center justify-center rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
                 href={`/products/${product.slug}/new-variation?variant-mode=${variantMode}`}
               >
                 Add New Variation
               </Link>
             ) : null}
             <a
-              className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold"
+              className="theme-action-neutral inline-flex min-h-10 items-center justify-center rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
               href={`https://www.shopdibz.com/products/detail/${product.slug}`}
               target="_blank"
               rel="noreferrer"
@@ -544,7 +544,7 @@ function MediaCard({
   onRemoveImage,
 }) {
   return (
-    <div className="rounded-sm border border-white/10 bg-black/20 p-3">
+    <div className="theme-surface-soft rounded-sm border p-3">
       <div className="relative aspect-square overflow-hidden rounded-sm bg-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -563,10 +563,10 @@ function MediaCard({
           {image.cover ? "Cover image" : "Gallery image"}
         </p>
         {canManage ? (
-          <div className="flex flex-wrap gap-2">
+          <div className="grid gap-2 sm:grid-cols-2">
             {!image.cover ? (
               <button
-                className="inline-flex items-center gap-2 rounded-sm border border-white/10 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                className="theme-action-neutral inline-flex min-h-9 items-center justify-center gap-2 rounded-sm border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors"
                 type="button"
                 disabled={imageActionLoadingId === `cover-${image.id}`}
                 onClick={() => onMakeCoverImage(image.id)}
@@ -576,7 +576,7 @@ function MediaCard({
               </button>
             ) : null}
             <button
-              className="inline-flex items-center gap-2 rounded-sm border border-red-400/35 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-red-300 hover:border-red-300 hover:text-red-200"
+              className="theme-action-danger inline-flex min-h-9 items-center justify-center gap-2 rounded-sm border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors"
               type="button"
               disabled={imageActionLoadingId === `remove-${image.id}`}
               onClick={() => onRemoveImage(image.id)}

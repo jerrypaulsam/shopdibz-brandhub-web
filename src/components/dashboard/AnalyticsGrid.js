@@ -17,11 +17,11 @@ export default function AnalyticsGrid({ cards }) {
     <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
       {cards.map((card) => (
         <article
-          className="rounded-sm border border-white/10 bg-[#121212] p-4"
+          className="theme-surface rounded-sm border p-4"
           key={card.label}
         >
           <div
-            className={`mb-5 flex h-9 w-9 items-center justify-center rounded-sm border border-white/10 text-lg font-black ${
+            className={`theme-surface-soft mb-5 flex h-9 w-9 items-center justify-center rounded-sm border text-lg font-black ${
               toneMap[card.tone] || "text-brand-gold"
             }`}
           >

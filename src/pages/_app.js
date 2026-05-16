@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 import MaintenanceScreen from "@/src/components/app/MaintenanceScreen";
 import ConfirmProvider from "@/src/components/app/ConfirmProvider";
 import SeoHead from "@/src/components/app/SeoHead";
+import ThemeProvider from "@/src/components/app/ThemeProvider";
+import ThemeToggle from "@/src/components/app/ThemeToggle";
 import ToastProvider from "@/src/components/app/ToastProvider";
 
 export default function App({ Component, pageProps }) {
@@ -47,27 +49,30 @@ export default function App({ Component, pageProps }) {
   return (
     <ToastProvider>
       <ConfirmProvider>
-        <SeoHead pathname={router.pathname} asPath={router.asPath} />
-        {analyticsId ? (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`}
-              strategy="afterInteractive"
-            />
-            <Script id="shopdibz-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                window.gtag = gtag;
-                gtag('js', new Date());
-                gtag('config', '${analyticsId}', {
-                  page_path: window.location.pathname,
-                });
-              `}
-            </Script>
-          </>
-        ) : null}
-        <Component {...pageProps} />
+        <ThemeProvider>
+          <SeoHead pathname={router.pathname} asPath={router.asPath} />
+          {analyticsId ? (
+            <>
+              <Script
+                src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`}
+                strategy="afterInteractive"
+              />
+              <Script id="shopdibz-analytics" strategy="afterInteractive">
+                {`
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  window.gtag = gtag;
+                  gtag('js', new Date());
+                  gtag('config', '${analyticsId}', {
+                    page_path: window.location.pathname,
+                  });
+                `}
+              </Script>
+            </>
+          ) : null}
+          <Component {...pageProps} />
+          <ThemeToggle />
+        </ThemeProvider>
       </ConfirmProvider>
     </ToastProvider>
   );

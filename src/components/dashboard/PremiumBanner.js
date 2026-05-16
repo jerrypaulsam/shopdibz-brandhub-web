@@ -7,7 +7,7 @@ export default function PremiumBanner({ storeInfo, onHide }) {
   }
 
   return (
-    <section className="rounded-[20px] bg-[#121212] px-5 py-4">
+    <section className="theme-surface rounded-[20px] border px-5 py-4">
       <div className="flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
         <div>
           <p className="text-base font-bold text-brand-white">
@@ -19,7 +19,7 @@ export default function PremiumBanner({ storeInfo, onHide }) {
         </div>
         <div className="flex items-center gap-3">
           <a
-            className="rounded-sm bg-[#2d5a42] px-4 py-2 text-sm font-bold text-brand-white"
+            className="theme-action-positive rounded-sm border px-4 py-2 text-sm font-bold transition-colors"
             href={`https://loadapp.shopdibz.com/api/store/get/subscription_plans/?store_url=${storeInfo?.url || ""}`}
             target="_blank"
             rel="noreferrer"

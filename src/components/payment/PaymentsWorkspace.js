@@ -129,6 +129,7 @@ export default function PaymentsWorkspace({
                         breakdown={paymentBreakdown}
                         isLoading={isBreakdownLoading}
                         message={breakdownMessage}
+                        payment={selectedPayment}
                         paymentId={selectedPaymentId}
                         onClose={onClosePayment}
                       />
@@ -153,6 +154,7 @@ export default function PaymentsWorkspace({
             breakdown={paymentBreakdown}
             isLoading={isBreakdownLoading}
             message={selectedPaymentId ? breakdownMessage : ""}
+            payment={selectedPayment}
             paymentId={selectedPaymentId}
             onClose={onClosePayment}
           />

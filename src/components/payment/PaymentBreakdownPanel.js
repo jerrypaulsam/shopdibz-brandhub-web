@@ -1,15 +1,25 @@
 import { formatPaymentMoney } from "@/src/utils/payments";
 
 /**
- * @param {{ paymentId: number, breakdown: any, isLoading: boolean, message: string, onClose: () => void }} props
+ * @param {{ paymentId: number, payment?: any, breakdown: any, isLoading: boolean, message: string, onClose: () => void }} props
  */
 export default function PaymentBreakdownPanel({
   paymentId,
+  payment,
   breakdown,
   isLoading,
   message,
   onClose,
 }) {
+  const publicTitle =
+    payment?.title ||
+    payment?.productTitle ||
+    payment?.productName ||
+    payment?.name ||
+    breakdown?.tit ||
+    breakdown?.productTitle ||
+    "";
+
   return (
     <aside className="rounded-sm border border-white/10 bg-[#121212] p-5 xl:sticky xl:top-24">
       <div className="flex items-start justify-between gap-4">
@@ -18,7 +28,7 @@ export default function PaymentBreakdownPanel({
             Fee Breakdown
           </p>
           <h2 className="mt-2 text-lg font-extrabold text-brand-white">
-            Payment #{paymentId || "---"}
+            {publicTitle || "Payment breakdown"}
           </h2>
         </div>
         <button

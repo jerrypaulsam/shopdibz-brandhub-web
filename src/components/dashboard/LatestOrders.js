@@ -5,7 +5,7 @@ import Link from "next/link";
  */
 export default function LatestOrders({ orders }) {
   return (
-    <section className="rounded-sm border border-white/10 bg-[#121212]">
+    <section className="theme-surface rounded-sm border">
       <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
         <h2 className="text-base font-extrabold text-brand-white">
           {orders.length ? "New Pending Orders" : "Pending Orders"}
@@ -27,11 +27,9 @@ export default function LatestOrders({ orders }) {
           </thead>
           <tbody className="divide-y divide-white/10">
             {orders.slice(0, 5).map((order, index) => {
-              console.log(order);
-
               const orderId = order?.ordId || order?.order?.id || order?.id || "New";
               const orderRef = `/orders/${order?.oI_id}`;
-              const productTitle = order?.prdt?.title || "Product";
+              const productTitle = trimTitle(order?.prdt?.title || "Product");
               const productImage = order?.image || "";
               const qty = order?.prdt?.quantity;
 
@@ -89,7 +87,7 @@ export default function LatestOrders({ orders }) {
         {orders.slice(0, 5).map((order, index) => {
           const orderId = order?.ordId || order?.order?.id || order?.id || "New";
           const orderRef = `/orders/${order?.oI_id}`;
-          const productTitle = order?.prdt?.title || "Product";
+          const productTitle = trimTitle(order?.prdt?.title || "Product");
           const productImage = order?.image || "";
 
           return (
@@ -142,4 +140,14 @@ export default function LatestOrders({ orders }) {
       </div>
     </section>
   );
+}
+
+function trimTitle(value, maxLength = 52) {
+  const text = String(value || "");
+
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  return `${text.slice(0, maxLength - 1).trim()}...`;
 }

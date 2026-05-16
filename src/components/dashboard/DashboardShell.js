@@ -119,16 +119,16 @@ export default function DashboardShell({ children }) {
 
   if (!hasHydrated || !hasAccessToken || isCheckingAccess) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#0a0a0a] text-brand-white">
-        <p className="text-sm font-semibold text-white/60">Loading seller workspace...</p>
+      <main className="theme-app flex min-h-screen items-center justify-center">
+        <p className="theme-text-muted text-sm font-semibold">Loading seller workspace...</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-brand-white">
+    <main className="theme-app min-h-screen">
       <div className="flex min-h-screen">
-        <aside className="hidden w-72 shrink-0 border-r border-white/10 bg-[#121212] xl:block">
+        <aside className="theme-surface hidden w-72 shrink-0 border-r xl:block">
           <DashboardSidebar
             hasStoreUrl={hasStoreUrl}
             storeInfo={sidebarStoreInfo}
@@ -139,12 +139,12 @@ export default function DashboardShell({ children }) {
         {isMenuOpen ? (
           <div className="fixed inset-0 z-40 xl:hidden">
             <button
-              className="absolute inset-0 bg-black/70"
+              className="theme-overlay absolute inset-0"
               type="button"
               aria-label="Close menu"
               onClick={() => setIsMenuOpen(false)}
             />
-            <aside className="relative h-full w-72 overflow-y-auto bg-[#121212]">
+            <aside className="theme-surface relative h-full w-72 overflow-y-auto">
               <DashboardSidebar
                 hasStoreUrl={hasStoreUrl}
                 storeInfo={sidebarStoreInfo}
@@ -157,12 +157,12 @@ export default function DashboardShell({ children }) {
 
         <section className="min-w-0 flex-1">
           <button
-            className="fixed left-4 top-4 z-30 flex h-11 w-11 items-center justify-center rounded-sm border border-white/20 bg-[#121212] xl:hidden"
+            className="theme-surface fixed left-4 top-4 z-30 flex h-11 w-11 items-center justify-center rounded-sm border xl:hidden"
             type="button"
             aria-label="Open dashboard menu"
             onClick={() => setIsMenuOpen(true)}
           >
-            <span className="h-0.5 w-5 bg-brand-white" />
+            <span className="h-0.5 w-5 bg-current" />
           </button>
           {children}
         </section>

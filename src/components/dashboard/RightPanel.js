@@ -162,7 +162,7 @@ function OrderStats({ storeInfo }) {
   ];
 
   return (
-    <section className="rounded-sm border border-white/10 bg-[#121212] p-4">
+    <section className="theme-surface rounded-sm border p-4">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-base font-extrabold text-brand-white">Order Stats</h2>
         <span className="rounded-sm border border-amber-400/25 bg-amber-400/10 px-2 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-amber-200">
@@ -204,10 +204,10 @@ function QuickStat({
   valueClassName = "text-brand-white",
 }) {
   const actionClasses =
-    "text-sm font-bold text-brand-gold transition-colors hover:text-brand-white";
+    "theme-action-accent rounded-sm border px-3 py-1.5 text-sm font-bold transition-colors";
 
   return (
-    <section className="rounded-sm border border-white/10 bg-[#121212] p-4">
+    <section className="theme-surface rounded-sm border p-4">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-base font-extrabold text-brand-white">{title}</h2>
         {action && href ? (
@@ -242,11 +242,11 @@ function StoreProfile({ storeInfo }) {
     : "Store URL pending";
 
   return (
-    <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
+    <section className="theme-surface rounded-sm border p-5">
       <div className="flex items-start gap-4">
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-sm border border-brand-gold/30 bg-brand-black">
           <Image
-            src={storeInfo?.logo || "/assets/logo/seller-logo.png"}
+            src={storeInfo?.logo || "/assets/logo/icon-192.png"}
             alt={`${storeInfo?.name || "Store"} logo`}
             fill
             sizes="80px"
@@ -353,7 +353,7 @@ function IdentityRow({ label, value }) {
  */
 function InfoStrip({ label, value }) {
   return (
-    <section className="rounded-sm border border-white/10 bg-[#121212] p-4 text-center text-sm">
+    <section className="theme-surface rounded-sm border p-4 text-center text-sm">
       <span className="font-bold tracking-[0.18em] text-brand-white">
         {label}:{" "}
       </span>

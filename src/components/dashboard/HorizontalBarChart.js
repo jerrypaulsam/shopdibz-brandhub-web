@@ -31,7 +31,7 @@ export default function HorizontalBarChart({
               {item.label}
             </p>
             <div className="flex h-8 items-center">
-              <div className="h-4 w-full rounded-full bg-white/10">
+              <div className="h-4 w-full rounded-full" style={{ background: "var(--chart-track)" }}>
                 <div className={`h-4 rounded-full ${colorClass}`} style={{ width }} />
               </div>
             </div>

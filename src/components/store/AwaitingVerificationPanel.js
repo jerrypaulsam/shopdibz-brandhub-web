@@ -46,7 +46,7 @@ export default function AwaitingVerificationPanel({
         We will notify you once your store is ready.
       </p>
 
-      <div className="mt-8 h-12 w-12 rounded-sm border border-white/10 bg-[url('/assets/logo/seller-logo.png')] bg-contain bg-center bg-no-repeat opacity-20" />
+      <div className="mt-8 h-12 w-12 rounded-sm border border-white/10 bg-[url('/assets/logo/icon-192.png')] bg-contain bg-center bg-no-repeat opacity-30" />
 
       <div className="mt-8 w-full max-w-[420px]">
         <AuthMessage>{resolveStatusMessage(status, message)}</AuthMessage>

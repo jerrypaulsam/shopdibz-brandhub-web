@@ -1,4 +1,5 @@
 import Image from "next/image";
+import BrandHubLogo from "@/src/components/app/BrandHubLogo";
 import ActionButton from "./ActionButton";
 
 const heroBrands = [
@@ -61,12 +62,12 @@ export default function HeroSection() {
             <div className="rounded-sm border border-white/10 bg-black/30 p-4 sm:p-5">
               <div className="flex items-start gap-3 text-left">
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-sm border border-brand-gold/30 bg-brand-red p-1.5 sm:h-12 sm:w-12">
-                  <Image
-                    src="/assets/logo/seller-logo.png"
+                  <BrandHubLogo
                     alt="Shopdibz Brand Hub"
-                    fill
+                    width={48}
+                    height={48}
+                    className="h-full w-full p-1"
                     sizes="(max-width: 640px) 44px, 48px"
-                    className="object-contain p-1"
                   />
                 </div>
                 <div className="min-w-0">

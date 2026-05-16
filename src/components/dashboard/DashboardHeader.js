@@ -30,7 +30,7 @@ export default function DashboardHeader({ storeInfo, actions = null }) {
         {actions ? <div className="max-w-[760px]">{actions}</div> : null}
       </div>
 
-      <div className="rounded-sm border border-white/10 bg-[#121212] p-4">
+      <div className="theme-surface rounded-sm border p-4">
         <div className="flex items-center gap-4">
           {storeInfo?.logo ? (
             <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm border border-brand-gold/30 bg-brand-black">
@@ -71,7 +71,7 @@ export default function DashboardHeader({ storeInfo, actions = null }) {
               </p>
             </div>
             <a
-              className="inline-flex min-h-10 items-center rounded-sm border border-emerald-300/20 bg-emerald-300/10 px-4 text-sm font-bold text-emerald-200 transition-colors hover:text-white"
+              className="theme-action-positive inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-bold transition-colors"
               href={`https://loadapp.shopdibz.com/api/ads/ad_wallet/recharge/page/?storeUrl=${storeInfo?.url || ""}`}
               rel="noreferrer"
               target="_blank"

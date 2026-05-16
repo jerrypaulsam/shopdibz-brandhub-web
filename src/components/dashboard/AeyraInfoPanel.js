@@ -36,14 +36,14 @@ export default function AeyraInfoPanel({ open, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-4 md:items-center">
+    <div className="theme-overlay fixed inset-0 z-50 flex items-end justify-center p-4 md:items-center">
       <button
         className="absolute inset-0"
         type="button"
         aria-label="Close Aeyra information panel"
         onClick={onClose}
       />
-      <section className="relative z-10 w-full max-w-3xl overflow-hidden rounded-[20px] border border-white/10 bg-[#0F172A] shadow-2xl">
+      <section className="theme-surface relative z-10 w-full max-w-3xl overflow-hidden rounded-[20px] border shadow-2xl">
         <div className="px-5 py-4 sm:px-6">
           <div className="mx-auto mb-5 h-1.5 w-12 rounded-full bg-white/20" />
           <div className="flex items-start justify-between gap-4">
@@ -101,7 +101,7 @@ export default function AeyraInfoPanel({ open, onClose }) {
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link
-              className="inline-flex min-h-12 flex-1 items-center justify-center rounded-sm bg-[#2d5a42] px-5 text-sm font-bold text-brand-white transition-colors hover:bg-[#35704f]"
+              className="theme-action-positive inline-flex min-h-12 flex-1 items-center justify-center rounded-sm border px-5 text-sm font-bold transition-colors"
               href="/products-list"
               onClick={onClose}
             >

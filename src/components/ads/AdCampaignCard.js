@@ -51,7 +51,7 @@ export default function AdCampaignCard({
           <Metric label="Budget" value={formatCampaignMoney(campaign.budget)} />
           <Metric label="Daily" value={formatCampaignMoney(campaign.dailyBudget)} />
           <Metric label="Spend" value={formatCampaignMoney(campaign.spend)} />
-          <Metric label="Remaining" value={formatCampaignMoney(campaign.remainingBudget)} />
+          <Metric label="Rem." value={formatCampaignMoney(campaign.remainingBudget)} />
           <Metric label="Clicks" value={`${campaign.clicks || 0}`} />
           <Metric label="Impr." value={`${campaign.impressions || 0}`} />
           <Metric label="Sales" value={`${campaign.sales || 0}`} />

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import BrandHubLogo from "@/src/components/app/BrandHubLogo";
 
 /**
  * @param {{ children: import("react").ReactNode, title?: string, centeredBrand?: boolean }} props
@@ -9,7 +9,7 @@ export default function AuthShell({
   centeredBrand = false,
 }) {
   return (
-    <main className="min-h-screen bg-brand-black text-brand-white">
+    <main className="theme-app min-h-screen">
       <div
         className={
           centeredBrand
@@ -24,12 +24,10 @@ export default function AuthShell({
               : "mb-8 flex items-center gap-3"
           }
         >
-          <Image
-            src="/assets/logo/seller-logo.png"
+          <BrandHubLogo
             alt="Shopdibz seller logo"
             width={centeredBrand ? 60 : 40}
             height={centeredBrand ? 60 : 40}
-            style={{ height: "auto" }}
             priority
           />
           <h1

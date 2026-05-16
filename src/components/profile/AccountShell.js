@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTheme } from "@/src/components/app/ThemeProvider";
 import DashboardShell from "@/src/components/dashboard/DashboardShell";
 
 /**
@@ -10,6 +11,8 @@ export default function AccountShell({
   storeInfo,
   title = "Profile",
 }) {
+  const { theme, setTheme } = useTheme();
+
   return (
     <DashboardShell>
       <div className="mx-auto max-w-[1480px] px-4 py-8 md:px-6">
@@ -37,6 +40,32 @@ export default function AccountShell({
                 </Link>
               ))}
             </nav>
+            <div className="mt-5 border-t border-white/10 px-1 pt-5">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-gold">
+                Theme
+              </p>
+              <div className="mt-3 grid gap-2">
+                {[
+                  ["system", "System"],
+                  ["dark", "Dark"],
+                  ["light", "Light"],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    className={`flex min-h-10 items-center justify-between rounded-sm px-3 text-sm font-semibold transition-colors ${
+                      theme === value
+                        ? "bg-brand-gold/10 text-brand-gold"
+                        : "text-white/70 hover:bg-white/5 hover:text-brand-white"
+                    }`}
+                    type="button"
+                    onClick={() => setTheme(value)}
+                  >
+                    <span>{label}</span>
+                    {theme === value ? <span className="text-xs">Active</span> : null}
+                  </button>
+                ))}
+              </div>
+            </div>
           </aside>
 
           <section className="min-w-0">{children}</section>
@@ -100,6 +129,15 @@ function ProfileSidePanel({ storeInfo }) {
           </Link>
         </div>
         <p className="mt-3 text-sm leading-6 text-white/60">{description}</p>
+      </section>
+
+      <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+          Theme Preference
+        </p>
+        <p className="mt-3 text-sm leading-6 text-white/60">
+          Switch between system, dark, and light mode from the left panel.
+        </p>
       </section>
     </aside>
   );

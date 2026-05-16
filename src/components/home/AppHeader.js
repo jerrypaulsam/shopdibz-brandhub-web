@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import BrandHubLogo from "@/src/components/app/BrandHubLogo";
 import LoginModal from "./LoginModal";
 
 const callbackUrl =
@@ -25,16 +25,12 @@ const menuItems = [
 function LogoTitle() {
   return (
     <Link className="flex min-w-0 items-center gap-3" href="/hub">
-      <span className="relative h-[40px] w-[40px] shrink-0">
-        <Image
-          src="/assets/logo/seller-logo.png"
-          alt="Shopdibz seller logo"
-          fill
-          sizes="40px"
-          className="object-contain"
-          priority
-        />
-      </span>
+      <BrandHubLogo
+        alt="Shopdibz seller logo"
+        width={40}
+        height={40}
+        priority
+      />
       <span className="truncate text-[18px] font-bold tracking-[0.06em] text-[#f4f4f7] sm:text-[20px]">
         Shopdibz Brand Hub
       </span>

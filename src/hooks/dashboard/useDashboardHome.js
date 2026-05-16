@@ -14,7 +14,7 @@ import { logScreenView } from "@/src/api/analytics";
 const fallbackStore = {
   name: "Your Brand",
   url: "",
-  logo: "/assets/logo/seller-logo.png",
+  logo: "/assets/logo/icon-192.png",
   description:
     "Use this space to monitor orders, revenue, store health, products, and growth signals.",
   prem: false,

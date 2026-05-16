@@ -67,6 +67,8 @@ export default function OrderDetailPanel({
   const status = getOrderStatusCode(order);
   const variantLabel = getOrderVariantLabel(order);
   const productSlug = order?.product?.slug || order?.prdt?.slug || "";
+  const trackingUrl = String(order?.trackUrl || "").trim();
+  const canTrackShipment = status === "SD" && Boolean(trackingUrl);
   const totalValue = useMemo(
     () => getOrderQuantity(order) * getOrderUnitPrice(order),
     [order],
@@ -84,7 +86,7 @@ export default function OrderDetailPanel({
   if (isLoading) {
     return (
       <div className="px-4 py-8 md:px-8 xl:px-10">
-        <div className="rounded-sm border border-white/10 bg-[#121212] px-5 py-12 text-center text-sm text-white/45">
+        <div className="theme-surface rounded-sm border px-5 py-12 text-center text-sm text-white/45">
           Loading order detail...
         </div>
       </div>
@@ -94,13 +96,13 @@ export default function OrderDetailPanel({
   if (!order) {
     return (
       <div className="px-4 py-8 md:px-8 xl:px-10">
-        <div className="rounded-sm border border-white/10 bg-[#121212] px-5 py-16 text-center">
+        <div className="theme-surface rounded-sm border px-5 py-16 text-center">
           <p className="text-base font-bold text-brand-white">
             Order unavailable
           </p>
           <p className="mt-2 text-sm text-white/45">{message || "Order detail could not be loaded."}</p>
           <Link
-            className="mt-5 inline-flex min-h-10 items-center rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold"
+            className="theme-action-neutral mt-5 inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-semibold transition-colors"
             href="/orders-list"
           >
             Back to orders
@@ -115,7 +117,7 @@ export default function OrderDetailPanel({
       <ToastMessage message={actionMessage} type="success" />
       <ToastMessage message={actionError || message} type="error" />
 
-      <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
+      <section className="theme-surface rounded-sm border p-5">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-3">
@@ -135,8 +137,8 @@ export default function OrderDetailPanel({
             </h1>
 
             {status !== "SD" && status !== "DD" && status !== "CA" && order?.shipBefore ? (
-              <div className="mt-4 inline-flex items-center gap-2 rounded-sm border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-bold text-red-100">
-                <span className="uppercase tracking-[0.12em] text-red-300">Ship Before</span>
+              <div className="mt-4 inline-flex items-center gap-2 rounded-sm border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-bold text-red-100 [html[data-theme='light']_&]:border-red-500/35 [html[data-theme='light']_&]:bg-red-500/12 [html[data-theme='light']_&]:text-red-800">
+                <span className="uppercase tracking-[0.12em] text-red-300 [html[data-theme='light']_&]:text-red-700">Ship Before</span>
                 <span>{formatOrderDate(order.shipBefore)}</span>
               </div>
             ) : null}
@@ -150,7 +152,7 @@ export default function OrderDetailPanel({
             </span>
             {(status === "PD" || status === "SD") ? (
               <button
-                className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-40"
+                className="theme-action-neutral min-h-10 rounded-sm border px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                 type="button"
                 disabled={busyAction === "label"}
                 onClick={onOpenShippingLabel}
@@ -161,7 +163,7 @@ export default function OrderDetailPanel({
               </button>
             ) : null}
             <button
-              className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-40"
+              className="theme-action-neutral min-h-10 rounded-sm border px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
               type="button"
               disabled={busyAction === "invoice"}
               onClick={onOpenInvoice}
@@ -170,7 +172,7 @@ export default function OrderDetailPanel({
             </button>
             {status === "DD" && order?.creditNoteUrl ? (
               <button
-                className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-40"
+                className="theme-action-neutral min-h-10 rounded-sm border px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                 type="button"
                 disabled={busyAction === "credit-note"}
                 onClick={onOpenCreditNote}
@@ -180,13 +182,22 @@ export default function OrderDetailPanel({
                   : "Download Credit Note"}
               </button>
             ) : null}
+            {canTrackShipment ? (
+              <button
+                className="theme-action-neutral min-h-10 rounded-sm border px-4 text-sm font-semibold transition-colors"
+                type="button"
+                onClick={() => window.open(trackingUrl, "_blank", "noopener,noreferrer")}
+              >
+                Track Shipment
+              </button>
+            ) : null}
           </div>
         </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_320px] 2xl:grid-cols-[minmax(0,1.55fr)_340px]">
         <div className="space-y-6">
-          <article className="rounded-sm border border-white/10 bg-[#121212] p-5">
+          <article className="theme-surface rounded-sm border p-5">
             <div className="flex flex-col gap-5 lg:flex-row">
               {getOrderPrimaryImage(order) ? (
                 <Image
@@ -245,25 +256,25 @@ export default function OrderDetailPanel({
           </article>
 
           {order?.customizationText ? (
-            <section className="rounded-sm border border-amber-400/30 bg-amber-500/10 p-5 shadow-[0_0_0_1px_rgba(251,191,36,0.08)]">
+            <section className="rounded-sm border border-amber-400/30 bg-amber-500/10 p-5 shadow-[0_0_0_1px_rgba(251,191,36,0.08)] [html[data-theme='light']_&]:bg-amber-400/10">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="rounded-sm border border-amber-300/30 bg-amber-300/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-amber-200">
                   Important
                 </span>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-100">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-100 [html[data-theme='light']_&]:text-amber-700">
                   Customer Customization Note
                 </p>
               </div>
               <p className="mt-3 max-w-4xl text-base font-semibold leading-7 text-brand-white">
                 {order.customizationText}
               </p>
-              <p className="mt-3 text-sm leading-6 text-amber-100/80">
+              <p className="mt-3 text-sm leading-6 text-amber-100/80 [html[data-theme='light']_&]:text-amber-800">
                 Review this note before packing or dispatch to avoid misses on customized orders and reduce return risk.
               </p>
             </section>
           ) : null}
 
-          <article className="rounded-sm border border-white/10 bg-[#121212] p-5">
+          <article className="theme-surface rounded-sm border p-5">
             <h2 className="text-lg font-extrabold text-brand-white">
               Address and fulfilment
             </h2>
@@ -406,6 +417,12 @@ export default function OrderDetailPanel({
                   onClick={() => setIsMessageComposerOpen(true)}
                 />
               ) : null}
+              {canTrackShipment ? (
+                <SecondaryButton
+                  label="Track Shipment"
+                  onClick={() => window.open(trackingUrl, "_blank", "noopener,noreferrer")}
+                />
+              ) : null}
             </div>
           </ActionCard>
 
@@ -537,7 +554,7 @@ export default function OrderDetailPanel({
               <label className="space-y-2 text-sm text-white/60">
                 <span className="block font-semibold text-brand-white">Reason</span>
                 <select
-                  className="min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-3 text-sm text-brand-white outline-none"
+                  className="theme-field min-h-11 w-full rounded-sm border px-3 text-sm outline-none"
                   value={cancelForm.reasonId}
                   onChange={(event) =>
                     setCancelForm((current) => ({
@@ -556,7 +573,7 @@ export default function OrderDetailPanel({
               <label className="space-y-2 text-sm text-white/60">
                 <span className="block font-semibold text-brand-white">Details</span>
                 <textarea
-                  className="min-h-28 w-full rounded-sm border border-white/10 bg-black/20 px-3 py-3 text-sm text-brand-white outline-none"
+                  className="theme-field min-h-28 w-full rounded-sm border px-3 py-3 text-sm outline-none"
                   maxLength={200}
                   value={cancelForm.detail}
                   onChange={(event) =>
@@ -585,8 +602,8 @@ export default function OrderDetailPanel({
       </section>
 
       {canMessageCustomer(order) && isMessageComposerOpen ? (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 px-4">
-          <div className="w-full max-w-xl rounded-sm border border-white/10 bg-[#121212] p-5 shadow-2xl">
+        <div className="theme-overlay fixed inset-0 z-[90] flex items-center justify-center px-4">
+          <div className="theme-surface w-full max-w-xl rounded-sm border p-5 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
@@ -601,7 +618,7 @@ export default function OrderDetailPanel({
                 </p>
               </div>
               <button
-                className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-white/10 text-white/65 transition-colors hover:border-white/20 hover:text-brand-white"
+                className="theme-action-neutral inline-flex h-10 w-10 items-center justify-center rounded-sm border transition-colors"
                 type="button"
                 onClick={() => setIsMessageComposerOpen(false)}
               >
@@ -612,7 +629,7 @@ export default function OrderDetailPanel({
             <label className="mt-5 block space-y-2 text-sm text-white/60">
               <span className="block font-semibold text-brand-white">Message</span>
               <textarea
-                className="min-h-36 w-full rounded-sm border border-white/10 bg-black/20 px-3 py-3 text-sm text-brand-white outline-none"
+                className="theme-field min-h-36 w-full rounded-sm border px-3 py-3 text-sm outline-none"
                 maxLength={250}
                 value={messageText}
                 onChange={(event) => setMessageText(event.target.value)}
@@ -621,7 +638,7 @@ export default function OrderDetailPanel({
 
             <div className="mt-5 flex flex-wrap justify-end gap-3">
               <button
-                className="min-h-11 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-white/20 hover:text-brand-white"
+                className="theme-action-neutral min-h-11 rounded-sm border px-4 text-sm font-semibold transition-colors"
                 type="button"
                 onClick={() => setIsMessageComposerOpen(false)}
               >
@@ -652,7 +669,7 @@ function ActionCard({
   onToggle,
 }) {
   return (
-    <article className="rounded-sm border border-white/10 bg-[#121212] p-5">
+    <article className="theme-surface rounded-sm border p-5">
       {collapsible ? (
         <button
           className="flex w-full items-start justify-between gap-4 text-left"
@@ -704,7 +721,7 @@ function InfoRow({ label, value, isLink = false }) {
 
   return (
     <div className="flex items-start justify-between gap-4 rounded-sm border border-white/10 bg-black/10 px-3 py-3">
-      <span className="text-white/40">{label}</span>
+      <span className="theme-text-muted">{label}</span>
       {isLink ? (
         <a
           className="text-right text-brand-gold underline decoration-white/15 underline-offset-4"
@@ -760,7 +777,7 @@ function NumberInput({ label, value, onChange }) {
     <label className="space-y-2 text-sm text-white/60">
       <span className="block font-semibold text-brand-white">{label}</span>
       <input
-        className="min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-3 text-sm text-brand-white outline-none"
+        className="theme-field min-h-11 w-full rounded-sm border px-3 text-sm outline-none"
         inputMode="numeric"
         type="number"
         value={value}
@@ -778,7 +795,7 @@ function TextInput({ label, value, onChange }) {
     <label className="space-y-2 text-sm text-white/60">
       <span className="block font-semibold text-brand-white">{label}</span>
       <input
-        className="min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-3 text-sm text-brand-white outline-none"
+        className="theme-field min-h-11 w-full rounded-sm border px-3 text-sm outline-none"
         type="text"
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -810,7 +827,7 @@ function PrimaryButton({ label, disabled = false, tone = "default", onClick }) {
 function SecondaryButton({ label, disabled = false, onClick, icon = "" }) {
   return (
     <button
-      className="flex min-h-11 w-full items-center justify-between gap-3 rounded-sm border border-white/10 px-4 text-sm font-bold text-white/75 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-40"
+      className="theme-action-neutral flex min-h-11 w-full items-center justify-between gap-3 rounded-sm border px-4 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
       disabled={disabled}
       type="button"
       onClick={onClick}

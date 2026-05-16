@@ -70,14 +70,14 @@ function NotificationRow({ notification, onDismiss }) {
           <div className="mt-3 flex flex-wrap gap-3">
             {href ? (
               <Link
-                className="text-xs font-bold uppercase tracking-[0.14em] text-brand-gold transition-colors hover:text-brand-white"
+                className="theme-action-accent inline-flex min-h-9 items-center justify-center rounded-sm border px-3 text-xs font-bold uppercase tracking-[0.14em] transition-colors"
                 href={href}
               >
                 Open
               </Link>
             ) : null}
             <button
-              className="text-xs font-bold uppercase tracking-[0.14em] text-white/45 transition-colors hover:text-brand-white"
+              className="theme-action-neutral inline-flex min-h-9 items-center justify-center rounded-sm border px-3 text-xs font-bold uppercase tracking-[0.14em] transition-colors"
               type="button"
               onClick={onDismiss}
             >

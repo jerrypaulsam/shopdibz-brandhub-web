@@ -62,7 +62,7 @@ export default function ProductGroupsPanel({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-sm border border-white/10 bg-[#121212] p-6">
+      <section className="theme-surface rounded-sm border p-6">
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">
           Product Workspace
         </p>
@@ -74,7 +74,7 @@ export default function ProductGroupsPanel({
       </section>
 
       {isLoading ? (
-        <div className="rounded-sm border border-white/10 bg-[#121212] p-8 text-sm text-white/55">
+        <div className="theme-surface rounded-sm border p-8 text-sm text-white/55">
           Loading product groups...
         </div>
       ) : groups.length ? (
@@ -86,7 +86,7 @@ export default function ProductGroupsPanel({
 
             return (
               <article
-                className="overflow-hidden rounded-sm border border-white/10 bg-[#121212]"
+                className="theme-surface overflow-hidden rounded-sm border"
                 key={group?.id}
               >
                 <div className="aspect-[16/9] w-full bg-black/30">
@@ -130,7 +130,7 @@ export default function ProductGroupsPanel({
                     </p> */}
                     <div className="grid grid-cols-2 gap-2 sm:flex">
                       <button
-                        className="rounded-sm border border-brand-gold/40 bg-brand-gold/10 px-4 py-2 text-sm font-bold text-brand-gold hover:bg-brand-gold hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+                        className="theme-action-accent rounded-sm border px-4 py-2 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                         type="button"
                         disabled={isSaving}
                         onClick={() => openEditor(group)}
@@ -138,10 +138,10 @@ export default function ProductGroupsPanel({
                         Edit
                       </button>
                       <label
-                        className={`rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white ${
+                        className={`theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors ${
                           isSaving
                             ? "cursor-not-allowed opacity-60"
-                            : "cursor-pointer hover:border-brand-gold hover:text-brand-gold"
+                            : "cursor-pointer"
                         }`}
                       >
                         <input
@@ -160,7 +160,7 @@ export default function ProductGroupsPanel({
                         {isGroupLoading ? "Uploading..." : "Upload Sheet"}
                       </label>
                       <button
-                        className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-60"
+                        className="theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                         type="button"
                         disabled={isSaving}
                         onClick={() => onOpenGroup(groupId)}
@@ -168,7 +168,7 @@ export default function ProductGroupsPanel({
                         Open
                       </button>
                       <button
-                        className="rounded-sm border border-red-400/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-200 hover:border-red-300 hover:bg-red-500/15 hover:text-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="theme-action-danger rounded-sm border px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                         type="button"
                         disabled={isSaving}
                         onClick={() => onDeleteGroup(groupId)}
@@ -183,7 +183,7 @@ export default function ProductGroupsPanel({
           })}
         </section>
       ) : (
-        <div className="rounded-sm border border-dashed border-white/15 bg-[#121212] p-12 text-center">
+        <div className="theme-surface rounded-sm border border-dashed p-12 text-center">
           <p className="text-lg font-black text-brand-white">No Product Groups Yet</p>
         </div>
       )}
@@ -191,7 +191,7 @@ export default function ProductGroupsPanel({
       {editingGroup ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">
           <form
-            className="w-full max-w-xl rounded-sm border border-white/10 bg-[#121212] p-6 shadow-2xl"
+            className="theme-surface w-full max-w-xl rounded-sm border p-6 shadow-2xl"
             onSubmit={submitEdit}
           >
             <div className="flex items-start justify-between gap-4">

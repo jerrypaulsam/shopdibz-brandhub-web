@@ -52,9 +52,9 @@ export default function LineChart({ data, stroke = "#D4AF37", axisLabel }) {
                   x2={width - padding}
                   y1={y}
                   y2={y}
-                  stroke="rgba(255,255,255,0.08)"
+                  stroke="var(--chart-grid)"
                 />
-                <text x={8} y={y + 4} fill="rgba(255,255,255,0.35)" fontSize="11">
+                <text x={8} y={y + 4} fill="var(--chart-axis)" fontSize="11">
                   {Math.round(maxValue * tick)}
                 </text>
               </g>
@@ -68,7 +68,7 @@ export default function LineChart({ data, stroke = "#D4AF37", axisLabel }) {
                 x={point.x}
                 y={point.y - 12}
                 textAnchor="middle"
-                fill="rgba(255,255,255,0.8)"
+                fill="var(--chart-axis-strong)"
                 fontSize="11"
                 fontWeight="700"
               >
@@ -78,7 +78,7 @@ export default function LineChart({ data, stroke = "#D4AF37", axisLabel }) {
                 x={point.x}
                 y={height - 8}
                 textAnchor="middle"
-                fill="rgba(255,255,255,0.42)"
+                fill="var(--chart-axis)"
                 fontSize="10"
               >
                 {point.label.replace("\nto\n", " - ")}

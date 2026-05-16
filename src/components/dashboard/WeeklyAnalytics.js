@@ -35,7 +35,7 @@ export default function WeeklyAnalytics({
 
   return (
     <section className="space-y-5">
-      <div className="rounded-sm border border-white/10 bg-[#121212] p-5">
+      <div className="theme-surface rounded-sm border p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
@@ -94,14 +94,14 @@ export default function WeeklyAnalytics({
           </ChartCard>
           {!productViewsUnlocked ? (
             <div className="absolute inset-0 flex items-center justify-center p-6">
-              <div className="max-w-sm rounded-sm border border-brand-gold/20 bg-black/80 p-5 text-center backdrop-blur-sm">
+              <div className="theme-surface max-w-sm rounded-sm border border-brand-gold/20 p-5 text-center backdrop-blur-sm">
                 <p className="text-sm font-bold text-brand-white">
                   {storeInfo?.prem
                     ? "Detailed product view analytics are available only on the Platinum plan."
                     : "Please upgrade to access detailed product view analytics."}
                 </p>
                 <a
-                  className="mt-4 inline-flex min-h-11 items-center justify-center rounded-sm bg-[#2d5a42] px-5 text-sm font-bold text-brand-white"
+                  className="theme-action-positive mt-4 inline-flex min-h-11 items-center justify-center rounded-sm border px-5 text-sm font-bold transition-colors"
                   href={`https://loadapp.shopdibz.com/api/store/get/subscription_plans/?store_url=${storeInfo?.url || ""}`}
                   rel="noreferrer"
                   target="_blank"

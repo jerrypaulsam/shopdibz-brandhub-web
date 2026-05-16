@@ -120,7 +120,7 @@ function renderSection(section, props) {
 
 function LoadingCard() {
   return (
-    <div className="rounded-sm border border-white/10 bg-[#121212] p-6 text-sm text-white/45">
+    <div className="theme-surface rounded-sm border p-6 text-sm text-white/45">
       Loading profile sections...
     </div>
   );

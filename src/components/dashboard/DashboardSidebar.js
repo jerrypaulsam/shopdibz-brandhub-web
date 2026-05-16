@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { clearAuthSession, logoutSeller } from "@/src/api/auth";
+import BrandHubLogo from "@/src/components/app/BrandHubLogo";
 import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { useToast } from "@/src/components/app/ToastProvider";
 import { PRODUCT_BULK_TEMPLATE_URLS } from "@/src/data/product-variation-options";
@@ -127,17 +128,15 @@ export default function DashboardSidebar({
 
   return (
     <nav className="flex min-h-full flex-col px-5 py-6">
-      <div className="mx-auto rounded-full bg-brand-red px-5 py-1 text-[10px] font-bold uppercase text-brand-white">
+      <div className="mx-auto inline-flex min-h-7 items-center justify-center rounded-full bg-brand-red px-5 py-1 text-[10px] font-bold uppercase text-white">
         Beta
       </div>
 
       <div className="mt-7 flex flex-col items-center border-b border-white/10 pb-7">
-        <Image
-          src="/assets/logo/seller-logo.png"
+        <BrandHubLogo
           alt="Shopdibz seller logo"
           width={60}
           height={60}
-          style={{ height: "auto" }}
           priority
         />
         <p className="mt-3 text-sm font-extrabold tracking-wide text-brand-white">
@@ -157,8 +156,8 @@ export default function DashboardSidebar({
                 const classes =
                   `flex min-h-11 w-full items-center gap-3 rounded-sm px-3 text-sm font-semibold transition-colors ${
                     isLocked
-                      ? "cursor-not-allowed text-white/35"
-                      : "text-white/72 hover:bg-white/5 hover:text-brand-gold"
+                      ? "cursor-not-allowed text-white/45"
+                      : "text-white/75 hover:bg-white/5 hover:text-brand-gold"
                   }`;
 
                 if (item.kind === "route") {
@@ -232,7 +231,7 @@ export default function DashboardSidebar({
       </div>
 
       <Link
-        className="mt-8 flex min-h-11 items-center gap-3 rounded-sm px-3 text-sm font-semibold text-white/72 hover:bg-white/5 hover:text-brand-red"
+        className="mt-8 flex min-h-11 items-center gap-3 rounded-sm px-3 text-sm font-semibold text-white/75 hover:bg-white/5 hover:text-brand-red"
         href="/"
         onClick={async (event) => {
           event.preventDefault();

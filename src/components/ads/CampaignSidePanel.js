@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   formatCampaignDate,
   formatCampaignMoney,
@@ -19,12 +18,6 @@ export default function CampaignSidePanel({
   onStatusChange,
   onSave,
 }) {
-  const [budget, setBudget] = useState(String(campaign?.budget || ""));
-  const [dailyBudget, setDailyBudget] = useState(String(campaign?.dailyBudget || ""));
-  const [endDate, setEndDate] = useState(
-    campaign?.endDate ? new Date(campaign.endDate).toISOString().slice(0, 10) : "",
-  );
-
   if (!campaign) {
     return (
       <aside className="rounded-sm border border-white/10 bg-[#121212] p-5">
@@ -68,51 +61,12 @@ export default function CampaignSidePanel({
       ) : null}
 
       {panel === "edit" ? (
-        <div className="mt-6 space-y-4">
-          <Field label="Status" value={getCampaignStatusLabel(campaign.status)} />
-          <label className="space-y-2 text-sm text-white/60">
-            <span className="block font-semibold text-brand-white">Budget</span>
-            <input
-              className="min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-3 text-sm text-brand-white outline-none"
-              type="number"
-              value={budget}
-              onChange={(event) => setBudget(event.target.value)}
-            />
-          </label>
-          <label className="space-y-2 text-sm text-white/60">
-            <span className="block font-semibold text-brand-white">Daily Budget</span>
-            <input
-              className="min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-3 text-sm text-brand-white outline-none"
-              type="number"
-              value={dailyBudget}
-              onChange={(event) => setDailyBudget(event.target.value)}
-            />
-          </label>
-          <label className="space-y-2 text-sm text-white/60">
-            <span className="block font-semibold text-brand-white">End Date</span>
-            <input
-              className="min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-3 text-sm text-brand-white outline-none"
-              type="date"
-              value={endDate}
-              onChange={(event) => setEndDate(event.target.value)}
-            />
-          </label>
-          <button
-            className="min-h-11 w-full rounded-sm bg-brand-gold px-4 text-sm font-bold text-brand-black disabled:opacity-40"
-            type="button"
-            disabled={isActionLoading}
-            onClick={() =>
-              onSave({
-                campaignId: campaign.id,
-                budget: Number(budget || 0),
-                dailyBudget: Number(dailyBudget || 0),
-                endDate,
-              })
-            }
-          >
-            {isActionLoading ? "Saving..." : "Save Campaign"}
-          </button>
-        </div>
+        <CampaignEditForm
+          key={campaign.id}
+          campaign={campaign}
+          isActionLoading={isActionLoading}
+          onSave={onSave}
+        />
       ) : (
         <div className="mt-6 space-y-3">
           <Field label="Promotion Ref" value={campaign.promotionRef} />
@@ -128,7 +82,7 @@ export default function CampaignSidePanel({
           <div className="grid gap-3 sm:grid-cols-2">
             {campaign.status !== "FINISHED" && campaign.status !== "DRAFT" ? (
               <button
-                className="min-h-11 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:opacity-40"
+                className="min-h-10 rounded-sm border border-white/10 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:opacity-40"
                 type="button"
                 disabled={isActionLoading}
                 onClick={() =>
@@ -144,7 +98,7 @@ export default function CampaignSidePanel({
             {campaign.status !== "FINISHED" &&
             campaign.status !== "DRAFT" ? (
               <button
-                className="min-h-11 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold"
+                className="min-h-10 rounded-sm border border-white/10 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold"
                 type="button"
                 onClick={() => onOpenEdit(campaign.id, "edit")}
               >
@@ -155,6 +109,62 @@ export default function CampaignSidePanel({
         </div>
       )}
     </aside>
+  );
+}
+
+function CampaignEditForm({ campaign, isActionLoading, onSave }) {
+  const [budget, setBudget] = useState(String(campaign?.budget || ""));
+  const [dailyBudget, setDailyBudget] = useState(String(campaign?.dailyBudget || ""));
+  const [endDate, setEndDate] = useState(
+    campaign?.endDate ? new Date(campaign.endDate).toISOString().slice(0, 10) : "",
+  );
+
+  return (
+    <div className="mt-6 space-y-4">
+      <Field label="Status" value={getCampaignStatusLabel(campaign.status)} />
+      <label className="space-y-2 text-sm text-white/60">
+        <span className="block font-semibold text-brand-white">Budget</span>
+        <input
+          className="min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-3 text-sm text-brand-white outline-none"
+          type="number"
+          value={budget}
+          onChange={(event) => setBudget(event.target.value)}
+        />
+      </label>
+      <label className="space-y-2 text-sm text-white/60">
+        <span className="block font-semibold text-brand-white">Daily Budget</span>
+        <input
+          className="min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-3 text-sm text-brand-white outline-none"
+          type="number"
+          value={dailyBudget}
+          onChange={(event) => setDailyBudget(event.target.value)}
+        />
+      </label>
+      <label className="space-y-2 text-sm text-white/60">
+        <span className="block font-semibold text-brand-white">End Date</span>
+        <input
+          className="min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-3 text-sm text-brand-white outline-none"
+          type="date"
+          value={endDate}
+          onChange={(event) => setEndDate(event.target.value)}
+        />
+      </label>
+      <button
+        className="min-h-10 w-full rounded-sm bg-brand-gold px-4 text-sm font-bold text-brand-black disabled:opacity-40"
+        type="button"
+        disabled={isActionLoading}
+        onClick={() =>
+          onSave({
+            campaignId: campaign.id,
+            budget: Number(budget || 0),
+            dailyBudget: Number(dailyBudget || 0),
+            endDate,
+          })
+        }
+      >
+        {isActionLoading ? "Saving..." : "Save Campaign"}
+      </button>
+    </div>
   );
 }
 

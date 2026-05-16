@@ -112,7 +112,6 @@ export default function AdCampaignsWorkspace(props) {
           actionMessage={props.actionMessage}
           campaign={props.selectedCampaign}
           isActionLoading={props.isActionLoading}
-          key={`${props.selectedCampaign?.id || "empty"}:${props.panel}`}
           panel={props.panel}
           onClose={props.onCloseCampaignPanel}
           onOpenEdit={props.onOpenCampaign}
