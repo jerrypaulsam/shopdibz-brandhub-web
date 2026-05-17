@@ -8,7 +8,7 @@ export default function ProductInfoPage() {
   return (
     <ProductFlowLayout
       title="Enter Product Details"
-      subtitle="This step collects the exact fields the backend expects, but in a cleaner web layout with route-driven listing state."
+      subtitle="Add the main product details your customers need before you publish the listing."
       currentStep="info"
       query={product.buildQuery()}
       message={product.error}

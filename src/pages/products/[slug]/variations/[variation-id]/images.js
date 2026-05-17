@@ -8,7 +8,7 @@ export default function ProductVariationImagesPage() {
   return (
     <ProductWorkspaceLayout
       title="Add Variation Images"
-      subtitle="Upload images for the current variation using the slug and variation-id route."
+      subtitle="Add and manage images for this variation so each option is shown clearly."
       message={product.error}
       success={product.success}
     >

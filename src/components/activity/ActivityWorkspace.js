@@ -68,7 +68,7 @@ export default function ActivityWorkspace(props) {
             Activity
           </p>
           <h1 className="mt-3 text-2xl font-extrabold text-brand-white">
-            Seller activity console
+            Seller activity
           </h1>
         </div>
 
@@ -186,8 +186,7 @@ export default function ActivityWorkspace(props) {
               Recent product groups
             </h2>
             <p className="theme-text-muted mt-3 text-sm leading-6">
-              Keep activity and product-group management connected instead of
-              bouncing through unrelated pages.
+              Quickly review and manage your recent product groups from one place.
             </p>
 
             <div className="mt-5 space-y-3">

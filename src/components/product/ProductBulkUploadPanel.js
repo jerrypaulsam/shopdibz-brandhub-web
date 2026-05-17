@@ -19,7 +19,7 @@ export default function ProductBulkUploadPanel({
     <div className="space-y-6">
       <StoreSection
         title="Bulk Upload Workspace"
-        subtitle="Use the route-driven category path and variant mode to choose the right template, verify the sheet, and submit the batch."
+        subtitle="Choose the right template, verify your sheet, and upload products in bulk with confidence."
       >
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="rounded-sm border border-white/10 bg-black/20 p-4">
@@ -62,8 +62,8 @@ export default function ProductBulkUploadPanel({
               <p className="text-sm font-bold text-brand-white">{label}</p>
               <p className="mt-2 text-sm leading-6 text-white/55">
                 {value === "with-variant"
-                  ? "Use the variation template and verification contract."
-                  : "Use the parent-product sheet without variation rows."}
+                  ? "Use this option when each product has multiple variations."
+                  : "Use this option for products that do not need variation rows."}
               </p>
             </button>
           ))}
@@ -78,7 +78,7 @@ export default function ProductBulkUploadPanel({
           >
             <p className="text-sm font-bold text-brand-white">Download create template</p>
             <p className="mt-2 text-sm leading-6 text-white/55">
-              Matches the selected variant branch and category flow.
+              Use the right template for the type of products you want to upload.
             </p>
           </a>
           <a
@@ -89,7 +89,7 @@ export default function ProductBulkUploadPanel({
           >
             <p className="text-sm font-bold text-brand-white">Download sample sheet</p>
             <p className="mt-2 text-sm leading-6 text-white/55">
-              Useful for checking how the final file should be shaped before upload.
+              Review a sample file before you prepare your own sheet.
             </p>
           </a>
         </div>

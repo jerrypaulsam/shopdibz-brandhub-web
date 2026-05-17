@@ -70,15 +70,15 @@ export default function ProductListPanel({
   return (
     <div className="space-y-6">
       <ToastMessage message={message} type="info" />
-      <section className="rounded-sm border border-white/10 bg-[#121212] p-6">
+      <section className="theme-panel rounded-sm border p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">
               Product Operations
             </p>
             <h1 className="mt-3 text-3xl font-black text-brand-white">Products</h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
-              A route-driven catalog workspace for direct product management.
+            <p className="theme-text-muted mt-3 max-w-3xl text-sm leading-6">
+              Manage your product catalog, update listings, and keep inventory organised.
             </p>
           </div>
 

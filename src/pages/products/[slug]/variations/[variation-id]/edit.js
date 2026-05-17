@@ -8,7 +8,7 @@ export default function ProductVariationUpdatePage() {
   return (
     <ProductWorkspaceLayout
       title="Update Variation Info"
-      subtitle="Manage the selected variation using a route that is stable across slug and variation id."
+      subtitle="Edit pricing, stock, SKU, and option details for this variation."
       message={product.error}
       success={product.success}
     >
@@ -20,8 +20,10 @@ export default function ProductVariationUpdatePage() {
         <ProductVariationEditorPanel
           form={product.form}
           mappingOptions={product.mappingOptions}
+          variationFields={product.variationFields}
           fieldErrors={product.fieldErrors}
           setFormField={product.setFormField}
+          setVariationField={product.setVariationField}
           submit={product.submit}
           isSubmitting={product.isSubmitting}
         />

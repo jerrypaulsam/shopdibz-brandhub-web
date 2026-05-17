@@ -8,7 +8,7 @@ export default function AddNewVariationPage() {
   return (
     <ProductWorkspaceLayout
       title="Add New Variation"
-      subtitle="Create a new variation under the current product slug with a direct-linkable route."
+      subtitle="Create a new variation for the parent product"
       message={product.error}
       success={product.success}
     >

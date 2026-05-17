@@ -18,8 +18,8 @@ export default function ProductUpdatePage() {
       title={isCategorySection ? "Update Product Category" : "Update Product Details"}
       subtitle={
         isCategorySection
-          ? "Update the category path separately from the main product details."
-          : "Edit the product metadata, shipping profile, and catalog fields while keeping the product slug stable in the route."
+          ? "Move this product into the most accurate category so customers can find it more easily."
+          : "Update product details, shipping settings, pricing, and catalog information."
       }
       message={activeForm.error}
       success={activeForm.success}

@@ -8,7 +8,7 @@ export default function ProductCategoryPage() {
   return (
     <ProductFlowLayout
       title="Choose Product Category"
-      subtitle="Start with the category path and variant branch. That routing state follows the rest of the listing flow."
+      subtitle="Choose the best category first so the rest of your product details stay accurate."
       currentStep="category"
       query={product.buildQuery()}
       message={product.error}

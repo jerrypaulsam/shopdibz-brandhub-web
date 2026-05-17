@@ -18,7 +18,9 @@ import { resolveActiveVariation } from "@/src/utils/product";
  * error: string,
  * success: string,
  * mappingOptions: any[],
+ * variationFields: Array<{ key: string, label: string, mappingOptions: any[] }>,
  * setFormField: (field: string, value: string) => void,
+ * setVariationField: (key: string, field: "name" | "typeMap", value: string) => void,
  * submit: () => Promise<void>,
  * slug: string,
  * variationId: string,
@@ -35,14 +37,12 @@ export function useProductVariationUpdateForm() {
   const [product, setProduct] = useState(null);
   const [form, setForm] = useState({
     variantType: "",
-    name: "",
-    typeMap: "",
     mrp: "",
     price: "",
     variationSkuCode: "",
     stock: "S",
     maxStock: "1",
-    typeId: 0,
+    variationFields: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,16 +64,30 @@ export function useProductVariationUpdateForm() {
         const variation = resolveActiveVariation(data.prdtVari || [], variationId);
 
         if (variation) {
+          const nextVariantType = String(variation.vAtion || variation.variation || "").toLowerCase();
+          const existingVariationTypes = Array.isArray(variation.vTypes)
+            ? variation.vTypes
+            : Array.isArray(variation.variationTypes)
+              ? variation.variationTypes
+              : [];
+          const fieldOrder = getVariationFieldOrder(nextVariantType);
+
           setForm({
-            variantType: String(variation.vAtion || variation.variation || "").toLowerCase(),
-            name: variation.vTypes?.[0]?.name || "",
-            typeMap: variation.vTypes?.[0]?.tMap || "",
+            variantType: nextVariantType,
             mrp: String(variation.mrp || ""),
             price: String(variation.price || ""),
             variationSkuCode: variation.sku || "",
             stock: variation.inStock || "S",
             maxStock: String(variation.mStock || 1),
-            typeId: variation.vTypes?.[0]?.id || 0,
+            variationFields: fieldOrder.map((key, index) => {
+              const currentValue = existingVariationTypes[index] || {};
+              return {
+                key,
+                id: currentValue?.id || index + 1,
+                name: currentValue?.name || "",
+                typeMap: currentValue?.tMap || currentValue?.type_map || "",
+              };
+            }),
           });
         }
       } catch (loadError) {
@@ -92,12 +106,27 @@ export function useProductVariationUpdateForm() {
   );
 
   const mappingOptions = PRODUCT_VARIATION_MAPS[form.variantType] || [];
+  const variationFields = form.variationFields.map((field) => ({
+    key: field.key,
+    label: titleCaseValue(field.key),
+    mappingOptions: PRODUCT_VARIATION_MAPS[field.key] || [],
+  }));
 
   function setFormField(field, value) {
     setFieldErrors((currentForm) => ({ ...currentForm, [field]: "" }));
     setForm((currentForm) => ({
       ...currentForm,
       [field]: value,
+    }));
+  }
+
+  function setVariationField(key, field, value) {
+    setFieldErrors((currentForm) => ({ ...currentForm, [`${key}-${field}`]: "" }));
+    setForm((currentForm) => ({
+      ...currentForm,
+      variationFields: currentForm.variationFields.map((item) =>
+        item.key === key ? { ...item, [field]: value } : item,
+      ),
     }));
   }
 
@@ -118,38 +147,6 @@ export function useProductVariationUpdateForm() {
 
       setFieldErrors({});
 
-      const existingVariationTypes = Array.isArray(variation?.vTypes)
-        ? variation.vTypes
-        : Array.isArray(variation?.variationTypes)
-          ? variation.variationTypes
-          : [];
-      const replacementType = {
-        id: form.typeId || existingVariationTypes[0]?.id || 1,
-        name: form.name,
-        type_map: form.typeMap,
-      };
-      const replacementExists = existingVariationTypes.some(
-        (item) => Number(item?.id || 0) === Number(replacementType.id || 0),
-      );
-      const variationTypes = existingVariationTypes.length
-        ? existingVariationTypes.map((item, index) => {
-            const currentId = Number(item?.id || 0);
-            const shouldReplace =
-              currentId === Number(replacementType.id || 0) ||
-              (!replacementExists && index === 0);
-
-            if (shouldReplace) {
-              return replacementType;
-            }
-
-            return {
-              id: item?.id || index + 1,
-              name: item?.name || "",
-              type_map: item?.tMap || item?.type_map || "",
-            };
-          })
-        : [replacementType];
-
       await updateExistingVariation({
         variationId: Number(variationId || 0),
         data: {
@@ -159,7 +156,11 @@ export function useProductVariationUpdateForm() {
           max_stock: form.stock === "S" ? Number(form.maxStock || 1) : 0,
           sku_code: form.variationSkuCode,
           variants: form.variantType,
-          variation_types: variationTypes,
+          variation_types: form.variationFields.map((item, index) => ({
+            id: item.id || index + 1,
+            name: item.name,
+            type_map: item.typeMap,
+          })),
         },
       });
 
@@ -187,7 +188,9 @@ export function useProductVariationUpdateForm() {
     fieldErrors,
     success,
     mappingOptions,
+    variationFields,
     setFormField,
+    setVariationField,
     submit,
     slug,
     variationId,
@@ -197,8 +200,10 @@ export function useProductVariationUpdateForm() {
 function validateVariationForm(form) {
   const errors = {};
 
-  if (!form.name.trim()) errors.name = "field required *";
-  if (!form.typeMap.trim()) errors.typeMap = "field required *";
+  form.variationFields.forEach((field) => {
+    if (!field.name.trim()) errors[`${field.key}-name`] = "field required *";
+    if (!field.typeMap.trim()) errors[`${field.key}-typeMap`] = "field required *";
+  });
   if (!form.mrp.trim()) errors.mrp = "field required *";
   if (!form.price.trim()) errors.price = "field required *";
   if (Number(form.price || 0) > Number(form.mrp || 0)) {
@@ -208,4 +213,35 @@ function validateVariationForm(form) {
   if (form.stock === "S" && !form.maxStock.trim()) errors.maxStock = "field required *";
 
   return errors;
+}
+
+function getVariationFieldOrder(variantType) {
+  switch (variantType) {
+    case "size-colour":
+      return ["size", "colour"];
+    case "material-size":
+      return ["material", "size"];
+    case "material-colour":
+      return ["material", "colour"];
+    case "flavour-size":
+      return ["flavour", "size"];
+    case "flavour-weight":
+      return ["flavour", "weight"];
+    case "colour":
+    case "size":
+    case "weight":
+    case "material":
+    case "flavour":
+      return [variantType];
+    default:
+      return variantType ? [variantType] : [];
+  }
+}
+
+function titleCaseValue(value) {
+  return String(value || "")
+    .split("-")
+    .filter(Boolean)
+    .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
+    .join(" ");
 }

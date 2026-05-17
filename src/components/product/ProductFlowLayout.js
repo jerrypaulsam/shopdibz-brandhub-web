@@ -50,13 +50,13 @@ export default function ProductFlowLayout({
       <div className="mx-auto max-w-[1320px] px-4 py-8 md:px-6">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
           <section className="space-y-6">
-            <div className="rounded-sm border border-white/10 bg-[#121212] p-6">
+            <div className="theme-panel rounded-sm border p-6">
               <div className="space-y-3">
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">
                   Product Listing
                 </p>
                 <h1 className="text-3xl font-black text-brand-white">{title}</h1>
-                <p className="max-w-3xl text-sm leading-6 text-white/55">
+                <p className="theme-text-muted max-w-3xl text-sm leading-6">
                   {subtitle}
                 </p>
               </div>
@@ -76,7 +76,7 @@ export default function ProductFlowLayout({
                   if (!canNavigate) {
                     return (
                       <div
-                        className="rounded-sm border border-white/10 px-3 py-3 text-left text-white/35"
+                        className="theme-surface-soft rounded-sm border px-3 py-3 text-left theme-text-muted"
                         key={step}
                       >
                         <span className="block text-[11px] font-bold uppercase tracking-[0.18em]">
@@ -92,7 +92,7 @@ export default function ProductFlowLayout({
                       className={`rounded-sm border px-3 py-3 text-left transition-colors ${
                         currentStep === step
                           ? "border-brand-gold bg-brand-gold/10 text-brand-white"
-                          : "border-white/10 text-white/55 hover:border-white/20 hover:text-brand-white"
+                          : "theme-surface-soft theme-text-muted hover:border-white/20 hover:text-brand-white"
                       }`}
                       href={href}
                       key={step}
@@ -114,24 +114,14 @@ export default function ProductFlowLayout({
           </section>
 
           <aside className="space-y-6">
-            <div className="rounded-sm border border-white/10 bg-[#121212] p-5">
+            <div className="theme-panel rounded-sm border p-5">
               <h2 className="text-sm font-black uppercase tracking-[0.2em] text-brand-gold">
-                Why This Flow
+                Listing Tips
               </h2>
-              <div className="mt-4 space-y-4 text-sm leading-6 text-white/55">
-                <p>
-                  Categories, variant mode, and variation type stay visible in the
-                  URL so teams can deep-link the exact listing branch they need.
-                </p>
-                <p>
-                  Single-product and bulk-product listing share the same category
-                  state, but the submit path stays separate to keep the backend
-                  payload predictable.
-                </p>
-                <p>
-                  The form is broken into focused sections so brands can scan,
-                  review, and correct details without working through one long slab.
-                </p>
+              <div className="theme-text-muted mt-4 space-y-4 text-sm leading-6">
+                <p>Choose the right category first so the rest of the listing stays accurate.</p>
+                <p>Add clear product details and pricing before moving on to images or variations.</p>
+                <p>Use this step-by-step flow to review everything before the listing goes live.</p>
               </div>
             </div>
           </aside>

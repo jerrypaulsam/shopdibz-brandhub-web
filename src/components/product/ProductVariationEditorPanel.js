@@ -4,15 +4,17 @@ import StoreSection from "@/src/components/store/StoreSection";
 import { titleCaseValue } from "@/src/utils/product";
 
 /**
- * @param {{ form: any, mappingOptions: any[], lockedVariantType?: string, fieldErrors: Record<string, string>, isNew?: boolean, setFormField: (field: string, value: string) => void, submit: () => Promise<void>, isSubmitting: boolean }} props
+ * @param {{ form: any, mappingOptions: any[], variationFields?: Array<{ key: string, label: string, mappingOptions: any[] }>, lockedVariantType?: string, fieldErrors: Record<string, string>, isNew?: boolean, setFormField: (field: string, value: string) => void, setVariationField?: (key: string, field: "name" | "typeMap", value: string) => void, submit: () => Promise<void>, isSubmitting: boolean }} props
  */
 export default function ProductVariationEditorPanel({
   form,
   mappingOptions,
+  variationFields = [],
   lockedVariantType,
   fieldErrors = {},
   isNew = false,
   setFormField,
+  setVariationField,
   submit,
   isSubmitting,
 }) {
@@ -32,29 +34,77 @@ export default function ProductVariationEditorPanel({
             </div>
           ) : null}
 
-          <StoreField label="Variation Name" value={form.name} error={fieldErrors.name} onChange={(value) => setFormField("name", value)} />
-          <label className="block">
-            <span className="text-sm font-semibold text-white/80">Type Mapping</span>
-            <select
-              className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
-              value={form.typeMap}
-              onChange={(event) => setFormField("typeMap", event.target.value)}
-            >
-              <option className="bg-black" value="">Choose mapping</option>
-              {mappingOptions.map((option) => (
-                <option
-                  className="bg-black"
-                  key={typeof option === "object" ? option.name : String(option)}
-                  value={typeof option === "object" ? option.name : String(option)}
-                >
-                  {typeof option === "object" ? option.name : String(option)}
-                </option>
-              ))}
-            </select>
-            {fieldErrors.typeMap ? (
-              <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.typeMap}</p>
-            ) : null}
-          </label>
+          {variationFields.length && setVariationField
+            ? variationFields.map((field) => {
+                const currentValue =
+                  form.variationFields.find((item) => item.key === field.key) || {};
+
+                return (
+                  <div className="contents" key={field.key}>
+                    <StoreField
+                      label={`${field.label} Name`}
+                      value={currentValue.name || ""}
+                      error={fieldErrors[`${field.key}-name`]}
+                      onChange={(value) => setVariationField(field.key, "name", value)}
+                    />
+                    <label className="block">
+                      <span className="theme-text-muted-strong text-sm font-semibold">
+                        {field.label} Mapping
+                      </span>
+                      <select
+                        className="theme-field mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
+                        value={currentValue.typeMap || ""}
+                        onChange={(event) =>
+                          setVariationField(field.key, "typeMap", event.target.value)
+                        }
+                      >
+                        <option className="bg-black" value="">Choose mapping</option>
+                        {field.mappingOptions.map((option) => (
+                          <option
+                            className="bg-black"
+                            key={typeof option === "object" ? option.name : String(option)}
+                            value={typeof option === "object" ? option.name : String(option)}
+                          >
+                            {typeof option === "object" ? option.name : String(option)}
+                          </option>
+                        ))}
+                      </select>
+                      {fieldErrors[`${field.key}-typeMap`] ? (
+                        <p className="mt-2 text-xs font-semibold text-red-300 [html[data-theme='light']_&]:text-red-700">
+                          {fieldErrors[`${field.key}-typeMap`]}
+                        </p>
+                      ) : null}
+                    </label>
+                  </div>
+                );
+              })
+            : (
+              <>
+                <StoreField label="Variation Name" value={form.name} error={fieldErrors.name} onChange={(value) => setFormField("name", value)} />
+                <label className="block">
+                  <span className="text-sm font-semibold text-white/80">Type Mapping</span>
+                  <select
+                    className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
+                    value={form.typeMap}
+                    onChange={(event) => setFormField("typeMap", event.target.value)}
+                  >
+                    <option className="bg-black" value="">Choose mapping</option>
+                    {mappingOptions.map((option) => (
+                      <option
+                        className="bg-black"
+                        key={typeof option === "object" ? option.name : String(option)}
+                        value={typeof option === "object" ? option.name : String(option)}
+                      >
+                        {typeof option === "object" ? option.name : String(option)}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.typeMap ? (
+                    <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.typeMap}</p>
+                  ) : null}
+                </label>
+              </>
+            )}
           <StoreField label="MRP" value={form.mrp} error={fieldErrors.mrp} onChange={(value) => setFormField("mrp", value)} />
           <StoreField label="Selling Price" value={form.price} error={fieldErrors.price} onChange={(value) => setFormField("price", value)} />
           <StoreField label="SKU Code" value={form.variationSkuCode} error={fieldErrors.variationSkuCode} onChange={(value) => setFormField("variationSkuCode", value)} />

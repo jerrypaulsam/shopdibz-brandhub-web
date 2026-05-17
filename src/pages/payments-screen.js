@@ -8,8 +8,8 @@ export default function PaymentsScreenPage() {
   return (
     <DashboardShell>
       <PaymentsWorkspace
-        subtitle="Track payouts and review payment updates in a focused workspace."
-        title="Payments screen"
+        subtitle="Track payouts, check payment status, and review settlement details."
+        title="Payments"
         {...paymentState}
         onClosePayment={paymentState.closePayment}
         onLoadMore={paymentState.loadMore}

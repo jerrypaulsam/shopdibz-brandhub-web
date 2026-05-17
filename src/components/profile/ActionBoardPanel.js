@@ -6,7 +6,7 @@ import StoreSection from "@/src/components/store/StoreSection";
  */
 export default function ActionBoardPanel({ tickets, isLoading, message }) {
   return (
-    <StoreSection title="Action Board" subtitle="Support tickets with direct links into each conversation thread.">
+    <StoreSection title="Action Board" subtitle="View your support tickets and open each conversation when needed.">
       <div className="mb-5 flex justify-end">
         <Link
           className="theme-primary-button inline-flex min-h-10 items-center justify-center rounded-sm border px-4 text-sm font-semibold transition-colors"

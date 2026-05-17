@@ -8,7 +8,7 @@ export default function ProductImagePage() {
   return (
     <ProductFlowLayout
       title="Select Images"
-      subtitle="Upload the product media and send the final single-product create request from this step."
+      subtitle="Upload clear product images to help customers understand the listing."
       currentStep="images"
       query={product.buildQuery()}
       message={product.error}

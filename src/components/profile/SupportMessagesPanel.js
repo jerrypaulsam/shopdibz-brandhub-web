@@ -69,7 +69,7 @@ export default function SupportMessagesPanel({
   return (
     <StoreSection
       title={currentTicket ? `Ticket: #${resolveTicketNumber(currentTicket)}` : "Support Messages"}
-      subtitle="Message thread between the seller and the Shopdibz support team."
+      subtitle="Follow the conversation with the Shopdibz support team and send replies here."
     >
       <AuthMessage>{message}</AuthMessage>
 

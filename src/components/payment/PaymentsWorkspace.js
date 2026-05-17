@@ -49,7 +49,7 @@ export default function PaymentsWorkspace({
           </p>
         </div>
 
-        <aside className="theme-panel rounded-sm border p-5">
+          <aside className="theme-panel rounded-sm border p-5">
           <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-brand-white">
             Settlement notes
           </h2>
@@ -57,7 +57,7 @@ export default function PaymentsWorkspace({
             <li>Pending payouts usually release after delivery review.</li>
             <li>Higher seller trust shortens the settlement window.</li>
             <li>Hold states often follow delivery disputes or verification flags.</li>
-            <li>Use fee breakdown to inspect penalties, shipping cost, and commission.</li>
+            <li>Open a payment to review shipping, commission, penalties, and other charges.</li>
           </ul>
           {pricingUrl ? (
             <a

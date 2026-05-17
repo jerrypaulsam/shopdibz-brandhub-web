@@ -9,7 +9,7 @@ export default function PaymentsListPage() {
     <DashboardShell>
       <PaymentsWorkspace
         subtitle="Track seller payouts, review fee breakdowns, and stay on top of payment status."
-        title="Seller payout command center"
+        title="Seller payouts"
         {...paymentState}
         onClosePayment={paymentState.closePayment}
         onLoadMore={paymentState.loadMore}

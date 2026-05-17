@@ -49,7 +49,7 @@ export default function StoreCreateFormPage() {
         <form className="min-w-0 flex-1 space-y-6" onSubmit={handleSubmit}>
           <StoreSection
             title="Register Your Store With Us!"
-            subtitle="Complete your GST-backed onboarding before setting up storefront details."
+            subtitle="Complete your business verification details to start setting up your store."
           >
             <div className="space-y-5">
               <StoreField
@@ -98,7 +98,7 @@ export default function StoreCreateFormPage() {
             </div>
           </StoreSection>
 
-          <StoreSection title="Signature" subtitle="A clear digital signature is required for verification purposes.">
+          <StoreSection title="Signature" subtitle="Add a clear digital signature to complete your verification.">
             <StoreSignaturePad
               clearSignal={clearSignal}
               onChange={setSignatureBase64}
@@ -149,7 +149,7 @@ export default function StoreCreateFormPage() {
             </div>
           </StoreSection>
 
-          <StoreSection title="Live Summary" subtitle="A quick review of what will be sent to the verification flow.">
+          <StoreSection title="Summary" subtitle="Review your details before continuing.">
             <div className="space-y-4 text-sm text-white/70">
               <SummaryRow label="GSTIN" value={gstin || "Not added"} />
               <SummaryRow label="Registered Name" value={storeRegisteredName || "Not added"} />

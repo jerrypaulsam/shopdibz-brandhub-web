@@ -12,21 +12,11 @@ export default function ProductDetailPage() {
   return (
     <ProductWorkspaceLayout
       title={product.product?.title || (slug ? `Product ${slug}` : "Product Detail")}
-      subtitle="A direct-linkable product workspace keyed by slug, with modern sections for media, pricing, catalog metadata, and variation operations."
+      subtitle="View product information, manage images, and stay on top of reviews and customer questions."
       message={product.error}
-      aside={
-        <div className="rounded-sm border border-white/10 bg-[#121212] p-5 text-sm leading-6 text-white/55">
-          <p className="font-bold text-brand-white">Route State</p>
-          <p className="mt-3">Slug: {product.product?.slug || slug || "-"}</p>
-          <p>Variant mode: {product.variantMode}</p>
-          <p>
-            Variation id: {product.activeVariation?.id ? String(product.activeVariation.id) : "-"}
-          </p>
-        </div>
-      }
     >
       {!isReady || product.isLoading || !product.product ? (
-        <div className="rounded-sm border border-white/10 bg-[#121212] p-8 text-sm text-white/55">
+        <div className="theme-panel rounded-sm border p-8 text-sm theme-text-muted">
           Loading product detail...
         </div>
       ) : (

@@ -8,7 +8,7 @@ export default function ProductVariationPage() {
   return (
     <ProductFlowLayout
       title="Enter Variation Info"
-      subtitle="Build out each variant record one by one before the final product create request is sent."
+      subtitle="Add each variation with the right pricing, stock, SKU, and option details."
       currentStep="variation"
       query={product.buildQuery()}
       message={product.error}

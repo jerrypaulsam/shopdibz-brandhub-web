@@ -94,7 +94,7 @@ export default function StoreInfoFormPage() {
             <div className="space-y-6">
               <CollapsibleStoreSection
                 title="Store Identity"
-                subtitle="Update the customer-facing identity, profile assets, and descriptive content for your brand."
+                subtitle="Update your store name, logo, and brand details customers will see."
                 badge={isInitialSetup ? "Setup" : "Live"}
                 defaultOpen={!focusSection || focusSection === "identity"}
               >
@@ -178,7 +178,7 @@ export default function StoreInfoFormPage() {
 
               <CollapsibleStoreSection
                 title="Address & Social"
-                subtitle="Configure pickup location and social discovery details."
+                subtitle="Keep your address and social details up to date."
                 badge={isInitialSetup ? "Required" : "Optional"}
                 defaultOpen={!focusSection ? isInitialSetup : focusSection === "address"}
               >
@@ -198,7 +198,7 @@ export default function StoreInfoFormPage() {
 
               <CollapsibleStoreSection
                 title="Fulfillment & Permissions"
-                subtitle="Shipping choices and seller-side operating controls."
+                subtitle="Manage shipping preferences and store settings."
                 defaultOpen={!focusSection || focusSection === "fulfillment"}
               >
                 <div className="space-y-5">
@@ -292,7 +292,7 @@ export default function StoreInfoFormPage() {
 
               <CollapsibleStoreSection
                 title="Size Chart & Storefront Assets"
-                subtitle="Keep customer-facing brand assets updated without burying them inside the main form."
+                subtitle="Update your size guide and storefront assets in one place."
                 defaultOpen={focusSection === "assets"}
               >
                 <div className="space-y-5">
@@ -403,7 +403,7 @@ export default function StoreInfoFormPage() {
 
               <CollapsibleStoreSection
                 title="External Store Sync"
-                subtitle="Connect Shopify or WooCommerce without turning the settings page into one long screen."
+                subtitle="Connect Shopify or WooCommerce to sync products and pricing."
                 defaultOpen={focusSection === "sync"}
               >
                 <div className="space-y-6">
@@ -482,9 +482,9 @@ export default function StoreInfoFormPage() {
 
               <StoreSection title="Editing Guidance">
                 <div className="space-y-4 text-sm leading-6 text-white/60">
-                  <p>Core storefront settings are grouped to make repeated updates quicker on desktop and mobile.</p>
-                  <p>Initial setup keeps address and store ID visible because those details are required to complete store activation.</p>
-                  <p>Later edits keep those setup-only fields tucked away so the seller is not forced through the same long form every time.</p>
+                  <p>Keep your store name, logo, and contact details current so customers can trust your brand.</p>
+                  <p>Review shipping and sync settings carefully before turning them on for your live store.</p>
+                  <p>Update key assets like your size guide and welcome message whenever your store changes.</p>
                 </div>
               </StoreSection>
             </div>

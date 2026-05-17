@@ -73,7 +73,7 @@ export default function ProductDetailPanel({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,420px)]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,1fr)]">
         <StoreSection
           title="Media"
           subtitle={
@@ -92,17 +92,17 @@ export default function ProductDetailPanel({
                       key={group.variation?.id}
                     >
                       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="min-w-0 text-sm font-bold text-brand-white">
+                        <p className="min-w-0 break-words text-sm font-bold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
                           {titleCaseValue(group.variation?.vAtion)} / {group.variation?.vTypes?.[0]?.name} / {group.variation?.vTypes?.[0]?.tMap}
                         </p>
                         <Link
-                          className="theme-action-neutral inline-flex min-h-9 items-center justify-center self-start rounded-sm border px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] transition-colors"
+                          className="theme-action-neutral inline-flex min-h-9 items-center justify-center self-start rounded-sm border px-3 py-2 text-sm font-semibold transition-colors"
                           href={`/products/${product.slug}/variations/${group.variation?.id}/images?variant-mode=${variantMode}`}
                         >
                           Manage
                         </Link>
                       </div>
-                      <div className="grid gap-4 md:grid-cols-2">
+                      <div className="grid gap-4 lg:grid-cols-2">
                         {group.images.map((image) => (
                           <MediaCard
                             key={image.id}
@@ -120,12 +120,12 @@ export default function ProductDetailPanel({
                 )}
               </div>
             ) : (
-              <div className="rounded-sm border border-dashed border-white/15 bg-black/20 p-8 text-sm text-white/55">
+              <div className="theme-surface rounded-sm border border-dashed p-8 text-sm theme-text-muted">
                 No images uploaded yet.
               </div>
             )
           ) : imageList.length ? (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-2">
               {imageList.map((image) => (
                 <MediaCard
                   key={image.id}
@@ -139,7 +139,7 @@ export default function ProductDetailPanel({
               ))}
             </div>
           ) : (
-            <div className="rounded-sm border border-dashed border-white/15 bg-black/20 p-8 text-sm text-white/55">
+            <div className="theme-surface rounded-sm border border-dashed p-8 text-sm theme-text-muted">
               No images uploaded yet.
             </div>
           )}
@@ -180,8 +180,10 @@ export default function ProductDetailPanel({
         >
           <div className="space-y-4">
             <div>
-              <h2 className="text-2xl font-black text-brand-white">{title}</h2>
-              <p className="mt-2 text-sm text-white/55">
+              <h2 className="text-2xl font-black text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
+                {title}
+              </h2>
+              <p className="theme-text-muted mt-2 text-sm">
                 {product?.prdtInfo?.brd || product?.prdtInfo?.pub || "No brand or publisher"}
               </p>
             </div>
@@ -197,16 +199,18 @@ export default function ProductDetailPanel({
                 ["Reviews", `${product?.rCount || 0}`],
                 ["Status", isApproved ? "Active" : "Pending approval"],
               ].map(([label, value]) => (
-                <div className="rounded-sm border border-white/10 bg-black/20 p-4" key={label}>
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
+                <div className="theme-surface-soft rounded-sm border p-4" key={label}>
+                  <p className="theme-text-muted text-xs font-bold uppercase tracking-[0.16em]">
                     {label}
                   </p>
-                  <p className="mt-2 text-lg font-bold text-brand-white">{value}</p>
+                  <p className="mt-2 text-lg font-bold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
+                    {value}
+                  </p>
                 </div>
               ))}
             </div>
 
-            <div className="space-y-2 text-sm leading-6 text-white/65">
+            <div className="theme-text-muted space-y-2 text-sm leading-6">
               <p>Slug: {product?.slug}</p>
               <p>HSN: {product?.hsn || "-"}</p>
               <p>SKU: {currentSku || "-"}</p>
@@ -218,20 +222,26 @@ export default function ProductDetailPanel({
 
             <div className="flex flex-wrap gap-3">
               <Link
-                className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                className="theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
                 href={`/products/${product.slug}/edit?variant-mode=${variantMode}`}
               >
                 Edit Product
               </Link>
               <Link
-                className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                className="theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
                 href={`/products/${product.slug}/reviews`}
               >
                 Product Reviews
               </Link>
+              <Link
+                className="theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
+                href={`/products/${product.slug}/questions`}
+              >
+                Product Questions
+              </Link>
               {product?.var && activeVariation ? (
                 <Link
-                  className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                  className="theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
                   href={`/products/${product.slug}/variations/${activeVariation.id}/edit?variant-mode=${variantMode}`}
                 >
                   Edit Selected Variation
@@ -245,42 +255,39 @@ export default function ProductDetailPanel({
       {product?.var ? (
         <StoreSection
           title="Variations"
-          subtitle="Select the active variant from the URL-linked list below."
+          subtitle="Choose a variation to review its pricing, stock, images, and settings."
         >
           <div className="space-y-3">
             {product.prdtVari.map((variation) => (
-              <div
-                className="flex flex-wrap items-center justify-between gap-4 rounded-sm border border-white/10 bg-black/20 p-4"
-                key={variation.id}
-              >
+              <div className="theme-surface-soft flex flex-wrap items-center justify-between gap-4 rounded-sm border p-4" key={variation.id}>
                 <button
-                  className="text-left"
+                  className="min-w-0 flex-1 text-left"
                   type="button"
                   onClick={() => onSelectVariation(variation.id)}
                 >
-                  <p className="text-sm font-bold text-brand-white">
+                  <p className="break-words text-sm font-bold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
                     {titleCaseValue(variation.vAtion)} / {variation.vTypes?.[0]?.name} / {variation.vTypes?.[0]?.tMap}
                   </p>
-                  <p className="mt-1 text-sm text-white/55">
+                  <p className="theme-text-muted mt-1 text-sm">
                     Rs. {Number(variation.price || 0).toFixed(2)} / MRP Rs.{" "}
                     {Number(variation.mrp || 0).toFixed(2)} / SKU {variation.sku || "-"}
                   </p>
                 </button>
                 <div className="flex flex-wrap gap-3">
                   <Link
-                    className="rounded-sm border border-white/15 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-white"
+                    className="theme-action-neutral rounded-sm border px-3 py-2 text-sm font-semibold transition-colors"
                     href={`/products/${product.slug}/variations/${variation.id}/images?variant-mode=${variantMode}`}
                   >
                     Images
                   </Link>
                   <Link
-                    className="rounded-sm border border-white/15 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-white"
+                    className="theme-action-neutral rounded-sm border px-3 py-2 text-sm font-semibold transition-colors"
                     href={`/products/${product.slug}/variations/${variation.id}/edit?variant-mode=${variantMode}`}
                   >
                     Edit
                   </Link>
                   <button
-                    className="rounded-sm border border-red-400/40 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-red-300"
+                    className="theme-action-danger rounded-sm border px-3 py-2 text-sm font-semibold transition-colors"
                     type="button"
                     onClick={() => onDeleteVariation(variation.id)}
                   >
@@ -296,16 +303,16 @@ export default function ProductDetailPanel({
       <StoreSection title="Description & Catalog Metadata">
         <div className="grid gap-6 xl:grid-cols-2">
           <div className="space-y-5">
-            <div className="rounded-sm border border-white/10 bg-black/20 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
+            <div className="theme-surface-soft rounded-sm border p-4">
+              <p className="theme-text-muted text-xs font-bold uppercase tracking-[0.16em]">
                 Description
               </p>
               <div
-                className="prose prose-invert mt-4 max-w-none text-sm"
+                className="prose prose-invert mt-4 max-w-none text-sm [html[data-theme='light']_&]:prose-neutral [html[data-theme='light']_&]:text-[#4b3c36]"
                 dangerouslySetInnerHTML={{ __html: product?.prdtInfo?.desc || "" }}
               />
             </div>
-            <div className="rounded-sm border border-white/10 bg-black/20 p-4 text-sm leading-6 text-white/65">
+            <div className="theme-surface-soft theme-text-muted rounded-sm border p-4 text-sm leading-6">
               <p>Brand authenticity: {product?.prdtInfo?.brdCert ? "Available" : "Not provided"}</p>
               <p>Video URL: {product?.prdtInfo?.vUrl || "-"}</p>
               <p>Condition: {product?.prdtInfo?.con === "N" ? "New" : "Refurbished"}</p>
@@ -314,14 +321,14 @@ export default function ProductDetailPanel({
           </div>
 
           <div className="space-y-5">
-            <div className="rounded-sm border border-white/10 bg-black/20 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
+            <div className="theme-surface-soft rounded-sm border p-4">
+              <p className="theme-text-muted text-xs font-bold uppercase tracking-[0.16em]">
                 Keywords
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {(product?.prdtInfo?.keys || []).map((keyword) => (
                   <span
-                    className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-brand-white"
+                    className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-brand-white [html[data-theme='light']_&]:text-[#4b3c36]"
                     key={keyword}
                   >
                     {keyword}
@@ -329,15 +336,17 @@ export default function ProductDetailPanel({
                 ))}
               </div>
             </div>
-            <div className="rounded-sm border border-white/10 bg-black/20 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
+            <div className="theme-surface-soft rounded-sm border p-4">
+              <p className="theme-text-muted text-xs font-bold uppercase tracking-[0.16em]">
                 Attributes
               </p>
               <div className="mt-4 space-y-3">
                 {Object.entries(attributes).map(([key, value]) => (
                   <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-3" key={key}>
-                    <p className="text-sm font-semibold text-brand-white">{key}</p>
-                    <p className="text-sm text-white/55">{value.join(", ")}</p>
+                    <p className="text-sm font-semibold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
+                      {key}
+                    </p>
+                    <p className="theme-text-muted text-right text-sm">{value.join(", ")}</p>
                   </div>
                 ))}
               </div>
@@ -348,29 +357,26 @@ export default function ProductDetailPanel({
 
       <StoreSection
         title="Product Reviews"
-        subtitle="Inline review preview from the live product feed."
+        subtitle="A quick look at recent customer feedback for this product."
       >
         {reviewPreviewError ? <p className="text-sm text-brand-gold">{reviewPreviewError}</p> : null}
 
         {reviewPreviewLoading ? (
-          <div className="rounded-sm border border-white/10 bg-black/20 p-6 text-sm text-white/55">
+          <div className="theme-surface-soft rounded-sm border p-6 text-sm theme-text-muted">
             Loading reviews...
           </div>
         ) : reviewPreview.length ? (
           <div className="space-y-4">
             {reviewPreview.map((review) => (
-              <article
-                className="rounded-sm border border-white/10 bg-black/20 p-4"
-                key={review?.id}
-              >
+              <article className="theme-surface-soft rounded-sm border p-4" key={review?.id}>
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-sm font-bold text-brand-white">
+                        <p className="text-sm font-bold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
                           {review?.user?.fName || review?.user?.name || "Customer"}
                         </p>
-                        <p className="mt-1 text-xs text-white/35">
+                        <p className="theme-text-muted mt-1 text-xs">
                           {formatDate(review?.time || review?.timestamp)}
                         </p>
                       </div>
@@ -378,7 +384,7 @@ export default function ProductDetailPanel({
                         Rating {Number(review?.rating || 0).toFixed(1)}
                       </p>
                     </div>
-                    <p className="mt-3 text-sm leading-6 text-white/70">
+                    <p className="theme-text-muted mt-3 text-sm leading-6">
                       {review?.review || review?.comment || "No review text"}
                     </p>
                   </div>
@@ -400,7 +406,7 @@ export default function ProductDetailPanel({
             ))}
             <div>
               <Link
-                className="text-sm font-bold text-brand-gold hover:text-brand-white"
+                className="text-sm font-bold text-brand-gold transition-colors hover:text-brand-white [html[data-theme='light']_&:hover]:text-[#2f241f]"
                 href={`/products/${product.slug}/reviews`}
               >
                 View all reviews
@@ -408,7 +414,7 @@ export default function ProductDetailPanel({
             </div>
           </div>
         ) : (
-          <div className="rounded-sm border border-dashed border-white/15 bg-black/20 p-8 text-sm text-white/55">
+          <div className="theme-surface rounded-sm border border-dashed p-8 text-sm theme-text-muted">
             No reviews for this product yet.
           </div>
         )}
@@ -416,12 +422,12 @@ export default function ProductDetailPanel({
 
       <StoreSection
         title="Questions & Answers"
-        subtitle="Seller-facing product Q&A with answer controls."
+        subtitle="Review customer questions and add answers when needed."
       >
         {questionsError ? <p className="text-sm text-brand-gold">{questionsError}</p> : null}
 
         {questionsLoading && !questions.length ? (
-          <div className="rounded-sm border border-white/10 bg-black/20 p-6 text-sm text-white/55">
+          <div className="theme-surface-soft rounded-sm border p-6 text-sm theme-text-muted">
             Loading questions...
           </div>
         ) : questions.length ? (
@@ -431,21 +437,20 @@ export default function ProductDetailPanel({
               const draftValue = questionDrafts[String(question?.id)] || "";
 
               return (
-                <article
-                  className="rounded-sm border border-white/10 bg-black/20 p-4"
-                  key={question?.id}
-                >
+                <article className="theme-surface-soft rounded-sm border p-4" key={question?.id}>
                   <div className="flex items-start gap-3">
-                    <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-brand-black text-sm font-bold text-brand-gold">
+                    <div className="theme-surface mt-1 flex h-8 w-8 items-center justify-center rounded-full border text-sm font-bold text-brand-gold">
                       <ActionIcon type="question" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-brand-white">{question?.qus || "Question"}</p>
+                      <p className="text-sm font-bold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
+                        {question?.qus || "Question"}
+                      </p>
                       {firstAnswer ? (
-                        <div className="mt-4 rounded-sm border border-white/10 bg-black/25 p-3">
-                          <p className="text-sm text-white/70">{firstAnswer?.ans || ""}</p>
+                        <div className="theme-surface mt-4 rounded-sm border p-3">
+                          <p className="theme-text-muted text-sm">{firstAnswer?.ans || ""}</p>
                           <button
-                            className="mt-3 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-red-300 hover:text-red-200"
+                            className="theme-action-danger mt-3 inline-flex items-center gap-2 rounded-sm border px-3 py-2 text-sm font-semibold transition-colors"
                             type="button"
                             onClick={() => onDeleteAnswer(firstAnswer.id)}
                           >
@@ -456,13 +461,13 @@ export default function ProductDetailPanel({
                       ) : (
                         <div className="mt-4 space-y-3">
                           <textarea
-                            className="min-h-24 w-full rounded-sm border border-white/10 bg-black/20 px-4 py-3 text-sm text-brand-white outline-none placeholder:text-white/25"
+                            className="theme-field min-h-24 w-full rounded-sm border px-4 py-3 text-sm outline-none"
                             placeholder="What's your answer?"
                             value={draftValue}
                             onChange={(event) => onUpdateQuestionDraft(question.id, event.target.value)}
                           />
                           <button
-                            className="inline-flex items-center gap-2 rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                            className="theme-action-neutral inline-flex items-center gap-2 rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
                             type="button"
                             onClick={() => onSubmitAnswer(question.id)}
                           >
@@ -477,19 +482,34 @@ export default function ProductDetailPanel({
               );
             })}
             {hasMoreQuestions ? (
-              <div>
+              <div className="flex flex-wrap gap-3">
                 <button
-                  className="rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold"
+                  className="theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
                   type="button"
                   onClick={onLoadMoreQuestions}
                 >
                   Load More Questions
                 </button>
+                <Link
+                  className="theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
+                  href={`/products/${product.slug}/questions`}
+                >
+                  View all questions
+                </Link>
               </div>
-            ) : null}
+            ) : (
+              <div>
+                <Link
+                  className="theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
+                  href={`/products/${product.slug}/questions`}
+                >
+                  View all questions
+                </Link>
+              </div>
+            )}
           </div>
         ) : (
-          <div className="rounded-sm border border-dashed border-white/15 bg-black/20 p-8 text-sm text-white/55">
+          <div className="theme-surface rounded-sm border border-dashed p-8 text-sm theme-text-muted">
             No questions to display.
           </div>
         )}
@@ -498,14 +518,14 @@ export default function ProductDetailPanel({
       {product?.shProf ? (
         <StoreSection title="Shipping Profile">
           <div className="grid gap-6 xl:grid-cols-2">
-            <div className="rounded-sm border border-white/10 bg-black/20 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
+            <div className="theme-surface-soft rounded-sm border p-4">
+              <p className="theme-text-muted text-xs font-bold uppercase tracking-[0.16em]">
                 Shipping Zones
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {shipZones.map((zone) => (
                   <span
-                    className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-brand-white"
+                    className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-brand-white [html[data-theme='light']_&]:text-[#4b3c36]"
                     key={zone}
                   >
                     {zone}
@@ -513,14 +533,14 @@ export default function ProductDetailPanel({
                 ))}
               </div>
             </div>
-            <div className="rounded-sm border border-white/10 bg-black/20 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
+            <div className="theme-surface-soft rounded-sm border p-4">
+              <p className="theme-text-muted text-xs font-bold uppercase tracking-[0.16em]">
                 Excluded Zones
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {shipExZones.map((zone) => (
                   <span
-                    className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-brand-white"
+                    className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-brand-white [html[data-theme='light']_&]:text-[#4b3c36]"
                     key={zone}
                   >
                     {zone}
@@ -544,7 +564,7 @@ function MediaCard({
   onRemoveImage,
 }) {
   return (
-    <div className="theme-surface-soft rounded-sm border p-3">
+    <div className="theme-surface-soft rounded-sm border p-4">
       <div className="relative aspect-square overflow-hidden rounded-sm bg-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -559,14 +579,14 @@ function MediaCard({
         ) : null}
       </div>
       <div className="mt-3 space-y-3">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">
+        <p className="theme-text-muted text-sm font-semibold">
           {image.cover ? "Cover image" : "Gallery image"}
         </p>
         {canManage ? (
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             {!image.cover ? (
               <button
-                className="theme-action-neutral inline-flex min-h-9 items-center justify-center gap-2 rounded-sm border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors"
+                className="theme-action-neutral inline-flex min-h-10 items-center justify-center gap-2 rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
                 type="button"
                 disabled={imageActionLoadingId === `cover-${image.id}`}
                 onClick={() => onMakeCoverImage(image.id)}
@@ -576,7 +596,7 @@ function MediaCard({
               </button>
             ) : null}
             <button
-              className="theme-action-danger inline-flex min-h-9 items-center justify-center gap-2 rounded-sm border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors"
+              className="theme-action-danger inline-flex min-h-10 items-center justify-center gap-2 rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
               type="button"
               disabled={imageActionLoadingId === `remove-${image.id}`}
               onClick={() => onRemoveImage(image.id)}
@@ -586,7 +606,7 @@ function MediaCard({
             </button>
           </div>
         ) : (
-          <p className="text-xs text-white/40">
+          <p className="theme-text-muted text-sm">
             Select this variation to make cover or delete images here.
           </p>
         )}
@@ -601,10 +621,10 @@ function MediaCard({
 function VoteButton({ label, active, onClick }) {
   return (
     <button
-      className={`rounded-sm border px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] ${
+      className={`rounded-sm border px-3 py-2 text-sm font-semibold transition-colors ${
         active
           ? "border-brand-gold bg-brand-gold/10 text-brand-gold"
-          : "border-white/10 text-white/55 hover:border-brand-gold hover:text-brand-gold"
+          : "theme-action-neutral"
       }`}
       type="button"
       onClick={onClick}

@@ -31,7 +31,7 @@ export default function ProductImageWorkspacePanel({
         {currentImages.length ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {currentImages.map((image) => (
-              <div className="rounded-sm border border-white/10 bg-black/20 p-3" key={image.id}>
+              <div className="theme-surface-soft rounded-sm border p-4" key={image.id}>
                 <div className="aspect-square overflow-hidden rounded-sm bg-white">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -40,12 +40,12 @@ export default function ProductImageWorkspacePanel({
                     src={image.images || ""}
                   />
                 </div>
-                <p className="mt-3 text-xs font-bold uppercase tracking-[0.16em] text-white/45">
+                <p className="theme-text-muted mt-3 text-sm font-semibold">
                   Existing
                 </p>
-                <div className="mt-3 grid gap-2">
+                <div className="mt-3 flex flex-col gap-2">
                   <button
-                    className="rounded-sm border border-white/10 px-3 py-2 text-center text-xs font-bold uppercase tracking-[0.16em] text-brand-white"
+                    className="theme-action-neutral rounded-sm border px-3 py-2 text-center text-sm font-semibold transition-colors"
                     type="button"
                     onClick={() => replaceInputRefs.current[image.id]?.click()}
                   >
@@ -67,14 +67,14 @@ export default function ProductImageWorkspacePanel({
                     }}
                   />
                   <button
-                    className="rounded-sm border border-white/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-white"
+                    className="theme-action-neutral rounded-sm border px-3 py-2 text-sm font-semibold transition-colors"
                     type="button"
                     onClick={() => makeCoverImage(image.id)}
                   >
                     Make Cover
                   </button>
                   <button
-                    className="rounded-sm border border-red-400/40 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-red-300"
+                    className="theme-action-danger rounded-sm border px-3 py-2 text-sm font-semibold transition-colors"
                     type="button"
                     onClick={() => removeCurrentImage(image.id)}
                   >
@@ -87,13 +87,15 @@ export default function ProductImageWorkspacePanel({
         ) : null}
 
         <button
-          className="mt-6 flex min-h-44 w-full items-center justify-center rounded-sm border border-dashed border-white/15 bg-black/20 p-6 text-center"
+          className="theme-surface mt-6 flex min-h-44 w-full items-center justify-center rounded-sm border border-dashed p-6 text-center"
           type="button"
           onClick={() => addImagesInputRef.current?.click()}
         >
           <span>
-            <span className="block text-sm font-bold text-brand-white">Select images</span>
-            <span className="mt-2 block text-sm text-white/55">JPG or PNG</span>
+            <span className="block text-sm font-bold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
+              Select images
+            </span>
+            <span className="theme-text-muted mt-2 block text-sm">JPG or PNG</span>
           </span>
         </button>
         <input
@@ -111,7 +113,7 @@ export default function ProductImageWorkspacePanel({
         {selectedImages.length ? (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {selectedImages.map((image) => (
-              <div className="rounded-sm border border-white/10 bg-black/20 p-3" key={image.id}>
+              <div className="theme-surface-soft rounded-sm border p-4" key={image.id}>
                 <div className="aspect-square overflow-hidden rounded-sm bg-white">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -120,10 +122,10 @@ export default function ProductImageWorkspacePanel({
                     src={image.previewUrl}
                   />
                 </div>
-                <div className="mt-3 flex items-center justify-between gap-3">
-                  <p className="truncate text-sm text-white/65">{image.filename}</p>
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="theme-text-muted break-all text-sm">{image.filename}</p>
                   <button
-                    className="rounded-sm border border-red-400/40 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-red-300"
+                    className="theme-action-danger rounded-sm border px-3 py-2 text-sm font-semibold transition-colors"
                     type="button"
                     onClick={() => removeImage(image.id)}
                   >

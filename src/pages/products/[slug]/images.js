@@ -8,7 +8,7 @@ export default function ProductFurtherImagesPage() {
   return (
     <ProductWorkspaceLayout
       title="Add Further Images"
-      subtitle="Upload more product images for the current slug without leaving the product workspace."
+      subtitle="Add, replace, and organise product images so shoppers get a clear view of the listing."
       message={product.error}
       success={product.success}
     >

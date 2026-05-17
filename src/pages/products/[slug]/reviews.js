@@ -8,12 +8,14 @@ export default function ProductReviewsPage() {
   return (
     <ProductWorkspaceLayout
       title="Product Reviews"
-      subtitle="Review moderation and sentiment reading for a single listing, kept on a direct slug route so teams can deep-link into exactly the right product."
+      subtitle="Read customer feedback, track sentiment, and respond to what shoppers are saying about this product."
       message={reviews.message}
       aside={
-        <div className="rounded-sm border border-white/10 bg-[#121212] p-5 text-sm leading-6 text-white/55">
-          <p className="font-bold text-brand-white">Route State</p>
-          <p className="mt-3">Slug: {reviews.slug || "-"}</p>
+        <div className="theme-panel theme-text-muted rounded-sm border p-5 text-sm leading-6">
+          <p className="font-bold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
+            Review Summary
+          </p>
+          <p className="mt-3">Product: {reviews.slug || "-"}</p>
           <p>Page: {String(reviews.page)}</p>
         </div>
       }

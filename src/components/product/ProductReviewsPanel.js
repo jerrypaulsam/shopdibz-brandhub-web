@@ -30,13 +30,15 @@ export default function ProductReviewsPanel({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-sm border border-white/10 bg-[#121212] p-6">
+      <section className="theme-panel rounded-sm border p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">
               Product Feedback
             </p>
-            <h1 className="mt-3 text-3xl font-black text-brand-white">Product Reviews</h1>
+            <h1 className="mt-3 text-3xl font-black text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
+              Product Reviews
+            </h1>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
@@ -50,27 +52,24 @@ export default function ProductReviewsPanel({
 
       <section className="space-y-4">
         {isLoading ? (
-          <div className="rounded-sm border border-white/10 bg-[#121212] p-8 text-sm text-white/45">
+          <div className="theme-panel rounded-sm border p-8 text-sm theme-text-muted">
             Loading product reviews...
           </div>
         ) : reviews.length ? (
           reviews.map((review) => (
-            <article
-              className="rounded-sm border border-white/10 bg-[#121212] p-5"
-              key={review?.id}
-            >
+            <article className="theme-panel rounded-sm border p-5" key={review?.id}>
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
                 <div className="flex min-w-0 flex-1 gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/30 text-sm font-black text-brand-gold">
+                  <div className="theme-surface flex h-12 w-12 items-center justify-center rounded-full border text-sm font-black text-brand-gold">
                     {String(review?.user?.fName || review?.user?.name || "U").slice(0, 1)}
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <p className="text-base font-bold text-brand-white">
+                        <p className="text-base font-bold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
                           {review?.user?.fName || review?.user?.name || "Customer"}
                         </p>
-                        <p className="mt-1 text-xs text-white/35">
+                        <p className="theme-text-muted mt-1 text-xs">
                           {formatReviewDate(review?.time || review?.timestamp)}
                         </p>
                       </div>
@@ -78,7 +77,7 @@ export default function ProductReviewsPanel({
                         {renderStars(Number(review?.rating || 0))}
                       </p>
                     </div>
-                    <p className="mt-4 text-sm leading-6 text-white/70">
+                    <p className="theme-text-muted mt-4 text-sm leading-6">
                       {review?.review || review?.comment || "No review text"}
                     </p>
                   </div>
@@ -100,27 +99,29 @@ export default function ProductReviewsPanel({
             </article>
           ))
         ) : (
-          <div className="rounded-sm border border-dashed border-white/15 bg-[#121212] p-12 text-center">
-            <p className="text-lg font-black text-brand-white">No Product Reviews Yet</p>
-            <p className="mt-2 text-sm text-white/45">
+          <div className="theme-panel rounded-sm border border-dashed p-12 text-center">
+            <p className="text-lg font-black text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
+              No Product Reviews Yet
+            </p>
+            <p className="theme-text-muted mt-2 text-sm">
               Feedback for this product will appear here once customers start reviewing it.
             </p>
           </div>
         )}
       </section>
 
-      <section className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-white/10 bg-[#121212] p-4">
+      <section className="theme-panel flex flex-wrap items-center justify-between gap-3 rounded-sm border p-4">
         <button
-          className="rounded-sm border border-white/10 px-4 py-2 text-sm font-semibold text-brand-white disabled:opacity-40"
+          className="theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-40"
           type="button"
           disabled={!hasPreviousPage}
           onClick={() => onUpdateRoute(Math.max(page - 1, 1))}
         >
           Previous
         </button>
-        <p className="text-sm font-semibold text-white/55">Page {page}</p>
+        <p className="theme-text-muted text-sm font-semibold">Page {page}</p>
         <button
-          className="rounded-sm border border-white/10 px-4 py-2 text-sm font-semibold text-brand-white disabled:opacity-40"
+          className="theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-40"
           type="button"
           disabled={!hasNextPage}
           onClick={() => onUpdateRoute(page + 1)}
@@ -137,9 +138,11 @@ export default function ProductReviewsPanel({
  */
 function Metric({ label, value }) {
   return (
-    <div className="rounded-sm border border-white/10 bg-black/20 p-4">
-      <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">{label}</p>
-      <p className="mt-2 text-lg font-black text-brand-white">{value}</p>
+    <div className="theme-surface-soft rounded-sm border p-4">
+      <p className="theme-text-muted text-xs font-bold uppercase tracking-[0.16em]">{label}</p>
+      <p className="mt-2 text-lg font-black text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
+        {value}
+      </p>
     </div>
   );
 }
@@ -150,10 +153,10 @@ function Metric({ label, value }) {
 function VoteButton({ label, active, onClick }) {
   return (
     <button
-      className={`rounded-sm border px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] transition-colors ${
+      className={`rounded-sm border px-3 py-2 text-sm font-semibold transition-colors ${
         active
           ? "border-brand-gold bg-brand-gold/10 text-brand-gold"
-          : "border-white/10 text-white/55 hover:border-brand-gold hover:text-brand-gold"
+          : "theme-action-neutral"
       }`}
       type="button"
       onClick={onClick}

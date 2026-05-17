@@ -8,7 +8,7 @@ export default function ProductBulkPage() {
   return (
     <ProductFlowLayout
       title="Bulk Listing"
-      subtitle="Upload, verify, and submit your product sheet in a dedicated workspace instead of an in-page modal."
+      subtitle="Upload and verify your sheet before adding products in bulk."
       currentStep="bulk"
       query={product.buildQuery()}
       message={product.error}
