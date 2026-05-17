@@ -34,7 +34,7 @@ export function useSupportMessages(ticketId) {
 
         setStoreInfo(info);
         setTickets(ticketData?.results || []);
-        setMessages(messageData?.results || []);
+        setMessages(normalizeSupportMessages(messageData?.results || []));
         setHasNextPage(Boolean(messageData?.next));
         setPage(1);
 
@@ -74,7 +74,10 @@ export function useSupportMessages(ticketId) {
 
     try {
       const data = await fetchSupportMessages(ticketId, nextPage);
-      setMessages((current) => [...current, ...(data?.results || [])]);
+      setMessages((current) => [
+        ...normalizeSupportMessages(data?.results || []),
+        ...current,
+      ]);
       setHasNextPage(Boolean(data?.next));
       setPage(nextPage);
     } catch (error) {
@@ -126,4 +129,13 @@ export function useSupportMessages(ticketId) {
     loadMore,
     submitMessage,
   };
+}
+
+function normalizeSupportMessages(items) {
+  return [...items].sort((left, right) => {
+    const leftTime = new Date(left?.time || 0).getTime();
+    const rightTime = new Date(right?.time || 0).getTime();
+
+    return leftTime - rightTime;
+  });
 }

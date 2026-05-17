@@ -10,27 +10,13 @@ const PROMPT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const PROMPT_DELAY_MS = 8000;
 
 const FIREBASE_CONFIG = {
-  apiKey:
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
-    "AIzaSyCShHyhtsDW8HV2KXPrbUk8ufLYQhOkuUc",
-  authDomain:
-    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
-    "shopdibz-seller-hub.firebaseapp.com",
-  projectId:
-    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
-    "shopdibz-seller-hub",
-  storageBucket:
-    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
-    "shopdibz-seller-hub.appspot.com",
-  messagingSenderId:
-    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ||
-    "852067253825",
-  appId:
-    process.env.NEXT_PUBLIC_FIREBASE_APP_ID ||
-    "1:852067253825:web:9b07e9f90a0e95bcd710c0",
-  measurementId:
-    process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ||
-    "G-N4JPNHLP74",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "",
 };
 
 /**
@@ -42,6 +28,20 @@ function supportsPushMessaging() {
     && typeof navigator !== "undefined"
     && "serviceWorker" in navigator
     && "Notification" in window
+  );
+}
+
+/**
+ * @returns {boolean}
+ */
+function hasFirebaseMessagingConfig() {
+  return Boolean(
+    FIREBASE_CONFIG.apiKey
+    && FIREBASE_CONFIG.authDomain
+    && FIREBASE_CONFIG.projectId
+    && FIREBASE_CONFIG.storageBucket
+    && FIREBASE_CONFIG.messagingSenderId
+    && FIREBASE_CONFIG.appId,
   );
 }
 
@@ -102,7 +102,12 @@ export default function FirebaseNotificationsBootstrap() {
   }), []);
 
   useEffect(() => {
-    if (!supportsPushMessaging() || !isAuthenticated || !vapidKey) {
+    if (
+      !supportsPushMessaging()
+      || !isAuthenticated
+      || !vapidKey
+      || !hasFirebaseMessagingConfig()
+    ) {
       return undefined;
     }
 
@@ -125,8 +130,16 @@ export default function FirebaseNotificationsBootstrap() {
         }
 
         const messaging = window.firebase.messaging();
+        const serviceWorkerUrl = new URL("/firebase-messaging-sw.js", window.location.origin);
+
+        Object.entries(FIREBASE_CONFIG).forEach(([key, value]) => {
+          if (value) {
+            serviceWorkerUrl.searchParams.set(key, value);
+          }
+        });
+
         const serviceWorkerRegistration = await navigator.serviceWorker.register(
-          "/firebase-messaging-sw.js",
+          serviceWorkerUrl.toString(),
         );
 
         isInitializedRef.current = true;
@@ -221,7 +234,7 @@ export default function FirebaseNotificationsBootstrap() {
     };
   }, [appScriptReady, isAuthenticated, messagingScriptReady, showToast, vapidKey]);
 
-  if (!supportsPushMessaging() || !vapidKey) {
+  if (!supportsPushMessaging() || !vapidKey || !hasFirebaseMessagingConfig()) {
     return null;
   }
 

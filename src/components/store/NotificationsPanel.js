@@ -96,7 +96,9 @@ function NotificationRow({ notification, onDismiss }) {
  */
 function resolveNotificationHref(notification) {
   const type = String(notification?.target?.url || notification?.target?.type || "");
-  const targetId = notification?.target?.id;
+  const productSlug = resolveNotificationProductSlug(notification);
+  const orderItemId = resolveNotificationOrderItemId(notification);
+  const paymentId = resolveNotificationPaymentId(notification);
 
   if (type.includes("STR_FBK")) {
     return "/store-reviews";
@@ -108,20 +110,70 @@ function resolveNotificationHref(notification) {
 
   if (type.includes("PRDT")) {
     if (type.includes("PRDT_BLK")) {
-      return "/products/new/bulk";
+      return "/products-list";
     }
 
-    if (targetId) {
-      return `/products/${targetId}`;
+    if (productSlug) {
+      return `/products/${productSlug}`;
     }
+
+    return "/products-list";
   }
 
   if (type.includes("PAY")) {
-    return targetId ? `/payments-list?tab=all&payment=${targetId}` : "/payments-list?tab=pending";
+    return paymentId ? `/payments-list?tab=all&payment=${paymentId}` : "/payments-list?tab=pending";
   }
 
   if (type.includes("ORD") || type.includes("RFD")) {
-    return targetId ? `/orders/${targetId}` : "/orders-list?tab=pending";
+    // return orderItemId ? `/orders/${orderItemId}` : "/orders-list?tab=all";
+    return "/orders-list?tab=all";
+  }
+
+  return "";
+}
+
+function resolveNotificationProductSlug(notification) {
+  const target = notification?.target || {};
+
+  return firstNotificationValue([
+    target.slug,
+    target.productSlug,
+    target.prdtSlug,
+    target.id,
+  ]);
+}
+
+function resolveNotificationOrderItemId(notification) {
+  const target = notification?.target || {};
+  const candidate = firstNotificationValue([
+    target.orderItemId,
+    target.order_item_id,
+    target.oIId,
+    target.oiId,
+    target.id,
+  ]);
+
+  return /^\d+$/.test(candidate) ? candidate : "";
+}
+
+function resolveNotificationPaymentId(notification) {
+  const target = notification?.target || {};
+  const candidate = firstNotificationValue([
+    target.paymentId,
+    target.payment_id,
+    target.id,
+  ]);
+
+  return /^\d+$/.test(candidate) ? candidate : "";
+}
+
+function firstNotificationValue(values) {
+  for (let index = 0; index < values.length; index += 1) {
+    const value = String(values[index] ?? "").trim();
+
+    if (value && value.toLowerCase() !== "null" && value.toLowerCase() !== "undefined") {
+      return value;
+    }
   }
 
   return "";

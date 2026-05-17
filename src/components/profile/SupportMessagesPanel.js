@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import AuthButton from "@/src/components/auth/AuthButton";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 import StoreSection from "@/src/components/store/StoreSection";
@@ -18,9 +19,56 @@ export default function SupportMessagesPanel({
   onLoadMore,
   onSubmit,
 }) {
+  const threadRef = useRef(null);
+  const previousMessageCountRef = useRef(0);
+  const prependHeightRef = useRef(null);
+  const shouldStickBottomRef = useRef(true);
+
+  useEffect(() => {
+    const node = threadRef.current;
+
+    if (!node || isLoading) {
+      previousMessageCountRef.current = messages.length;
+      return;
+    }
+
+    const previousCount = previousMessageCountRef.current;
+    const nextCount = messages.length;
+
+    if (!previousCount && nextCount) {
+      node.scrollTop = node.scrollHeight;
+    } else if (
+      prependHeightRef.current !== null
+      && nextCount > previousCount
+    ) {
+      const heightDelta = node.scrollHeight - prependHeightRef.current;
+      node.scrollTop = heightDelta;
+      prependHeightRef.current = null;
+    } else if (shouldStickBottomRef.current && nextCount > previousCount) {
+      node.scrollTop = node.scrollHeight;
+    }
+
+    previousMessageCountRef.current = nextCount;
+  }, [isLoading, messages]);
+
+  function handleThreadScroll(event) {
+    const node = event.currentTarget;
+    const distanceFromBottom =
+      node.scrollHeight - node.scrollTop - node.clientHeight;
+
+    shouldStickBottomRef.current = distanceFromBottom < 80;
+
+    if (node.scrollTop > 48 || !hasNextPage || isLoadingMore) {
+      return;
+    }
+
+    prependHeightRef.current = node.scrollHeight;
+    onLoadMore();
+  }
+
   return (
     <StoreSection
-      title={currentTicket ? `Ticket: #${currentTicket.ticket}` : "Support Messages"}
+      title={currentTicket ? `Ticket: #${resolveTicketNumber(currentTicket)}` : "Support Messages"}
       subtitle="Message thread between the seller and the Shopdibz support team."
     >
       <AuthMessage>{message}</AuthMessage>
@@ -28,27 +76,48 @@ export default function SupportMessagesPanel({
       {isLoading ? (
         <p className="mt-6 text-sm text-white/45">Loading messages...</p>
       ) : messages.length ? (
-        <div className="mt-6 space-y-4">
+        <div
+          ref={threadRef}
+          className="mt-6 max-h-[68vh] space-y-3 overflow-y-auto pr-1"
+          onScroll={handleThreadScroll}
+        >
+          {hasNextPage ? (
+            <div className="flex justify-center pb-2">
+              <div className="theme-panel-soft rounded-full border px-3 py-1 text-xs theme-text-muted">
+                {isLoadingMore ? "Loading older messages..." : "Scroll up for older messages"}
+              </div>
+            </div>
+          ) : null}
+
           {messages.map((item, index) => {
-            const fromSupport = item.staff !== "" && item.staff != null;
+            const sender = resolveMessageSender(item, storeInfo);
+            const fromSupport = sender.kind === "support";
 
             return (
-              <article
-                className={`rounded-sm border p-4 ${
-                  fromSupport
-                    ? "border-white/10 bg-[#171717]"
-                    : "border-brand-gold/20 bg-brand-gold/5"
-                }`}
+              <div
+                className={`flex ${fromSupport ? "justify-start" : "justify-end"}`}
                 key={`${item.time || "message"}-${index}`}
               >
-                <div className="flex items-center justify-between gap-4">
-                  <p className="text-sm font-bold text-brand-white">
-                    {fromSupport ? "Support Agent" : storeInfo?.user?.fName || "You"}
+                <article
+                  className={`w-full max-w-3xl rounded-2xl border px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.12)] ${
+                    fromSupport
+                      ? "theme-panel border-white/10 rounded-bl-sm"
+                      : "border-brand-gold/24 bg-brand-gold/10 rounded-br-sm [html[data-theme='light']_&]:border-brand-gold/35 [html[data-theme='light']_&]:bg-brand-gold/14"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <p className="text-sm font-extrabold text-brand-white [html[data-theme='light']_&]:text-[#5b3125]">
+                      {sender.label}
+                    </p>
+                    <p className="shrink-0 text-xs text-white/35">
+                      {formatDate(item.time)}
+                    </p>
+                  </div>
+                  <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-white/75 [html[data-theme='light']_&]:text-[#5f4a42]">
+                    {item.msg}
                   </p>
-                  <p className="text-xs text-white/35">{formatDate(item.time)}</p>
-                </div>
-                <p className="mt-3 text-sm leading-6 text-white/75">{item.msg}</p>
-              </article>
+                </article>
+              </div>
             );
           })}
         </div>
@@ -58,37 +127,64 @@ export default function SupportMessagesPanel({
         </div>
       )}
 
-      {hasNextPage && messages.length ? (
-        <div className="mt-6 flex justify-center">
-          <button
-            className="rounded-sm border border-white/15 px-4 py-2 text-sm font-bold text-brand-white hover:border-brand-gold hover:text-brand-gold disabled:opacity-60"
-            type="button"
-            disabled={isLoadingMore}
-            onClick={onLoadMore}
-          >
-            {isLoadingMore ? "Loading..." : "Load More"}
-          </button>
-        </div>
-      ) : null}
-
-      <div className="mt-8 border-t border-white/10 pt-6">
-        <label className="block">
-          <span className="text-sm font-semibold text-white/80">Add Your Message</span>
-          <textarea
-            className="mt-3 min-h-28 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none transition-colors placeholder:text-white/25 focus:border-brand-gold"
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            placeholder="Add Your Message"
-          />
-        </label>
-        <div className="mt-4 max-w-xs">
-          <AuthButton type="button" onClick={onSubmit}>
-            Send
-          </AuthButton>
+      <div className="mt-8 border-t border-white/10 pt-5">
+        <div className="rounded-[26px] border border-white/10 bg-black/20 p-3 shadow-[0_16px_40px_rgba(0,0,0,0.12)] [html[data-theme='light']_&]:bg-white/[0.05]">
+          <div className="flex items-end gap-3">
+            <textarea
+              className="theme-field min-h-14 flex-1 resize-none rounded-[22px] border px-4 py-3 text-sm outline-none transition-colors placeholder:text-white/25 focus:border-brand-gold"
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder="Reply to this ticket..."
+              rows={2}
+            />
+            <div className="w-[112px] shrink-0">
+              <AuthButton type="button" onClick={onSubmit}>
+                Send
+              </AuthButton>
+            </div>
+          </div>
+          <p className="mt-2 px-1 text-xs theme-text-muted">
+            Your reply will be added to this support thread.
+          </p>
         </div>
       </div>
     </StoreSection>
   );
+}
+
+function resolveTicketNumber(ticket) {
+  return ticket?.tkt || ticket?.ticket || "---";
+}
+
+function resolveMessageSender(item, storeInfo) {
+  const staffName = normalizeIdentityValue(item?.staff);
+  const userName = normalizeIdentityValue(item?.user);
+  const fallbackUserName =
+    normalizeIdentityValue(storeInfo?.user?.fName)
+    || normalizeIdentityValue(storeInfo?.name)
+    || "Client";
+
+  if (staffName) {
+    return {
+      kind: "support",
+      label: "Shopdibz Team",
+    };
+  }
+
+  return {
+    kind: "client",
+    label: userName || fallbackUserName,
+  };
+}
+
+function normalizeIdentityValue(value) {
+  const text = String(value ?? "").trim();
+
+  if (!text || text.toLowerCase() === "null" || text.toLowerCase() === "undefined") {
+    return "";
+  }
+
+  return text;
 }
 
 function formatDate(value) {

@@ -19,7 +19,7 @@ export default function ContactUsPanel({
   onSubmit,
 }) {
   return (
-    <StoreSection title="Contact Us" subtitle="Open a support request that will appear inside your action board.">
+    <StoreSection title="Create Ticket" subtitle="Open a support request that will appear inside your action board.">
       <div className="mx-auto max-w-[720px]">
         <label className="block">
           <span className="text-sm font-semibold text-white/80">Choose Contact Type</span>

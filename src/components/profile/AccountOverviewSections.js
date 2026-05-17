@@ -331,7 +331,7 @@ export function SupportSection() {
     ["Terms & Conditions", "https://www.shopdibz.com/termsandconditions", true],
     ["Refund Policy", "https://www.shopdibz.com/returnspolicy", true],
     ["Help & Support", "https://www.shopdibz.com/contact", true],
-    ["Contact Us", "/contact-us", false],
+    ["Create Ticket", "/contact-us", false],
     ["Service Agreement", "https://www.shopdibz.com/seller-services-agreement", true],
   ];
 
