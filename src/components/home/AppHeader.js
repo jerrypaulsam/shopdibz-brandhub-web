@@ -31,7 +31,7 @@ function LogoTitle() {
         height={40}
         priority
       />
-      <span className="truncate text-[18px] font-bold tracking-[0.06em] text-[#f4f4f7] sm:text-[20px]">
+      <span className="truncate text-[18px] font-bold tracking-[0.06em] text-brand-white sm:text-[20px]">
         Shopdibz Brand Hub
       </span>
     </Link>
@@ -47,7 +47,7 @@ function MenuButton({ item, onClick }) {
       className={`inline-flex min-h-10 items-center justify-center rounded px-4 py-2 text-sm font-semibold tracking-wide transition-colors ${
         item.accent
           ? "border border-brand-gold bg-brand-gold/15 text-brand-gold hover:bg-brand-gold hover:text-brand-black"
-          : "border border-white/40 text-[#f4f4f7] hover:border-brand-gold hover:text-brand-gold"
+          : "border border-white/40 text-brand-white hover:border-brand-gold hover:text-brand-gold"
       }`}
       href={item.href}
       target={item.href.startsWith("http") ? "_blank" : undefined}
@@ -66,14 +66,14 @@ export default function AppHeader() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-30 bg-brand-black text-brand-white">
-      <div className="border-b border-white/10 bg-brand-black/95 backdrop-blur">
+    <header className="fixed inset-x-0 top-0 z-30 text-brand-white">
+      <div className="theme-popover border-b border-white/10 backdrop-blur">
         <div className="mx-auto flex min-h-20 max-w-[1440px] items-center justify-between gap-4 px-4 py-4 sm:px-8 lg:px-12">
           <LogoTitle />
 
           <nav className="hidden items-center gap-3 lg:flex">
             <button
-              className="inline-flex min-h-10 items-center justify-center rounded border border-white/40 px-4 py-2 text-sm font-semibold tracking-wide text-[#f4f4f7] transition-colors hover:border-brand-gold hover:text-brand-gold"
+              className="inline-flex min-h-10 items-center justify-center rounded border border-white/40 px-4 py-2 text-sm font-semibold tracking-wide text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
               type="button"
               onClick={() => setIsLoginOpen(true)}
             >
@@ -112,10 +112,10 @@ export default function AppHeader() {
       </div>
 
       {isOpen ? (
-        <div className="border-b border-white/10 bg-brand-black px-4 pb-5 lg:hidden">
+        <div className="theme-popover border-b border-white/10 px-4 pb-5 lg:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col gap-3">
             <button
-              className="inline-flex min-h-10 items-center justify-center rounded border border-white/40 px-4 py-2 text-sm font-semibold tracking-wide text-brand-white"
+              className="inline-flex min-h-10 items-center justify-center rounded border border-white/40 px-4 py-2 text-sm font-semibold tracking-wide text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
               type="button"
               onClick={() => {
                 setIsOpen(false);

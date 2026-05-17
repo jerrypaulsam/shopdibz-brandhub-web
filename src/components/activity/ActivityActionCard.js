@@ -13,7 +13,7 @@ export default function ActivityActionCard({
       className={`flex min-h-[180px] flex-col items-start rounded-sm border p-5 text-left transition-colors ${
         active
           ? "border-brand-gold/60 bg-brand-gold/10"
-          : "border-white/10 bg-[#121212] hover:border-white/20 hover:bg-white/[0.03]"
+          : "theme-panel hover:border-white/20 hover:bg-white/[0.03]"
       }`}
       type="button"
       onClick={onOpen}

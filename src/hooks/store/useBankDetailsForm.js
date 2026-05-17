@@ -8,6 +8,13 @@ import { logScreenView } from "@/src/api/analytics";
  * @returns {any}
  */
 export function useBankDetailsForm({ isFirstTime }) {
+  const emptyErrors = {
+    accountName: "",
+    accountNumber: "",
+    confirmAccountNumber: "",
+    ifscCode: "",
+    bankName: "",
+  };
   const router = useRouter();
   const [form, setForm] = useState({
     accountName: "",
@@ -18,6 +25,7 @@ export function useBankDetailsForm({ isFirstTime }) {
   });
   const [savedBank, setSavedBank] = useState(null);
   const [message, setMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState(emptyErrors);
   const [ifscDetails, setIfscDetails] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLookingUpIfsc, setIsLookingUpIfsc] = useState(false);
@@ -136,9 +144,18 @@ export function useBankDetailsForm({ isFirstTime }) {
           return;
         }
 
-        setIfscDetails(
-          error instanceof Error ? error.message : "Not A Valid IFSC Code",
-        );
+        const errorMessage =
+          error instanceof Error ? error.message : "Not A Valid IFSC Code";
+
+        setIfscDetails(errorMessage);
+
+        if (errorMessage.toLowerCase() === "not a valid ifsc code") {
+          setForm((current) => ({
+            ...current,
+            bankName: "",
+            ifscCode,
+          }));
+        }
       } finally {
         if (isCurrent) {
           setIsLookingUpIfsc(false);
@@ -172,6 +189,11 @@ export function useBankDetailsForm({ isFirstTime }) {
       [key]: nextValue,
     }));
 
+    setFieldErrors((current) => ({
+      ...current,
+      [key]: "",
+    }));
+
     if (key === "ifscCode" && nextValue.trim().length < 11) {
       setIfscDetails("");
     }
@@ -183,6 +205,7 @@ export function useBankDetailsForm({ isFirstTime }) {
       setIfscDetails("");
     }
     setMessage("");
+    setFieldErrors(emptyErrors);
     setIsEditing(true);
   }
 
@@ -192,6 +215,7 @@ export function useBankDetailsForm({ isFirstTime }) {
       setIsEditing(false);
       setIfscDetails("");
       setMessage("");
+      setFieldErrors(emptyErrors);
       return;
     }
 
@@ -204,6 +228,7 @@ export function useBankDetailsForm({ isFirstTime }) {
     });
     setIfscDetails("");
     setMessage("");
+    setFieldErrors(emptyErrors);
   }
 
   async function submitForm() {
@@ -213,28 +238,36 @@ export function useBankDetailsForm({ isFirstTime }) {
     const ifscCode = form.ifscCode.trim().toUpperCase();
     const bankName = form.bankName.trim();
 
-    if (!accountName || !accountNumber || !confirmAccountNumber || !ifscCode || !bankName) {
+    const nextErrors = { ...emptyErrors };
+
+    if (!accountName) {
+      nextErrors.accountName = "Required";
+    }
+    if (!accountNumber) {
+      nextErrors.accountNumber = "Required";
+    } else if (!/^\d{6,18}$/.test(accountNumber)) {
+      nextErrors.accountNumber = "Account number must be between 6 and 18 digits.";
+    }
+    if (!confirmAccountNumber) {
+      nextErrors.confirmAccountNumber = "Required";
+    } else if (accountNumber !== confirmAccountNumber) {
+      nextErrors.confirmAccountNumber = "Account number does not match.";
+    }
+    if (!ifscCode) {
+      nextErrors.ifscCode = "Required";
+    } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscCode)) {
+      nextErrors.ifscCode = "Please enter a valid 11-character IFSC code.";
+    } else if (String(ifscDetails || "").toLowerCase() === "not a valid ifsc code") {
+      nextErrors.ifscCode = "Please enter a valid IFSC code.";
+    }
+    if (!bankName) {
+      nextErrors.bankName = "Required";
+    }
+
+    setFieldErrors(nextErrors);
+
+    if (Object.values(nextErrors).some(Boolean)) {
       setMessage("Please fill all required fields.");
-      return false;
-    }
-
-    if (!/^\d{6,18}$/.test(accountNumber)) {
-      setMessage("Account number must be between 6 and 18 digits.");
-      return false;
-    }
-
-    if (accountNumber !== confirmAccountNumber) {
-      setMessage("Account number does not match.");
-      return false;
-    }
-
-    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscCode)) {
-      setMessage("Please enter a valid 11-character IFSC code.");
-      return false;
-    }
-
-    if (String(ifscDetails || "").toLowerCase() === "not a valid ifsc code") {
-      setMessage("Please enter a valid IFSC code.");
       return false;
     }
 
@@ -279,6 +312,7 @@ export function useBankDetailsForm({ isFirstTime }) {
     form,
     savedBank,
     message,
+    fieldErrors,
     ifscDetails,
     isSubmitting,
     isLookingUpIfsc,

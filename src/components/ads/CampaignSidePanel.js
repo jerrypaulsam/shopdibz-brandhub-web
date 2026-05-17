@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   formatCampaignDate,
   formatCampaignMoney,
@@ -75,14 +76,14 @@ export default function CampaignSidePanel({
           <Field label="Budget Type" value={campaign.budgetType} />
           <Field label="Start Date" value={formatCampaignDate(campaign.startDate)} />
           <Field label="End Date" value={formatCampaignDate(campaign.endDate)} />
-          <Field label="Bid Amount" value={formatCampaignMoney(campaign.bidAmount)} />
+          {/* <Field label="Bid Amount" value={formatCampaignMoney(campaign.bidAmount)} /> */}
           <Field label="Budget" value={formatCampaignMoney(campaign.budget)} />
           <Field label="Daily Budget" value={formatCampaignMoney(campaign.dailyBudget)} />
           <Field label="Remaining" value={formatCampaignMoney(campaign.remainingBudget)} />
           <div className="grid gap-3 sm:grid-cols-2">
             {campaign.status !== "FINISHED" && campaign.status !== "DRAFT" ? (
               <button
-                className="min-h-10 rounded-sm border border-white/10 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:opacity-40"
+                className="min-h-10 rounded-sm border border-white/10 px-3 text-xs font-semibold tracking-[0.12em] text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold disabled:opacity-40"
                 type="button"
                 disabled={isActionLoading}
                 onClick={() =>
@@ -92,17 +93,17 @@ export default function CampaignSidePanel({
                   )
                 }
               >
-                {campaign.status === "ACTIVE" ? "Pause Campaign" : "Activate Campaign"}
+                {campaign.status === "ACTIVE" ? "Pause" : "Activate"}
               </button>
             ) : null}
             {campaign.status !== "FINISHED" &&
             campaign.status !== "DRAFT" ? (
               <button
-                className="min-h-10 rounded-sm border border-white/10 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold"
+                className="min-h-10 rounded-sm border border-white/10 px-3 text-xs font-semibold tracking-[0.12em] text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold"
                 type="button"
                 onClick={() => onOpenEdit(campaign.id, "edit")}
               >
-                Edit Campaign
+                Edit
               </button>
             ) : null}
           </div>

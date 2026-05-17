@@ -13,7 +13,7 @@ export default function BulkUpdatePanel({
   onSubmit,
 }) {
   return (
-    <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
+    <section className="theme-panel rounded-sm border p-5">
       <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
         Bulk Update
       </p>
@@ -27,14 +27,14 @@ export default function BulkUpdatePanel({
             className={`rounded-sm border px-4 py-4 text-left transition-colors ${
               activeMode.slug === mode.slug
                 ? "border-brand-gold/60 bg-brand-gold/10"
-                : "border-white/10 bg-black/20 hover:border-white/20"
+                : "theme-panel-soft hover:border-white/20"
             }`}
             key={mode.slug}
             type="button"
             onClick={() => onModeChange(mode.slug)}
           >
             <p className="text-sm font-semibold text-brand-white">{mode.label}</p>
-            <p className="mt-2 text-sm text-white/50">{mode.description}</p>
+            <p className="theme-text-muted mt-2 text-sm">{mode.description}</p>
           </button>
         ))}
       </div>
@@ -52,7 +52,7 @@ export default function BulkUpdatePanel({
 
       <div className="mt-5 flex flex-wrap gap-3">
         <button
-          className="min-h-11 rounded-sm bg-brand-red px-5 text-sm font-semibold text-brand-white transition-colors hover:bg-[#ff6969] disabled:cursor-not-allowed disabled:opacity-50"
+          className="theme-primary-button min-h-11 rounded-sm border px-5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           type="button"
           disabled={isActionLoading}
           onClick={onSubmit}

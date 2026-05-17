@@ -12,10 +12,10 @@ export default function AuthField({
   centered = false,
 }) {
   return (
-    <label className="block text-sm font-semibold text-white/80">
+    <label className="theme-text-muted-strong block text-sm font-semibold">
       {label}
       <input
-        className={`mt-3 h-14 w-full rounded-sm border border-white/20 bg-transparent px-4 text-base text-brand-white outline-none transition-colors placeholder:text-white/30 focus:border-brand-gold ${
+        className={`theme-field mt-3 h-14 w-full rounded-sm border px-4 text-base outline-none transition-colors placeholder:text-white/30 focus:border-brand-gold ${
           centered ? "text-center tracking-[0.5em]" : ""
         }`}
         type={type}

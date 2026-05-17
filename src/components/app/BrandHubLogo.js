@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 /**
- * @param {{ alt?: string, width?: number, height?: number, className?: string, priority?: boolean, sizes?: string }} props
+ * @param {{ alt?: string, width?: number, height?: number, className?: string, priority?: boolean, sizes?: string, variant?: "auto" | "dark" | "light" }} props
  */
 export default function BrandHubLogo({
   alt = "Shopdibz Brand Hub logo",
@@ -10,28 +10,36 @@ export default function BrandHubLogo({
   className = "",
   priority = false,
   sizes,
+  variant = "auto",
 }) {
+  const showDarkLogo = variant === "auto" || variant === "dark";
+  const showLightLogo = variant === "auto" || variant === "light";
+
   return (
     <span
-      className={`relative inline-block shrink-0 ${className}`.trim()}
+      className={`relative inline-flex shrink-0 items-center justify-center ${className}`.trim()}
       style={{ width: `${width}px`, height: `${height}px` }}
     >
-      <Image
-        src="/assets/logo/seller-logo.png"
-        alt={alt}
-        fill
-        sizes={sizes || `${width}px`}
-        className="theme-logo-dark object-contain"
-        priority={priority}
-      />
-      <Image
-        src="/assets/logo/icon-192.png"
-        alt={alt}
-        fill
-        sizes={sizes || `${width}px`}
-        className="theme-logo-light object-contain"
-        priority={priority}
-      />
+      {showDarkLogo ? (
+        <Image
+          src="/assets/logo/seller-logo.png"
+          alt={alt}
+          fill
+          sizes={sizes || `${width}px`}
+          className={variant === "auto" ? "theme-logo-dark object-contain" : "object-contain"}
+          priority={priority}
+        />
+      ) : null}
+      {showLightLogo ? (
+        <Image
+          src="/assets/logo/icon-192.png"
+          alt={alt}
+          fill
+          sizes={sizes || `${width}px`}
+          className={variant === "auto" ? "theme-logo-light object-contain" : "object-contain"}
+          priority={priority}
+        />
+      ) : null}
     </span>
   );
 }

@@ -8,7 +8,7 @@ export default function AuthCard({
 }) {
   return (
     <section
-      className={`${widthClass} rounded-[15px] border border-white/10 bg-[#121212] p-8 shadow-2xl sm:p-10 ${className}`}
+      className={`theme-surface ${widthClass} rounded-[15px] border p-8 shadow-2xl sm:p-10 ${className}`}
     >
       {children}
     </section>

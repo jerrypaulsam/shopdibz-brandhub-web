@@ -18,12 +18,13 @@ function maskAccountNumber(value) {
 }
 
 /**
- * @param {{ form: any, savedBank: any, message: string, ifscDetails: string, isSubmitting: boolean, isLookingUpIfsc: boolean, isLoadingBank: boolean, isEditing: boolean, onChange: (key: "accountName" | "accountNumber" | "confirmAccountNumber" | "ifscCode" | "bankName", value: string) => void, onSubmit: () => Promise<void>, onStartEditing?: () => void, onCancelEditing?: () => void, isFirstTime: boolean }} props
+ * @param {{ form: any, savedBank: any, message: string, fieldErrors: any, ifscDetails: string, isSubmitting: boolean, isLookingUpIfsc: boolean, isLoadingBank: boolean, isEditing: boolean, onChange: (key: "accountName" | "accountNumber" | "confirmAccountNumber" | "ifscCode" | "bankName", value: string) => void, onSubmit: () => Promise<void>, onStartEditing?: () => void, onCancelEditing?: () => void, isFirstTime: boolean }} props
  */
 export default function BankDetailsFormPanel({
   form,
   savedBank,
   message,
+  fieldErrors,
   ifscDetails,
   isSubmitting,
   isLookingUpIfsc,
@@ -79,7 +80,7 @@ export default function BankDetailsFormPanel({
             </div>
           </StoreSection>
         ) : (
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit} noValidate>
             <StoreSection
               title={isFirstTime ? "My Bank Details" : "Update Bank Details"}
               subtitle="Add the payout account that Shopdibz should use for your store settlements."
@@ -87,31 +88,41 @@ export default function BankDetailsFormPanel({
               <div className="grid gap-5 md:grid-cols-2">
                 <StoreField
                   label="Account Name"
+                  required
                   value={form.accountName}
+                  error={fieldErrors?.accountName}
                   onChange={(value) => onChange("accountName", value)}
                 />
                 <StoreField
                   label="IFSC Code"
+                  required
                   value={form.ifscCode}
+                  error={fieldErrors?.ifscCode}
                   onChange={(value) => onChange("ifscCode", value)}
                   helper={isLookingUpIfsc ? "Checking bank details..." : ""}
                 />
                 <StoreField
                   label="Account Number"
                   type="password"
+                  required
                   value={form.accountNumber}
+                  error={fieldErrors?.accountNumber}
                   onChange={(value) => onChange("accountNumber", value)}
                 />
                 <StoreField
                   label="Confirm Account Number"
                   type="password"
+                  required
                   value={form.confirmAccountNumber}
+                  error={fieldErrors?.confirmAccountNumber}
                   onChange={(value) => onChange("confirmAccountNumber", value)}
                 />
                 <div className="md:col-span-2">
                   <StoreField
                     label="Bank Name"
+                    required
                     value={form.bankName}
+                    error={fieldErrors?.bankName}
                     onChange={(value) => onChange("bankName", value)}
                   />
                 </div>

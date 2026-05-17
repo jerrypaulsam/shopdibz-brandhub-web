@@ -159,7 +159,7 @@ export default function FounderWelcomeSection({
                   <track kind="captions" />
                 </audio>
                 <button
-                  className="inline-flex min-h-11 w-full items-center justify-center rounded-sm border border-red-400/30 px-5 text-sm font-bold text-red-300 transition-colors hover:border-red-300 hover:text-red-100 disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
+                  className="theme-danger-button inline-flex min-h-11 w-full items-center justify-center rounded-sm border px-5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
                   type="button"
                   disabled={isSubmitting}
                   onClick={handleDelete}
@@ -257,7 +257,7 @@ export default function FounderWelcomeSection({
               ) : null}
               {isRecording ? (
                 <button
-                  className="rounded-sm border border-red-400/40 px-4 py-2 text-sm font-bold text-red-300 transition-colors hover:border-red-300 hover:text-red-100"
+                  className="theme-danger-button rounded-sm border px-4 py-2 text-sm font-bold transition-colors"
                   type="button"
                   onClick={stopRecording}
                 >

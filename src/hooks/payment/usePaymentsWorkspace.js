@@ -32,7 +32,6 @@ function filterPaymentsByTab(payments, tabSlug) {
 export function usePaymentsWorkspace() {
   const router = useRouter();
   const tabSlug = firstPaymentQuery(router.query.tab) || "pending";
-  const selectedPaymentId = Number(firstPaymentQuery(router.query.payment) || 0);
   const activeTab = useMemo(() => resolvePaymentTab(tabSlug), [tabSlug]);
 
   const [allPayments, setAllPayments] = useState([]);
@@ -45,6 +44,7 @@ export function usePaymentsWorkspace() {
   const [breakdownMessage, setBreakdownMessage] = useState("");
   const [hasNextPage, setHasNextPage] = useState(false);
   const [page, setPage] = useState(1);
+  const [selectedPaymentId, setSelectedPaymentId] = useState(0);
 
   const filteredPayments = useMemo(
     () => filterPaymentsByTab(allPayments, activeTab.slug),
@@ -157,16 +157,19 @@ export function usePaymentsWorkspace() {
 
   async function setTab(nextTab) {
     const resolved = resolvePaymentTab(nextTab);
+    setSelectedPaymentId(0);
+    setPaymentBreakdown(null);
+    setBreakdownMessage("");
     await router.replace(
-      {
-        pathname: router.pathname,
-        query: {
-          tab: resolved.slug,
+        {
+          pathname: router.pathname,
+          query: {
+            tab: resolved.slug,
+          },
         },
-      },
-      undefined,
-      { shallow: true },
-    );
+        undefined,
+        { shallow: true, scroll: false },
+      );
   }
 
   async function loadMore() {
@@ -178,30 +181,13 @@ export function usePaymentsWorkspace() {
   }
 
   async function openPayment(paymentId) {
-    await router.replace(
-      {
-        pathname: router.pathname,
-        query: {
-          tab: activeTab.slug,
-          payment: String(paymentId),
-        },
-      },
-      undefined,
-      { shallow: true },
-    );
+    setSelectedPaymentId(Number(paymentId || 0));
   }
 
   async function closePayment() {
-    await router.replace(
-      {
-        pathname: router.pathname,
-        query: {
-          tab: activeTab.slug,
-        },
-      },
-      undefined,
-      { shallow: true },
-    );
+    setSelectedPaymentId(0);
+    setPaymentBreakdown(null);
+    setBreakdownMessage("");
   }
 
   return {

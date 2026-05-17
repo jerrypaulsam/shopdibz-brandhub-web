@@ -7,6 +7,7 @@ export default function BankDetailsCreatePage() {
     form,
     savedBank,
     message,
+    fieldErrors,
     ifscDetails,
     isSubmitting,
     isLookingUpIfsc,
@@ -24,6 +25,7 @@ export default function BankDetailsCreatePage() {
         form={form}
         savedBank={savedBank}
         message={message}
+        fieldErrors={fieldErrors}
         ifscDetails={ifscDetails}
         isSubmitting={isSubmitting}
         isLookingUpIfsc={isLookingUpIfsc}

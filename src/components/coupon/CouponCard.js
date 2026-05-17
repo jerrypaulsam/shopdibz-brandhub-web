@@ -92,7 +92,7 @@ export default function CouponCard({ coupon, isDeleting, onDelete }) {
             : `Coupon count ${maxValue}`}
         </p>
         <button
-          className="min-h-10 rounded-sm border border-red-400/35 px-4 text-sm font-semibold text-red-300 transition-colors hover:border-red-300 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-50"
+          className="theme-danger-button min-h-10 rounded-sm border px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           type="button"
           disabled={isDeleting}
           onClick={handleDelete}

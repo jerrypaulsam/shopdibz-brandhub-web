@@ -71,7 +71,7 @@ export default function StoreSliderManagementPage() {
 
 function UpgradeCard({ message }) {
   return (
-    <div className="mb-6 rounded-sm border border-brand-gold/20 bg-[#17130a] px-4 py-3 text-sm text-brand-gold">
+    <div className="theme-surface mb-6 rounded-sm border border-brand-gold/20 px-4 py-3 text-sm text-brand-gold">
       {message}
     </div>
   );

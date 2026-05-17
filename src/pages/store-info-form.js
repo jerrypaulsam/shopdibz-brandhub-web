@@ -267,16 +267,16 @@ export default function StoreInfoFormPage() {
 
                   {!isPremiumThemeAccess ? (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-full max-w-md rounded-sm border border-brand-gold/25 bg-[#17130a]/95 px-5 py-5 text-center shadow-2xl">
+                      <div className="theme-home-card w-full max-w-md rounded-sm border border-brand-gold/25 px-5 py-5 text-center shadow-2xl">
                         <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
                           Premium Feature
                         </p>
-                        <p className="mt-3 text-sm leading-6 text-white/70">
+                        <p className="theme-text-muted mt-3 text-sm leading-6">
                           Upgrade your plan to unlock storefront theme customization.
                         </p>
                         {pricingUrl ? (
                           <a
-                            className="mt-4 inline-flex min-h-10 items-center rounded-sm border border-brand-gold/30 px-4 text-sm font-bold text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
+                            className="theme-action-accent mt-4 inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-bold transition-colors"
                             href={pricingUrl}
                             target="_blank"
                             rel="noreferrer"

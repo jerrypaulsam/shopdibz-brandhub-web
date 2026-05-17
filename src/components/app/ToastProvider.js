@@ -75,14 +75,14 @@ export function useToast() {
 function ToastCard({ toast, onDismiss }) {
   const toneClass =
     toast.type === "error"
-      ? "border-red-500/40 bg-[#2a1212] text-red-100"
+      ? "theme-toast-error"
       : toast.type === "success"
-        ? "border-emerald-500/40 bg-[#102319] text-emerald-100"
-        : "border-brand-gold/35 bg-[#201a0d] text-brand-white";
+        ? "theme-toast-success"
+        : "theme-toast-info";
 
   return (
     <div
-      className={`pointer-events-auto rounded-sm border px-4 py-3 shadow-2xl backdrop-blur ${toneClass}`}
+      className={`theme-toast pointer-events-auto rounded-sm border px-4 py-3 shadow-2xl backdrop-blur ${toneClass}`}
       role="status"
       aria-live="polite"
     >
@@ -91,7 +91,7 @@ function ToastCard({ toast, onDismiss }) {
           <p className="text-sm font-semibold leading-6">{toast.message}</p>
         </div>
         <button
-          className="inline-flex h-7 w-7 items-center justify-center rounded-sm border border-white/10 text-white/70 transition-colors hover:border-white/20 hover:text-white"
+          className="theme-action-neutral inline-flex h-7 w-7 items-center justify-center rounded-sm border text-sm transition-colors"
           type="button"
           aria-label="Dismiss notification"
           onClick={onDismiss}

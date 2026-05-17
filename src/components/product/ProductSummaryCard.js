@@ -95,7 +95,7 @@ export default function ProductSummaryCard({
                 <Badge>{approvalLabel}</Badge>
                 <Badge>{hasVariants ? "With Variant" : "Without Variant"}</Badge>
                 <Badge>{hasVariants == false ? (stock > 0 ? `Stock ${stock}` : "Out of Stock") : "-"}</Badge>
-                {isPromoted ? <Badge>Promoted</Badge> : null}
+                {isPromoted ? <Badge tone="promoted">Promoted</Badge> : null}
               </div>
               <h3 className="mt-3 max-w-full text-xl font-black leading-tight text-brand-white lg:pr-4">
                 <Link href={`/products/${slug}`}>
@@ -204,7 +204,7 @@ export default function ProductSummaryCard({
             )}
             {actionLabel && onAction ? (
               <button
-                className="rounded-sm border border-red-400/40 px-4 py-2 text-sm font-semibold text-red-300 transition-colors hover:border-red-300 hover:text-red-200 disabled:opacity-50"
+                className="theme-action-neutral min-h-10 rounded-sm border px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 [html[data-theme='light']_&]:border-[#c9a48f] [html[data-theme='light']_&]:bg-[#f3e7df] [html[data-theme='light']_&]:text-[#5d3b34] [html[data-theme='light']_&:hover]:border-[#b54a47] [html[data-theme='light']_&:hover]:bg-[#edd8cd] [html[data-theme='light']_&:hover]:text-[#8f4e3f]"
                 type="button"
                 disabled={isActionLoading}
                 onClick={() => onAction(slug)}
@@ -214,7 +214,7 @@ export default function ProductSummaryCard({
             ) : null}
             {onDeleteProduct ? (
               <button
-                className="rounded-sm border border-red-400/40 px-4 py-2 text-sm font-semibold text-red-300 transition-colors hover:border-red-300 hover:text-red-200 disabled:opacity-50"
+                className="theme-danger-button min-h-10 rounded-sm border px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50"
                 type="button"
                 disabled={isActionLoading}
                 onClick={() => onDeleteProduct(slug)}
@@ -229,7 +229,7 @@ export default function ProductSummaryCard({
             ) : null}
             {!isPromoted ? (
               <Link
-                className="order-last inline-flex items-center gap-2 self-start rounded-sm border border-emerald-400/30 px-2.5 py-2 text-xs font-semibold text-emerald-300 transition-colors hover:border-emerald-300 hover:bg-emerald-400/10 hover:text-emerald-200"
+                className="order-last inline-flex min-h-10 items-center gap-2 self-start rounded-sm border border-emerald-400/30 px-4 py-2 text-sm font-semibold text-emerald-300 transition-colors hover:border-emerald-300 hover:bg-emerald-400/10 hover:text-emerald-200"
                 href={{
                   pathname: "/campaigns/create",
                   query: {
@@ -258,7 +258,7 @@ export default function ProductSummaryCard({
                 </div>
                 {canRemovePromotion ? (
                   <button
-                    className="rounded-sm border border-red-400/35 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-red-300 hover:border-red-300 hover:text-red-200 disabled:opacity-50"
+                    className="theme-danger-button min-h-10 rounded-sm border px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50"
                     type="button"
                     disabled={isActionLoading}
                     onClick={() => onRemoveFromPromotionFeed?.(slug)}
@@ -334,7 +334,7 @@ export default function ProductSummaryCard({
                         </Link>
                         {onDeleteVariation ? (
                           <button
-                            className="inline-flex min-h-9 items-center justify-center rounded-sm border border-red-400/35 px-3 py-2 text-xs font-semibold text-red-300 hover:border-red-300 hover:text-red-200 disabled:opacity-50"
+                            className="theme-danger-button inline-flex min-h-9 items-center justify-center rounded-sm border px-3 py-2 text-xs font-semibold transition-colors disabled:opacity-50"
                             type="button"
                             disabled={isActionLoading}
                             onClick={() => onDeleteVariation(variation.id)}
@@ -373,9 +373,15 @@ export default function ProductSummaryCard({
 /**
  * @param {{ children: import("react").ReactNode }} props
  */
-function Badge({ children }) {
+function Badge({ children, tone = "default" }) {
+  const className =
+    tone === "promoted"
+      ? "border-amber-400/35 bg-amber-400/10 text-amber-100 [html[data-theme='light']_&]:border-amber-500/35 [html[data-theme='light']_&]:bg-amber-400/12 [html[data-theme='light']_&]:text-amber-700"
+      : "border-white/10 text-white/65";
+
   return (
-    <span className="rounded-full border border-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-white/65">
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] ${className}`}>
+      {tone === "promoted" ? <span aria-hidden="true">★</span> : null}
       {children}
     </span>
   );

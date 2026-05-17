@@ -19,8 +19,6 @@ import {
 export function useAdCampaignList() {
   const router = useRouter();
   const tabSlug = firstAdsQuery(router.query.tab) || "pending";
-  const campaignId = Number(firstAdsQuery(router.query.campaign) || 0);
-  const panel = firstAdsQuery(router.query.panel) || "details";
   const activeTab = useMemo(() => resolveCampaignTab(tabSlug), [tabSlug]);
 
   const [campaigns, setCampaigns] = useState([]);
@@ -34,6 +32,8 @@ export function useAdCampaignList() {
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [page, setPage] = useState(1);
+  const [campaignId, setCampaignId] = useState(0);
+  const [panel, setPanel] = useState("details");
 
   const normalizedCampaigns = useMemo(
     () =>
@@ -138,6 +138,8 @@ export function useAdCampaignList() {
 
   async function setTab(nextTab) {
     const resolved = resolveCampaignTab(nextTab);
+    setCampaignId(0);
+    setPanel("details");
     await router.replace(
       {
         pathname: "/campaigns-list",
@@ -159,31 +161,13 @@ export function useAdCampaignList() {
   }
 
   async function openCampaign(nextCampaignId, nextPanel = "details") {
-    await router.replace(
-      {
-        pathname: "/campaigns-list",
-        query: {
-          tab: activeTab.slug,
-          campaign: String(nextCampaignId),
-          panel: nextPanel,
-        },
-      },
-      undefined,
-      { shallow: true },
-    );
+    setCampaignId(Number(nextCampaignId || 0));
+    setPanel(nextPanel);
   }
 
   async function closeCampaignPanel() {
-    await router.replace(
-      {
-        pathname: "/campaigns-list",
-        query: {
-          tab: activeTab.slug,
-        },
-      },
-      undefined,
-      { shallow: true },
-    );
+    setCampaignId(0);
+    setPanel("details");
   }
 
   async function downloadInvoice(nextCampaignId) {

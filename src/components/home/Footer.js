@@ -33,7 +33,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-brand-black px-5 py-14 text-brand-white sm:px-8 lg:px-12">
+    <footer className="theme-home-section px-5 py-14 text-brand-white sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-10 lg:grid-cols-[repeat(3,minmax(0,1fr))_1.35fr]">
           {footerColumns.map((column) => (

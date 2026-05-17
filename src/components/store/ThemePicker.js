@@ -10,8 +10,8 @@ export default function ThemePicker({ value, onChange }) {
         <button
           className={`rounded-sm border p-4 text-left transition-colors ${
             value === theme.id
-              ? "border-brand-gold bg-brand-gold/10"
-              : "border-white/10 bg-[#171717]"
+              ? "border-brand-gold bg-brand-gold/10 shadow-[0_0_0_1px_rgba(212,175,55,0.1)]"
+              : "theme-surface"
           }`}
           key={theme.id}
           type="button"
@@ -25,6 +25,11 @@ export default function ThemePicker({ value, onChange }) {
               <span className="h-5 w-5 rounded-sm border border-black/10" style={{ backgroundColor: theme.fontColor }} />
             </span>
           </div>
+          <p className="theme-text-muted mt-3 text-xs leading-5">
+            {theme.id === "0"
+              ? "Balanced starter palette for general storefront use."
+              : "Preview colors for buttons, icons, and storefront text."}
+          </p>
         </button>
       ))}
     </div>

@@ -21,7 +21,7 @@ export default function PaymentBreakdownPanel({
     "";
 
   return (
-    <aside className="rounded-sm border border-white/10 bg-[#121212] p-5 xl:sticky xl:top-24">
+    <aside className="theme-panel rounded-sm border p-5 xl:sticky xl:top-24">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
@@ -32,7 +32,7 @@ export default function PaymentBreakdownPanel({
           </h2>
         </div>
         <button
-          className="min-h-10 rounded-sm border border-white/10 px-3 text-sm font-semibold text-white/65 transition-colors hover:border-white/20 hover:text-brand-white"
+          className="theme-action-neutral min-h-10 rounded-sm border px-3 text-sm font-semibold transition-colors"
           type="button"
           onClick={onClose}
         >
@@ -41,17 +41,17 @@ export default function PaymentBreakdownPanel({
       </div>
 
       {!paymentId && !isLoading ? (
-        <div className="mt-6 rounded-sm border border-white/10 bg-black/20 px-4 py-4 text-sm leading-6 text-white/55">
+        <div className="theme-panel-soft theme-text-muted mt-6 rounded-sm border px-4 py-4 text-sm leading-6">
           Select a payment card to inspect its fee breakdown here.
         </div>
       ) : null}
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-white/45">Loading breakdown...</p>
+        <p className="theme-text-muted mt-6 text-sm">Loading breakdown...</p>
       ) : null}
 
       {!isLoading && message ? (
-        <div className="mt-6 rounded-sm border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+        <div className="theme-toast-error mt-6 rounded-sm border px-4 py-3 text-sm">
           {message}
         </div>
       ) : null}
@@ -86,7 +86,7 @@ export default function PaymentBreakdownPanel({
  */
 function Row({ label, value, strong = false }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-sm border border-white/10 bg-black/20 px-4 py-3">
+    <div className="theme-panel-soft flex items-start justify-between gap-4 rounded-sm border px-4 py-3">
       <span className={`text-sm ${strong ? "font-bold text-brand-white" : "text-white/55"}`}>
         {label}
       </span>

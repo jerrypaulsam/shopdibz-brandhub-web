@@ -36,6 +36,8 @@ export default function LoginModal({ isOpen, onClose }) {
     return null;
   }
 
+  const isErrorMessage = Boolean(message) && !/^login successful\.?$/i.test(message);
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -49,7 +51,7 @@ export default function LoginModal({ isOpen, onClose }) {
 
     try {
       const loc = await getBrowserLocation();
-      const result = await loginSeller({ email, password, loc });
+      const result = await loginSeller({ email: email.toLowerCase(), password, loc });
       saveAuthSession(result.data);
       setMessage("Login successful.");
       onClose();
@@ -62,10 +64,10 @@ export default function LoginModal({ isOpen, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-8">
-      <div className="relative max-h-[90vh] w-full max-w-[600px] overflow-y-auto rounded-[15px] border border-white/10 bg-brand-black px-5 py-8 text-brand-white shadow-2xl sm:px-8 sm:py-10">
+    <div className="theme-overlay fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
+      <div className="theme-surface relative max-h-[90vh] w-full max-w-[600px] overflow-y-auto rounded-[15px] border px-5 py-8 text-brand-white shadow-2xl sm:px-8 sm:py-10">
         <button
-          className="absolute right-4 top-4 h-9 w-9 rounded-sm border border-white/20 text-brand-white hover:border-brand-gold hover:text-brand-gold"
+          className="theme-action-neutral absolute right-4 top-4 h-9 w-9 rounded-sm border transition-colors"
           type="button"
           aria-label="Close login dialog"
           onClick={onClose}
@@ -79,10 +81,10 @@ export default function LoginModal({ isOpen, onClose }) {
           </h2>
           <div className="mx-auto mt-3 h-0.5 w-8 bg-brand-gold" />
 
-          <label className="mt-10 block text-sm font-semibold text-white/80">
+          <label className="theme-text-muted-strong mt-10 block text-sm font-semibold">
             Email
             <input
-              className="mt-3 h-14 w-full rounded-sm border border-white/20 bg-transparent px-4 text-base text-brand-white outline-none transition-colors placeholder:text-white/35 focus:border-brand-gold"
+              className="theme-field mt-3 h-14 w-full rounded-sm border px-4 text-base outline-none transition-colors placeholder:text-white/35 focus:border-brand-gold"
               type="email"
               value={email}
               placeholder="Email"
@@ -91,10 +93,10 @@ export default function LoginModal({ isOpen, onClose }) {
             />
           </label>
 
-          <label className="mt-8 block text-sm font-semibold text-white/80">
+          <label className="theme-text-muted-strong mt-8 block text-sm font-semibold">
             Password
             <input
-              className="mt-3 h-14 w-full rounded-sm border border-white/20 bg-transparent px-4 text-base text-brand-white outline-none transition-colors placeholder:text-white/35 focus:border-brand-gold"
+              className="theme-field mt-3 h-14 w-full rounded-sm border px-4 text-base outline-none transition-colors placeholder:text-white/35 focus:border-brand-gold"
               type="password"
               value={password}
               placeholder="Password"
@@ -104,7 +106,15 @@ export default function LoginModal({ isOpen, onClose }) {
           </label>
 
           {message ? (
-            <p className="mt-6 text-center text-sm text-brand-gold">{message}</p>
+            <p
+              className={`mt-6 text-center text-sm ${
+                isErrorMessage
+                  ? "text-red-300 [html[data-theme='light']_&]:text-red-700"
+                  : "text-brand-gold"
+              }`}
+            >
+              {message}
+            </p>
           ) : null}
 
           <button
@@ -115,7 +125,7 @@ export default function LoginModal({ isOpen, onClose }) {
             {isSubmitting ? "Logging in..." : "Login"}
           </button>
 
-          <p className="mt-8 text-center text-sm text-white/45">
+          <p className="theme-text-muted mt-8 text-center text-sm">
             Don&apos;t have an account?
           </p>
           <Link

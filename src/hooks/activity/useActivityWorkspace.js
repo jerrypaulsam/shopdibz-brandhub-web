@@ -64,6 +64,11 @@ export function useActivityWorkspace() {
   const [actionMessage, setActionMessage] = useState("");
   const [actionError, setActionError] = useState("");
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [groupFieldErrors, setGroupFieldErrors] = useState({
+    groupName: "",
+    groupDiscount: "",
+    groupImage: "",
+  });
 
   const [bulkFileName, setBulkFileName] = useState("");
   const [bulkFileBase64, setBulkFileBase64] = useState("");
@@ -200,6 +205,10 @@ export function useActivityWorkspace() {
       }
 
       if (target === "group") {
+        setGroupFieldErrors((current) => ({
+          ...current,
+          groupImage: "",
+        }));
         setGroupImageName(file.name);
         setGroupImageBase64(base64);
       }
@@ -212,9 +221,29 @@ export function useActivityWorkspace() {
 
   const setGroupImageAsset = useCallback(({ fileName, base64 }) => {
     setActionError("");
+    setGroupFieldErrors((current) => ({
+      ...current,
+      groupImage: "",
+    }));
     setGroupImageName(fileName);
     setGroupImageBase64(base64);
   }, []);
+
+  function updateGroupName(value) {
+    setGroupFieldErrors((current) => ({
+      ...current,
+      groupName: "",
+    }));
+    setGroupName(value);
+  }
+
+  function updateGroupDiscount(value) {
+    setGroupFieldErrors((current) => ({
+      ...current,
+      groupDiscount: "",
+    }));
+    setGroupDiscount(value);
+  }
 
   async function selectPanel(nextPanel) {
     await replaceActivityQuery({ panel: nextPanel });
@@ -346,13 +375,35 @@ export function useActivityWorkspace() {
       return;
     }
 
+    const nextErrors = {
+      groupName: "",
+      groupDiscount: "",
+      groupImage: "",
+    };
+
     if (!groupName.trim()) {
-      setActionError("Please enter a group name.");
-      return;
+      nextErrors.groupName = "field required *";
+    } else if (groupName.trim().length > 30) {
+      nextErrors.groupName = "Maximum 30 characters";
+    }
+
+    if (!groupDiscount.trim()) {
+      nextErrors.groupDiscount = "field required *";
     }
 
     if (!groupImageBase64) {
-      setActionError("Please select a group banner image.");
+      nextErrors.groupImage = "Please select a Group Banner Image";
+    }
+
+    setGroupFieldErrors(nextErrors);
+
+    if (Object.values(nextErrors).some(Boolean)) {
+      setActionError(
+        nextErrors.groupName
+          || nextErrors.groupDiscount
+          || nextErrors.groupImage
+          || "Please fill all required fields",
+      );
       return;
     }
 
@@ -375,6 +426,11 @@ export function useActivityWorkspace() {
       setShowOnHome(true);
       setGroupImageName("");
       setGroupImageBase64("");
+      setGroupFieldErrors({
+        groupName: "",
+        groupDiscount: "",
+        groupImage: "",
+      });
       await loadWorkspace();
     } catch (error) {
       setActionError(
@@ -391,6 +447,7 @@ export function useActivityWorkspace() {
     activeSpecialType,
     bulkFileName,
     groupDiscount,
+    groupFieldErrors,
     groupDiscountType,
     groupImageName,
     groupName,
@@ -414,9 +471,9 @@ export function useActivityWorkspace() {
     onFileSelect,
     selectPanel,
     setBulkMode,
-    setGroupDiscount,
+    setGroupDiscount: updateGroupDiscount,
     setGroupDiscountType,
-    setGroupName,
+    setGroupName: updateGroupName,
     setInvoiceMonth,
     setInvoiceYear,
     setShowOnHome,

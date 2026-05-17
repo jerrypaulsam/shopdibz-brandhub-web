@@ -1,0 +1,242 @@
+import { useEffect, useRef, useState } from "react";
+import Script from "next/script";
+import { getAuthSession, hasAuthenticatedSellerSession, subscribeAuthSession } from "@/src/api/auth";
+import { useToast } from "@/src/components/app/ToastProvider";
+
+const PROMPT_SESSION_KEY = "shopdibz_push_prompted_session";
+const PROMPT_TIMESTAMP_KEY = "shopdibz_push_prompted_at";
+const TOKEN_STORAGE_KEY = "shopdibz_push_token";
+const PROMPT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+const PROMPT_DELAY_MS = 8000;
+
+const FIREBASE_CONFIG = {
+  apiKey:
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
+    "AIzaSyCShHyhtsDW8HV2KXPrbUk8ufLYQhOkuUc",
+  authDomain:
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
+    "shopdibz-seller-hub.firebaseapp.com",
+  projectId:
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
+    "shopdibz-seller-hub",
+  storageBucket:
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+    "shopdibz-seller-hub.appspot.com",
+  messagingSenderId:
+    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ||
+    "852067253825",
+  appId:
+    process.env.NEXT_PUBLIC_FIREBASE_APP_ID ||
+    "1:852067253825:web:9b07e9f90a0e95bcd710c0",
+  measurementId:
+    process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ||
+    "G-N4JPNHLP74",
+};
+
+/**
+ * @returns {boolean}
+ */
+function supportsPushMessaging() {
+  return (
+    typeof window !== "undefined"
+    && typeof navigator !== "undefined"
+    && "serviceWorker" in navigator
+    && "Notification" in window
+  );
+}
+
+/**
+ * @returns {boolean}
+ */
+function shouldThrottlePermissionPrompt() {
+  if (typeof window === "undefined") {
+    return true;
+  }
+
+  if (window.sessionStorage.getItem(PROMPT_SESSION_KEY) === "1") {
+    return true;
+  }
+
+  const lastPromptAt = Number(window.localStorage.getItem(PROMPT_TIMESTAMP_KEY) || 0);
+
+  return Boolean(lastPromptAt && Date.now() - lastPromptAt < PROMPT_COOLDOWN_MS);
+}
+
+function markPermissionPromptAttempt() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.setItem(PROMPT_SESSION_KEY, "1");
+  window.localStorage.setItem(PROMPT_TIMESTAMP_KEY, String(Date.now()));
+}
+
+/**
+ * @param {any} payload
+ * @returns {{ title: string, body: string }}
+ */
+function normalizePayload(payload) {
+  const notification = payload?.notification || {};
+  const data = payload?.data || {};
+
+  return {
+    title: notification.title || data.title || "Shopdibz Brand Hub",
+    body: notification.body || data.body || "You have a new notification.",
+  };
+}
+
+export default function FirebaseNotificationsBootstrap() {
+  const { showToast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState(() =>
+    hasAuthenticatedSellerSession(getAuthSession()),
+  );
+  const [appScriptReady, setAppScriptReady] = useState(false);
+  const [messagingScriptReady, setMessagingScriptReady] = useState(false);
+  const isInitializedRef = useRef(false);
+  const toastSignatureRef = useRef("");
+
+  const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || "";
+
+  useEffect(() => subscribeAuthSession(() => {
+    setIsAuthenticated(hasAuthenticatedSellerSession(getAuthSession()));
+  }), []);
+
+  useEffect(() => {
+    if (!supportsPushMessaging() || !isAuthenticated || !vapidKey) {
+      return undefined;
+    }
+
+    if (!appScriptReady || !messagingScriptReady || isInitializedRef.current) {
+      return undefined;
+    }
+
+    if (typeof window.firebase === "undefined") {
+      return undefined;
+    }
+
+    let active = true;
+    let unsubscribeForeground;
+    let promptTimeoutId = 0;
+
+    async function setupMessaging() {
+      try {
+        if (!window.firebase.apps?.length) {
+          window.firebase.initializeApp(FIREBASE_CONFIG);
+        }
+
+        const messaging = window.firebase.messaging();
+        const serviceWorkerRegistration = await navigator.serviceWorker.register(
+          "/firebase-messaging-sw.js",
+        );
+
+        isInitializedRef.current = true;
+
+        unsubscribeForeground = messaging.onMessage((payload) => {
+          if (!active) {
+            return;
+          }
+
+          const { title, body } = normalizePayload(payload);
+          const signature = `${title}:${body}`;
+
+          if (toastSignatureRef.current === signature) {
+            return;
+          }
+
+          toastSignatureRef.current = signature;
+          showToast({
+            message: body ? `${title}: ${body}` : title,
+            type: "info",
+            duration: 5200,
+          });
+
+          window.setTimeout(() => {
+            if (toastSignatureRef.current === signature) {
+              toastSignatureRef.current = "";
+            }
+          }, 6000);
+        });
+
+        const ensureToken = async () => {
+          try {
+            const token = await messaging.getToken({
+              vapidKey,
+              serviceWorkerRegistration,
+            });
+
+            if (token) {
+              window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
+            }
+          } catch {
+            // Keep notification setup quiet if token generation fails.
+          }
+        };
+
+        if (Notification.permission === "granted") {
+          await ensureToken();
+          return;
+        }
+
+        if (Notification.permission !== "default" || shouldThrottlePermissionPrompt()) {
+          return;
+        }
+
+        promptTimeoutId = window.setTimeout(async () => {
+          if (!active) {
+            return;
+          }
+
+          markPermissionPromptAttempt();
+
+          try {
+            const permission = await Notification.requestPermission();
+
+            if (permission === "granted") {
+              await ensureToken();
+              showToast({
+                message: "Browser notifications enabled.",
+                type: "success",
+                duration: 2600,
+              });
+            }
+          } catch {
+            // Keep permission flow silent on unsupported/blocked browsers.
+          }
+        }, PROMPT_DELAY_MS);
+      } catch {
+        // Avoid breaking app boot if Firebase messaging setup fails.
+      }
+    }
+
+    setupMessaging();
+
+    return () => {
+      active = false;
+      if (promptTimeoutId) {
+        window.clearTimeout(promptTimeoutId);
+      }
+      if (typeof unsubscribeForeground === "function") {
+        unsubscribeForeground();
+      }
+    };
+  }, [appScriptReady, isAuthenticated, messagingScriptReady, showToast, vapidKey]);
+
+  if (!supportsPushMessaging() || !vapidKey) {
+    return null;
+  }
+
+  return (
+    <>
+      <Script
+        src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"
+        strategy="lazyOnload"
+        onLoad={() => setAppScriptReady(true)}
+      />
+      <Script
+        src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"
+        strategy="lazyOnload"
+        onLoad={() => setMessagingScriptReady(true)}
+      />
+    </>
+  );
+}

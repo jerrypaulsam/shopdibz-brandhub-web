@@ -264,7 +264,7 @@ function getAuthErrorMessage(url, status, statusMessage, data) {
  */
 function getApiErrorMessage(data) {
   if (typeof data === "string") {
-    return data.trim();
+    return sanitizeAuthErrorMessage(data);
   }
 
   if (!data || typeof data !== "object") {
@@ -274,7 +274,32 @@ function getApiErrorMessage(data) {
   const message = "message" in data ? data.message : "";
   const detail = "detail" in data ? data.detail : "";
 
-  return String(message || detail || "").trim();
+  return sanitizeAuthErrorMessage(String(message || detail || ""));
+}
+
+/**
+ * @param {string} value
+ * @returns {string}
+ */
+function sanitizeAuthErrorMessage(value) {
+  const normalized = String(value || "").trim();
+
+  if (!normalized) {
+    return "";
+  }
+
+  const lowerValue = normalized.toLowerCase();
+
+  if (
+    lowerValue.startsWith("<!doctype html") ||
+    lowerValue.startsWith("<html") ||
+    lowerValue.includes("<body") ||
+    lowerValue.includes("</html>")
+  ) {
+    return "";
+  }
+
+  return normalized.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
 /**

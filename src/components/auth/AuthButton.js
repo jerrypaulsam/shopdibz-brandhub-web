@@ -9,7 +9,7 @@ export default function AuthButton({
 }) {
   return (
     <button
-      className="h-[55px] w-full rounded-sm bg-brand-gold text-sm font-extrabold uppercase tracking-[0.18em] text-brand-black transition-colors hover:bg-brand-white disabled:cursor-not-allowed disabled:opacity-60"
+      className="min-h-11 w-full rounded-sm bg-brand-gold px-5 py-3 text-sm font-bold text-brand-black transition-colors hover:bg-brand-white disabled:cursor-not-allowed disabled:opacity-60"
       type={type}
       disabled={disabled}
       onClick={onClick}

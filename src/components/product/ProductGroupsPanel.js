@@ -25,6 +25,7 @@ export default function ProductGroupsPanel({
   const [editImageBase64, setEditImageBase64] = useState("");
   const [editImageName, setEditImageName] = useState("");
   const [editImagePreview, setEditImagePreview] = useState("");
+  const [pendingSheetUpload, setPendingSheetUpload] = useState(null);
 
   function openEditor(group) {
     setEditingGroup(group);
@@ -57,6 +58,21 @@ export default function ProductGroupsPanel({
     if (isSaved) {
       setEditingGroup(null);
       setCropFile(null);
+    }
+  }
+
+  async function confirmGroupSheetUpload() {
+    const groupId = Number(pendingSheetUpload?.groupId || 0);
+    const file = pendingSheetUpload?.file || null;
+
+    if (!groupId || !file) {
+      return;
+    }
+
+    const isUploaded = await onUploadGroupSheet(groupId, file);
+
+    if (isUploaded) {
+      setPendingSheetUpload(null);
     }
   }
 
@@ -138,7 +154,7 @@ export default function ProductGroupsPanel({
                         Edit
                       </button>
                       <label
-                        className={`theme-action-neutral rounded-sm border px-4 py-2 text-sm font-semibold transition-colors ${
+                        className={`theme-action-neutral col-span-2 mx-auto inline-flex w-full max-w-[220px] items-center justify-center rounded-sm border px-4 py-2 text-center text-sm font-semibold transition-colors sm:col-span-1 ${
                           isSaving
                             ? "cursor-not-allowed opacity-60"
                             : "cursor-pointer"
@@ -149,11 +165,15 @@ export default function ProductGroupsPanel({
                           type="file"
                           accept=".xls,.xlsx,.xlsm"
                           disabled={isSaving}
-                          onChange={async (event) => {
+                          onChange={(event) => {
                             const file = event.target.files?.[0];
                             event.target.value = "";
                             if (file) {
-                              await onUploadGroupSheet(groupId, file);
+                              setPendingSheetUpload({
+                                groupId,
+                                groupName: group?.name || group?.title || "Product Group",
+                                file,
+                              });
                             }
                           }}
                         />
@@ -187,6 +207,73 @@ export default function ProductGroupsPanel({
           <p className="text-lg font-black text-brand-white">No Product Groups Yet</p>
         </div>
       )}
+
+      {pendingSheetUpload ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">
+          <div className="theme-surface w-full max-w-lg rounded-sm border p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
+                  Confirm Sheet Upload
+                </p>
+                <h2 className="mt-2 text-2xl font-black text-brand-white">
+                  {pendingSheetUpload.groupName}
+                </h2>
+              </div>
+              <button
+                className="theme-action-neutral rounded-sm border px-3 py-1.5 text-sm font-bold transition-colors"
+                type="button"
+                onClick={() => setPendingSheetUpload(null)}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              <div className="theme-surface-soft rounded-sm border p-4">
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/45">
+                  Selected File
+                </p>
+                <p className="mt-2 text-sm font-semibold text-brand-white">
+                  {pendingSheetUpload.file?.name || "No file selected"}
+                </p>
+                <p className="mt-2 text-xs text-white/55">
+                  Status: Ready to upload
+                </p>
+              </div>
+
+              <div className="rounded-sm border border-amber-400/25 bg-amber-400/10 p-4">
+                <p className="text-sm font-bold text-amber-100 [html[data-theme='light']_&]:text-amber-800">
+                  Use only the exact product group sheet template from the Downloads section.
+                </p>
+                <p className="mt-2 text-sm leading-6 text-amber-100/80 [html[data-theme='light']_&]:text-amber-700">
+                  Column order, header names, and overall structure must match the template exactly before upload.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                className="theme-action-neutral rounded-sm border px-5 py-2.5 text-sm font-bold transition-colors"
+                type="button"
+                onClick={() => setPendingSheetUpload(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="rounded-sm bg-brand-gold px-5 py-2.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-60"
+                type="button"
+                disabled={isSaving}
+                onClick={confirmGroupSheetUpload}
+              >
+                {isSaving && loadingGroupId === Number(pendingSheetUpload.groupId || 0)
+                  ? "Uploading..."
+                  : "Upload Sheet"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {editingGroup ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">

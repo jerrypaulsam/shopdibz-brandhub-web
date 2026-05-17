@@ -160,7 +160,7 @@ export function HeaderImageSection({
         ) : null}
         {storeInfo?.headerImg ? (
           <button
-            className="inline-flex min-h-11 items-center justify-center rounded-sm border border-red-400/30 px-5 text-sm font-bold text-red-300 hover:border-red-300 hover:text-red-100"
+            className="theme-danger-button inline-flex min-h-11 items-center justify-center rounded-sm border px-5 text-sm font-bold transition-colors"
             type="button"
             disabled={!isPremium}
             onClick={handleDelete}
@@ -226,7 +226,7 @@ export function AccountSettingsSection({ isOwner, isSubmitting, onDeactivate }) 
         ) : null}
         <SettingsLink href="/settings/change-password" label="Change Password" />
         <button
-          className="flex w-full items-center justify-between rounded-sm border border-red-400/20 px-4 py-3 text-left text-red-300 hover:border-red-300/40 hover:text-red-100"
+          className="theme-danger-button flex w-full items-center justify-between rounded-sm border px-4 py-3 text-left transition-colors"
           type="button"
           disabled={isSubmitting}
           onClick={handleDeactivate}
@@ -266,7 +266,7 @@ export function SubscriptionSection({ storeInfo, message, isSubmitting, onCancel
         {planCode === "F" ? (
           subscriptionUrl ? (
             <a
-              className="inline-flex min-h-11 items-center justify-center rounded-sm border border-brand-gold/35 px-5 text-sm font-bold text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
+              className="theme-action-accent inline-flex min-h-11 items-center justify-center rounded-sm border px-5 text-sm font-bold transition-colors"
               href={subscriptionUrl}
               target="_blank"
               rel="noreferrer"
@@ -280,7 +280,7 @@ export function SubscriptionSection({ storeInfo, message, isSubmitting, onCancel
           <div className="space-y-3">
             {!isConfirmingCancel ? (
               <button
-                className="inline-flex min-h-11 items-center justify-center rounded-sm border border-red-400/25 px-5 text-sm font-bold text-red-300 hover:border-red-300 hover:text-red-100"
+                className="theme-danger-button inline-flex min-h-11 items-center justify-center rounded-sm border px-5 text-sm font-bold transition-colors"
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => setIsConfirmingCancel(true)}
@@ -288,13 +288,13 @@ export function SubscriptionSection({ storeInfo, message, isSubmitting, onCancel
                 Cancel Subscription
               </button>
             ) : (
-              <div className="rounded-sm border border-red-400/20 bg-red-400/5 p-4">
-                <p className="text-sm leading-6 text-red-100">
+              <div className="theme-toast-error rounded-sm border p-4">
+                <p className="text-sm leading-6">
                   Are you sure? The current plan will be cancelled immediately and the store will switch back to the Free Plan.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <button
-                    className="inline-flex min-h-10 items-center justify-center rounded-sm border border-red-400/35 px-4 text-sm font-bold text-red-300 hover:border-red-300 hover:text-red-100"
+                    className="theme-danger-button inline-flex min-h-10 items-center justify-center rounded-sm border px-4 text-sm font-bold transition-colors"
                     type="button"
                     disabled={isSubmitting}
                     onClick={async () => {
@@ -307,7 +307,7 @@ export function SubscriptionSection({ storeInfo, message, isSubmitting, onCancel
                     {isSubmitting ? "Cancelling..." : "Yes, Cancel"}
                   </button>
                   <button
-                    className="inline-flex min-h-10 items-center justify-center rounded-sm border border-white/10 px-4 text-sm font-bold text-white/70 hover:border-white/20 hover:text-brand-white"
+                    className="theme-action-neutral inline-flex min-h-10 items-center justify-center rounded-sm border px-4 text-sm font-bold transition-colors"
                     type="button"
                     disabled={isSubmitting}
                     onClick={() => setIsConfirmingCancel(false)}
@@ -368,9 +368,9 @@ export function SupportSection() {
 
 function InfoRow({ label, value }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-sm border border-white/10 bg-black/20 px-4 py-3">
+    <div className="grid grid-cols-[minmax(0,140px)_1fr] items-center gap-4 rounded-sm border border-white/10 bg-black/20 px-4 py-3">
       <p className="text-xs uppercase tracking-[0.14em] text-white/35">{label}</p>
-      <p className="text-right font-semibold text-brand-white">{value}</p>
+      <p className="justify-self-end text-right font-semibold text-brand-white">{value}</p>
     </div>
   );
 }

@@ -91,7 +91,7 @@ export default function ProfileEditorPanel({
           ) : null}
 
           <p className="text-center text-xs leading-5 text-white/45">
-            Use a square image for the cleanest account avatar across the seller workspace.
+            Use 1:1 image for the cleanest account avatar across the seller workspace.
           </p>
         </div>
       </StoreSection>

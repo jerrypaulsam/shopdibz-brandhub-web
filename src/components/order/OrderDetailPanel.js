@@ -231,9 +231,19 @@ export default function OrderDetailPanel({
                   </h2>
                 )}
                 {variantLabel ? (
-                  <p className="mt-3 text-sm font-semibold text-brand-gold">
-                    {variantLabel}
-                  </p>
+                  <div className="mt-4 rounded-sm border border-brand-gold/30 bg-brand-gold/10 px-4 py-3 shadow-[0_0_0_1px_rgba(212,175,55,0.08)] [html[data-theme='light']_&]:border-brand-gold/40 [html[data-theme='light']_&]:bg-brand-gold/15">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="rounded-sm border border-brand-gold/35 bg-brand-gold/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-gold [html[data-theme='light']_&]:bg-brand-gold/20">
+                        Variant
+                      </span>
+                      <p className="text-base font-extrabold text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                        {variantLabel}
+                      </p>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-brand-gold/85 [html[data-theme='light']_&]:text-[#7a4b3f]">
+                      Match this exact variant before packing to avoid sending the wrong item.
+                    </p>
+                  </div>
                 ) : null}
                 <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                   <Metric label="Unit Price" value={formatMoney(getOrderUnitPrice(order))} />
@@ -294,11 +304,11 @@ export default function OrderDetailPanel({
                     }
                   />
                   <button
-                    className="text-xs font-bold uppercase tracking-[0.14em] text-brand-gold"
+                    className="theme-action-accent ml-auto inline-flex min-h-8 items-center justify-center rounded-sm border px-3 py-1 text-[11px] font-bold tracking-[0.12em] transition-colors"
                     type="button"
                     onClick={onTogglePhone}
                   >
-                    {isPhoneVisible ? "Hide mobile" : "Click to view"}
+                    {isPhoneVisible ? "Hide mobile" : "View Mobile"}
                   </button>
                   <InfoRow
                     label="Address"
@@ -324,11 +334,11 @@ export default function OrderDetailPanel({
                     }
                   />
                   <button
-                    className="text-xs font-bold uppercase tracking-[0.14em] text-brand-gold"
+                    className="theme-action-accent ml-auto inline-flex min-h-8 items-center justify-center rounded-sm border px-3 py-1 text-[11px] font-bold tracking-[0.12em] transition-colors"
                     type="button"
                     onClick={onTogglePhone}
                   >
-                    {isPhoneVisible ? "Hide mobile" : "Click to view"}
+                    {isPhoneVisible ? "Hide mobile" : "View Mobile"}
                   </button>
                   <InfoRow
                     label="Address"

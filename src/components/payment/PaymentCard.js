@@ -20,7 +20,7 @@ export default function PaymentCard({ payment, isActive, onOpen }) {
       className={`rounded-sm border p-4 transition-colors ${
         isActive
           ? "border-brand-gold/50 bg-brand-gold/5"
-          : "border-white/10 bg-[#121212]"
+          : "theme-panel"
       }`}
     >
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -54,7 +54,7 @@ export default function PaymentCard({ payment, isActive, onOpen }) {
 
       <div className="mt-4 flex justify-end border-t border-white/10 pt-4">
         <button
-          className="min-h-10 rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-brand-gold hover:text-brand-gold"
+          className="theme-action-neutral min-h-10 rounded-sm border px-4 text-sm font-semibold transition-colors"
           type="button"
           onClick={() => onOpen(payment.id)}
         >

@@ -19,7 +19,7 @@ export default function MonthlyInvoicePanel({
   onSubmit,
 }) {
   return (
-    <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
+    <section className="theme-panel rounded-sm border p-5">
       <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
         Monthly Invoice
       </p>
@@ -31,7 +31,7 @@ export default function MonthlyInvoicePanel({
         <label className="block">
           <span className="text-sm font-semibold text-brand-white">Month</span>
           <select
-            className="mt-2 min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-4 text-sm text-brand-white outline-none transition-colors focus:border-brand-gold/50"
+            className="theme-field mt-2 min-h-11 w-full rounded-sm border border-white/10 px-4 text-sm outline-none transition-colors focus:border-brand-gold/50"
             value={month}
             onChange={(event) => onMonthChange(event.target.value)}
           >
@@ -46,7 +46,7 @@ export default function MonthlyInvoicePanel({
         <label className="block">
           <span className="text-sm font-semibold text-brand-white">Year</span>
           <select
-            className="mt-2 min-h-11 w-full rounded-sm border border-white/10 bg-black/20 px-4 text-sm text-brand-white outline-none transition-colors focus:border-brand-gold/50"
+            className="theme-field mt-2 min-h-11 w-full rounded-sm border border-white/10 px-4 text-sm outline-none transition-colors focus:border-brand-gold/50"
             value={year}
             onChange={(event) => onYearChange(event.target.value)}
           >
@@ -59,7 +59,7 @@ export default function MonthlyInvoicePanel({
         </label>
       </div>
 
-      <div className="mt-5 rounded-sm border border-white/10 bg-black/20 px-4 py-4">
+      <div className="theme-panel-soft mt-5 rounded-sm border px-4 py-4">
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/35">
           Selected period
         </p>
@@ -70,7 +70,7 @@ export default function MonthlyInvoicePanel({
 
       <div className="mt-5 flex flex-wrap gap-3">
         <button
-          className="min-h-11 rounded-sm bg-brand-red px-5 text-sm font-semibold text-brand-white transition-colors hover:bg-[#ff6969] disabled:cursor-not-allowed disabled:opacity-50"
+          className="theme-primary-button min-h-11 rounded-sm border px-5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           type="button"
           disabled={isActionLoading}
           onClick={onSubmit}

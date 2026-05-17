@@ -123,7 +123,7 @@ export default function StoreSliderManagementPanel({
           </div>
 
           {remainingSliderCount ? (
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-brand-gold/20 bg-[#17130a] px-4 py-3">
+            <div className="theme-surface mt-6 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-brand-gold/20 px-4 py-3">
               <p className="text-sm text-brand-gold">
                 {remainingSliderCount === 1
                   ? "This view has 1 live slider. Add 1 more to complete the set."

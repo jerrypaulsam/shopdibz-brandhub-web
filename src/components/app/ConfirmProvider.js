@@ -64,28 +64,28 @@ export default function ConfirmProvider({ children }) {
 
   const confirmButtonClass =
     dialogState.tone === "default"
-      ? "border-brand-gold/40 bg-brand-gold/10 text-brand-gold hover:bg-brand-gold hover:text-black"
-      : "border-red-400/35 bg-red-500/10 text-red-100 hover:border-red-300 hover:bg-red-500/20";
+      ? "theme-action-accent"
+      : "theme-action-danger";
 
   return (
     <ConfirmContext.Provider value={contextValue}>
       {children}
       {dialogState.open ? (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/75 px-4">
-          <div className="w-full max-w-md rounded-sm border border-white/10 bg-[#121212] p-6 shadow-2xl">
+        <div className="theme-overlay fixed inset-0 z-[110] flex items-center justify-center px-4">
+          <div className="theme-surface w-full max-w-md rounded-sm border p-6 shadow-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
               Confirmation
             </p>
             <h2 className="mt-2 text-2xl font-black text-brand-white">
               {dialogState.title}
             </h2>
-            <p className="mt-4 text-sm leading-6 text-white/60">
+            <p className="theme-text-muted mt-4 text-sm leading-6">
               {dialogState.message}
             </p>
 
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
-                className="rounded-sm border border-white/15 px-5 py-2.5 text-sm font-bold text-brand-white hover:border-white/30"
+                className="theme-action-neutral rounded-sm border px-5 py-2.5 text-sm font-bold transition-colors"
                 type="button"
                 onClick={() => closeDialog(false)}
               >

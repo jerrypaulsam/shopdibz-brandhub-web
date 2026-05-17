@@ -14,8 +14,8 @@ export default function ActionButton({
 }) {
   const variantClasses =
     variant === "primary"
-      ? "border border-brand-white bg-brand-white text-brand-black hover:bg-brand-gold hover:border-brand-gold focus-visible:outline-brand-gold"
-      : "border border-white/70 text-brand-white hover:border-brand-gold hover:text-brand-gold focus-visible:outline-brand-white";
+      ? "theme-hero-button-primary border focus-visible:outline-brand-gold"
+      : "theme-hero-button-secondary border focus-visible:outline-brand-gold";
 
   if (external) {
     return (

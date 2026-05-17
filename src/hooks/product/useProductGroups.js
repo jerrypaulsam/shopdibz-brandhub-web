@@ -139,7 +139,8 @@ export function useProductGroups() {
       lowerName.endsWith(".xlsm");
 
     if (!isAcceptedFile) {
-      const nextMessage = "Upload an XLS, XLSX, or XLSM product group sheet.";
+      const nextMessage =
+        "Upload an XLS, XLSX, or XLSM file that matches the Downloads template exactly.";
       setMessage(nextMessage);
       showToast({ message: nextMessage, type: "error" });
       return false;
@@ -156,7 +157,7 @@ export function useProductGroups() {
         fileName: file.name || `prdtGroup-${nextGroupId}.xlsm`,
       });
       const nextMessage =
-        "Sheet has been uploaded. We will notify you once products are added.";
+        "Sheet uploaded successfully. It must follow the Downloads template structure exactly.";
       setMessage(nextMessage);
       showToast({ message: nextMessage, type: "success" });
       return true;

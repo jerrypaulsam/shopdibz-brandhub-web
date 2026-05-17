@@ -4,6 +4,7 @@ import Script from "next/script";
 import { useRouter } from "next/router";
 import MaintenanceScreen from "@/src/components/app/MaintenanceScreen";
 import ConfirmProvider from "@/src/components/app/ConfirmProvider";
+import FirebaseNotificationsBootstrap from "@/src/components/app/FirebaseNotificationsBootstrap";
 import SeoHead from "@/src/components/app/SeoHead";
 import ThemeProvider from "@/src/components/app/ThemeProvider";
 import ThemeToggle from "@/src/components/app/ThemeToggle";
@@ -24,8 +25,9 @@ export default function App({ Component, pageProps }) {
 
     function handleRouteChange(url) {
       if (typeof window.gtag === "function") {
+        const normalizedPath = String(url || "").split("?")[0].split("#")[0] || window.location.pathname;
         window.gtag("config", analyticsId, {
-          page_path: url,
+          page_path: normalizedPath,
         });
       }
     }
@@ -68,11 +70,10 @@ export default function App({ Component, pageProps }) {
                   });
                 `}
               </Script>
-
-              <meta name="robots" content="noindex,nofollow" /> {/* REMOVE LATER */}
               
             </>
           ) : null}
+          <FirebaseNotificationsBootstrap />
           <Component {...pageProps} />
           <ThemeToggle />
         </ThemeProvider>

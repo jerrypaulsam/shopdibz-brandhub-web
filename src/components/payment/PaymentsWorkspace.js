@@ -37,23 +37,23 @@ export default function PaymentsWorkspace({
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 xl:px-10">
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="rounded-sm border border-white/10 bg-[#121212] p-5">
+        <div className="theme-panel rounded-sm border p-5">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
             Payments
           </p>
           <h1 className="mt-3 text-2xl font-extrabold text-brand-white">
             {title}
           </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">
+          <p className="theme-text-muted mt-3 max-w-3xl text-sm leading-6">
             {subtitle}
           </p>
         </div>
 
-        <aside className="rounded-sm border border-white/10 bg-[#121212] p-5">
+        <aside className="theme-panel rounded-sm border p-5">
           <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-brand-white">
             Settlement notes
           </h2>
-          <ul className="mt-4 space-y-3 text-sm leading-6 text-white/60">
+          <ul className="theme-text-muted mt-4 space-y-3 text-sm leading-6">
             <li>Pending payouts usually release after delivery review.</li>
             <li>Higher seller trust shortens the settlement window.</li>
             <li>Hold states often follow delivery disputes or verification flags.</li>
@@ -61,7 +61,7 @@ export default function PaymentsWorkspace({
           </ul>
           {pricingUrl ? (
             <a
-              className="mt-5 inline-flex min-h-10 items-center rounded-sm border border-brand-gold/30 px-4 text-sm font-semibold text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
+              className="theme-action-accent mt-5 inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-semibold transition-colors"
               href={pricingUrl}
               rel="noreferrer"
               target="_blank"
@@ -72,13 +72,13 @@ export default function PaymentsWorkspace({
         </aside>
       </section>
 
-      <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
+      <section className="theme-panel rounded-sm border p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h2 className="text-lg font-extrabold text-brand-white">
               {activeTab.label} payouts
             </h2>
-            <p className="mt-2 text-sm text-white/50">{activeTab.description}</p>
+            <p className="theme-text-muted mt-2 text-sm">{activeTab.description}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <SummaryCard label="Pending" value={formatPaymentMoney(summary.pendingAmount)} />
@@ -99,17 +99,17 @@ export default function PaymentsWorkspace({
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-4">
           {isLoading ? (
-            <div className="rounded-sm border border-white/10 bg-[#121212] px-5 py-12 text-center text-sm text-white/45">
+            <div className="theme-panel rounded-sm border px-5 py-12 text-center text-sm theme-text-muted">
               Loading payments...
             </div>
           ) : null}
 
           {!isLoading && !payments.length ? (
-            <div className="rounded-sm border border-white/10 bg-[#121212] px-5 py-16 text-center">
+            <div className="theme-panel rounded-sm border px-5 py-16 text-center">
               <p className="text-base font-bold text-brand-white">
                 No {activeTab.label.toLowerCase()} payments
               </p>
-              <p className="mt-2 text-sm text-white/45">
+              <p className="theme-text-muted mt-2 text-sm">
                 Payment events matching this stage will show up here.
               </p>
             </div>
@@ -169,7 +169,7 @@ export default function PaymentsWorkspace({
  */
 function SummaryCard({ label, value }) {
   return (
-    <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-3">
+    <div className="theme-panel-soft rounded-sm border px-4 py-3">
       <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/35">
         {label}
       </p>

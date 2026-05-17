@@ -19,7 +19,7 @@ const heroBrands = [
 
 export default function HeroSection() {
   return (
-    <section className="bg-brand-black px-4 pb-20 pt-32 text-brand-white sm:px-8 lg:px-12 lg:pb-24 lg:pt-36">
+    <section className="theme-hero-surface px-4 pb-20 pt-32 text-brand-white sm:px-8 lg:px-12 lg:pb-24 lg:pt-36">
       <div className="mx-auto grid max-w-[1440px] gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1.1fr)_420px] xl:items-center xl:gap-10">
         <div className="mx-auto flex max-w-4xl flex-col items-center text-center lg:mx-0 lg:items-start lg:text-left">
           <p className="inline-flex min-h-10 items-center justify-center border border-brand-gold/60 px-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-brand-gold sm:px-5 sm:text-xs lg:justify-start">
@@ -57,17 +57,18 @@ export default function HeroSection() {
           </div>
         </div>
 
-        <aside className="mx-auto w-full max-w-[420px] rounded-sm border border-white/10 bg-white/[0.03] p-4 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-5 lg:mx-0 lg:mt-3 lg:max-w-none">
+        <aside className="theme-home-card-soft mx-auto w-full max-w-[420px] rounded-sm border p-4 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-5 lg:mx-0 lg:mt-3 lg:max-w-none">
           <div className="grid gap-4">
-            <div className="rounded-sm border border-white/10 bg-black/30 p-4 sm:p-5">
+            <div className="theme-home-card-soft rounded-sm border p-4 sm:p-5">
               <div className="flex items-start gap-3 text-left">
-                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-sm border border-brand-gold/30 bg-brand-red p-1.5 sm:h-12 sm:w-12">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-brand-gold/30 bg-brand-red sm:h-12 sm:w-12">
                   <BrandHubLogo
                     alt="Shopdibz Brand Hub"
-                    width={48}
-                    height={48}
-                    className="h-full w-full p-1"
-                    sizes="(max-width: 640px) 44px, 48px"
+                    width={30}
+                    height={30}
+                    className="shrink-0"
+                    sizes="30px"
+                    variant="dark"
                   />
                 </div>
                 <div className="min-w-0">
@@ -77,7 +78,7 @@ export default function HeroSection() {
                   <p className="mt-1 text-sm font-semibold text-brand-white sm:text-[15px]">
                     Brand-first growth stack
                   </p>
-                  <p className="mt-2 text-xs leading-5 text-white/50">
+                  <p className="theme-text-muted mt-2 text-xs leading-5">
                     Verification, storefront control, and seller operations in one place.
                   </p>
                 </div>
@@ -86,7 +87,7 @@ export default function HeroSection() {
               <div className="mt-4 grid gap-2.5 sm:mt-5 sm:gap-3">
                 {heroBrands.map((brand) => (
                   <div
-                    className="flex items-center gap-3 rounded-sm border border-white/10 bg-white/[0.03] px-3 py-2.5 sm:py-3"
+                    className="theme-home-card-soft flex items-center gap-3 rounded-sm border px-3 py-2.5 sm:py-3"
                     key={brand.name}
                   >
                     <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-white p-1 sm:h-12 sm:w-12">
@@ -171,7 +172,7 @@ export default function HeroSection() {
  */
 function HeroMetric({ value, label }) {
   return (
-    <div className="rounded-sm border border-white/10 bg-white/[0.03] px-4 py-4 text-center xl:text-left">
+    <div className="theme-home-card-soft rounded-sm border px-4 py-4 text-center xl:text-left">
       <p className="text-xl font-extrabold text-brand-white">{value}</p>
       <p className="mt-2 text-xs uppercase tracking-[0.16em] text-white/45">{label}</p>
     </div>

@@ -14,6 +14,7 @@ import { ACTIVITY_PANELS } from "@/src/utils/activity";
  * @property {{ slug: string }} activeSpecialType
  * @property {string} bulkFileName
  * @property {string} groupDiscount
+ * @property {{ groupName: string, groupDiscount: string, groupImage: string }} groupFieldErrors
  * @property {string} groupDiscountType
  * @property {string} groupImageName
  * @property {string} groupName
@@ -62,7 +63,7 @@ export default function ActivityWorkspace(props) {
       <ToastMessage message={props.actionError} type="error" />
       <ToastMessage message={props.actionMessage} type="success" />
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="rounded-sm border border-white/10 bg-[#121212] p-5">
+        <div className="theme-panel rounded-sm border p-5">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
             Activity
           </p>
@@ -71,7 +72,7 @@ export default function ActivityWorkspace(props) {
           </h1>
         </div>
 
-        <aside className="rounded-sm border border-white/10 bg-[#121212] p-5">
+        <aside className="theme-panel rounded-sm border p-5">
           <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-brand-white">
             Readiness
           </h2>
@@ -87,7 +88,7 @@ export default function ActivityWorkspace(props) {
           </div>
           {props.pricingUrl ? (
             <a
-              className="mt-5 inline-flex min-h-10 items-center rounded-sm border border-brand-gold/30 px-4 text-sm font-semibold text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
+              className="theme-action-accent mt-5 inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-semibold transition-colors"
               href={props.pricingUrl}
               rel="noreferrer"
               target="_blank"
@@ -114,7 +115,7 @@ export default function ActivityWorkspace(props) {
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
           {props.isLoading ? (
-            <div className="rounded-sm border border-white/10 bg-[#121212] px-5 py-12 text-center text-sm text-white/45">
+            <div className="theme-panel rounded-sm border px-5 py-12 text-center text-sm theme-text-muted">
               Loading activity workspace...
             </div>
           ) : null}
@@ -133,6 +134,7 @@ export default function ActivityWorkspace(props) {
           {!props.isLoading && props.activePanel.slug === "product-group" ? (
             <ProductGroupCreatePanel
               groupDiscount={props.groupDiscount}
+              groupFieldErrors={props.groupFieldErrors}
               groupDiscountType={props.groupDiscountType}
               groupImageName={props.groupImageName}
               groupName={props.groupName}
@@ -179,11 +181,11 @@ export default function ActivityWorkspace(props) {
         </div>
 
         <aside className="space-y-6">
-          <section className="rounded-sm border border-white/10 bg-[#121212] p-5">
+          <section className="theme-panel rounded-sm border p-5">
             <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-brand-white">
               Recent product groups
             </h2>
-            <p className="mt-3 text-sm leading-6 text-white/50">
+            <p className="theme-text-muted mt-3 text-sm leading-6">
               Keep activity and product-group management connected instead of
               bouncing through unrelated pages.
             </p>
@@ -192,14 +194,14 @@ export default function ActivityWorkspace(props) {
               {props.groups.length ? (
                 props.groups.map((group) => (
                   <Link
-                    className="block rounded-sm border border-white/10 bg-black/20 px-4 py-4 transition-colors hover:border-white/20"
+                    className="theme-panel-soft block rounded-sm border px-4 py-4 transition-colors hover:border-white/20"
                     href={`/product-groups/${group?.id || group?.groupId || ""}`}
                     key={group?.id || group?.groupId}
                   >
                     <p className="text-sm font-semibold text-brand-white">
                       {group?.name || group?.title || "Product Group"}
                     </p>
-                    <p className="mt-2 text-sm text-white/45">
+                    <p className="theme-text-muted mt-2 text-sm">
                       {group?.discount
                         ? `Discount ${group.discount}`
                         : "No saved discount metadata"}
@@ -207,14 +209,14 @@ export default function ActivityWorkspace(props) {
                   </Link>
                 ))
               ) : (
-                <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-6 text-sm text-white/45">
+                <div className="theme-panel-soft rounded-sm border px-4 py-6 text-sm theme-text-muted">
                   No product groups yet.
                 </div>
               )}
             </div>
 
             <Link
-              className="mt-5 inline-flex min-h-10 items-center rounded-sm border border-white/10 px-4 text-sm font-semibold text-white/70 transition-colors hover:border-white/20 hover:text-brand-white"
+              className="theme-action-neutral mt-5 inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-semibold transition-colors"
               href="/product-groups"
             >
               Open product groups
