@@ -2,13 +2,16 @@ import Link from "next/link";
 import AuthButton from "@/src/components/auth/AuthButton";
 import AuthCard from "@/src/components/auth/AuthCard";
 import AuthField from "@/src/components/auth/AuthField";
+import ForgotPasswordDialog from "@/src/components/auth/ForgotPasswordDialog";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 import AuthShell from "@/src/components/auth/AuthShell";
 import AuthTitle from "@/src/components/auth/AuthTitle";
 import { useSellerGuestRedirect } from "@/src/hooks/auth/useSellerGuestRedirect";
 import { useLoginForm } from "@/src/hooks/auth/useLoginForm";
+import { useState } from "react";
 
 export default function LoginPage() {
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   const isRedirecting = useSellerGuestRedirect();
   const {
     email,
@@ -59,6 +62,16 @@ export default function LoginPage() {
               />
             </div>
 
+            <div className="mt-4 text-right">
+              <button
+                className="text-sm font-bold text-brand-gold transition-colors hover:text-brand-white"
+                type="button"
+                onClick={() => setForgotPasswordOpen(true)}
+              >
+                Forgot Password?
+              </button>
+            </div>
+
             <div className="mt-12">
               <AuthMessage>{message}</AuthMessage>
             </div>
@@ -82,6 +95,13 @@ export default function LoginPage() {
           </form>
         </AuthCard>
       </div>
+      {forgotPasswordOpen ? (
+        <ForgotPasswordDialog
+          open={forgotPasswordOpen}
+          initialEmail={email}
+          onClose={() => setForgotPasswordOpen(false)}
+        />
+      ) : null}
     </AuthShell>
   );
 }

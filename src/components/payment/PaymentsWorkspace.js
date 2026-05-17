@@ -1,3 +1,4 @@
+import Link from "next/link";
 import PaymentTabs from "./PaymentTabs";
 import PaymentCard from "./PaymentCard";
 import PaymentBreakdownPanel from "./PaymentBreakdownPanel";
@@ -60,14 +61,12 @@ export default function PaymentsWorkspace({
             <li>Open a payment to review shipping, commission, penalties, and other charges.</li>
           </ul>
           {pricingUrl ? (
-            <a
+            <Link
               className="theme-action-accent mt-5 inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-semibold transition-colors"
               href={pricingUrl}
-              rel="noreferrer"
-              target="_blank"
             >
               View payout pricing
-            </a>
+            </Link>
           ) : null}
         </aside>
       </section>

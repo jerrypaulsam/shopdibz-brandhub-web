@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import AdWalletRechargeButton from "./AdWalletRechargeButton";
 import ChartCard from "./ChartCard";
 import LineChart from "./LineChart";
 
@@ -65,8 +66,14 @@ export default function RightPanel({
           title="Ad Wallet"
           label="Balance"
           value={`Rs. ${storeInfo?.wallet || 0}`}
-          action="Recharge"
-          href={`https://loadapp.shopdibz.com/api/ads/ad_wallet/recharge/page/?storeUrl=${storeInfo?.url || ""}`}
+          actionNode={(
+            <AdWalletRechargeButton
+              className={actionButtonClasses}
+              storeInfo={storeInfo}
+            >
+              Recharge
+            </AdWalletRechargeButton>
+          )}
         />
         <QuickStat
           title="Daily Visitors"
@@ -192,7 +199,7 @@ function OrderStats({ storeInfo }) {
 }
 
 /**
- * @param {{ title: string, label: string, value: string, action?: string, href?: string, onAction?: () => void, valueClassName?: string }} props
+ * @param {{ title: string, label: string, value: string, action?: string, href?: string, onAction?: () => void, actionNode?: import("react").ReactNode, valueClassName?: string }} props
  */
 function QuickStat({
   title,
@@ -201,18 +208,16 @@ function QuickStat({
   action,
   href,
   onAction,
+  actionNode = null,
   valueClassName = "text-brand-white",
 }) {
-  const actionClasses =
-    "theme-action-accent rounded-sm border px-3 py-1.5 text-sm font-bold transition-colors";
-
   return (
     <section className="theme-surface rounded-sm border p-4">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-base font-extrabold text-brand-white">{title}</h2>
-        {action && href ? (
+        {actionNode ? actionNode : action && href ? (
           <a
-            className={actionClasses}
+            className={actionButtonClasses}
             href={href}
             target="_blank"
             rel="noreferrer"
@@ -220,7 +225,7 @@ function QuickStat({
             {action}
           </a>
         ) : action ? (
-          <button className={actionClasses} type="button" onClick={onAction}>
+          <button className={actionButtonClasses} type="button" onClick={onAction}>
             {action}
           </button>
         ) : null}
@@ -232,6 +237,9 @@ function QuickStat({
     </section>
   );
 }
+
+const actionButtonClasses =
+  "theme-action-accent rounded-sm border px-3 py-1.5 text-sm font-bold transition-colors";
 
 /**
  * @param {{ storeInfo: any }} props
@@ -487,14 +495,12 @@ function UpgradeNotice({ message, storeUrl }) {
       <p className="mt-2 text-sm text-white/55">
         Upgrade your plan to unlock detailed analytics for your brand team.
       </p>
-      <a
+      <Link
         className="mt-5 inline-flex min-h-11 items-center justify-center rounded-sm bg-[#2d5a42] px-5 text-sm font-bold text-brand-white"
-        href={`https://loadapp.shopdibz.com/api/store/get/subscription_plans/?store_url=${storeUrl}`}
-        target="_blank"
-        rel="noreferrer"
+        href={storeUrl ? "/subscription-plans" : "#"}
       >
         View Plans
-      </a>
+      </Link>
     </div>
   );
 }

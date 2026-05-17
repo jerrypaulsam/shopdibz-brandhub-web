@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Script from "next/script";
+import { useRouter } from "next/router";
 import { clearAuthSession, logoutSeller } from "@/src/api/auth";
+import { fetchStoreInfo } from "@/src/api/dashboard";
 import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { logScreenView } from "@/src/api/analytics";
-import { API_BASE_URL, SHOPDIBZ_URLS } from "@/src/api/config";
+import {
+  initiateOnboardingPayment,
+  verifyOnboardingPayment,
+} from "@/src/api/onboardingPayment";
 
 const advantages = [
   "Increase your profit per sale with lower commission rates.",
@@ -17,8 +23,11 @@ const advantages = [
  * @param {{ storeInfo: any }} props
  */
 export default function OnboardingPaywall({ storeInfo }) {
+  const router = useRouter();
   const { confirm } = useConfirm();
-  const [clickedButton, setClickedButton] = useState(false);
+  const [isRazorpayReady, setIsRazorpayReady] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState("");
 
   useEffect(() => {
     if (!storeInfo?.url) {
@@ -47,7 +56,7 @@ export default function OnboardingPaywall({ storeInfo }) {
     }
   }
 
-  function handlePay() {
+  async function handlePay() {
     const storeUrl = String(storeInfo?.url || "").trim();
     const userCode = String(
       storeInfo?.userCode ||
@@ -58,26 +67,63 @@ export default function OnboardingPaywall({ storeInfo }) {
     ).trim();
 
     if (!storeUrl) {
+      setPaymentMessage("Store details are still loading. Please try again.");
       return;
     }
 
-    if (!clickedButton) {
-      setClickedButton(true);
-      window.open(
-        `${API_BASE_URL}${SHOPDIBZ_URLS.onboardPaymentInit}?storeUrl=${encodeURIComponent(storeUrl)}${userCode ? `&code=${encodeURIComponent(userCode)}` : ""}`,
-        "_blank",
-        "noopener,noreferrer",
-      );
+    if (!userCode) {
+      setPaymentMessage("User session is incomplete. Please sign in again.");
       return;
     }
 
-    if (typeof window !== "undefined") {
-      window.location.href = "/";
+    if (typeof window === "undefined" || !window.Razorpay) {
+      setPaymentMessage("Payment gateway is still loading. Please wait a moment.");
+      return;
+    }
+
+    setIsPaying(true);
+    setPaymentMessage("");
+
+    try {
+      const paymentOrder = await initiateOnboardingPayment({
+        storeUrl,
+        code: userCode,
+      });
+
+      await openRazorpayCheckout({
+        paymentOrder,
+        storeInfo,
+        onVerify: async (paymentResponse) => {
+          await verifyOnboardingPayment({
+            ...paymentResponse,
+            storeUrl,
+            code: userCode,
+          });
+        },
+      });
+
+      await fetchStoreInfo().catch(() => null);
+      await router.replace("/home");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Payment could not be completed.";
+
+      if (message !== "CHECKOUT_DISMISSED") {
+        setPaymentMessage(message);
+      }
+    } finally {
+      setIsPaying(false);
     }
   }
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#070707] px-4 py-8 text-brand-white sm:px-6 lg:px-8">
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="afterInteractive"
+        onLoad={() => setIsRazorpayReady(true)}
+        onError={() => setPaymentMessage("Payment gateway failed to load. Refresh and try again.")}
+      />
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[-10%] top-[-8%] h-72 w-72 rounded-full bg-brand-red/20 blur-3xl" />
         <div className="absolute right-[-8%] top-[12%] h-80 w-80 rounded-full bg-brand-gold/10 blur-3xl" />
@@ -126,7 +172,7 @@ export default function OnboardingPaywall({ storeInfo }) {
               <MetricCard
                 label="Access"
                 value="Instant"
-                helper="Open pricing in a new tab"
+                helper="Secure Razorpay checkout"
               />
             </div>
 
@@ -183,17 +229,25 @@ export default function OnboardingPaywall({ storeInfo }) {
                 Complete onboarding
               </h2>
               <p className="mt-3 text-sm leading-6 text-white/58">
-                Open the onboarding payment flow, finish payment, then return here to continue into your seller workspace.
+                Complete your onboarding payment here in Brand Hub and continue straight into your seller workspace.
               </p>
 
               <div className="mt-6 space-y-3">
                 <button
-                  className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#caa13a,#f0d482)] px-5 text-base font-extrabold text-black transition-transform hover:-translate-y-0.5"
+                  className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#caa13a,#f0d482)] px-5 text-base font-extrabold text-black transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
                   type="button"
+                  disabled={!isRazorpayReady || isPaying}
                   onClick={handlePay}
                 >
-                  {clickedButton ? "Continue to Brand Hub" : "Pay and Start"}
+                  {isPaying ? "Processing..." : "Pay and Start"}
                 </button>
+                {paymentMessage ? (
+                  <p className="text-sm font-medium text-red-200">{paymentMessage}</p>
+                ) : !isRazorpayReady ? (
+                  <p className="text-sm font-medium text-white/45">
+                    Loading secure payment gateway...
+                  </p>
+                ) : null}
                 <Link
                   className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-white/12 bg-white/4 px-5 text-base font-semibold text-white/80 transition-colors hover:border-white/20 hover:bg-white/7 hover:text-brand-white"
                   href="/hub"
@@ -212,13 +266,13 @@ export default function OnboardingPaywall({ storeInfo }) {
                   <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-xs font-bold text-brand-white">
                     1
                   </span>
-                  <span>Pricing opens in a separate tab so you can complete activation securely.</span>
+                  <span>Razorpay opens in-page so you can complete activation without leaving Brand Hub.</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-xs font-bold text-brand-white">
                     2
                   </span>
-                  <span>After payment, use the same button again to continue back into your seller flow.</span>
+                  <span>Once the payment is verified, you are redirected back into your seller flow automatically.</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-xs font-bold text-brand-white">
@@ -248,4 +302,52 @@ function MetricCard({ label, value, helper }) {
       <p className="mt-2 text-sm text-white/50">{helper}</p>
     </div>
   );
+}
+
+function openRazorpayCheckout({ paymentOrder, storeInfo, onVerify }) {
+  return new Promise((resolve, reject) => {
+    const razorpay = new window.Razorpay({
+      key: paymentOrder.key,
+      amount: paymentOrder.amount,
+      currency: paymentOrder.currency,
+      name: paymentOrder.companyName || "Shopdibz Private Limited",
+      image: paymentOrder.image,
+      order_id: paymentOrder.orderId,
+      handler: async (response) => {
+        try {
+          await onVerify(response);
+          resolve(response);
+        } catch (error) {
+          reject(error);
+        }
+      },
+      modal: {
+        ondismiss: () => {
+          reject(new Error("CHECKOUT_DISMISSED"));
+        },
+      },
+      prefill: {
+        name: String(storeInfo?.storeName || "").trim(),
+        email: String(storeInfo?.storeEmail || storeInfo?.user?.email || "").trim(),
+        contact: String(storeInfo?.contactNo || storeInfo?.contact_no || "").trim(),
+      },
+      notes: {
+        store_url: String(paymentOrder.storeUrl || "").trim(),
+      },
+      theme: {
+        color: "#caa13a",
+      },
+    });
+
+    razorpay.on("payment.failed", (event) => {
+      const description =
+        event?.error?.description ||
+        event?.error?.reason ||
+        "Payment failed. Please try again.";
+
+      reject(new Error(String(description)));
+    });
+
+    razorpay.open();
+  });
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import ForgotPasswordDialog from "@/src/components/auth/ForgotPasswordDialog";
 import {
   clearAuthSession,
   getBrowserLocation,
@@ -14,6 +15,8 @@ import { logScreenView } from "@/src/api/analytics";
  */
 export default function LoginModal({ isOpen, onClose }) {
   const router = useRouter();
+  /** @type {[boolean, import("react").Dispatch<import("react").SetStateAction<boolean>>]} */
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   /** @type {[string, import("react").Dispatch<import("react").SetStateAction<string>>]} */
   const [email, setEmail] = useState("");
   /** @type {[string, import("react").Dispatch<import("react").SetStateAction<string>>]} */
@@ -54,6 +57,7 @@ export default function LoginModal({ isOpen, onClose }) {
       const result = await loginSeller({ email: email.toLowerCase(), password, loc });
       saveAuthSession(result.data);
       setMessage("Login successful.");
+      setForgotPasswordOpen(false);
       onClose();
       await router.replace("/");
     } catch (error) {
@@ -105,6 +109,16 @@ export default function LoginModal({ isOpen, onClose }) {
             />
           </label>
 
+          <div className="mt-4 text-right">
+            <button
+              className="text-sm font-bold text-brand-gold transition-colors hover:text-brand-white"
+              type="button"
+              onClick={() => setForgotPasswordOpen(true)}
+            >
+              Forgot Password?
+            </button>
+          </div>
+
           {message ? (
             <p
               className={`mt-6 text-center text-sm ${
@@ -138,6 +152,13 @@ export default function LoginModal({ isOpen, onClose }) {
           </Link>
         </form>
       </div>
+      {forgotPasswordOpen ? (
+        <ForgotPasswordDialog
+          open={forgotPasswordOpen}
+          initialEmail={email}
+          onClose={() => setForgotPasswordOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

@@ -254,9 +254,7 @@ export function SubscriptionSection({ storeInfo, message, isSubmitting, onCancel
         : planCode === "P"
           ? "Platinum Plan"
           : "Free Plan";
-  const subscriptionUrl = storeUrl
-    ? `https://loadapp.shopdibz.com/api/store/get/subscription_plans/?store_url=${storeUrl}`
-    : "";
+  const subscriptionUrl = storeUrl ? "/subscription-plans" : "";
 
   return (
     <StoreSection title="Store Subscription">
@@ -265,14 +263,12 @@ export function SubscriptionSection({ storeInfo, message, isSubmitting, onCancel
         <InfoRow label="Store Plan" value={planLabel} />
         {planCode === "F" ? (
           subscriptionUrl ? (
-            <a
+            <Link
               className="theme-action-accent inline-flex min-h-11 items-center justify-center rounded-sm border px-5 text-sm font-bold transition-colors"
               href={subscriptionUrl}
-              target="_blank"
-              rel="noreferrer"
             >
               Upgrade Plan
-            </a>
+            </Link>
           ) : (
             <p className="text-sm text-white/60">This store is currently on the Free Plan.</p>
           )

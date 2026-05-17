@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import AdWalletRechargeButton from "./AdWalletRechargeButton";
 
 /**
  * @param {{ storeInfo: any, actions?: import("react").ReactNode }} props
@@ -70,14 +71,12 @@ export default function DashboardHeader({ storeInfo, actions = null }) {
                 Rs. {Number(storeInfo?.wallet || 0).toLocaleString("en-IN")}
               </p>
             </div>
-            <a
+            <AdWalletRechargeButton
               className="theme-action-positive inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-bold transition-colors"
-              href={`https://loadapp.shopdibz.com/api/ads/ad_wallet/recharge/page/?storeUrl=${storeInfo?.url || ""}`}
-              rel="noreferrer"
-              target="_blank"
+              storeInfo={storeInfo}
             >
               Recharge
-            </a>
+            </AdWalletRechargeButton>
           </div>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">

@@ -48,6 +48,30 @@ export async function loginSeller(payload) {
 }
 
 /**
+ * @param {{ email: string }} payload
+ * @returns {Promise<AuthResponse>}
+ */
+export async function requestForgotPasswordOtp(payload) {
+  return postAuthJson("/api/auth/forgot-password", payload);
+}
+
+/**
+ * @param {{ email: string, otp: string }} payload
+ * @returns {Promise<AuthResponse>}
+ */
+export async function verifyForgotPasswordOtp(payload) {
+  return postAuthJson("/api/auth/forgot-password-verify", payload);
+}
+
+/**
+ * @param {{ accessToken: string, refreshToken: string, newPassword: string, confirmPassword: string }} payload
+ * @returns {Promise<AuthResponse>}
+ */
+export async function resetForgotPassword(payload) {
+  return postAuthJson("/api/auth/forgot-password-reset", payload);
+}
+
+/**
  * @param {{ email: string, fName: string, lName?: string, password: string, confirmPassword: string, mobile: string, loc?: string }} payload
  * @returns {Promise<AuthResponse>}
  */
@@ -253,6 +277,46 @@ function getAuthErrorMessage(url, status, statusMessage, data) {
     }
 
     return "Oops something went wrong.";
+  }
+
+  if (url === "/api/auth/forgot-password") {
+    if (status === 404) {
+      return "No account found for this email.";
+    }
+
+    if (status === 400) {
+      return "Too many OTP requests. Please wait a few minutes and try again.";
+    }
+
+    return "Unable to send OTP right now.";
+  }
+
+  if (url === "/api/auth/forgot-password-verify") {
+    if (status === 403) {
+      return "Invalid OTP. Please try again.";
+    }
+
+    if (status === 408) {
+      return "OTP expired. Please request a new OTP.";
+    }
+
+    if (status === 429) {
+      return "Too many failed attempts. Please request a new OTP.";
+    }
+
+    return "Unable to verify OTP right now.";
+  }
+
+  if (url === "/api/auth/forgot-password-reset") {
+    if (status === 400) {
+      return "Passwords do not match.";
+    }
+
+    if (status === 401 || status === 403) {
+      return "Reset session expired. Please request a new OTP.";
+    }
+
+    return "Unable to reset password right now.";
   }
 
   return statusMessage || "Request failed";

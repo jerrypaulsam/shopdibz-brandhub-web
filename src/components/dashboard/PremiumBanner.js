@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 /**
  * @param {{ storeInfo: any, onHide: () => void }} props
  */
@@ -18,14 +20,12 @@ export default function PremiumBanner({ storeInfo, onHide }) {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <a
+          <Link
             className="theme-action-positive rounded-sm border px-4 py-2 text-sm font-bold transition-colors"
-            href={`https://loadapp.shopdibz.com/api/store/get/subscription_plans/?store_url=${storeInfo?.url || ""}`}
-            target="_blank"
-            rel="noreferrer"
+            href="/subscription-plans"
           >
             Upgrade
-          </a>
+          </Link>
           <button
             className="rounded-sm px-4 py-2 text-sm font-bold text-white/70 hover:text-brand-white"
             type="button"

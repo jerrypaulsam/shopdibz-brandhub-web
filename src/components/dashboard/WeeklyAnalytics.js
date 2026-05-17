@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ChartCard from "./ChartCard";
 import HorizontalBarChart from "./HorizontalBarChart";
 import LineChart from "./LineChart";
@@ -100,14 +101,12 @@ export default function WeeklyAnalytics({
                     ? "Detailed product view analytics are available only on the Platinum plan."
                     : "Please upgrade to access detailed product view analytics."}
                 </p>
-                <a
+                <Link
                   className="theme-action-positive mt-4 inline-flex min-h-11 items-center justify-center rounded-sm border px-5 text-sm font-bold transition-colors"
-                  href={`https://loadapp.shopdibz.com/api/store/get/subscription_plans/?store_url=${storeInfo?.url || ""}`}
-                  rel="noreferrer"
-                  target="_blank"
+                  href="/subscription-plans"
                 >
                   Upgrade
-                </a>
+                </Link>
               </div>
             </div>
           ) : null}

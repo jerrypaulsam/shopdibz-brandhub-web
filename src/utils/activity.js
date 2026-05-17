@@ -156,17 +156,11 @@ export function readFileAsBase64(file) {
  * @returns {string}
  */
 export function getActivityPricingUrl(storeInfo) {
-  const userCode =
-    storeInfo?.userCode ||
-    storeInfo?.user?.code ||
-    storeInfo?.user?.userCode ||
-    "";
-
-  if (!userCode) {
+  if (!storeInfo?.url) {
     return "";
   }
 
-  return `https://loadapp.shopdibz.com/api/payments/pricing/?code=${userCode}`;
+  return "/subscription-plans";
 }
 
 /**

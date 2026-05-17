@@ -31,6 +31,11 @@ export default function ProfileEditorPanel({
 }) {
   const fileInputRef = useRef(null);
   const [cropFile, setCropFile] = useState(null);
+  const currentMobile = String(
+    storeInfo?.user?.mobile ||
+    storeInfo?.user?.mob ||
+    "",
+  ).trim();
 
   async function handleFileChange(event) {
     const file = event.target.files?.[0];
@@ -123,25 +128,34 @@ export default function ProfileEditorPanel({
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <InfoPill label="Store URL" value={storeInfo?.url || "---"} />
           <InfoPill label="Email Status" value={email ? "Configured" : "Missing"} />
+          <InfoPill label="Mobile" value={currentMobile || "---"} />
           <InfoPill label="Profile Status" value={fName && email ? "Ready" : "Needs Attention"} />
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center gap-4">
+        <div className="mt-6 flex flex-col items-center gap-3 xl:items-start">
           <div className="w-full max-w-xs">
             <AuthButton disabled={isSubmitting || isLoading} type="button" onClick={onSubmitDetails}>
               {isSubmitting ? "Saving..." : "Save Profile"}
             </AuthButton>
           </div>
-          <Link
-            className="text-sm font-bold text-brand-gold transition-colors hover:text-brand-white"
-            href="/verify-email"
-          >
-            Verify Email
-          </Link>
+          <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center xl:justify-start">
+            <Link
+              className="inline-flex min-h-11 w-full max-w-xs items-center justify-center rounded-sm border border-brand-gold/30 px-5 py-3 text-sm font-bold text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
+              href="/verify-email"
+            >
+              Update Email
+            </Link>
+            <Link
+              className="inline-flex min-h-11 w-full max-w-xs items-center justify-center rounded-sm border border-brand-gold/30 px-5 py-3 text-sm font-bold text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
+              href="/verify-mobile"
+            >
+              Update Mobile
+            </Link>
+          </div>
         </div>
 
         <div className="mt-6 rounded-sm border border-white/10 bg-black/20 p-4 text-sm leading-6 text-white/55">
-          Keep your primary email current here, then use the verification route to confirm email changes.
+          Keep your primary email and mobile current here, then use the verification routes to confirm those changes securely.
         </div>
 
         <div className="mt-6">

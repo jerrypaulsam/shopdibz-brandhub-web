@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SPECIAL_PRODUCT_TYPES } from "@/src/utils/activity";
 import ActivityFileInput from "./ActivityFileInput";
 
@@ -85,14 +86,12 @@ export default function SpecialProductsPanel({
         </button>
 
         {!isPremium && pricingUrl ? (
-          <a
+          <Link
             className="theme-action-accent inline-flex min-h-11 items-center rounded-sm border px-5 text-sm font-semibold transition-colors"
             href={pricingUrl}
-            rel="noreferrer"
-            target="_blank"
           >
             Upgrade plan
-          </a>
+          </Link>
         ) : null}
       </div>
     </section>

@@ -87,14 +87,12 @@ export default function ActivityWorkspace(props) {
             />
           </div>
           {props.pricingUrl ? (
-            <a
+            <Link
               className="theme-action-accent mt-5 inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-semibold transition-colors"
               href={props.pricingUrl}
-              rel="noreferrer"
-              target="_blank"
             >
               View pricing
-            </a>
+            </Link>
           ) : null}
         </aside>
       </section>

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import AuthButton from "@/src/components/auth/AuthButton";
@@ -275,14 +276,12 @@ export default function StoreInfoFormPage() {
                           Upgrade your plan to unlock storefront theme customization.
                         </p>
                         {pricingUrl ? (
-                          <a
+                          <Link
                             className="theme-action-accent mt-4 inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-bold transition-colors"
                             href={pricingUrl}
-                            target="_blank"
-                            rel="noreferrer"
                           >
                             Upgrade plan
-                          </a>
+                          </Link>
                         ) : null}
                       </div>
                     </div>

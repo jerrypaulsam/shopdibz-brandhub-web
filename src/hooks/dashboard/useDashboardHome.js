@@ -149,7 +149,9 @@ export function useDashboardHome() {
       }
     }
 
-    loadDashboard();
+    queueMicrotask(() => {
+      loadDashboard();
+    });
 
     return () => {
       isCurrent = false;

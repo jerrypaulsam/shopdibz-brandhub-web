@@ -116,10 +116,47 @@ export function requestEmailChange(email) {
   });
 }
 
+export function requestMobileChangeOtp(mobile) {
+  const session = getProfileSession();
+
+  return postAuthJson("/api/auth/mobile-update-otp", {
+    accessToken: session.accessToken,
+    mobile,
+  });
+}
+
+export function verifyChangedMobileOtp(otp) {
+  const session = getProfileSession();
+
+  return postAuthJson("/api/auth/mobile-update-verify", {
+    accessToken: session.accessToken,
+    otp,
+  });
+}
+
+export function resendMobileChangeOtp() {
+  const session = getProfileSession();
+
+  return postAuthJson("/api/auth/mobile-update-resend", {
+    accessToken: session.accessToken,
+  });
+}
+
 export function persistVerifiedEmail(email) {
   updateAuthSession({
     user: {
       email,
+    },
+  });
+}
+
+export function persistVerifiedMobile(mobile) {
+  updateAuthSession({
+    mobileVerified: true,
+    user: {
+      mobile,
+      mob: mobile,
+      mV: true,
     },
   });
 }
