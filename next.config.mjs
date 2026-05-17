@@ -3,6 +3,7 @@ const nextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  output: "standalone",
   trailingSlash: true,
   
   images: {
