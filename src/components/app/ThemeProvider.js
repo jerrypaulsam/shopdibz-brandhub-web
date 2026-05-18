@@ -5,7 +5,7 @@ const MEDIA_QUERY = "(prefers-color-scheme: dark)";
 const THEMES = ["system", "dark", "light"];
 
 const ThemeContext = createContext({
-  theme: "system",
+  theme: "dark",
   effectiveTheme: "dark",
   setTheme: () => {},
 });
@@ -14,7 +14,7 @@ const ThemeContext = createContext({
  * @param {{ children: import("react").ReactNode }} props
  */
 export default function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState("system");
+  const [theme, setThemeState] = useState("dark");
   const [effectiveTheme, setEffectiveTheme] = useState("dark");
 
   useEffect(() => {
@@ -94,5 +94,5 @@ export function useTheme() {
 }
 
 function normalizeTheme(value) {
-  return THEMES.includes(value) ? value : "system";
+  return THEMES.includes(value) ? value : "dark";
 }

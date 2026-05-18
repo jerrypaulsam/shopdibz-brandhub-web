@@ -8,7 +8,7 @@ const THEME_INIT_SCRIPT = `
     var selectedTheme =
       savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
         ? savedTheme
-        : "system";
+        : "dark";
     var resolvedTheme =
       selectedTheme === "system"
         ? (mediaQuery.matches ? "dark" : "light")

@@ -1,3 +1,5 @@
+import { isClosedStoreAccessError } from "@/src/api/dashboard";
+
 /**
  * @param {{
  * session: any,
@@ -122,7 +124,15 @@ export async function resolveSellerAccessRoute(options) {
     if (fetchedStoreInfo) {
       storeInfo = fetchedStoreInfo;
     }
-  } catch {
+  } catch (error) {
+    if (isClosedStoreAccessError(error)) {
+      return {
+        redirectTo: "/store-closed",
+        storeInfo,
+        resolved: true,
+      };
+    }
+
     // Leave route resolution to the session/cached state when store info is unavailable.
   }
 
@@ -164,7 +174,17 @@ export async function resolveSellerAccessRoute(options) {
 export function shouldGuardSellerRoute(pathname) {
   const value = String(pathname || "").trim();
 
-  return Boolean(value && value !== "/" && value !== "/maintenance");
+  // Only setup/status routes are globally blocked here.
+  // Main seller workspace routes use DashboardShell for access checks.
+  return [
+    "/store-form",
+    "/settings/bank/create",
+    "/awaiting-verification",
+    "/store-info-form",
+    "/onboard-payment",
+    "/subscription-payment-status",
+    "/store-closed",
+  ].some((route) => value === route || value.startsWith(`${route}?`));
 }
 
 /**
@@ -179,32 +199,6 @@ export function shouldBlockSellerRouteUntilResolved(pathname) {
   }
 
   return [
-    "/home",
-    "/dashboard-screen",
-    "/activity",
-    "/activity-screen",
-    "/action-board",
-    "/orders",
-    "/orders-list",
-    "/payments",
-    "/payments-list",
-    "/payments-screen",
-    "/products",
-    "/product-groups",
-    "/profile",
-    "/settings",
-    "/notifications",
-    "/shipping-rates",
-    "/penalty-reasons",
-    "/store-reviews",
-    "/store-slider-management",
-    "/store-slider-image-form",
-    "/campaigns",
-    "/campaigns-list",
-    "/coupons",
-    "/coupons-list",
-    "/subscription-plans",
-    "/subscription-payment-status",
     "/store-form",
     "/settings/bank/create",
     "/awaiting-verification",
@@ -245,7 +239,6 @@ export function isOnboardingOnlyRoute(pathname) {
     "/store-form",
     "/settings/bank/create",
     "/awaiting-verification",
-    "/store-info-form",
     "/onboard-payment",
     "/subscription-payment-status",
     "/store-closed",

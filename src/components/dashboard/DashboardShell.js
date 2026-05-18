@@ -2,10 +2,16 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/router";
 import DashboardSidebar from "./DashboardSidebar";
 import {
+  clearCachedStoreInfo,
+  getCachedStoreInfo,
   getAuthSessionSnapshot,
   subscribeAuthSession,
 } from "@/src/api/auth";
-import { fetchStoreInfo, getDashboardSession } from "@/src/api/dashboard";
+import {
+  fetchStoreInfo,
+  getDashboardSession,
+  isClosedStoreAccessError,
+} from "@/src/api/dashboard";
 import { fetchBannerImages } from "@/src/api/store";
 
 /**
@@ -14,8 +20,8 @@ import { fetchBannerImages } from "@/src/api/store";
 export default function DashboardShell({ children }) {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
-  const [sidebarStoreInfo, setSidebarStoreInfo] = useState(null);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(() => !getCachedStoreInfo());
+  const [sidebarStoreInfo, setSidebarStoreInfo] = useState(() => getCachedStoreInfo());
   const [sidebarBannerImages, setSidebarBannerImages] = useState([]);
   const hasHydrated = useSyncExternalStore(
     subscribeToHydration,
@@ -55,8 +61,6 @@ export default function DashboardShell({ children }) {
     let isCurrent = true;
 
     async function verifyWorkspaceAccess() {
-      setIsCheckingAccess(true);
-
       if (!hasHydrated || !router.isReady || !hasAccessToken) {
         return;
       }
@@ -71,19 +75,50 @@ export default function DashboardShell({ children }) {
       }
 
       try {
-        const [storeInfo, banners] = await Promise.all([
-          fetchStoreInfo(),
-          fetchBannerImages().catch(() => ({ results: [] })),
-        ]);
+        // Workspace access is validated here instead of the global route guard so
+        // dashboard transitions stay responsive. We do one fresh store-info check
+        // up front, then let individual pages load against the warmed session/cache.
+        if (!getCachedStoreInfo()) {
+          setIsCheckingAccess(true);
+        }
+
+        const storeInfo = await fetchStoreInfo({ forceFresh: true });
 
         if (!isCurrent) {
           return;
         }
 
+        if (isStoreClosed(storeInfo)) {
+          clearCachedStoreInfo();
+          await router.replace("/store-closed");
+          return;
+        }
+
         setSidebarStoreInfo(storeInfo || null);
-        setSidebarBannerImages(banners?.results || []);
-      } catch {
+
+        fetchBannerImages()
+          .then((banners) => {
+            if (!isCurrent) {
+              return;
+            }
+
+            setSidebarBannerImages(banners?.results || []);
+          })
+          .catch(() => {
+            if (!isCurrent) {
+              return;
+            }
+
+            setSidebarBannerImages([]);
+          });
+      } catch (error) {
         if (!isCurrent) {
+          return;
+        }
+
+        if (isClosedStoreAccessError(error)) {
+          clearCachedStoreInfo();
+          await router.replace("/store-closed");
           return;
         }
       }
@@ -163,6 +198,29 @@ function getHydratedSnapshot() {
 }
 
 function getServerHydrationSnapshot() {
+  return false;
+}
+
+/**
+ * @param {any} storeInfo
+ * @returns {boolean}
+ */
+function isStoreClosed(storeInfo) {
+  const value = storeInfo?.close ?? storeInfo?.closed;
+
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    return value === 1;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    return normalized === "true" || normalized === "1";
+  }
+
   return false;
 }
 

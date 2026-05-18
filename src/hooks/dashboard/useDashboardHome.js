@@ -6,9 +6,10 @@ import {
   fetchManagers,
   fetchOrders,
   fetchStoreInfo,
+  isClosedStoreAccessError,
   fetchWeeklyAnalytics,
 } from "@/src/api/dashboard";
-import { getCachedStoreInfo } from "@/src/api/auth";
+import { clearCachedStoreInfo, getCachedStoreInfo } from "@/src/api/auth";
 import { logScreenView } from "@/src/api/analytics";
 
 const fallbackStore = {
@@ -95,15 +96,19 @@ export function useDashboardHome() {
           return;
         }
 
-        const nextStore =
-          store.status === "fulfilled" ? store.value : cachedStore || {};
+        if (store.status === "rejected" && isClosedStoreAccessError(store.reason)) {
+          clearCachedStoreInfo();
+          await router.replace("/store-closed");
+          return;
+        }
+
+        const nextStore = store.status === "fulfilled" ? store.value : cachedStore || {};
         const nextOrders = orders.status === "fulfilled" ? orders.value : {};
         const nextManagers =
           managerList.status === "fulfilled" ? managerList.value : {};
         const nextWeekly = weekly.status === "fulfilled" ? weekly.value : {};
         const nextDailyVisits =
           dailyVisitResult.status === "fulfilled" ? dailyVisitResult.value : {};
-
         const resolvedStoreInfo = normalizeStoreInfo(nextStore);
 
         setStoreInfo(resolvedStoreInfo);

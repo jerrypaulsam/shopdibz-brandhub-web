@@ -48,6 +48,9 @@ export default function SellerRouteGuard({ children }) {
   const pathname = String(router.pathname || "");
   const hasAccessToken = Boolean(session?.data?.access || session?.access);
   const shouldBlockUntilResolved = shouldBlockSellerRouteUntilResolved(pathname);
+  // This guard is intentionally limited to onboarding/setup routes.
+  // Seller workspace routes perform their own lighter-weight checks in DashboardShell
+  // so normal in-app navigation does not feel blocked by a full-screen access gate.
   const shouldGuard = router.isReady && shouldGuardSellerRoute(pathname);
 
   useEffect(() => {

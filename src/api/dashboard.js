@@ -61,7 +61,7 @@ async function getDashboardJson(url, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(
+    const error = new Error(
       resolveApiErrorMessage({
         status: response.status,
         data,
@@ -69,17 +69,22 @@ async function getDashboardJson(url, options = {}) {
         notFound: "Dashboard data unavailable.",
       }),
     );
+    error.status = response.status;
+    error.data = data;
+    throw error;
   }
 
   return data;
 }
 
-export function fetchStoreInfo() {
+export function fetchStoreInfo(options = {}) {
   const session = getDashboardSession();
   const cacheKey = `${session.accessToken}:${session.storeUrl}`;
   const now = Date.now();
+  const forceFresh = Boolean(options.forceFresh);
 
   if (
+    !forceFresh &&
     storeInfoCache.key === cacheKey
     && storeInfoCache.data
     && storeInfoCache.expiresAt > now
@@ -87,7 +92,7 @@ export function fetchStoreInfo() {
     return Promise.resolve(storeInfoCache.data);
   }
 
-  if (storeInfoRequest.key === cacheKey && storeInfoRequest.promise) {
+  if (!forceFresh && storeInfoRequest.key === cacheKey && storeInfoRequest.promise) {
     return storeInfoRequest.promise;
   }
 
@@ -106,19 +111,36 @@ export function fetchStoreInfo() {
     return data;
   });
 
-  storeInfoRequest = {
-    key: cacheKey,
-    promise: request,
-  };
+  if (!forceFresh) {
+    storeInfoRequest = {
+      key: cacheKey,
+      promise: request,
+    };
+  }
 
   return request.finally(() => {
-    if (storeInfoRequest.key === cacheKey) {
+    if (!forceFresh && storeInfoRequest.key === cacheKey) {
       storeInfoRequest = {
         key: "",
         promise: null,
       };
     }
   });
+}
+
+/**
+ * @param {any} error
+ * @returns {boolean}
+ */
+export function isClosedStoreAccessError(error) {
+  const status = Number(error?.status || 0);
+  const message = String(error?.data?.message || error?.message || "").trim().toLowerCase();
+
+  if (status !== 403) {
+    return false;
+  }
+
+  return message.includes("closed") || message.includes("frozen");
 }
 
 /**
