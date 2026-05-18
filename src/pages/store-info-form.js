@@ -418,14 +418,47 @@ export default function StoreInfoFormPage() {
                 defaultOpen={focusSection === "sync"}
               >
                 <div className="space-y-6">
-                  <div className="space-y-2 text-sm leading-6 text-white/60">
-                    <p>Connecting your Shopify or WooCommerce store enables inventory and price sync.</p>
-                    <p>Enter the required credentials, complete platform setup, then sync products.</p>
-                    <p>Use matching SKU codes across Shopdibz and your external store.</p>
+                  <div className="theme-surface rounded-[22px] border p-5">
+                    <div className="flex flex-col gap-5">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="max-w-2xl">
+                          <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
+                            Choose One Integration
+                          </p>
+                          <h3 className="mt-2 text-xl font-extrabold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
+                            Sync with Shopify or WooCommerce
+                          </h3>
+                          <div className="theme-text-muted mt-3 space-y-2 text-sm leading-6">
+                            <p>Connect one external storefront to keep inventory and pricing aligned with Shopdibz.</p>
+                            <p>Enter the required credentials, finish the platform setup, then run your first sync.</p>
+                            <p>Use matching SKU codes across Shopdibz and your external store for the cleanest sync.</p>
+                          </div>
+                        </div>
+                        <div className="theme-surface-soft inline-flex items-center rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+                          One platform at a time
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <ConnectorSummaryCard
+                          provider="shopify"
+                          title="Shopify"
+                          description="Best for stores already running on Shopify."
+                          status={shopifyConnected ? "Connected" : wooCommerceConnected ? "Unavailable" : "Ready to connect"}
+                        />
+                        <ConnectorSummaryCard
+                          provider="woocommerce"
+                          title="WooCommerce"
+                          description="Ideal for WordPress stores using WooCommerce."
+                          status={wooCommerceConnected ? "Connected" : shopifyConnected ? "Unavailable" : "Ready to connect"}
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {showShopifyConnector ? (
                     <ConnectorBlock
+                      provider="shopify"
                       title="Shopify"
                       description={
                         shopifyConnected
@@ -452,6 +485,7 @@ export default function StoreInfoFormPage() {
 
                   {showWooCommerceConnector ? (
                     <ConnectorBlock
+                      provider="woocommerce"
                       title="WooCommerce"
                       description={
                         wooCommerceConnected
@@ -569,6 +603,7 @@ function StatusRow({ label, value }) {
 
 /**
  * @param {{
+ * provider: "shopify" | "woocommerce",
  * title: string,
  * description: string,
  * connected: boolean,
@@ -585,6 +620,7 @@ function StatusRow({ label, value }) {
  * }} props
  */
 function ConnectorBlock({
+  provider,
   title,
   description,
   connected,
@@ -599,23 +635,37 @@ function ConnectorBlock({
   lastSyncedLabel = "",
   tutorialUrl = "",
 }) {
+  const accentClasses =
+    provider === "shopify"
+      ? {
+          ring: "border-[#95BF47]/28 [html[data-theme='light']_&]:border-[#3c6c1e]/24",
+          status: "border-[#95BF47]/30 bg-[#95BF47]/10 text-[#dff5b6] [html[data-theme='light']_&]:border-[#95BF47]/35 [html[data-theme='light']_&]:bg-[#95BF47]/14 [html[data-theme='light']_&]:text-[#35591e]",
+        }
+      : {
+          ring: "border-[#7F54B3]/28 [html[data-theme='light']_&]:border-[#64418c]/24",
+          status: "border-[#7F54B3]/30 bg-[#7F54B3]/10 text-[#e9ddfb] [html[data-theme='light']_&]:border-[#7F54B3]/35 [html[data-theme='light']_&]:bg-[#7F54B3]/14 [html[data-theme='light']_&]:text-[#4f3272]",
+        };
+
   return (
-    <div className={`rounded-sm border p-4 ${connected ? "border-emerald-400/25 bg-emerald-950/10" : "border-white/10"}`}>
+    <div className={`theme-surface rounded-[22px] border p-5 ${connected ? accentClasses.ring : ""}`}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h3 className="text-sm font-bold text-brand-white">{title}</h3>
-          <p className="mt-1 text-xs text-white/45">{description}</p>
-        </div>
-        {connected ? (
-          <div className="w-fit rounded-full border border-emerald-400/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">
-            Connected
+        <div className="flex items-start gap-4">
+          <div className="theme-surface-soft flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border">
+            <ProviderLogo provider={provider} />
           </div>
-        ) : null}
+          <div>
+            <h3 className="text-base font-extrabold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">{title}</h3>
+            <p className="theme-text-muted mt-1 text-sm">{description}</p>
+          </div>
+        </div>
+        <div className={`w-fit rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] ${connected ? accentClasses.status : "theme-surface-soft theme-text-muted"}`}>
+          {connected ? "Connected" : "Setup"}
+        </div>
       </div>
       {!connected ? (
         <div className="mt-4 space-y-4">
           {disabledReason ? (
-            <div className="rounded-sm border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/55">
+            <div className="theme-surface-soft theme-text-muted rounded-sm border px-4 py-3 text-sm">
               {disabledReason}
             </div>
           ) : (
@@ -642,7 +692,7 @@ function ConnectorBlock({
       ) : (
         <div className="mt-4 space-y-3">
           {lastSyncedLabel ? (
-            <p className="text-xs font-semibold text-white/45">
+            <p className="theme-text-muted text-xs font-semibold">
               Last synced: {lastSyncedLabel}
             </p>
           ) : null}
@@ -677,6 +727,80 @@ function ConnectorBlock({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * @param {{
+ * provider: "shopify" | "woocommerce",
+ * title: string,
+ * description: string,
+ * status: string,
+ * }} props
+ */
+function ConnectorSummaryCard({ provider, title, description, status }) {
+  const palette =
+    provider === "shopify"
+      ? {
+          surface: "border-[#95BF47]/22 bg-[linear-gradient(135deg,rgba(149,191,71,0.12),rgba(149,191,71,0.03))] [html[data-theme='light']_&]:border-[#3c6c1e]/20 [html[data-theme='light']_&]:bg-[linear-gradient(135deg,rgba(149,191,71,0.12),rgba(149,191,71,0.04))]",
+          status: "text-[#dff5b6] [html[data-theme='light']_&]:text-[#35591e]",
+        }
+      : {
+          surface: "border-[#7F54B3]/22 bg-[linear-gradient(135deg,rgba(127,84,179,0.12),rgba(127,84,179,0.03))] [html[data-theme='light']_&]:border-[#64418c]/20 [html[data-theme='light']_&]:bg-[linear-gradient(135deg,rgba(127,84,179,0.12),rgba(127,84,179,0.04))]",
+          status: "text-[#f0e7ff] [html[data-theme='light']_&]:text-[#4f3272]",
+        };
+
+  return (
+    <div className={`rounded-[20px] border p-4 ${palette.surface}`}>
+      <div className="flex items-start gap-4">
+        <div className="theme-surface flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border">
+          <ProviderLogo provider={provider} />
+        </div>
+        <div className="min-w-0">
+          <h4 className="text-base font-extrabold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">{title}</h4>
+          <span className={`mt-1 block text-xs font-bold uppercase tracking-[0.14em] ${palette.status}`}>
+            {status}
+          </span>
+          <p className="theme-text-muted mt-2 text-sm leading-6">{description}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * @param {{ provider: "shopify" | "woocommerce" }} props
+ */
+function ProviderLogo({ provider }) {
+  if (provider === "shopify") {
+    return (
+      <svg
+        aria-hidden="true"
+        className="h-8 w-8"
+        viewBox="0 0 64 64"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect x="9" y="11" width="46" height="42" rx="12" fill="#95BF47" />
+        <path d="M24 24.5H40L38 45H26L24 24.5Z" fill="white" />
+        <path d="M27 24C27 20.962 29.462 18.5 32.5 18.5C35.538 18.5 38 20.962 38 24" stroke="white" strokeWidth="3" strokeLinecap="round" />
+        <path d="M29 31.5C29 29.79 30.343 28.5 32.5 28.5C34.346 28.5 35.653 29.224 36.639 30.147" stroke="#95BF47" strokeWidth="3" strokeLinecap="round" />
+        <path d="M35.5 33.5C35.5 37.091 32.757 39.5 29.5 39.5" stroke="#95BF47" strokeWidth="3" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-8 w-8"
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="32" cy="32" r="23" fill="#7F54B3" />
+      <path d="M18.5 23.5L24 40L29.5 27L35 40L40.5 23.5L45.5 40.5" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
