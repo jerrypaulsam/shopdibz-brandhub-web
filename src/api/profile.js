@@ -7,6 +7,17 @@ import {
 import { getDashboardSession } from "./dashboard";
 import { resolveApiErrorMessage } from "./error";
 
+const SUPPORT_TICKETS_CACHE_MS = 1500;
+let supportTicketsCache = {
+  key: "",
+  expiresAt: 0,
+  data: null,
+};
+let supportTicketsRequest = {
+  key: "",
+  promise: null,
+};
+
 /**
  * @param {string} url
  * @param {Record<string, unknown>} payload
@@ -60,11 +71,48 @@ export function getProfileSession() {
 
 export function fetchSupportTickets(page = 1) {
   const session = getProfileSession();
+  const cacheKey = `${session.accessToken}:${page}`;
+  const now = Date.now();
 
-  return postProfileJson("/api/profile/support-tickets", {
+  if (
+    supportTicketsCache.key === cacheKey
+    && supportTicketsCache.data
+    && supportTicketsCache.expiresAt > now
+  ) {
+    return Promise.resolve(supportTicketsCache.data);
+  }
+
+  if (supportTicketsRequest.key === cacheKey && supportTicketsRequest.promise) {
+    return supportTicketsRequest.promise;
+  }
+
+  const request = postProfileJson("/api/profile/support-tickets", {
     accessToken: session.accessToken,
     page,
   });
+
+  supportTicketsRequest = {
+    key: cacheKey,
+    promise: request,
+  };
+
+  return request
+    .then((data) => {
+      supportTicketsCache = {
+        key: cacheKey,
+        expiresAt: Date.now() + SUPPORT_TICKETS_CACHE_MS,
+        data,
+      };
+      return data;
+    })
+    .finally(() => {
+      if (supportTicketsRequest.key === cacheKey) {
+        supportTicketsRequest = {
+          key: "",
+          promise: null,
+        };
+      }
+    });
 }
 
 export function fetchSupportMessages(ticketId, page = 1) {

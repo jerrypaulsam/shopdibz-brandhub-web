@@ -79,7 +79,7 @@ export function useProductSearch() {
     [router.query.page],
   );
 
-  const [products, setProducts] = useState([]);
+  const [rawProducts, setRawProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [hasNextPage, setHasNextPage] = useState(false);
@@ -87,7 +87,7 @@ export function useProductSearch() {
 
   const loadProducts = useCallback(async () => {
     if (!query) {
-      setProducts([]);
+      setRawProducts([]);
       setIsLoading(false);
       return;
     }
@@ -100,18 +100,23 @@ export function useProductSearch() {
         page,
       });
       const collection = normalizePaginatedCollection(data);
-      setProducts(sortProducts(collection.results, sort));
+      setRawProducts(collection.results);
       setHasNextPage(Boolean(collection.next) || page * 15 < collection.count);
       setHasPreviousPage(Boolean(collection.previous) || page > 1);
     } catch (error) {
-      setProducts([]);
+      setRawProducts([]);
       setMessage(error instanceof Error ? error.message : "Search could not be loaded");
       setHasNextPage(false);
       setHasPreviousPage(false);
     } finally {
       setIsLoading(false);
     }
-  }, [page, query, sort]);
+  }, [page, query]);
+
+  const products = useMemo(
+    () => sortProducts(rawProducts, sort),
+    [rawProducts, sort],
+  );
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {

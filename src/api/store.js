@@ -7,6 +7,29 @@ import {
 } from "./auth";
 import { resolveApiErrorMessage } from "./error";
 
+const BANNER_IMAGES_CACHE_MS = 1500;
+let bannerImagesCache = {
+  key: "",
+  expiresAt: 0,
+  data: null,
+};
+let bannerImagesRequest = {
+  key: "",
+  promise: null,
+};
+
+function invalidateBannerImagesCache() {
+  bannerImagesCache = {
+    key: "",
+    expiresAt: 0,
+    data: null,
+  };
+  bannerImagesRequest = {
+    key: "",
+    promise: null,
+  };
+}
+
 /**
  * @param {string} url
  * @param {{ method?: string, payload?: Record<string, unknown> }} [options]
@@ -265,11 +288,48 @@ export function fetchProductGroups() {
  */
 export function fetchBannerImages() {
   const session = getDashboardSession();
+  const cacheKey = `${session.accessToken}:${session.storeUrl}`;
+  const now = Date.now();
 
-  return postStoreJson("/api/store/banner-images", {
+  if (
+    bannerImagesCache.key === cacheKey
+    && bannerImagesCache.data
+    && bannerImagesCache.expiresAt > now
+  ) {
+    return Promise.resolve(bannerImagesCache.data);
+  }
+
+  if (bannerImagesRequest.key === cacheKey && bannerImagesRequest.promise) {
+    return bannerImagesRequest.promise;
+  }
+
+  const request = postStoreJson("/api/store/banner-images", {
     accessToken: session.accessToken,
     storeUrl: session.storeUrl,
   });
+
+  bannerImagesRequest = {
+    key: cacheKey,
+    promise: request,
+  };
+
+  return request
+    .then((data) => {
+      bannerImagesCache = {
+        key: cacheKey,
+        expiresAt: Date.now() + BANNER_IMAGES_CACHE_MS,
+        data,
+      };
+      return data;
+    })
+    .finally(() => {
+      if (bannerImagesRequest.key === cacheKey) {
+        bannerImagesRequest = {
+          key: "",
+          promise: null,
+        };
+      }
+    });
 }
 
 /**
@@ -283,6 +343,9 @@ export function addStoreBanners(payload) {
     accessToken: session.accessToken,
     storeUrl: session.storeUrl,
     ...payload,
+  }).then((data) => {
+    invalidateBannerImagesCache();
+    return data;
   });
 }
 
@@ -299,6 +362,9 @@ export function updateStoreBanner(payload) {
     imageBase64: payload.imageBase64,
     productGroupSlug: payload.productGroupSlug,
     link: payload.link || "",
+  }).then((data) => {
+    invalidateBannerImagesCache();
+    return data;
   });
 }
 
@@ -312,6 +378,9 @@ export function deleteStoreBanner(bannerId) {
   return postStoreJson("/api/store/delete-banner", {
     accessToken: session.accessToken,
     bannerId,
+  }).then((data) => {
+    invalidateBannerImagesCache();
+    return data;
   });
 }
 

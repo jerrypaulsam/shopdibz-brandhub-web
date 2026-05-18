@@ -1,6 +1,17 @@
 import { cacheStoreInfo, getAuthSession, getCachedStoreInfo } from "./auth";
 import { resolveApiErrorMessage } from "./error";
 
+const STORE_INFO_CACHE_MS = 1500;
+let storeInfoCache = {
+  key: "",
+  expiresAt: 0,
+  data: null,
+};
+let storeInfoRequest = {
+  key: "",
+  promise: null,
+};
+
 /**
  * @typedef {Object} DashboardSession
  * @property {string} accessToken
@@ -65,15 +76,48 @@ async function getDashboardJson(url, options = {}) {
 
 export function fetchStoreInfo() {
   const session = getDashboardSession();
+  const cacheKey = `${session.accessToken}:${session.storeUrl}`;
+  const now = Date.now();
 
-  return getDashboardJson("/api/dashboard/store-info", {
+  if (
+    storeInfoCache.key === cacheKey
+    && storeInfoCache.data
+    && storeInfoCache.expiresAt > now
+  ) {
+    return Promise.resolve(storeInfoCache.data);
+  }
+
+  if (storeInfoRequest.key === cacheKey && storeInfoRequest.promise) {
+    return storeInfoRequest.promise;
+  }
+
+  const request = getDashboardJson("/api/dashboard/store-info", {
     accessToken: session.accessToken,
     query: {
       storeUrl: session.storeUrl,
     },
   }).then((data) => {
     cacheStoreInfo(data);
+    storeInfoCache = {
+      key: cacheKey,
+      expiresAt: Date.now() + STORE_INFO_CACHE_MS,
+      data,
+    };
     return data;
+  });
+
+  storeInfoRequest = {
+    key: cacheKey,
+    promise: request,
+  };
+
+  return request.finally(() => {
+    if (storeInfoRequest.key === cacheKey) {
+      storeInfoRequest = {
+        key: "",
+        promise: null,
+      };
+    }
   });
 }
 

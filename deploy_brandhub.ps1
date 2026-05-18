@@ -1,11 +1,13 @@
 # --- CONFIGURATION ---
-$EC2_HOST = "YOUR_EC2_HOST"
+$EC2_HOST = "13.206.245.53"
 $EC2_USER = "ubuntu"
-$KEY_PATH = "C:\Users\jerry\.ssh\YOUR_KEY.pem"
+$KEY_PATH = "C:\Users\jerry\.ssh\seller_hub_web.pem"
 $APP_DIR = "/home/ubuntu/shopdibz-brandhub"
 $PM2_APP_NAME = "shopdibz-brandhub"
 $SSH_TARGET = "$($EC2_USER)@$($EC2_HOST)"
-$EXPECTED_NODE_MAJOR = "20"
+$EXPECTED_NODE_MAJOR = "22"
+$REMOTE_NVM_DIR = "/home/$EC2_USER/.nvm"
+$REMOTE_NODE_BOOTSTRAP = "test -s $REMOTE_NVM_DIR/nvm.sh && . $REMOTE_NVM_DIR/nvm.sh && nvm use 22 > /dev/null 2>&1"
 
 Write-Host "--- STARTING SHOPDIBZ BRAND HUB DEPLOYMENT ---" -ForegroundColor Yellow
 
@@ -21,8 +23,8 @@ if (-not $LOCAL_NODE_VERSION.StartsWith("v$EXPECTED_NODE_MAJOR.")) {
   exit 1
 }
 
-$REMOTE_NODE_VERSION = (ssh -i "$KEY_PATH" $SSH_TARGET "node -v").Trim()
-$REMOTE_NPM_VERSION = (ssh -i "$KEY_PATH" $SSH_TARGET "npm -v").Trim()
+$REMOTE_NODE_VERSION = (ssh -i "$KEY_PATH" $SSH_TARGET "bash -lc '$REMOTE_NODE_BOOTSTRAP; node -v'").Trim()
+$REMOTE_NPM_VERSION = (ssh -i "$KEY_PATH" $SSH_TARGET "bash -lc '$REMOTE_NODE_BOOTSTRAP; npm -v'").Trim()
 
 Write-Host "Remote Node: $REMOTE_NODE_VERSION" -ForegroundColor DarkCyan
 Write-Host "Remote npm: $REMOTE_NPM_VERSION" -ForegroundColor DarkCyan
@@ -70,11 +72,16 @@ tar -acf ..\..\deploy_brandhub.zip *
 Pop-Location
 
 # --- STEP 2: UPLOAD ---
-Write-Host "Uploading build and environment..." -ForegroundColor Cyan
+Write-Host "Uploading code and environment variables..." -ForegroundColor Cyan
+ssh -i "$KEY_PATH" $SSH_TARGET "mkdir -p $APP_DIR"
 scp -i "$KEY_PATH" deploy_brandhub.zip "$($SSH_TARGET):/home/$($EC2_USER)/deploy_brandhub.zip"
 
+if (Test-Path ".env") {
+  scp -i "$KEY_PATH" .env "$($SSH_TARGET):$APP_DIR/.env"
+}
+
 if (Test-Path ".env.local") {
-  scp -i "$KEY_PATH" .env.local "$($SSH_TARGET):$APP_DIR/.env"
+  scp -i "$KEY_PATH" .env.local "$($SSH_TARGET):$APP_DIR/.env.local"
 }
 
 if ($LASTEXITCODE -ne 0) {
@@ -83,21 +90,22 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # --- STEP 3: REMOTE EXECUTION ---
-Write-Host "Restarting server..." -ForegroundColor Cyan
+Write-Host "Restarting Server..." -ForegroundColor Cyan
 
 $COMMANDS = @(
+  "$REMOTE_NODE_BOOTSTRAP",
+  "sudo mkdir -p $APP_DIR",
   "cd $APP_DIR",
   "pm2 stop $PM2_APP_NAME > /dev/null 2>&1",
   "sudo rm -rf .next public node_modules server.js package.json package-lock.json",
   "unzip -o ~/deploy_brandhub.zip -d . > /dev/null",
   "sudo chown -R ubuntu:ubuntu .",
   "pm2 delete $PM2_APP_NAME > /dev/null 2>&1",
-  "pm2 start server.js --name '$PM2_APP_NAME'",
-  "pm2 save"
+  "pm2 start server.js --name '$PM2_APP_NAME'"
 )
 
 $CLEAN_COMMANDS = $COMMANDS -join "; "
-ssh -i "$KEY_PATH" $SSH_TARGET $CLEAN_COMMANDS
+ssh -i "$KEY_PATH" $SSH_TARGET "bash -lc ""$CLEAN_COMMANDS"""
 
 if ($LASTEXITCODE -ne 0) {
   Write-Host "Remote deployment failed" -ForegroundColor Red

@@ -133,7 +133,7 @@ export function usePaymentsWorkspace() {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [loadPayments, activeTab.slug]);
+  }, [loadPayments]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {

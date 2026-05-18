@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/src/api/config";
+import { logProxyResponse, parseUpstreamResponse } from "./serverProxyUtils";
 
 /**
  * @param {string} endpoint
@@ -13,7 +14,8 @@ export async function postFormToShopdibz(endpoint, fields, accessToken) {
     formData.append(key, value);
   });
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const upstreamUrl = `${API_BASE_URL}${endpoint}`;
+  const response = await fetch(upstreamUrl, {
     method: "POST",
     headers: accessToken
       ? {
@@ -24,10 +26,18 @@ export async function postFormToShopdibz(endpoint, fields, accessToken) {
   });
 
   const text = await response.text();
+  logProxyResponse({
+    route: endpoint,
+    method: "POST",
+    upstreamUrl,
+    status: response.status,
+    contentType: response.headers.get("content-type"),
+    text,
+  });
 
   return {
     status: response.status,
-    data: text ? parseResponse(text) : {},
+    data: text ? parseUpstreamResponse(text) : {},
   };
 }
 
@@ -37,7 +47,8 @@ export async function postFormToShopdibz(endpoint, fields, accessToken) {
  * @returns {Promise<{ status: number, data: unknown }>}
  */
 export async function postEmptyToShopdibz(endpoint, accessToken) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const upstreamUrl = `${API_BASE_URL}${endpoint}`;
+  const response = await fetch(upstreamUrl, {
     method: "POST",
     headers: {
       Authorization: `JWT ${accessToken}`,
@@ -45,10 +56,18 @@ export async function postEmptyToShopdibz(endpoint, accessToken) {
   });
 
   const text = await response.text();
+  logProxyResponse({
+    route: endpoint,
+    method: "POST",
+    upstreamUrl,
+    status: response.status,
+    contentType: response.headers.get("content-type"),
+    text,
+  });
 
   return {
     status: response.status,
-    data: text ? parseResponse(text) : {},
+    data: text ? parseUpstreamResponse(text) : {},
   };
 }
 
@@ -65,7 +84,8 @@ export async function putFormToShopdibz(endpoint, fields, accessToken) {
     formData.append(key, value);
   });
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const upstreamUrl = `${API_BASE_URL}${endpoint}`;
+  const response = await fetch(upstreamUrl, {
     method: "PUT",
     headers: {
       Authorization: `JWT ${accessToken}`,
@@ -74,23 +94,17 @@ export async function putFormToShopdibz(endpoint, fields, accessToken) {
   });
 
   const text = await response.text();
+  logProxyResponse({
+    route: endpoint,
+    method: "PUT",
+    upstreamUrl,
+    status: response.status,
+    contentType: response.headers.get("content-type"),
+    text,
+  });
 
   return {
     status: response.status,
-    data: text ? parseResponse(text) : {},
+    data: text ? parseUpstreamResponse(text) : {},
   };
-}
-
-/**
- * @param {string} text
- * @returns {unknown}
- */
-function parseResponse(text) {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return {
-      message: text,
-    };
-  }
 }

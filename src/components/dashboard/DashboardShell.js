@@ -115,7 +115,7 @@ export default function DashboardShell({ children }) {
     return () => {
       isCurrent = false;
     };
-  }, [hasAccessToken, hasHydrated, router, router.asPath, router.isReady]);
+  }, [hasAccessToken, hasHydrated, router, router.isReady]);
 
   if (!hasHydrated || !hasAccessToken || isCheckingAccess) {
     return (

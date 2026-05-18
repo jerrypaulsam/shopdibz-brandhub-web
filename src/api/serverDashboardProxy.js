@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/src/api/config";
+import { logProxyResponse, parseUpstreamResponse } from "./serverProxyUtils";
 
 /**
  * @param {import("next").NextApiRequest} req
@@ -32,7 +33,15 @@ export async function proxyDashboardGet(req, res, options) {
         : undefined,
     });
     const text = await response.text();
-    const data = text ? parseResponse(text) : {};
+    logProxyResponse({
+      route: options.endpoint,
+      method: req.method || "GET",
+      upstreamUrl: url,
+      status: response.status,
+      contentType: response.headers.get("content-type"),
+      text,
+    });
+    const data = text ? parseUpstreamResponse(text) : {};
 
     res.status(response.status).json(data);
   } catch (error) {
@@ -40,19 +49,5 @@ export async function proxyDashboardGet(req, res, options) {
       message:
         error instanceof Error ? error.message : "Dashboard request failed",
     });
-  }
-}
-
-/**
- * @param {string} text
- * @returns {unknown}
- */
-function parseResponse(text) {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return {
-      message: text,
-    };
   }
 }

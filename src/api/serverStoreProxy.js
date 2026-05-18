@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/src/api/config";
+import { logProxyResponse, parseUpstreamResponse } from "./serverProxyUtils";
 
 /**
  * @param {string} value
@@ -6,18 +7,6 @@ import { API_BASE_URL } from "@/src/api/config";
  */
 function decodeBase64(value) {
   return Uint8Array.from(Buffer.from(value, "base64"));
-}
-
-/**
- * @param {string} text
- * @returns {unknown}
- */
-function parseResponse(text) {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return { message: text };
-  }
 }
 
 /**
@@ -48,8 +37,9 @@ export async function submitStoreForm(options) {
   }
 
   const queryString = searchParams.toString();
+  const upstreamUrl = `${API_BASE_URL}${options.endpoint}${queryString ? `?${queryString}` : ""}`;
   const response = await fetch(
-    `${API_BASE_URL}${options.endpoint}${queryString ? `?${queryString}` : ""}`,
+    upstreamUrl,
     {
     method: options.method || "POST",
     headers: options.accessToken
@@ -61,10 +51,18 @@ export async function submitStoreForm(options) {
     },
   );
   const text = await response.text();
+  logProxyResponse({
+    route: options.endpoint,
+    method: options.method || "POST",
+    upstreamUrl,
+    status: response.status,
+    contentType: response.headers.get("content-type"),
+    text,
+  });
 
   return {
     status: response.status,
-    data: text ? parseResponse(text) : {},
+    data: text ? parseUpstreamResponse(text) : {},
   };
 }
 
@@ -73,12 +71,21 @@ export async function submitStoreForm(options) {
  * @returns {Promise<{ status: number, data: unknown }>}
  */
 export async function getStoreJson(endpoint) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`);
+  const upstreamUrl = `${API_BASE_URL}${endpoint}`;
+  const response = await fetch(upstreamUrl);
   const text = await response.text();
+  logProxyResponse({
+    route: endpoint,
+    method: "GET",
+    upstreamUrl,
+    status: response.status,
+    contentType: response.headers.get("content-type"),
+    text,
+  });
 
   return {
     status: response.status,
-    data: text ? parseResponse(text) : {},
+    data: text ? parseUpstreamResponse(text) : {},
   };
 }
 
@@ -96,8 +103,9 @@ export async function getStoreJsonWithAuth(options) {
   });
 
   const queryString = searchParams.toString();
+  const upstreamUrl = `${API_BASE_URL}${options.endpoint}${queryString ? `?${queryString}` : ""}`;
   const response = await fetch(
-    `${API_BASE_URL}${options.endpoint}${queryString ? `?${queryString}` : ""}`,
+    upstreamUrl,
     {
       headers: options.accessToken
         ? {
@@ -107,10 +115,18 @@ export async function getStoreJsonWithAuth(options) {
     },
   );
   const text = await response.text();
+  logProxyResponse({
+    route: options.endpoint,
+    method: "GET",
+    upstreamUrl,
+    status: response.status,
+    contentType: response.headers.get("content-type"),
+    text,
+  });
 
   return {
     status: response.status,
-    data: text ? parseResponse(text) : {},
+    data: text ? parseUpstreamResponse(text) : {},
   };
 }
 
@@ -137,7 +153,8 @@ export async function submitStoreMultiForm(options) {
     formData.append(file.field, new Blob([bytes]), file.filename);
   });
 
-  const response = await fetch(`${API_BASE_URL}${options.endpoint}`, {
+  const upstreamUrl = `${API_BASE_URL}${options.endpoint}`;
+  const response = await fetch(upstreamUrl, {
     method: options.method || "POST",
     headers: options.accessToken
       ? {
@@ -147,10 +164,18 @@ export async function submitStoreMultiForm(options) {
     body: formData,
   });
   const text = await response.text();
+  logProxyResponse({
+    route: options.endpoint,
+    method: options.method || "POST",
+    upstreamUrl,
+    status: response.status,
+    contentType: response.headers.get("content-type"),
+    text,
+  });
 
   return {
     status: response.status,
-    data: text ? parseResponse(text) : {},
+    data: text ? parseUpstreamResponse(text) : {},
   };
 }
 
@@ -168,8 +193,9 @@ export async function requestStoreJsonWithAuth(options) {
   });
 
   const queryString = searchParams.toString();
+  const upstreamUrl = `${API_BASE_URL}${options.endpoint}${queryString ? `?${queryString}` : ""}`;
   const response = await fetch(
-    `${API_BASE_URL}${options.endpoint}${queryString ? `?${queryString}` : ""}`,
+    upstreamUrl,
     {
       method: options.method || "GET",
       headers: {
@@ -189,9 +215,17 @@ export async function requestStoreJsonWithAuth(options) {
   );
 
   const text = await response.text();
+  logProxyResponse({
+    route: options.endpoint,
+    method: options.method || "GET",
+    upstreamUrl,
+    status: response.status,
+    contentType: response.headers.get("content-type"),
+    text,
+  });
 
   return {
     status: response.status,
-    data: text ? parseResponse(text) : {},
+    data: text ? parseUpstreamResponse(text) : {},
   };
 }
