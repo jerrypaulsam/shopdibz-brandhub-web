@@ -1,5 +1,9 @@
 import { API_BASE_URL, SHOPDIBZ_URLS } from "@/src/api/config";
-import { logProxyResponse, parseUpstreamResponse } from "@/src/api/serverProxyUtils";
+import {
+  logProxyResponse,
+  parseUpstreamResponse,
+  withInternalProxyHeaders,
+} from "@/src/api/serverProxyUtils";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -27,6 +31,7 @@ export default async function handler(req, res) {
     const upstreamUrl = `${API_BASE_URL}${SHOPDIBZ_URLS.login}`;
     const response = await fetch(upstreamUrl, {
       method: "POST",
+      headers: withInternalProxyHeaders(undefined),
       body: formData,
     });
     const text = await response.text();

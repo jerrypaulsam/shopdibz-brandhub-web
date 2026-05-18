@@ -1,5 +1,9 @@
 import { API_BASE_URL } from "@/src/api/config";
-import { logProxyResponse, parseUpstreamResponse } from "./serverProxyUtils";
+import {
+  logProxyResponse,
+  parseUpstreamResponse,
+  withInternalProxyHeaders,
+} from "./serverProxyUtils";
 
 /**
  * @param {string} endpoint
@@ -17,11 +21,13 @@ export async function postFormToShopdibz(endpoint, fields, accessToken) {
   const upstreamUrl = `${API_BASE_URL}${endpoint}`;
   const response = await fetch(upstreamUrl, {
     method: "POST",
-    headers: accessToken
-      ? {
-          Authorization: `JWT ${accessToken}`,
-        }
-      : undefined,
+    headers: withInternalProxyHeaders(
+      accessToken
+        ? {
+            Authorization: `JWT ${accessToken}`,
+          }
+        : undefined,
+    ),
     body: formData,
   });
 
@@ -50,9 +56,9 @@ export async function postEmptyToShopdibz(endpoint, accessToken) {
   const upstreamUrl = `${API_BASE_URL}${endpoint}`;
   const response = await fetch(upstreamUrl, {
     method: "POST",
-    headers: {
+    headers: withInternalProxyHeaders({
       Authorization: `JWT ${accessToken}`,
-    },
+    }),
   });
 
   const text = await response.text();
@@ -87,9 +93,9 @@ export async function putFormToShopdibz(endpoint, fields, accessToken) {
   const upstreamUrl = `${API_BASE_URL}${endpoint}`;
   const response = await fetch(upstreamUrl, {
     method: "PUT",
-    headers: {
+    headers: withInternalProxyHeaders({
       Authorization: `JWT ${accessToken}`,
-    },
+    }),
     body: formData,
   });
 

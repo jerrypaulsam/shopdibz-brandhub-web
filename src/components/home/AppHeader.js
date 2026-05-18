@@ -9,7 +9,7 @@ const callbackUrl =
 const menuItems = [
   {
     label: "Download App",
-    href: "https://play.google.com/store/apps/details?id=com.shopdibz.shopdibz_seller_hub",
+    href: "https://www.shopdibz.com/brand-hub?utm_source=brand-hub&utm_medium=organic",
     accent: true,
   },
   {
@@ -21,6 +21,15 @@ const menuItems = [
     href: "https://www.shopdibz.com/contact?utm_source=brand-hub&utm_medium=organic",
   },
 ];
+
+const lightNeutralActionClass =
+  "[html[data-theme='light']_&]:border-[#2f2622]/16 [html[data-theme='light']_&]:text-[#2f2622] [html[data-theme='light']_&]:hover:border-[#8f4e3f]/48 [html[data-theme='light']_&]:hover:text-[#8f4e3f]";
+
+const lightAccentActionClass =
+  "[html[data-theme='light']_&]:border-[#8f4e3f]/35 [html[data-theme='light']_&]:bg-[#8f4e3f]/8 [html[data-theme='light']_&]:text-[#8f4e3f] [html[data-theme='light']_&]:hover:border-[#8f4e3f] [html[data-theme='light']_&]:hover:bg-[#8f4e3f] [html[data-theme='light']_&]:hover:text-[#fff8f6]";
+
+const lightHeaderSurfaceClass =
+  "[html[data-theme='light']_&]:border-[#2f2622]/10 [html[data-theme='light']_&]:bg-[#fffaf6]/96 [html[data-theme='light']_&]:shadow-[0_18px_50px_-30px_rgba(47,38,34,0.28)]";
 
 function LogoTitle() {
   return (
@@ -46,8 +55,8 @@ function MenuButton({ item, onClick }) {
     <a
       className={`inline-flex min-h-10 items-center justify-center rounded px-4 py-2 text-sm font-semibold tracking-wide transition-colors ${
         item.accent
-          ? "border border-brand-gold bg-brand-gold/15 text-brand-gold hover:bg-brand-gold hover:text-brand-black"
-          : "border border-white/40 text-brand-white hover:border-brand-gold hover:text-brand-gold"
+          ? `border border-brand-gold bg-brand-gold/15 text-brand-gold hover:bg-brand-gold hover:text-brand-black ${lightAccentActionClass}`
+          : `border border-white/40 text-brand-white hover:border-brand-gold hover:text-brand-gold ${lightNeutralActionClass}`
       }`}
       href={item.href}
       target={item.href.startsWith("http") ? "_blank" : undefined}
@@ -66,14 +75,16 @@ export default function AppHeader() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-30 text-brand-white">
-      <div className="theme-popover border-b border-white/10 backdrop-blur">
+    <header className="fixed inset-x-0 top-0 z-30 text-brand-white [html[data-theme='light']_&]:text-[#2f2622]">
+      <div
+        className={`theme-popover border-b border-white/10 backdrop-blur ${lightHeaderSurfaceClass}`}
+      >
         <div className="mx-auto flex min-h-20 max-w-[1440px] items-center justify-between gap-4 px-4 py-4 sm:px-8 lg:px-12">
           <LogoTitle />
 
           <nav className="hidden items-center gap-3 lg:flex">
             <button
-              className="inline-flex min-h-10 items-center justify-center rounded border border-white/40 px-4 py-2 text-sm font-semibold tracking-wide text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
+              className={`inline-flex min-h-10 items-center justify-center rounded border border-white/40 px-4 py-2 text-sm font-semibold tracking-wide text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold ${lightNeutralActionClass}`}
               type="button"
               onClick={() => setIsLoginOpen(true)}
             >
@@ -93,18 +104,18 @@ export default function AppHeader() {
           </nav>
 
           <button
-            className="inline-flex h-10 w-10 shrink-0 flex-col items-center justify-center gap-1 rounded border border-white/40 text-brand-white lg:hidden"
+            className="inline-flex h-10 w-10 shrink-0 flex-col items-center justify-center gap-1 rounded border border-white/40 text-brand-white lg:hidden [html[data-theme='light']_&]:border-[#2f2622]/18 [html[data-theme='light']_&]:bg-white/80 [html[data-theme='light']_&]:text-[#2f2622]"
             type="button"
             aria-label="Open menu"
             onClick={() => setIsOpen((current) => !current)}
           >
             {isOpen ? (
-              <span className="text-xl leading-none">×</span>
+              <span className="text-xl leading-none">&times;</span>
             ) : (
               <>
-                <span className="h-0.5 w-5 bg-brand-white" />
-                <span className="h-0.5 w-5 bg-brand-white" />
-                <span className="h-0.5 w-5 bg-brand-white" />
+                <span className="h-0.5 w-5 bg-brand-white [html[data-theme='light']_&]:bg-[#2f2622]" />
+                <span className="h-0.5 w-5 bg-brand-white [html[data-theme='light']_&]:bg-[#2f2622]" />
+                <span className="h-0.5 w-5 bg-brand-white [html[data-theme='light']_&]:bg-[#2f2622]" />
               </>
             )}
           </button>
@@ -112,10 +123,12 @@ export default function AppHeader() {
       </div>
 
       {isOpen ? (
-        <div className="theme-popover border-b border-white/10 px-4 pb-5 lg:hidden">
+        <div
+          className={`theme-popover border-b border-white/10 px-4 pb-5 lg:hidden ${lightHeaderSurfaceClass}`}
+        >
           <nav className="mx-auto flex max-w-7xl flex-col gap-3">
             <button
-              className="inline-flex min-h-10 items-center justify-center rounded border border-white/40 px-4 py-2 text-sm font-semibold tracking-wide text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold"
+              className={`inline-flex min-h-10 items-center justify-center rounded border border-white/40 px-4 py-2 text-sm font-semibold tracking-wide text-brand-white transition-colors hover:border-brand-gold hover:text-brand-gold ${lightNeutralActionClass}`}
               type="button"
               onClick={() => {
                 setIsOpen(false);

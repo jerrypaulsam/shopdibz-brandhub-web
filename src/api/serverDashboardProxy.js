@@ -1,5 +1,9 @@
 import { API_BASE_URL } from "@/src/api/config";
-import { logProxyResponse, parseUpstreamResponse } from "./serverProxyUtils";
+import {
+  logProxyResponse,
+  parseUpstreamResponse,
+  withInternalProxyHeaders,
+} from "./serverProxyUtils";
 
 /**
  * @param {import("next").NextApiRequest} req
@@ -26,11 +30,13 @@ export async function proxyDashboardGet(req, res, options) {
 
   try {
     const response = await fetch(url, {
-      headers: options.accessToken
-        ? {
-            Authorization: `JWT ${options.accessToken}`,
-          }
-        : undefined,
+      headers: withInternalProxyHeaders(
+        options.accessToken
+          ? {
+              Authorization: `JWT ${options.accessToken}`,
+            }
+          : undefined,
+      ),
     });
     const text = await response.text();
     logProxyResponse({

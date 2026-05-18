@@ -1,5 +1,9 @@
 import { API_BASE_URL } from "@/src/api/config";
-import { logProxyResponse, parseUpstreamResponse } from "./serverProxyUtils";
+import {
+  logProxyResponse,
+  parseUpstreamResponse,
+  withInternalProxyHeaders,
+} from "./serverProxyUtils";
 
 /**
  * @param {string} value
@@ -42,11 +46,13 @@ export async function submitStoreForm(options) {
     upstreamUrl,
     {
     method: options.method || "POST",
-    headers: options.accessToken
-      ? {
-          Authorization: `JWT ${options.accessToken}`,
-        }
-      : undefined,
+    headers: withInternalProxyHeaders(
+      options.accessToken
+        ? {
+            Authorization: `JWT ${options.accessToken}`,
+          }
+        : undefined,
+    ),
     body: formData,
     },
   );
@@ -72,7 +78,9 @@ export async function submitStoreForm(options) {
  */
 export async function getStoreJson(endpoint) {
   const upstreamUrl = `${API_BASE_URL}${endpoint}`;
-  const response = await fetch(upstreamUrl);
+  const response = await fetch(upstreamUrl, {
+    headers: withInternalProxyHeaders(undefined),
+  });
   const text = await response.text();
   logProxyResponse({
     route: endpoint,
@@ -107,11 +115,13 @@ export async function getStoreJsonWithAuth(options) {
   const response = await fetch(
     upstreamUrl,
     {
-      headers: options.accessToken
-        ? {
-            Authorization: `JWT ${options.accessToken}`,
-          }
-        : undefined,
+      headers: withInternalProxyHeaders(
+        options.accessToken
+          ? {
+              Authorization: `JWT ${options.accessToken}`,
+            }
+          : undefined,
+      ),
     },
   );
   const text = await response.text();
@@ -156,11 +166,13 @@ export async function submitStoreMultiForm(options) {
   const upstreamUrl = `${API_BASE_URL}${options.endpoint}`;
   const response = await fetch(upstreamUrl, {
     method: options.method || "POST",
-    headers: options.accessToken
-      ? {
-          Authorization: `JWT ${options.accessToken}`,
-        }
-      : undefined,
+    headers: withInternalProxyHeaders(
+      options.accessToken
+        ? {
+            Authorization: `JWT ${options.accessToken}`,
+          }
+        : undefined,
+    ),
     body: formData,
   });
   const text = await response.text();
@@ -198,7 +210,7 @@ export async function requestStoreJsonWithAuth(options) {
     upstreamUrl,
     {
       method: options.method || "GET",
-      headers: {
+      headers: withInternalProxyHeaders({
         ...(options.accessToken
           ? {
               Authorization: `JWT ${options.accessToken}`,
@@ -209,7 +221,7 @@ export async function requestStoreJsonWithAuth(options) {
               "Content-Type": "application/json",
             }
           : {}),
-      },
+      }),
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
     },
   );

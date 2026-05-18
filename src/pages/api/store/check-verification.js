@@ -1,4 +1,5 @@
 import { API_BASE_URL, SHOPDIBZ_URLS } from "@/src/api/config";
+import { parseUpstreamResponse, withInternalProxyHeaders } from "@/src/api/serverProxyUtils";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -18,13 +19,13 @@ export default async function handler(req, res) {
     const response = await fetch(
       `${API_BASE_URL}${SHOPDIBZ_URLS.checkStoreVerification}`,
       {
-        headers: {
+        headers: withInternalProxyHeaders({
           Authorization: `JWT ${accessToken}`,
-        },
+        }),
       },
     );
     const text = await response.text();
-    const data = text ? parseResponse(text) : {};
+    const data = text ? parseUpstreamResponse(text) : {};
 
     res.status(response.status).json(data);
   } catch (error) {
@@ -37,16 +38,3 @@ export default async function handler(req, res) {
   }
 }
 
-/**
- * @param {string} text
- * @returns {unknown}
- */
-function parseResponse(text) {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return {
-      message: text,
-    };
-  }
-}

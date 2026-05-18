@@ -13,6 +13,23 @@ export function parseUpstreamResponse(text) {
 }
 
 /**
+ * @param {HeadersInit | undefined} headers
+ * @returns {HeadersInit | undefined}
+ */
+export function withInternalProxyHeaders(headers) {
+  const secret = String(process.env.SHOPDIBZ_PROXY_SECRET || "").trim();
+
+  if (!secret) {
+    return headers;
+  }
+
+  return {
+    ...(headers || {}),
+    "X-Shopdibz-Proxy-Secret": secret,
+  };
+}
+
+/**
  * @param {string} value
  * @returns {string}
  */
