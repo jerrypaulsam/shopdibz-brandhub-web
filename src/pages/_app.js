@@ -6,6 +6,7 @@ import MaintenanceScreen from "@/src/components/app/MaintenanceScreen";
 import ConfirmProvider from "@/src/components/app/ConfirmProvider";
 import FirebaseNotificationsBootstrap from "@/src/components/app/FirebaseNotificationsBootstrap";
 import SeoHead from "@/src/components/app/SeoHead";
+import SellerRouteGuard from "@/src/components/app/SellerRouteGuard";
 import ThemeProvider from "@/src/components/app/ThemeProvider";
 import ThemeToggle from "@/src/components/app/ThemeToggle";
 import ToastProvider from "@/src/components/app/ToastProvider";
@@ -74,7 +75,9 @@ export default function App({ Component, pageProps }) {
             </>
           ) : null}
           <FirebaseNotificationsBootstrap />
-          <Component {...pageProps} />
+          <SellerRouteGuard>
+            <Component {...pageProps} />
+          </SellerRouteGuard>
           <ThemeToggle />
         </ThemeProvider>
       </ConfirmProvider>

@@ -61,13 +61,6 @@ export default function DashboardShell({ children }) {
         return;
       }
 
-      if (isPaywallAllowedPath(router.asPath)) {
-        if (isCurrent) {
-          setIsCheckingAccess(false);
-        }
-        return;
-      }
-
       const session = getDashboardSession();
 
       if (!session.storeUrl) {
@@ -89,16 +82,6 @@ export default function DashboardShell({ children }) {
 
         setSidebarStoreInfo(storeInfo || null);
         setSidebarBannerImages(banners?.results || []);
-
-        if (storeInfo?.close === true) {
-          await router.replace("/store-closed");
-          return;
-        }
-
-        if (storeInfo?.paywall === false) {
-          await router.replace("/onboard-payment");
-          return;
-        }
       } catch {
         if (!isCurrent) {
           return;
@@ -183,18 +166,3 @@ function getServerHydrationSnapshot() {
   return false;
 }
 
-/**
- * @param {string} path
- * @returns {boolean}
- */
-function isPaywallAllowedPath(path) {
-  const value = String(path || "");
-
-  return [
-    "/onboard-payment",
-    "/awaiting-verification",
-    "/store-form",
-    "/store-info-form",
-    "/settings/bank/create",
-  ].some((prefix) => value === prefix || value.startsWith(`${prefix}?`));
-}

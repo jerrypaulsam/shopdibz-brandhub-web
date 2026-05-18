@@ -9,6 +9,7 @@ import {
 } from "@/src/api/auth";
 import { fetchStoreInfo } from "@/src/api/dashboard";
 import { checkStoreVerification } from "@/src/api/store";
+import { resolveSellerAccessRoute } from "@/src/utils/sellerAccess";
 
 export function useAppBootstrap() {
   const router = useRouter();
@@ -58,68 +59,15 @@ export function useAppBootstrap() {
           },
         });
 
-        const storeUrl =
-          authSession?.user?.storeUrl ||
-          authSession?.user?.store_url ||
-          authSession?.storeUrl ||
-          getCachedStoreInfo()?.url ||
-          "";
-        const storeCreated = resolveBoolean(
-          authSession?.user?.cre ?? authSession?.storeCreated,
-        );
-        const verified = resolveBoolean(
-          authSession?.user?.ver ?? authSession?.verified,
-        );
+        const access = await resolveSellerAccessRoute({
+          session: getAuthSession() || authSession,
+          cachedStoreInfo: getCachedStoreInfo(),
+          fetchStoreInfo,
+          checkStoreVerification,
+        });
 
-        if (!storeUrl) {
-          if (verified) {
-            await router.replace("/store-info-form");
-            return;
-          }
-
-          if (storeCreated) {
-            const verification = await checkStoreVerification();
-
-            if (verification?.status === 200 || verification?.status === 201) {
-              await router.replace("/store-info-form");
-              return;
-            }
-
-            if (verification?.status === 403) {
-              await router.replace("/awaiting-verification");
-              return;
-            }
-
-            if (verification?.status === 404) {
-              await router.replace("/settings/bank/create");
-              return;
-            }
-          }
-
-          await router.replace("/store-form");
-          return;
-        }
-
-        if (storeCreated && !verified) {
-          await router.replace("/awaiting-verification");
-          return;
-        }
-
-        const storeInfo =
-          (await fetchStoreInfo().catch(() => null)) || getCachedStoreInfo();
-
-        if (storeInfo?.bankVerify === false) {
-          await router.replace("/settings/bank/create");
-          return;
-        }
-
-        if (storeInfo?.close === true) {
-          await router.replace("/store-closed");
-          return;
-        }
-
-        if (storeInfo?.paywall === false) {
-          await router.replace("/onboard-payment");
+        if (access.redirectTo) {
+          await router.replace(access.redirectTo);
           return;
         }
 
@@ -190,18 +138,3 @@ function resolveResumePath(value) {
   return path;
 }
 
-/**
- * @param {unknown} value
- * @returns {boolean}
- */
-function resolveBoolean(value) {
-  if (typeof value === "boolean") {
-    return value;
-  }
-
-  if (typeof value === "string") {
-    return value.toLowerCase() === "true";
-  }
-
-  return Boolean(value);
-}

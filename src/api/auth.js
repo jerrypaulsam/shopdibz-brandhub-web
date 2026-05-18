@@ -512,6 +512,15 @@ export function clearAuthSession() {
   dispatchAuthSessionChange();
 }
 
+export function clearCachedStoreInfo() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.removeItem(STORE_INFO_STORAGE_KEY);
+  dispatchAuthSessionChange();
+}
+
 /**
  * @param {() => void} callback
  * @returns {() => void}

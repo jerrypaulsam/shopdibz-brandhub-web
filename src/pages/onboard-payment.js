@@ -32,16 +32,6 @@ export default function OnboardPaymentPage() {
           return;
         }
 
-        if (data?.close === true) {
-          await router.replace("/store-closed");
-          return;
-        }
-
-        if (data?.paywall === true) {
-          await router.replace("/home");
-          return;
-        }
-
         setStoreInfo(data || {});
       } catch {
         if (isCurrent) {

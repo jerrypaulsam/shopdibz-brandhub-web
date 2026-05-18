@@ -112,21 +112,6 @@ export function useDashboardHome() {
         setWeeklyAnalytics(nextWeekly.results || []);
         setDailyVisits(nextDailyVisits.results || []);
 
-        if (resolvedStoreInfo?.bankVerify === false) {
-          await router.replace("/settings/bank/create");
-          return;
-        }
-
-        if (resolvedStoreInfo?.close === true) {
-          await router.replace("/store-closed");
-          return;
-        }
-
-        if (resolvedStoreInfo?.paywall === false) {
-          await router.replace("/onboard-payment");
-          return;
-        }
-
         logScreenView(
           "dashboard_screen",
           resolvedStoreInfo?.url || "Anonymous",
