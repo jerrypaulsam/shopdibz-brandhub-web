@@ -468,12 +468,12 @@ textarea::placeholder {
 
 [data-theme="light"] .bg-brand-gold.hover\:bg-brand-white:hover,
 [data-theme="light"] .hover\:bg-brand-white.bg-brand-gold:hover {
-  color: #fff8f6 !important;
+  color: #221917 !important;
 }
 
 [data-theme="light"] .theme-action-accent:hover,
 [data-theme="light"] .theme-primary-button:hover {
-  color: #fff8f6;
+  color: var(--foreground);
 }
 
 [data-theme="light"] .dashboard-marquee-item {

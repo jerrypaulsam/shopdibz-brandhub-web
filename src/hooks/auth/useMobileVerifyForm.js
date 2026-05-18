@@ -8,6 +8,7 @@ import {
   verifyInitialMobileNumber,
 } from "@/src/api/auth";
 import { logScreenView } from "@/src/api/analytics";
+import { useOtpCooldown } from "./useOtpCooldown";
 
 export function useMobileVerifyForm() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export function useMobileVerifyForm() {
   const [mobileOtpSend, setMobileOtpSend] = useState(false);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { resendSeconds, startCooldown } = useOtpCooldown(30);
 
   useEffect(() => {
     if (hasAuthenticatedSellerSession()) {
@@ -44,6 +46,8 @@ export function useMobileVerifyForm() {
       const normalizedMobile = getIndianMobileNumber(mobile);
       await requestInitialMobileOtp({ mobile: normalizedMobile });
       setMobileOtpSend(true);
+      setOtp("");
+      startCooldown();
       setMessage("OTP Send To Your Mobile Number.");
     } catch (error) {
       setMessage(
@@ -81,6 +85,29 @@ export function useMobileVerifyForm() {
     }
   }
 
+  async function resendOtp() {
+    if (resendSeconds > 0 || !mobileOtpSend) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      const normalizedMobile = getIndianMobileNumber(mobile);
+      await requestInitialMobileOtp({ mobile: normalizedMobile });
+      setOtp("");
+      startCooldown();
+      setMessage("OTP resent to your mobile number.");
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Oops something went wrong.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return {
     mobile,
     setMobile: updateMobile,
@@ -89,7 +116,9 @@ export function useMobileVerifyForm() {
     mobileOtpSend,
     message,
     isSubmitting,
+    resendSeconds,
     requestOtp,
+    resendOtp,
     verifyOtp,
   };
 }

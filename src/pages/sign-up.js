@@ -4,7 +4,7 @@ import AuthCard from "@/src/components/auth/AuthCard";
 import AuthField from "@/src/components/auth/AuthField";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 import AuthShell from "@/src/components/auth/AuthShell";
-import AuthTitle from "@/src/components/auth/AuthTitle";
+import OnboardingFlowShell from "@/src/components/auth/OnboardingFlowShell";
 import { useSellerGuestRedirect } from "@/src/hooks/auth/useSellerGuestRedirect";
 import { useSignupForm } from "@/src/hooks/auth/useSignupForm";
 
@@ -42,93 +42,116 @@ export default function SignUpPage() {
   }
 
   return (
-    <AuthShell>
-      <div className="flex flex-1 justify-center overflow-y-auto pb-10">
-        <AuthCard widthClass="w-full max-w-[600px]">
-          <form onSubmit={handleSubmit}>
-            <AuthTitle title="Seller Registration" note="* GST Mandatory" />
+    <OnboardingFlowShell
+      currentStep={2}
+      stepLabel="Account registration"
+      title="Create your Brand Hub account."
+      subtitle="Add the core account details we need for login, communication, and moving you into the verified seller setup flow."
+      asideTitle="Before you continue"
+      asideDescription="This account becomes the owner profile for your store setup, so use the primary business email and a password you can retain securely."
+      asideItems={[
+        "Use your active business email address.",
+        "Keep your name details consistent with business records.",
+        "Create a strong password with at least one special character.",
+        "GST becomes mandatory in the store setup step right after email verification.",
+      ]}
+      asideFooter={(
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+            Terms
+          </p>
+          <div className="mt-3 space-y-2 text-sm">
+            <a
+              className="theme-text-muted block transition-colors hover:text-brand-gold"
+              href="https://www.shopdibz.com/seller-services-agreement/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Seller Services Agreement
+            </a>
+            <a
+              className="theme-text-muted block transition-colors hover:text-brand-gold"
+              href="https://www.shopdibz.com/privacypolicy"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Privacy Policy
+            </a>
+            <Link
+              className="theme-action-accent mt-4 inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-bold transition-colors"
+              href="/login"
+            >
+              Already have an account
+            </Link>
+          </div>
+        </div>
+      )}
+    >
+      <AuthCard
+        widthClass="w-full max-w-[720px]"
+        className="rounded-[24px] border-white/8 bg-transparent p-0 shadow-none"
+      >
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-5 md:grid-cols-2">
+            <AuthField
+              label="Email"
+              value={email}
+              type="email"
+              autoComplete="email"
+              onChange={setEmail}
+            />
+            <AuthField
+              label="First Name"
+              value={fName}
+              maxLength={15}
+              autoComplete="given-name"
+              onChange={setFName}
+            />
+            <AuthField
+              label="Last Name"
+              value={lName}
+              maxLength={15}
+              autoComplete="family-name"
+              onChange={setLName}
+            />
+            <AuthField
+              label="Password"
+              value={password}
+              type="password"
+              autoComplete="new-password"
+              onChange={setPassword}
+            />
+            <AuthField
+              label="Confirm Password"
+              value={confirmPassword}
+              type="password"
+              autoComplete="new-password"
+              onChange={setConfirmPassword}
+            />
+          </div>
 
-            <div className="mt-8 space-y-8">
-              <AuthField
-                label="Email"
-                value={email}
-                type="email"
-                autoComplete="email"
-                onChange={setEmail}
-              />
-              <AuthField
-                label="First Name"
-                value={fName}
-                maxLength={15}
-                autoComplete="given-name"
-                onChange={setFName}
-              />
-              <AuthField
-                label="Last Name"
-                value={lName}
-                maxLength={15}
-                autoComplete="family-name"
-                onChange={setLName}
-              />
-              <AuthField
-                label="Password"
-                value={password}
-                type="password"
-                autoComplete="new-password"
-                onChange={setPassword}
-              />
-              <AuthField
-                label="Confirm Password"
-                value={confirmPassword}
-                type="password"
-                autoComplete="new-password"
-                onChange={setConfirmPassword}
-              />
-            </div>
+          <div className="mt-8 rounded-[20px] border border-brand-gold/18 bg-brand-gold/6 px-5 py-4">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+              Required next
+            </p>
+            <p className="theme-text-muted mt-2 text-sm leading-6">
+              After signup, we&apos;ll send an email OTP and then move you into GST-based store creation.
+            </p>
+          </div>
 
-            <div className="mt-10">
-              <AuthMessage>{message}</AuthMessage>
-            </div>
+          <div className="mt-8">
+            <AuthMessage>{message}</AuthMessage>
+          </div>
 
-            <div className="mt-6">
+          <div className="mt-6 flex flex-wrap gap-3">
+            <div className="min-w-[220px] flex-1">
               <AuthButton disabled={isSubmitting}>
-                {isSubmitting ? "Signing up..." : "Sign Up"}
+                {isSubmitting ? "Creating account..." : "Create account"}
               </AuthButton>
             </div>
-
-            <div className="mt-8 text-center text-sm text-white/45">
-              <p>By signing up, you agree to accept the</p>
-              <a
-                className="mt-2 block text-brand-white hover:text-brand-gold"
-                href="https://www.shopdibz.com/seller-services-agreement/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Seller Services Agreement,
-              </a>
-              <a
-                className="mt-1 block text-brand-white hover:text-brand-gold"
-                href="https://www.shopdibz.com/privacypolicy"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Privacy Policy
-              </a>
-            </div>
-
-            <div className="mt-8 text-center">
-              <p className="text-sm text-white/45">Already have an account?</p>
-              <Link
-                className="mt-2 inline-flex items-center gap-2 text-sm font-bold text-brand-gold hover:text-brand-white"
-                href="/login"
-              >
-                Login
-                <span aria-hidden="true">-&gt;</span>
-              </Link>
-            </div>
-          </form>
-        </AuthCard>
-      </div>
-    </AuthShell>
+          </div>
+        </form>
+      </AuthCard>
+    </OnboardingFlowShell>
   );
 }

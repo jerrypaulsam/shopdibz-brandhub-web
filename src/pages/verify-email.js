@@ -9,9 +9,11 @@ export default function VerifyEmailPage() {
     otp,
     setOtp,
     showOtpBox,
+    resendSeconds,
     message,
     isSubmitting,
     requestOtp,
+    resendOtp,
     verifyOtp,
   } = useVerifyEmailChange();
 
@@ -24,9 +26,11 @@ export default function VerifyEmailPage() {
           otp={otp}
           setOtp={setOtp}
           showOtpBox={showOtpBox}
+          resendSeconds={resendSeconds}
           message={message}
           isSubmitting={isSubmitting}
           onRequestOtp={requestOtp}
+          onResendOtp={resendOtp}
           onVerifyOtp={verifyOtp}
         />
       </div>

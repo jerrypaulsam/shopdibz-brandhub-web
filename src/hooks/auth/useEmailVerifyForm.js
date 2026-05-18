@@ -9,12 +9,14 @@ import {
   verifyEmailOtp,
 } from "@/src/api/auth";
 import { logScreenView } from "@/src/api/analytics";
+import { useOtpCooldown } from "./useOtpCooldown";
 
 export function useEmailVerifyForm() {
   const router = useRouter();
   const [otp, setOtp] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { resendSeconds, startCooldown } = useOtpCooldown(30);
 
   useEffect(() => {
     logScreenView("init-email-verify", "Anonymous", "store");
@@ -60,11 +62,16 @@ export function useEmailVerifyForm() {
   }
 
   async function resendOtp() {
+    if (resendSeconds > 0) {
+      return;
+    }
+
     setIsSubmitting(true);
     setMessage("");
 
     try {
       await requestEmailOtp();
+      startCooldown();
       setMessage("OTP send to email");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "OTP cannot be sent");
@@ -88,6 +95,7 @@ export function useEmailVerifyForm() {
     email: getDisplayEmail(),
     message,
     isSubmitting,
+    resendSeconds,
     verifyOtp,
     resendOtp,
     logout,

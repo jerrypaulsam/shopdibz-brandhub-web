@@ -4,7 +4,7 @@ import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
 
 /**
- * @param {{ email: string, setEmail: (value: string) => void, otp: string, setOtp: (value: string) => void, showOtpBox: boolean, message: string, isSubmitting: boolean, onRequestOtp: () => Promise<boolean>, onVerifyOtp: () => Promise<boolean> }} props
+ * @param {{ email: string, setEmail: (value: string) => void, otp: string, setOtp: (value: string) => void, showOtpBox: boolean, resendSeconds: number, message: string, isSubmitting: boolean, onRequestOtp: () => Promise<boolean>, onVerifyOtp: () => Promise<boolean>, onResendOtp: () => Promise<boolean> }} props
  */
 export default function VerifyEmailChangePanel({
   email,
@@ -12,10 +12,12 @@ export default function VerifyEmailChangePanel({
   otp,
   setOtp,
   showOtpBox,
+  resendSeconds,
   message,
   isSubmitting,
   onRequestOtp,
   onVerifyOtp,
+  onResendOtp,
 }) {
   return (
     <StoreSection title="Change Email" subtitle="Request an OTP for your new email address, then confirm it here.">
@@ -39,6 +41,21 @@ export default function VerifyEmailChangePanel({
               type="text"
               onChange={setOtp}
             />
+            <div className="theme-surface-soft mt-4 rounded-sm border px-4 py-3">
+              <p className="theme-text-muted text-sm">
+                {resendSeconds > 0
+                  ? `Resend OTP in ${resendSeconds}s`
+                  : "Didn't receive the OTP?"}
+              </p>
+              <button
+                className="mt-2 text-sm font-bold text-brand-gold transition-colors hover:text-brand-white disabled:cursor-not-allowed disabled:opacity-50"
+                type="button"
+                disabled={isSubmitting || resendSeconds > 0}
+                onClick={onResendOtp}
+              >
+                Resend OTP
+              </button>
+            </div>
           </div>
         ) : null}
 

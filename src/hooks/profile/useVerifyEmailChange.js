@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getProfileSession, persistVerifiedEmail, requestEmailChange, verifyChangedEmailOtp } from "@/src/api/profile";
 import { logScreenView } from "@/src/api/analytics";
+import { useOtpCooldown } from "@/src/hooks/auth/useOtpCooldown";
 
 export function useVerifyEmailChange() {
   const router = useRouter();
@@ -10,6 +11,7 @@ export function useVerifyEmailChange() {
   const [showOtpBox, setShowOtpBox] = useState(false);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { resendSeconds, startCooldown } = useOtpCooldown(30);
 
   useEffect(() => {
     const session = getProfileSession();
@@ -28,7 +30,36 @@ export function useVerifyEmailChange() {
     try {
       await requestEmailChange(email.trim());
       setShowOtpBox(true);
+      setOtp("");
+      startCooldown();
       setMessage("OTP Send. Please Check Email.");
+      return true;
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Email cannot be updated");
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function resendOtp() {
+    if (resendSeconds > 0 || !showOtpBox) {
+      return false;
+    }
+
+    if (!email.trim()) {
+      setMessage("Enter Email");
+      return false;
+    }
+
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await requestEmailChange(email.trim());
+      setOtp("");
+      startCooldown();
+      setMessage("OTP resent. Please check email.");
       return true;
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Email cannot be updated");
@@ -69,7 +100,9 @@ export function useVerifyEmailChange() {
     showOtpBox,
     message,
     isSubmitting,
+    resendSeconds,
     requestOtp,
+    resendOtp,
     verifyOtp,
   };
 }

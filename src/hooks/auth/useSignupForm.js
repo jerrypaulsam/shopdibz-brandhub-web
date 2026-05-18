@@ -4,7 +4,6 @@ import {
   getBrowserLocation,
   hasAuthenticatedSellerSession,
   getMobileVerification,
-  requestEmailOtp,
   saveAuthSession,
   signupSeller,
 } from "@/src/api/auth";
@@ -99,7 +98,6 @@ export function useSignupForm() {
       if (typeof window.fbq === "function") {
         window.fbq("track", "CompleteRegistration");
       }
-      await requestEmailOtp();
       await router.replace("/init-email-verify");
     } catch (error) {
       setMessage(

@@ -30,9 +30,15 @@ export default function AwaitingVerificationPanel({
   }
 
   return (
-    <section className="mx-auto flex w-full max-w-[640px] flex-col items-center rounded-[16px] border border-white/10 bg-[#121212] px-6 py-10 text-center shadow-2xl sm:px-10">
-      <div className="flex h-28 w-28 items-center justify-center rounded-full border border-brand-gold/20 bg-brand-black">
-        <div className="h-14 w-14 animate-spin rounded-full border-4 border-white/15 border-t-brand-gold" />
+    <section className="theme-panel mx-auto flex w-full max-w-[640px] flex-col items-center rounded-[16px] border px-6 py-10 text-center shadow-2xl sm:px-10">
+      <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-brand-gold/20 bg-brand-black [html[data-theme='light']_&]:bg-[#fff8f2]">
+        <span className="absolute h-20 w-20 rounded-full border border-brand-gold/18 [html[data-theme='light']_&]:border-[#8f4e3f]/18" />
+        <span className="absolute h-20 w-20 rounded-full border border-brand-gold/28 animate-ping [html[data-theme='light']_&]:border-[#8f4e3f]/24" />
+        <span className="absolute h-12 w-12 rounded-full bg-brand-gold/12 [html[data-theme='light']_&]:bg-[#8f4e3f]/10" />
+        <span className="absolute h-4 w-4 rounded-full bg-brand-gold shadow-[0_0_28px_rgba(212,175,55,0.45)] [animation:spin_1.8s_linear_infinite] [transform-origin:0_40px] [html[data-theme='light']_&]:bg-[#8f4e3f] [html[data-theme='light']_&]:shadow-[0_0_24px_rgba(143,78,63,0.28)]" />
+        <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-gold [html[data-theme='light']_&]:text-[#8f4e3f]">
+          Sync
+        </span>
       </div>
 
       <h2 className="mt-8 text-2xl font-extrabold text-brand-white">

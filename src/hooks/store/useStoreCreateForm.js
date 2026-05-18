@@ -24,6 +24,18 @@ export function useStoreCreateForm() {
     logScreenView("store_form", "Anonymous", "store");
   }, []);
 
+  function updateGstin(value) {
+    const normalizedValue = String(value || "").toUpperCase().replace(/[^0-9A-Z]/g, "").slice(0, 15);
+
+    setGstin(normalizedValue);
+    setGstVerified(false);
+    setGstVerificationFailed(false);
+    setFieldErrors((current) => ({
+      ...current,
+      gstin: "",
+    }));
+  }
+
   async function handleVerifyGst() {
     if (gstin.trim().length !== 15) {
       const nextMessage = "GSTIN should be 15 characters";
@@ -108,7 +120,7 @@ export function useStoreCreateForm() {
     storeRegistrationId,
     setStoreRegistrationId,
     gstin,
-    setGstin,
+    setGstin: updateGstin,
     refCode,
     setRefCode,
     signatureBase64,

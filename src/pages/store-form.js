@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useState } from "react";
 import AuthButton from "@/src/components/auth/AuthButton";
 import AuthMessage from "@/src/components/auth/AuthMessage";
-import AuthShell from "@/src/components/auth/AuthShell";
+import OnboardingFlowShell from "@/src/components/auth/OnboardingFlowShell";
 import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
 import StoreSignaturePad from "@/src/components/store/StoreSignaturePad";
@@ -44,12 +44,43 @@ export default function StoreCreateFormPage() {
   }
 
   return (
-    <AuthShell>
+    <OnboardingFlowShell
+      currentStep={4}
+      stepLabel="Store registration"
+      title="Create the verified seller store."
+      subtitle="Add GST, PAN, referral details, and a signature so we can create the store record and move you into bank setup."
+      asideTitle="Submission checklist"
+      asideDescription="This is the final setup screen before payouts and review. Keep the details aligned with your GST registration."
+      asideItems={[
+        "Verify the GSTIN before submitting.",
+        "Check the legal business name pulled from GST.",
+        "Review the PAN before continuing.",
+        "Add a clean signature to complete the form.",
+        "Referral code is optional but should be added now if you have one.",
+      ]}
+      asideFooter={(
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+            Current Summary
+          </p>
+          <div className="mt-4 space-y-4 text-sm text-white/70">
+            <SummaryRow label="GSTIN" value={gstin || "Not added"} />
+            <SummaryRow label="Registered Name" value={storeRegisteredName || "Not added"} />
+            <SummaryRow label="PAN" value={storeRegistrationId || "Not added"} />
+            <SummaryRow label="Referral" value={refCode || "Optional"} />
+            <SummaryRow
+              label="GST Status"
+              value={gstVerified ? "Verified" : gstVerificationFailed ? "Manual review needed" : "Pending verification"}
+            />
+          </div>
+        </div>
+      )}
+    >
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 lg:flex-row">
         <form className="min-w-0 flex-1 space-y-6" onSubmit={handleSubmit}>
           <StoreSection
-            title="Register Your Store With Us!"
-            subtitle="Complete your business verification details to start setting up your store."
+            title="Register Your Store"
+            subtitle="Complete your business verification details to create the seller store."
           >
             <div className="space-y-5">
               <StoreField
@@ -61,7 +92,7 @@ export default function StoreCreateFormPage() {
                 onChange={setGstin}
               />
               <button
-                className="rounded-sm border border-brand-gold/50 px-4 py-2 text-sm font-bold text-brand-gold"
+                className="theme-action-accent rounded-sm border px-4 py-2 text-sm font-bold transition-colors"
                 type="button"
                 disabled={isVerifyingGst}
                 onClick={handleVerifyGst}
@@ -74,7 +105,7 @@ export default function StoreCreateFormPage() {
                 value={storeRegisteredName}
                 placeholder="Registered Store Name"
                 helper="Name as in GST details"
-                disabled={!gstVerificationFailed && gstVerified}
+                disabled={gstVerified}
                 error={fieldErrors.storeRegisteredName}
                 onChange={setStoreRegisteredName}
               />
@@ -83,7 +114,7 @@ export default function StoreCreateFormPage() {
                 label="PAN Number"
                 value={storeRegistrationId}
                 placeholder="PAN Number"
-                disabled={!gstVerificationFailed && gstVerified}
+                disabled={gstVerified}
                 error={fieldErrors.storeRegistrationId}
                 onChange={setStoreRegistrationId}
               />
@@ -110,7 +141,7 @@ export default function StoreCreateFormPage() {
             ) : null}
             <div className="mt-4 flex justify-center">
               <button
-                className="rounded-full border border-white/20 px-6 py-2 text-sm font-bold text-brand-white"
+                className="theme-action-neutral rounded-full border px-6 py-2 text-sm font-bold transition-colors"
                 type="button"
                 onClick={clearSignature}
               >
@@ -138,41 +169,17 @@ export default function StoreCreateFormPage() {
           </div>
         </form>
 
-        <aside className="w-full lg:max-w-[360px]">
-          <StoreSection title="Submission Checklist">
-            <div className="space-y-4 text-sm leading-6 text-white/65">
-              <p>Ensure the Store Name matches the name on your official GST documents.</p>
-              <p>Have your business GSTIN and PAN details handy for a smooth setup.</p>
-              <p>Review the PAN extracted from GST before you proceed.</p>
-              <p>Use the signature pad to add a clean signature before submission.</p>
-              <p>If you have a referral code, add it before continuing.</p>
-            </div>
-          </StoreSection>
-
-          <StoreSection title="Summary" subtitle="Review your details before continuing.">
-            <div className="space-y-4 text-sm text-white/70">
-              <SummaryRow label="GSTIN" value={gstin || "Not added"} />
-              <SummaryRow label="Registered Name" value={storeRegisteredName || "Not added"} />
-              <SummaryRow label="PAN" value={storeRegistrationId || "Not added"} />
-              <SummaryRow label="Referral" value={refCode || "Optional"} />
-              <SummaryRow
-                label="GST Status"
-                value={gstVerified ? "Verified" : gstVerificationFailed ? "Manual review needed" : "Pending verification"}
-              />
-            </div>
-          </StoreSection>
-        </aside>
       </div>
 
       {isReviewOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-          <div className="w-full max-w-lg rounded-sm border border-white/10 bg-[#121212] p-6 shadow-2xl">
+          <div className="theme-surface w-full max-w-lg rounded-[24px] border p-6 shadow-2xl">
             <h2 className="text-xl font-extrabold text-brand-white">Confirm Store Details</h2>
-            <p className="mt-2 text-sm text-white/55">
+            <p className="theme-text-muted mt-2 text-sm">
               Please review these details before we create the store and move into bank setup.
             </p>
 
-            <div className="mt-6 space-y-3 rounded-sm border border-white/10 bg-black/20 p-4">
+            <div className="theme-surface-soft mt-6 space-y-3 rounded-[18px] border p-4">
               <SummaryRow label="GSTIN" value={gstin} />
               <SummaryRow label="Registered Name" value={storeRegisteredName} />
               <SummaryRow label="PAN" value={storeRegistrationId} />
@@ -193,7 +200,7 @@ export default function StoreCreateFormPage() {
                 </AuthButton>
               </div>
               <button
-                className="rounded-sm border border-white/15 px-5 py-3 text-sm font-bold text-brand-white"
+                className="theme-action-neutral rounded-sm border px-5 py-3 text-sm font-bold transition-colors"
                 type="button"
                 onClick={() => setIsReviewOpen(false)}
               >
@@ -203,7 +210,7 @@ export default function StoreCreateFormPage() {
           </div>
         </div>
       ) : null}
-    </AuthShell>
+    </OnboardingFlowShell>
   );
 }
 
