@@ -2,6 +2,10 @@ import Link from "next/link";
 import ChartCard from "./ChartCard";
 import HorizontalBarChart from "./HorizontalBarChart";
 import LineChart from "./LineChart";
+import {
+  buildDailyVisitChartData,
+  buildWeeklyAnalyticsChartData,
+} from "./analyticsChartData";
 
 /**
  * @param {{ analytics: any[], dailyVisits: any[], currentDailyVisits?: number, storeInfo?: any }} props
@@ -12,22 +16,10 @@ export default function WeeklyAnalytics({
   currentDailyVisits = 0,
   storeInfo,
 }) {
-  const weeklyData = analytics.map((item) => ({
-    label: formatRange(item.sDate, item.eDate),
-    orders: Number(item.orders || 0),
-    earned: Number(item.earned || 0),
-    productViews: Number(item.productViews || item.prdViews || item.product_views || 0),
-  }));
-  const visitData = [
-    ...dailyVisits.map((item) => ({
-      label: formatDate(item.date),
-      value: Number(item.visits || 0),
-    })),
-    {
-      label: "Today",
-      value: Number(currentDailyVisits || 0),
-    },
-  ].filter((item, index, list) => item.value > 0 || index === list.length - 1);
+  const weeklyData = buildWeeklyAnalyticsChartData(analytics, {
+    multilineLabel: true,
+  });
+  const visitData = buildDailyVisitChartData(dailyVisits, currentDailyVisits);
   const productViewsUnlocked = Boolean(storeInfo?.prem) && storeInfo?.plan === "P";
 
   if (!weeklyData.length && !visitData.length) {
@@ -131,34 +123,4 @@ function SummaryPill({ label, value }) {
       <p className="mt-1 text-base font-extrabold text-brand-white">{value}</p>
     </div>
   );
-}
-
-/**
- * @param {string} start
- * @param {string} end
- * @returns {string}
- */
-function formatRange(start, end) {
-  return `${formatDate(start)}\nto\n${formatDate(end)}`;
-}
-
-/**
- * @param {string | Date} value
- * @returns {string}
- */
-function formatDate(value) {
-  if (!value) {
-    return "---";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "---";
-  }
-
-  return date.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-  });
 }

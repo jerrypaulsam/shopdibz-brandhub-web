@@ -192,8 +192,20 @@ export default function StoreInfoFormPage() {
                       <StoreField label="Pincode" type="tel" value={form.storePinCode} error={fieldErrors.storePinCode} onChange={(value) => updateField("storePinCode", value)} />
                     </>
                   ) : null}
-                  <StoreField label="ScrapItt Username" value={form.link1} onChange={(value) => updateField("link1", value)} />
-                  <StoreField label="Instagram Username" value={form.link2} onChange={(value) => updateField("link2", value)} />
+                  <StoreField
+                    label="ScrapItt Username"
+                    helper="Optional. Use only letters, numbers, periods, underscores, and an optional leading @."
+                    value={form.link1}
+                    error={fieldErrors.link1}
+                    onChange={(value) => updateField("link1", value)}
+                  />
+                  <StoreField
+                    label="Instagram Username"
+                    helper="Optional. Use only letters, numbers, periods, underscores, and an optional leading @."
+                    value={form.link2}
+                    error={fieldErrors.link2}
+                    onChange={(value) => updateField("link2", value)}
+                  />
                 </div>
               </CollapsibleStoreSection>
 

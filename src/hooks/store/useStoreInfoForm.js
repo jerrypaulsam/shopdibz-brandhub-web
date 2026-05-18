@@ -656,10 +656,28 @@ function validateStoreInfoForm(form, isInitialSetup) {
     }
   }
 
+  if (form.link1.trim() && !isValidSocialHandle(form.link1)) {
+    errors.link1 =
+      "Use only letters, numbers, periods, underscores, and an optional leading @.";
+  }
+
+  if (form.link2.trim() && !isValidSocialHandle(form.link2)) {
+    errors.link2 =
+      "Use only letters, numbers, periods, underscores, and an optional leading @.";
+  }
+
   return {
     errors,
     message: Object.values(errors)[0] || "",
   };
+}
+
+/**
+ * @param {string} value
+ * @returns {boolean}
+ */
+function isValidSocialHandle(value) {
+  return /^@?[A-Za-z0-9._]+$/.test(String(value || "").trim());
 }
 
 function normalizeYoutubeLink(value) {

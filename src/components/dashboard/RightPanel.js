@@ -4,6 +4,10 @@ import Link from "next/link";
 import AdWalletRechargeButton from "./AdWalletRechargeButton";
 import ChartCard from "./ChartCard";
 import LineChart from "./LineChart";
+import {
+  buildDailyVisitChartData,
+  buildWeeklyAnalyticsChartData,
+} from "./analyticsChartData";
 
 /**
  * @param {{ storeInfo: any, managers: any[], weeklyAnalytics?: any[], dailyVisits?: any[] }} props
@@ -17,25 +21,15 @@ export default function RightPanel({
   const [activeModal, setActiveModal] = useState("");
 
   const visitData = useMemo(
-    () =>
-      [
-        ...dailyVisits.map((item) => ({
-          label: formatDate(item.date),
-          value: Number(item.visits || 0),
-        })),
-        {
-          label: "Today",
-          value: Number(storeInfo?.dailyVisits || 0),
-        },
-      ].filter((item, index, list) => item.value > 0 || index === list.length - 1),
+    () => buildDailyVisitChartData(dailyVisits, storeInfo?.dailyVisits || 0),
     [dailyVisits, storeInfo?.dailyVisits],
   );
 
   const productViewData = useMemo(
     () =>
-      weeklyAnalytics.map((item) => ({
-        label: formatRange(item.sDate, item.eDate),
-        value: Number(item.productViews || item.product_views || 0),
+      buildWeeklyAnalyticsChartData(weeklyAnalytics).map((item) => ({
+        label: item.label,
+        value: item.productViews,
       })),
     [weeklyAnalytics],
   );
@@ -468,11 +462,11 @@ function InsightModal({ open, title, children, onClose }) {
         aria-label="Close insight modal"
         onClick={onClose}
       />
-      <section className="relative z-10 max-h-[90vh] w-full max-w-[1100px] overflow-y-auto rounded-[18px] border border-white/10 bg-[#0f0f0f] p-5 shadow-2xl sm:p-6">
+      <section className="theme-surface relative z-10 max-h-[90vh] w-full max-w-[1100px] overflow-y-auto rounded-[18px] border p-5 shadow-2xl sm:p-6">
         <div className="mb-5 flex items-center justify-between gap-4">
           <h2 className="text-lg font-extrabold text-brand-white">{title}</h2>
           <button
-            className="rounded-sm border border-white/15 px-3 py-1.5 text-sm font-bold text-white/70 transition-colors hover:text-brand-white"
+            className="theme-action-neutral rounded-sm border px-3 py-1.5 text-sm font-bold transition-colors"
             type="button"
             onClick={onClose}
           >
@@ -490,13 +484,13 @@ function InsightModal({ open, title, children, onClose }) {
  */
 function UpgradeNotice({ message, storeUrl }) {
   return (
-    <div className="rounded-sm border border-brand-gold/25 bg-[#17130a] p-6 text-center">
+    <div className="theme-surface rounded-sm border border-brand-gold/25 p-6 text-center">
       <p className="text-base font-bold text-brand-white">{message}</p>
-      <p className="mt-2 text-sm text-white/55">
+      <p className="theme-text-muted mt-2 text-sm">
         Upgrade your plan to unlock detailed analytics for your brand team.
       </p>
       <Link
-        className="mt-5 inline-flex min-h-11 items-center justify-center rounded-sm bg-[#2d5a42] px-5 text-sm font-bold text-brand-white"
+        className="theme-action-positive mt-5 inline-flex min-h-11 items-center justify-center rounded-sm border px-5 text-sm font-bold transition-colors"
         href={storeUrl ? "/subscription-plans" : "#"}
       >
         View Plans
@@ -519,34 +513,4 @@ function resolveModalTitle(value) {
   }
 
   return "Analytics Access";
-}
-
-/**
- * @param {string} start
- * @param {string} end
- * @returns {string}
- */
-function formatRange(start, end) {
-  return `${formatDate(start)} to ${formatDate(end)}`;
-}
-
-/**
- * @param {string | Date} value
- * @returns {string}
- */
-function formatDate(value) {
-  if (!value) {
-    return "---";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "---";
-  }
-
-  return date.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-  });
 }

@@ -15,8 +15,8 @@ const advantages = [
   "Increase your profit per sale with lower commission rates.",
   "Build your own brand page inside the Shopdibz mall.",
   "Grow a loyal customer community across India.",
-  "Use seller tools and analytics built for modern D2C teams.",
-  "Get dedicated support from the seller success team.",
+  "Use brand tools and analytics built for modern D2C teams.",
+  "Get dedicated support from the brand success team.",
 ];
 
 /**
@@ -117,7 +117,7 @@ export default function OnboardingPaywall({ storeInfo }) {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#070707] px-4 py-8 text-brand-white sm:px-6 lg:px-8">
+    <main className="theme-app relative min-h-screen overflow-hidden px-4 py-8 text-brand-white sm:px-6 lg:px-8 [html[data-theme='light']_&]:text-[#2f2622]">
       <Script
         src="https://checkout.razorpay.com/v1/checkout.js"
         strategy="afterInteractive"
@@ -134,7 +134,7 @@ export default function OnboardingPaywall({ storeInfo }) {
       <div className="relative mx-auto max-w-6xl">
         <div className="flex justify-end">
           <button
-            className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white/80 transition-colors hover:border-white/20 hover:bg-white/8 hover:text-brand-white"
+            className="theme-action-neutral inline-flex min-h-10 items-center gap-2 rounded-sm border px-4 text-sm font-semibold transition-colors"
             type="button"
             onClick={handleLogout}
           >
@@ -143,17 +143,17 @@ export default function OnboardingPaywall({ storeInfo }) {
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_380px]">
-          <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(145deg,rgba(18,18,18,0.96),rgba(8,8,8,0.92))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:p-8 lg:p-10">
+          <section className="theme-surface rounded-[28px] border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:p-8 lg:p-10">
             <div className="inline-flex rounded-full border border-brand-gold/30 bg-brand-gold/10 px-4 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-brand-gold">
               Onboarding Fee
             </div>
 
             <div className="mt-6 max-w-3xl">
               <h1 className="text-4xl font-extrabold tracking-[-0.03em] text-brand-white sm:text-5xl">
-                Launch your store with a cleaner, faster seller setup.
+                Launch your store with a cleaner, faster brand setup.
               </h1>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-white/62 sm:text-lg">
-                Activate your Brand Hub onboarding and unlock the seller workspace,
+              <p className="theme-text-muted mt-5 max-w-2xl text-base leading-7 sm:text-lg">
+                Activate your Brand Hub onboarding and unlock the brand workspace,
                 brand presence, and growth tools built for modern D2C teams.
               </p>
             </div>
@@ -176,17 +176,17 @@ export default function OnboardingPaywall({ storeInfo }) {
               />
             </div>
 
-            <div className="mt-8 rounded-[24px] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+            <div className="theme-surface-soft mt-8 rounded-[24px] border p-5 sm:p-6">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/38">
-                    Seller Activation
+                  <p className="theme-text-muted text-sm font-semibold uppercase tracking-[0.16em]">
+                    Brand Activation
                   </p>
                   <div className="mt-3 flex items-end gap-3">
                     <p className="text-4xl font-extrabold text-brand-white sm:text-5xl">
                       Rs. 499
                     </p>
-                    <p className="pb-2 text-lg font-semibold text-white/28 line-through">
+                    <p className="theme-text-muted pb-2 text-lg font-semibold line-through">
                       Rs. 999
                     </p>
                   </div>
@@ -195,8 +195,8 @@ export default function OnboardingPaywall({ storeInfo }) {
                   Limited Time Offer
                 </div>
               </div>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-white/55">
-                Use this one-time onboarding flow to complete seller activation and continue the rest of your Brand Hub setup with full access.
+              <p className="theme-text-muted mt-4 max-w-2xl text-sm leading-6">
+                Use this one-time onboarding flow to complete brand activation and continue the rest of your Brand Hub setup with full access.
               </p>
             </div>
 
@@ -207,29 +207,29 @@ export default function OnboardingPaywall({ storeInfo }) {
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {advantages.map((item) => (
                   <div
-                    className="flex gap-3 rounded-2xl border border-white/8 bg-black/20 px-4 py-4"
+                    className="theme-surface-soft flex gap-3 rounded-2xl border px-4 py-4"
                     key={item}
                   >
                     <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-gold/15 text-xs font-bold text-brand-gold">
                       +
                     </span>
-                    <p className="text-sm leading-6 text-white/68">{item}</p>
+                    <p className="theme-text-muted text-sm leading-6">{item}</p>
                   </div>
                 ))}
               </div>
             </div>
           </section>
 
-          <aside className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-8">
-            <div className="rounded-[24px] border border-brand-gold/20 bg-[#111111] p-5">
+          <aside className="theme-surface rounded-[28px] border p-6 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-8">
+            <div className="theme-surface-soft rounded-[24px] border border-brand-gold/20 p-5">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
                 Next Step
               </p>
               <h2 className="mt-3 text-2xl font-extrabold text-brand-white">
                 Complete onboarding
               </h2>
-              <p className="mt-3 text-sm leading-6 text-white/58">
-                Complete your onboarding payment here in Brand Hub and continue straight into your seller workspace.
+              <p className="theme-text-muted mt-3 text-sm leading-6">
+                Complete your onboarding payment here in Brand Hub and continue straight into your brand workspace.
               </p>
 
               <div className="mt-6 space-y-3">
@@ -242,40 +242,40 @@ export default function OnboardingPaywall({ storeInfo }) {
                   {isPaying ? "Processing..." : "Pay and Start"}
                 </button>
                 {paymentMessage ? (
-                  <p className="text-sm font-medium text-red-200">{paymentMessage}</p>
+                  <p className="text-sm font-medium text-red-200 [html[data-theme='light']_&]:text-red-700">{paymentMessage}</p>
                 ) : !isRazorpayReady ? (
-                  <p className="text-sm font-medium text-white/45">
+                  <p className="theme-text-muted text-sm font-medium">
                     Loading secure payment gateway...
                   </p>
                 ) : null}
                 <Link
-                  className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-white/12 bg-white/4 px-5 text-base font-semibold text-white/80 transition-colors hover:border-white/20 hover:bg-white/7 hover:text-brand-white"
+                  className="theme-action-neutral inline-flex min-h-12 w-full items-center justify-center rounded-2xl border px-5 text-base font-semibold transition-colors"
                   href="/hub"
                 >
-                  Back to Public Hub
+                  Back to Brand Hub
                 </Link>
               </div>
             </div>
 
-            <div className="mt-5 rounded-[24px] border border-white/8 bg-black/20 p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/38">
+            <div className="theme-surface-soft mt-5 rounded-[24px] border p-5">
+              <p className="theme-text-muted text-xs font-bold uppercase tracking-[0.18em]">
                 What happens after payment
               </p>
-              <ol className="mt-4 space-y-4 text-sm text-white/62">
+              <ol className="theme-text-muted mt-4 space-y-4 text-sm">
                 <li className="flex gap-3">
-                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-xs font-bold text-brand-white">
+                  <span className="theme-surface inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold text-brand-white">
                     1
                   </span>
                   <span>Razorpay opens in-page so you can complete activation without leaving Brand Hub.</span>
                 </li>
                 <li className="flex gap-3">
-                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-xs font-bold text-brand-white">
+                  <span className="theme-surface inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold text-brand-white">
                     2
                   </span>
-                  <span>Once the payment is verified, you are redirected back into your seller flow automatically.</span>
+                  <span>Once the payment is verified, you are redirected back into your brand flow automatically.</span>
                 </li>
                 <li className="flex gap-3">
-                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-xs font-bold text-brand-white">
+                  <span className="theme-surface inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold text-brand-white">
                     3
                   </span>
                   <span>Finish store details, payments setup, and product onboarding from the Brand Hub.</span>
@@ -294,12 +294,12 @@ export default function OnboardingPaywall({ storeInfo }) {
  */
 function MetricCard({ label, value, helper }) {
   return (
-    <div className="rounded-[22px] border border-white/10 bg-black/20 px-5 py-4">
-      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/35">
+    <div className="theme-surface-soft rounded-[22px] border px-5 py-4">
+      <p className="theme-text-muted text-[11px] font-bold uppercase tracking-[0.16em]">
         {label}
       </p>
       <p className="mt-3 text-2xl font-extrabold text-brand-white">{value}</p>
-      <p className="mt-2 text-sm text-white/50">{helper}</p>
+      <p className="theme-text-muted mt-2 text-sm">{helper}</p>
     </div>
   );
 }

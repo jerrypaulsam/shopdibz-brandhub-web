@@ -63,8 +63,8 @@ export default function OnboardPaymentPage() {
 
   if (isChecking) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#070707] text-brand-white">
-        <p className="text-sm font-semibold text-white/60">
+      <main className="theme-app flex min-h-screen items-center justify-center text-brand-white">
+        <p className="theme-text-muted text-sm font-semibold">
           Preparing onboarding...
         </p>
       </main>

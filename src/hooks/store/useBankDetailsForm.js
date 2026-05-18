@@ -128,6 +128,8 @@ export function useBankDetailsForm({ isFirstTime }) {
 
       try {
         const data = await lookupBankIfsc(ifscCode);
+        const resolvedBankName = resolveIfscBankName(data);
+        const resolvedAddress = resolveIfscAddress(data);
 
         if (!isCurrent) {
           return;
@@ -135,10 +137,10 @@ export function useBankDetailsForm({ isFirstTime }) {
 
         setForm((current) => ({
           ...current,
-          bankName: data?.bank || current.bankName,
+          bankName: resolvedBankName || current.bankName,
           ifscCode,
         }));
-        setIfscDetails(data?.address || "");
+        setIfscDetails(resolvedAddress || resolvedBankName || "");
       } catch (error) {
         if (!isCurrent) {
           return;
@@ -323,4 +325,31 @@ export function useBankDetailsForm({ isFirstTime }) {
     startEditing,
     cancelEditing,
   };
+}
+
+/**
+ * @param {any} data
+ * @returns {string}
+ */
+function resolveIfscBankName(data) {
+  return String(
+    data?.bank ||
+      data?.BANK ||
+      data?.bankName ||
+      data?.bank_name ||
+      "",
+  ).trim();
+}
+
+/**
+ * @param {any} data
+ * @returns {string}
+ */
+function resolveIfscAddress(data) {
+  const address = String(data?.address || data?.ADDRESS || "").trim();
+  const branch = String(data?.branch || data?.BRANCH || "").trim();
+  const city = String(data?.city || data?.CITY || "").trim();
+  const state = String(data?.state || data?.STATE || "").trim();
+
+  return [branch, address, city, state].filter(Boolean).join(", ");
 }

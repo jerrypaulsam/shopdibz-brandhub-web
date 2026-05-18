@@ -25,7 +25,19 @@ export default async function handler(req, res) {
     }
 
     try {
-      res.status(response.status).json(JSON.parse(text));
+      const parsed = JSON.parse(text);
+      const bankName = String(
+        parsed?.bank || parsed?.BANK || parsed?.bankName || parsed?.bank_name || "",
+      ).trim();
+      const address = String(parsed?.address || parsed?.ADDRESS || "").trim();
+      const branch = String(parsed?.branch || parsed?.BRANCH || "").trim();
+
+      res.status(response.status).json({
+        ...parsed,
+        bank: bankName,
+        address,
+        branch,
+      });
     } catch {
       res.status(response.status).json({ message: text || "IFSC lookup failed" });
     }
