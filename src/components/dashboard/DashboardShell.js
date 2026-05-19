@@ -4,6 +4,8 @@ import DashboardSidebar from "./DashboardSidebar";
 import {
   clearCachedStoreInfo,
   getCachedStoreInfo,
+  getSessionCachedStoreInfo,
+  getSessionCachedStoreInfoSnapshot,
   getAuthSessionSnapshot,
   subscribeAuthSession,
 } from "@/src/api/auth";
@@ -21,8 +23,12 @@ export default function DashboardShell({ children }) {
   const router = useRouter();
   const pathname = String(router.pathname || "");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isCheckingAccess, setIsCheckingAccess] = useState(() => !getCachedStoreInfo());
-  const [sidebarStoreInfo, setSidebarStoreInfo] = useState(() => getCachedStoreInfo());
+  const [isCheckingAccess, setIsCheckingAccess] = useState(
+    () => !getSessionCachedStoreInfo(),
+  );
+  const [sidebarStoreInfo, setSidebarStoreInfo] = useState(
+    () => getSessionCachedStoreInfo() || getCachedStoreInfo(),
+  );
   const [sidebarBannerImages, setSidebarBannerImages] = useState([]);
   const hasHydrated = useSyncExternalStore(
     subscribeToHydration,
@@ -32,6 +38,11 @@ export default function DashboardShell({ children }) {
   const session = useSyncExternalStore(
     subscribeAuthSession,
     getAuthSessionSnapshot,
+    () => null,
+  );
+  const sessionCachedStoreInfoSnapshot = useSyncExternalStore(
+    subscribeAuthSession,
+    getSessionCachedStoreInfoSnapshot,
     () => null,
   );
   const parsedSession = useMemo(() => {
@@ -45,6 +56,17 @@ export default function DashboardShell({ children }) {
       return null;
     }
   }, [session]);
+  const sessionCachedStoreInfo = useMemo(() => {
+    if (!sessionCachedStoreInfoSnapshot) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(sessionCachedStoreInfoSnapshot);
+    } catch {
+      return null;
+    }
+  }, [sessionCachedStoreInfoSnapshot]);
   const hasAccessToken = Boolean(parsedSession?.data?.access || parsedSession?.access);
   const hasStoreUrl = Boolean(
     parsedSession?.user?.storeUrl ||
@@ -79,6 +101,28 @@ export default function DashboardShell({ children }) {
         if (isCurrent) {
           setIsCheckingAccess(false);
         }
+        return;
+      }
+
+      if (sessionCachedStoreInfo) {
+        setSidebarStoreInfo(sessionCachedStoreInfo);
+        setIsCheckingAccess(false);
+
+        fetchBannerImages()
+          .then((banners) => {
+            if (!isCurrent) {
+              return;
+            }
+
+            setSidebarBannerImages(banners?.results || []);
+          })
+          .catch(() => {
+            if (!isCurrent) {
+              return;
+            }
+
+            setSidebarBannerImages([]);
+          });
         return;
       }
 
@@ -163,7 +207,7 @@ export default function DashboardShell({ children }) {
     return () => {
       isCurrent = false;
     };
-  }, [hasAccessToken, hasHydrated, isSetupRoute, parsedSession, router, router.isReady]);
+  }, [hasAccessToken, hasHydrated, isSetupRoute, parsedSession, router, router.isReady, sessionCachedStoreInfo]);
 
   if (!hasHydrated || !hasAccessToken || isCheckingAccess) {
     return (

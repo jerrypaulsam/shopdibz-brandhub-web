@@ -14,6 +14,7 @@
 export const AUTH_STORAGE_KEY = "shopdibz_seller_auth";
 export const MOBILE_VERIFY_STORAGE_KEY = "shopdibz_mobile_verified";
 export const STORE_INFO_STORAGE_KEY = "shopdibz_store_info";
+export const SESSION_STORE_INFO_STORAGE_KEY = "shopdibz_session_store_info";
 export const AUTH_SESSION_EVENT = "shopdibz:auth-session-change";
 
 /**
@@ -379,10 +380,12 @@ export function saveAuthSession(authData) {
 
   if (cachedStore?.url && nextSession.storeUrl && cachedStore.url !== nextSession.storeUrl) {
     window.localStorage.removeItem(STORE_INFO_STORAGE_KEY);
+    window.sessionStorage.removeItem(SESSION_STORE_INFO_STORAGE_KEY);
   }
 
   if (!nextSession.storeUrl) {
     window.localStorage.removeItem(STORE_INFO_STORAGE_KEY);
+    window.sessionStorage.removeItem(SESSION_STORE_INFO_STORAGE_KEY);
   }
 
   window.localStorage.setItem(
@@ -518,6 +521,7 @@ export function clearCachedStoreInfo() {
   }
 
   window.localStorage.removeItem(STORE_INFO_STORAGE_KEY);
+  window.sessionStorage.removeItem(SESSION_STORE_INFO_STORAGE_KEY);
   dispatchAuthSessionChange();
 }
 
@@ -554,6 +558,17 @@ export function getAuthSessionSnapshot() {
   return window.localStorage.getItem(AUTH_STORAGE_KEY);
 }
 
+/**
+ * @returns {string | null}
+ */
+export function getSessionCachedStoreInfoSnapshot() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.sessionStorage.getItem(SESSION_STORE_INFO_STORAGE_KEY);
+}
+
 function dispatchAuthSessionChange() {
   if (typeof window === "undefined") {
     return;
@@ -571,6 +586,10 @@ export function cacheStoreInfo(storeInfo) {
   }
 
   window.localStorage.setItem(STORE_INFO_STORAGE_KEY, JSON.stringify(storeInfo));
+  window.sessionStorage.setItem(
+    SESSION_STORE_INFO_STORAGE_KEY,
+    JSON.stringify(storeInfo),
+  );
 
   updateAuthSession({
     storeUrl: storeInfo?.url || "",
@@ -604,7 +623,34 @@ export function getCachedStoreInfo() {
     return null;
   }
 
+  const sessionStoreInfo = getSessionCachedStoreInfo();
+
+  if (sessionStoreInfo) {
+    return sessionStoreInfo;
+  }
+
   const rawStoreInfo = window.localStorage.getItem(STORE_INFO_STORAGE_KEY);
+
+  if (!rawStoreInfo) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawStoreInfo);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * @returns {any | null}
+ */
+export function getSessionCachedStoreInfo() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const rawStoreInfo = window.sessionStorage.getItem(SESSION_STORE_INFO_STORAGE_KEY);
 
   if (!rawStoreInfo) {
     return null;

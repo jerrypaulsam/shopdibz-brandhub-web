@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import { useEffect } from "react";
 import Script from "next/script";
 import { useRouter } from "next/router";
+import { trackPageView } from "@/src/api/analytics";
 import MaintenanceScreen from "@/src/components/app/MaintenanceScreen";
 import ConfirmProvider from "@/src/components/app/ConfirmProvider";
 import FirebaseNotificationsBootstrap from "@/src/components/app/FirebaseNotificationsBootstrap";
@@ -25,12 +26,7 @@ export default function App({ Component, pageProps }) {
     }
 
     function handleRouteChange(url) {
-      if (typeof window.gtag === "function") {
-        const normalizedPath = String(url || "").split("?")[0].split("#")[0] || window.location.pathname;
-        window.gtag("config", analyticsId, {
-          page_path: normalizedPath,
-        });
-      }
+      trackPageView(analyticsId, url || window.location.pathname);
     }
 
     router.events.on("routeChangeComplete", handleRouteChange);

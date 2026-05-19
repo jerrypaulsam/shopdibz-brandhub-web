@@ -3,14 +3,14 @@ import {
   cacheStoreInfo,
   getAccessToken,
   getCachedStoreInfo,
+  getSessionCachedStoreInfo,
   updateAuthSession,
 } from "./auth";
 import { resolveApiErrorMessage } from "./error";
 
-const BANNER_IMAGES_CACHE_MS = 1500;
+const SESSION_BANNER_IMAGES_STORAGE_KEY = "shopdibz_session_banner_images";
 let bannerImagesCache = {
   key: "",
-  expiresAt: 0,
   data: null,
 };
 let bannerImagesRequest = {
@@ -21,13 +21,55 @@ let bannerImagesRequest = {
 function invalidateBannerImagesCache() {
   bannerImagesCache = {
     key: "",
-    expiresAt: 0,
     data: null,
   };
   bannerImagesRequest = {
     key: "",
     promise: null,
   };
+
+  if (typeof window !== "undefined") {
+    window.sessionStorage.removeItem(SESSION_BANNER_IMAGES_STORAGE_KEY);
+  }
+}
+
+/**
+ * @returns {{ key: string, data: any } | null}
+ */
+function getSessionBannerImagesCache() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const rawValue = window.sessionStorage.getItem(SESSION_BANNER_IMAGES_STORAGE_KEY);
+
+  if (!rawValue) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawValue);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * @param {string} key
+ * @param {any} data
+ */
+function cacheSessionBannerImages(key, data) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.setItem(
+    SESSION_BANNER_IMAGES_STORAGE_KEY,
+    JSON.stringify({
+      key,
+      data,
+    }),
+  );
 }
 
 /**
@@ -200,7 +242,7 @@ export function updateStoreTheme(themeId) {
 
 export function fetchEditableStoreInfo() {
   const session = getDashboardSession();
-  const cachedStore = getCachedStoreInfo();
+  const cachedStore = getSessionCachedStoreInfo() || getCachedStoreInfo();
 
   if (!session.storeUrl && cachedStore) {
     return Promise.resolve(cachedStore);
@@ -289,12 +331,18 @@ export function fetchProductGroups() {
 export function fetchBannerImages() {
   const session = getDashboardSession();
   const cacheKey = `${session.accessToken}:${session.storeUrl}`;
-  const now = Date.now();
+  const sessionBannerImagesCache = getSessionBannerImagesCache();
+
+  if (
+    sessionBannerImagesCache?.key === cacheKey &&
+    sessionBannerImagesCache.data
+  ) {
+    return Promise.resolve(sessionBannerImagesCache.data);
+  }
 
   if (
     bannerImagesCache.key === cacheKey
     && bannerImagesCache.data
-    && bannerImagesCache.expiresAt > now
   ) {
     return Promise.resolve(bannerImagesCache.data);
   }
@@ -317,9 +365,9 @@ export function fetchBannerImages() {
     .then((data) => {
       bannerImagesCache = {
         key: cacheKey,
-        expiresAt: Date.now() + BANNER_IMAGES_CACHE_MS,
         data,
       };
+      cacheSessionBannerImages(cacheKey, data);
       return data;
     })
     .finally(() => {

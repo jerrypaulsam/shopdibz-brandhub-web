@@ -1,4 +1,9 @@
-import { cacheStoreInfo, getAuthSession, getCachedStoreInfo } from "./auth";
+import {
+  cacheStoreInfo,
+  getAuthSession,
+  getCachedStoreInfo,
+  getSessionCachedStoreInfo,
+} from "./auth";
 import { resolveApiErrorMessage } from "./error";
 
 const STORE_INFO_CACHE_MS = 1500;
@@ -82,6 +87,15 @@ export function fetchStoreInfo(options = {}) {
   const cacheKey = `${session.accessToken}:${session.storeUrl}`;
   const now = Date.now();
   const forceFresh = Boolean(options.forceFresh);
+  const sessionCachedStoreInfo = getSessionCachedStoreInfo();
+
+  if (
+    !forceFresh &&
+    sessionCachedStoreInfo &&
+    String(sessionCachedStoreInfo?.url || "").trim() === String(session.storeUrl || "").trim()
+  ) {
+    return Promise.resolve(sessionCachedStoreInfo);
+  }
 
   if (
     !forceFresh &&
