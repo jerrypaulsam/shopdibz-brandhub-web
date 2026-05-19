@@ -5,7 +5,7 @@ import { clearAuthSession, logoutSeller } from "@/src/api/auth";
 import BrandHubLogo from "@/src/components/app/BrandHubLogo";
 import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { useToast } from "@/src/components/app/ToastProvider";
-import { PRODUCT_BULK_TEMPLATE_URLS } from "@/src/data/product-variation-options";
+import { DOWNLOAD_ITEMS } from "@/src/data/downloads";
 import { getStoreSliderMeta } from "@/src/utils/store-slider-routing";
 
 function buildMenuSections(sliderItem) {
@@ -304,41 +304,6 @@ export default function DashboardSidebar({
     </nav>
   );
 }
-
-const DOWNLOAD_ITEMS = [
-  {
-    label: "Bulk Listing Without Variation",
-    href: PRODUCT_BULK_TEMPLATE_URLS.create["without-variant"],
-  },
-  {
-    label: "Bulk Listing With Variation",
-    href: PRODUCT_BULK_TEMPLATE_URLS.create["with-variant"],
-  },
-  {
-    label: "Bulk Update Product Attributes",
-    href: "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/bulkUpdatewVar.xlsx",
-  },
-  {
-    label: "Bulk Update Variation Attributes",
-    href: "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/bulkUpdatewithVar.xlsx",
-  },
-  {
-    label: "Template for Product/Offer Groups",
-    href: "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/ProductCodeAdd.xlsx",
-  },
-  {
-    label: "Template For Featured Products",
-    href: "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/ProductCodeAdd.xlsx",
-  },
-  {
-    label: "Example Bulk Listing Without Variation",
-    href: PRODUCT_BULK_TEMPLATE_URLS.sample["without-variant"],
-  },
-  {
-    label: "Example Bulk Listing With Variation",
-    href: PRODUCT_BULK_TEMPLATE_URLS.sample["with-variant"],
-  },
-];
 
 /**
  * @param {{ name: string, className?: string }} props

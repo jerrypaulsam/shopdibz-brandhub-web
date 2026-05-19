@@ -209,17 +209,4 @@ export const PRODUCT_SHIP_EX_ZONES = [
   "Nagaland",
 ];
 
-export const PRODUCT_BULK_TEMPLATE_URLS = {
-  create: {
-    "without-variant":
-      "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/bulkcreatenew.xlsm",
-    "with-variant":
-      "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/bulkcreate_withVariation.xlsm",
-  },
-  sample: {
-    "without-variant":
-      "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/sampleCreate.xlsm",
-    "with-variant":
-      "https://shopdibz-main-1.s3.ap-south-1.amazonaws.com/Bulk+create+Template/sampleCreate_withVariation.xlsm",
-  },
-};
+export { PRODUCT_BULK_TEMPLATE_URLS } from "@/src/data/downloads";
