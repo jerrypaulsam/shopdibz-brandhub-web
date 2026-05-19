@@ -164,6 +164,19 @@ export function updateOrderTracking(payload) {
 }
 
 /**
+ * @param {{ orderId: number, company: string, trackingNo: string }} payload
+ * @returns {Promise<any>}
+ */
+export function updateRefundTracking(payload) {
+  const session = getDashboardSession();
+
+  return postOrderJson("/api/orders/update-refund-tracking", {
+    accessToken: session.accessToken,
+    payload,
+  });
+}
+
+/**
  * @param {number} orderId
  * @returns {Promise<any>}
  */

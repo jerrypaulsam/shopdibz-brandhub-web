@@ -26,6 +26,15 @@ export default function OrderAttentionPanel({ storeInfo }) {
       tone:
         "border-violet-400/30 bg-violet-400/10 text-violet-200 [html[data-theme='light']_&]:text-violet-700",
     },
+    ...(Number(storeInfo?.activeReturns || 0) > 0
+      ? [{
+          label: "Refund",
+          value: Number(storeInfo?.activeReturns || 0),
+          href: "/orders-list?tab=refund",
+          tone:
+            "border-red-400/30 bg-red-400/10 text-red-100 [html[data-theme='light']_&]:border-red-500/30 [html[data-theme='light']_&]:bg-red-500/12 [html[data-theme='light']_&]:text-red-700",
+        }]
+      : []),
   ];
 
   return (
@@ -47,7 +56,7 @@ export default function OrderAttentionPanel({ storeInfo }) {
         </Link>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-3">
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {items.map((item) => (
           <Link
             className={`rounded-sm border p-4 transition-transform hover:-translate-y-0.5 ${item.tone}`}

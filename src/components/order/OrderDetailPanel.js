@@ -25,7 +25,7 @@ import {
 } from "@/src/utils/orders";
 
 /**
- * @param {{ order: any, isLoading: boolean, message: string, actionMessage: string, actionError: string, busyAction: string, isPhoneVisible: boolean, onTogglePhone: (value: boolean) => void, onSubmitPack: (payload: { packageWidth: number, packageLength: number, packageHeight: number, packageWeight: number }) => Promise<void>, onSubmitTracking: (payload: { company: string, trackingNo: string, trackingUrl: string }) => Promise<void>, onSubmitDelivered: () => Promise<void>, onSubmitCancel: (payload: { reasonId: number, detail: string }) => Promise<void>, onSubmitMessage: (message: string) => Promise<void>, onOpenInvoice: () => Promise<void>, onOpenCreditNote: () => Promise<void>, onOpenShippingLabel: () => Promise<void> }} props
+ * @param {{ order: any, isLoading: boolean, message: string, actionMessage: string, actionError: string, busyAction: string, isPhoneVisible: boolean, onTogglePhone: (value: boolean) => void, onSubmitPack: (payload: { packageWidth: number, packageLength: number, packageHeight: number, packageWeight: number }) => Promise<void>, onSubmitTracking: (payload: { company: string, trackingNo: string, trackingUrl: string }) => Promise<void>, onSubmitRefundReturnTracking: (payload: { company: string, trackingNo: string }) => Promise<boolean>, onSubmitDelivered: () => Promise<void>, onSubmitCancel: (payload: { reasonId: number, detail: string }) => Promise<void>, onSubmitMessage: (message: string) => Promise<void>, onOpenInvoice: () => Promise<void>, onOpenCreditNote: () => Promise<void>, onOpenShippingLabel: () => Promise<void> }} props
  */
 export default function OrderDetailPanel({
   order,
@@ -38,6 +38,7 @@ export default function OrderDetailPanel({
   onTogglePhone,
   onSubmitPack,
   onSubmitTracking,
+  onSubmitRefundReturnTracking,
   onSubmitDelivered,
   onSubmitCancel,
   onSubmitMessage,
@@ -63,18 +64,26 @@ export default function OrderDetailPanel({
   const [messageText, setMessageText] = useState("");
   const [isMessageComposerOpen, setIsMessageComposerOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [isReturnTrackingDialogOpen, setIsReturnTrackingDialogOpen] = useState(false);
+  const [returnTrackingForm, setReturnTrackingForm] = useState({
+    company: "",
+    trackingNo: "",
+  });
 
   const status = getOrderStatusCode(order);
   const variantLabel = getOrderVariantLabel(order);
   const productSlug = order?.product?.slug || order?.prdt?.slug || "";
   const trackingUrl = String(order?.trackUrl || "").trim();
   const canTrackShipment = Boolean(trackingUrl);
-  const refundCode = String(order?.product?.refund || "").trim();
-  const hasRefundSection = ["RQ", "AC", "RJ", "CO"].includes(refundCode)
-    || Boolean(order?.product?.refundStatus)
-    || Boolean(order?.product?.refundType)
-    || Boolean(order?.product?.refundAttachment)
-    || Boolean(order?.product?.refundId);
+  const hasRefundSection = Boolean(order?.product?.refundId);
+  const returnTrackingNumber = String(order?.product?.returnAwb || "").trim();
+  const returnTrackingCompany = String(order?.product?.returnShipComp || "").trim();
+  const hasReturnTrackingDetails = Boolean(returnTrackingNumber || returnTrackingCompany);
+  const canUpdateReturnTracking = hasRefundSection
+    && String(order?.product?.refundStatus || "").trim() === "Accepted"
+    && !order?.assistedShip
+    && !hasReturnTrackingDetails
+    && !order?.product?.refundCompleted;
   const totalValue = useMemo(
     () => getOrderQuantity(order) * getOrderUnitPrice(order),
     [order],
@@ -86,6 +95,18 @@ export default function OrderDetailPanel({
     if (sent) {
       setMessageText("");
       setIsMessageComposerOpen(false);
+    }
+  }
+
+  async function handleSubmitReturnTracking() {
+    const saved = await onSubmitRefundReturnTracking(returnTrackingForm);
+
+    if (saved) {
+      setReturnTrackingForm({
+        company: "",
+        trackingNo: "",
+      });
+      setIsReturnTrackingDialogOpen(false);
     }
   }
 
@@ -216,10 +237,10 @@ export default function OrderDetailPanel({
                     </p>
                   </div>
                   <h2 className="mt-3 text-xl font-extrabold text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
-                    Review before taking the next action
+                    Refund details for seller visibility
                   </h2>
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-red-100/80 [html[data-theme='light']_&]:text-red-900/80">
-                    This order has refund activity attached to it. Keep these details visible while handling support, shipment, and settlement steps.
+                    This order has refund activity attached to it. Refund decisions are handled by the Shopdibz team or system checks after verification. If anything looks incorrect, raise a support ticket with the relevant details.
                   </p>
                 </div>
                 {order?.product?.refundStatus ? (
@@ -232,6 +253,10 @@ export default function OrderDetailPanel({
               <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 <Metric label="Refund Status" value={order?.product?.refundStatus || "---"} />
                 <Metric label="Request Type" value={order?.product?.refundType || "---"} />
+                <Metric
+                  label="Return Shipping"
+                  value={order?.assistedShip ? "Assisted shipping" : "Self shipping"}
+                />
               </div>
 
               {order?.product?.cancellationReason ? (
@@ -244,6 +269,43 @@ export default function OrderDetailPanel({
                   </p>
                 </div>
               ) : null}
+
+              <div className="mt-5 rounded-sm border border-red-300/20 bg-black/15 p-4 [html[data-theme='light']_&]:bg-white/40">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-red-100/75 [html[data-theme='light']_&]:text-red-700">
+                      Return tracking
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                      Current refund status: <span className="font-bold">{order?.product?.refundStatus || "---"}</span>. Return tracking can only be added after the refund is accepted.
+                    </p>
+                    {hasReturnTrackingDetails ? (
+                      <div className="mt-3 grid gap-3 md:grid-cols-2">
+                        <InfoRow label="Return Shipping Company" value={returnTrackingCompany} />
+                        <InfoRow label="Return Tracking ID" value={returnTrackingNumber} />
+                      </div>
+                    ) : order?.assistedShip ? (
+                      <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                        Reverse shipping is handled automatically for assisted shipping orders. Tracking details will appear here when available.
+                      </p>
+                    ) : (
+                      <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                        Return tracking details have not been added yet for this self-shipping refund.
+                      </p>
+                    )}
+                  </div>
+
+                  {canUpdateReturnTracking ? (
+                    <button
+                      className="theme-action-accent inline-flex min-h-10 shrink-0 items-center rounded-sm border px-4 text-sm font-bold transition-colors"
+                      type="button"
+                      onClick={() => setIsReturnTrackingDialogOpen(true)}
+                    >
+                      Add Return Tracking
+                    </button>
+                  ) : null}
+                </div>
+              </div>
 
               {order?.product?.refundAttachment ? (
                 <div className="mt-5">
@@ -721,6 +783,58 @@ export default function OrderDetailPanel({
                 disabled={busyAction === "message"}
                 label={busyAction === "message" ? "Sending..." : "Send Message"}
                 onClick={handleSubmitMessage}
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {isReturnTrackingDialogOpen ? (
+        <div className="theme-overlay fixed inset-0 z-[90] flex items-center justify-center px-4">
+          <div className="theme-surface w-full max-w-lg rounded-sm border p-5 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+                  Return Tracking
+                </p>
+                <h2 className="mt-2 text-lg font-extrabold text-brand-white">
+                  Add self-shipping return details
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-white/55">
+                  Use the courier details for this return shipment. Assisted reverse shipping updates automatically and does not need manual entry here.
+                </p>
+              </div>
+              <button
+                className="theme-action-neutral inline-flex h-10 w-10 items-center justify-center rounded-sm border transition-colors"
+                type="button"
+                onClick={() => setIsReturnTrackingDialogOpen(false)}
+              >
+                x
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <TextInput
+                label="Return Shipping Company"
+                value={returnTrackingForm.company}
+                onChange={(value) =>
+                  setReturnTrackingForm((current) => ({ ...current, company: value }))
+                }
+              />
+              <TextInput
+                label="Return Tracking ID"
+                value={returnTrackingForm.trackingNo}
+                onChange={(value) =>
+                  setReturnTrackingForm((current) => ({ ...current, trackingNo: value }))
+                }
+              />
+            </div>
+
+            <div className="mt-5 flex flex-wrap justify-end gap-3">
+              <PrimaryButton
+                disabled={busyAction === "refund-tracking"}
+                label={busyAction === "refund-tracking" ? "Saving..." : "Save Return Tracking"}
+                onClick={handleSubmitReturnTracking}
               />
             </div>
           </div>

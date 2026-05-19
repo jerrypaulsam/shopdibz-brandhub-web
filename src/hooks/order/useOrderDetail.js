@@ -8,6 +8,7 @@ import {
   sendOrderMessage,
   updateOrderStatus,
   updateOrderTracking,
+  updateRefundTracking,
 } from "@/src/api/orders";
 import { getDashboardSession } from "@/src/api/dashboard";
 import { logScreenView } from "@/src/api/analytics";
@@ -183,6 +184,52 @@ export function useOrderDetail() {
     if (result) {
       setActionMessage("Order marked as delivered.");
     }
+  }
+
+  async function submitRefundReturnTracking(payload) {
+    if (!String(payload.company || "").trim()) {
+      setActionError("Return shipping company is required.");
+      return false;
+    }
+
+    if (!/^[A-Za-z ]+$/.test(String(payload.company || "").trim())) {
+      setActionError("Return shipping company must contain only letters and spaces.");
+      return false;
+    }
+
+    if (String(payload.company || "").trim().length > 25) {
+      setActionError("Return shipping company must be 25 characters or fewer.");
+      return false;
+    }
+
+    if (!String(payload.trackingNo || "").trim()) {
+      setActionError("Return tracking ID is required.");
+      return false;
+    }
+
+    if (!/^[A-Za-z0-9]+$/.test(String(payload.trackingNo || "").trim())) {
+      setActionError("Return tracking ID must contain only letters and numbers.");
+      return false;
+    }
+
+    if (String(payload.trackingNo || "").trim().length > 30) {
+      setActionError("Return tracking ID must be 30 characters or fewer.");
+      return false;
+    }
+
+    const result = await runAction("refund-tracking", () =>
+      updateRefundTracking({
+        orderId,
+        ...payload,
+      }),
+    );
+
+    if (result) {
+      setActionMessage("Return tracking details updated.");
+      return true;
+    }
+
+    return false;
   }
 
   async function submitCancel(payload) {
@@ -381,6 +428,7 @@ export function useOrderDetail() {
     revealPhone,
     submitPack,
     submitTracking,
+    submitRefundReturnTracking,
     submitDelivered,
     submitCancel,
     submitMessage,

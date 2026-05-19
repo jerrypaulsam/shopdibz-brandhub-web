@@ -181,7 +181,7 @@ export function getOrderStatusTone(status) {
   }
 
   if (normalizedStatus === "RE") {
-    return "bg-violet-500/15 text-violet-200 border-violet-500/30";
+    return "bg-violet-500/15 text-violet-100 border-violet-500/30 [html[data-theme='light']_&]:bg-violet-500/12 [html[data-theme='light']_&]:text-violet-800 [html[data-theme='light']_&]:border-violet-500/35";
   }
 
   return "bg-brand-gold/15 text-brand-gold border-brand-gold/30";
@@ -325,6 +325,9 @@ export function normalizeOrderDetail(raw) {
       refundAttachment: product?.refundAttachment ?? product?.refAtt ?? "",
       refundId: product?.refundId ?? null,
       refundStatus: product?.refundStatus ?? "",
+      returnAwb: product?.returnAwb ?? "",
+      returnShipComp: product?.returnShipComp ?? "",
+      refundCompleted: Boolean(product?.refundCompleted),
     },
     address: {
       ...address,
@@ -526,6 +529,17 @@ export function canMessageCustomer(detail) {
  */
 function normalizeOrderListItem(raw) {
   const order = raw || {};
+  const rawProduct = order?.product ?? order?.prdt ?? {};
+  const product = {
+    ...rawProduct,
+    title: rawProduct?.title || "",
+    quantity: Number(rawProduct?.quantity || 0),
+    refundStatus:
+      rawProduct?.refundStatus ??
+      rawProduct?.refund_status ??
+      order?.refundStatus ??
+      "",
+  };
 
   return {
     ...order,
@@ -537,8 +551,8 @@ function normalizeOrderListItem(raw) {
       order?.order?.OrderId ??
       "",
     image: order?.image ?? order?.img ?? "",
-    prdt: order?.prdt ?? order?.product ?? {},
-    product: order?.product ?? order?.prdt ?? {},
+    prdt: product,
+    product,
     statusCode:
       order?.statusCode ??
       order?.prdt?.status ??

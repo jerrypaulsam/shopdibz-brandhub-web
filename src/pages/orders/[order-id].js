@@ -14,10 +14,12 @@ export default function OrderDetailPage() {
     revealPhone,
     submitPack,
     submitTracking,
+    submitRefundReturnTracking,
     submitDelivered,
     submitCancel,
     submitMessage,
     openInvoice,
+    openCreditNote,
     openShippingLabel,
   } = useOrderDetail();
 
@@ -32,11 +34,13 @@ export default function OrderDetailPage() {
         message={message}
         order={order}
         onOpenInvoice={openInvoice}
+        onOpenCreditNote={openCreditNote}
         onOpenShippingLabel={openShippingLabel}
         onSubmitCancel={submitCancel}
         onSubmitDelivered={submitDelivered}
         onSubmitMessage={submitMessage}
         onSubmitPack={submitPack}
+        onSubmitRefundReturnTracking={submitRefundReturnTracking}
         onSubmitTracking={submitTracking}
         onTogglePhone={revealPhone}
       />

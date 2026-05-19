@@ -12,14 +12,20 @@ import {
 } from "@/src/utils/orders";
 
 /**
- * @param {{ order: any, fallbackStatus?: string }} props
+ * @param {{ order: any, fallbackStatus?: string, activeTabSlug?: string }} props
  */
-export default function OrderCard({ order, fallbackStatus = "" }) {
+export default function OrderCard({ order, fallbackStatus = "", activeTabSlug = "" }) {
   const image = getOrderPrimaryImage(order);
   const status = fallbackStatus || order?.statusCode || order?.status || "";
   const variantLabel = getOrderVariantLabel(order);
   const orderReference = getOrderReference(order);
   const orderItemId = getOrderItemId(order);
+  const refundStatus = String(
+    order?.product?.refundStatus ||
+    order?.prdt?.refundStatus ||
+    "",
+  ).trim();
+  const showRefundStatus = activeTabSlug === "refund" && refundStatus && refundStatus !== "Not Requested";
   const displayReference =
     orderReference.length > 18
       ? `${orderReference.slice(0, 10)}...${orderReference.slice(-6)}`
@@ -46,11 +52,17 @@ export default function OrderCard({ order, fallbackStatus = "" }) {
 
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={`inline-flex w-fit items-center rounded-sm border px-2.5 py-1 text-xs font-bold uppercase tracking-[0.14em] ${getOrderStatusTone(status)}`}
-              >
-                {getOrderStatusLabel(status)}
-              </span>
+              {showRefundStatus ? (
+                <span className={`inline-flex w-fit items-center rounded-sm border px-2.5 py-1 text-xs font-bold uppercase tracking-[0.14em] ${getRefundStatusTone(refundStatus)}`}>
+                  {refundStatus}
+                </span>
+              ) : (
+                <span
+                  className={`inline-flex w-fit items-center rounded-sm border px-2.5 py-1 text-xs font-bold uppercase tracking-[0.14em] ${getOrderStatusTone(status)}`}
+                >
+                  {getOrderStatusLabel(status)}
+                </span>
+              )}
               <span className="rounded-sm border border-white/10 px-2.5 py-1 text-xs font-semibold text-white/55">
                 Order #{displayReference || "---"}
               </span>
@@ -91,4 +103,22 @@ export default function OrderCard({ order, fallbackStatus = "" }) {
       </div>
     </article>
   );
+}
+
+/**
+ * @param {string} value
+ * @returns {string}
+ */
+function getRefundStatusTone(value) {
+  const normalized = String(value || "").toLowerCase();
+
+  if (normalized.includes("accepted") || normalized.includes("completed")) {
+    return "border-emerald-500/30 bg-emerald-500/15 text-emerald-200 [html[data-theme='light']_&]:border-emerald-500/35 [html[data-theme='light']_&]:bg-emerald-500/10 [html[data-theme='light']_&]:text-emerald-800";
+  }
+
+  if (normalized.includes("rejected") || normalized.includes("declined")) {
+    return "border-red-500/30 bg-red-500/15 text-red-200 [html[data-theme='light']_&]:border-red-500/35 [html[data-theme='light']_&]:bg-red-500/10 [html[data-theme='light']_&]:text-red-800";
+  }
+
+  return "border-amber-500/30 bg-amber-500/15 text-amber-100 [html[data-theme='light']_&]:border-amber-500/35 [html[data-theme='light']_&]:bg-amber-500/10 [html[data-theme='light']_&]:text-amber-800";
 }

@@ -279,6 +279,7 @@ function normalizeStoreInfo(raw) {
     pOrders: toNumber([store.pOrders, store.pendingOrders]),
     packedOrders: toNumber([store.packedOrders, store.pacOrders]),
     shippedOrders: toNumber([store.shippedOrders, store.shOrders]),
+    activeReturns: toNumber([store.activeReturns, store.returnOrders, store.returnsActive]),
     completedOrders: toNumber([store.completedOrders, store.comOrders]),
     cancelledOrders: toNumber([store.cancelledOrders, store.canOrders]),
     followers: toNumber([store.followers, store.folls]),

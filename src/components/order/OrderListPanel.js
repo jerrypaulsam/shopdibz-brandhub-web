@@ -86,6 +86,7 @@ export default function OrderListPanel({
         {!isLoading
           ? orders.map((order) => (
               <OrderCard
+                activeTabSlug={activeTab.slug}
                 key={order?.oIId || order?.id || order?.orderId}
                 order={order}
                 fallbackStatus={activeTab.status}
