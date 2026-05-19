@@ -1,11 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { clearAuthSession, logoutSeller } from "@/src/api/auth";
 import BrandHubLogo from "@/src/components/app/BrandHubLogo";
 import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { useToast } from "@/src/components/app/ToastProvider";
-import { DOWNLOAD_ITEMS } from "@/src/data/downloads";
 import { getStoreSliderMeta } from "@/src/utils/store-slider-routing";
 
 function buildMenuSections(sliderItem) {
@@ -50,8 +48,8 @@ function buildMenuSections(sliderItem) {
         {
           label: "Downloads",
           icon: "download",
-          kind: "notice",
-          notice: "Download templates will be available soon.",
+          href: "/downloads",
+          kind: "route",
         },
       ],
     },
@@ -69,7 +67,6 @@ export default function DashboardSidebar({
 }) {
   const { confirm } = useConfirm();
   const { showToast } = useToast();
-  const [isDownloadsOpen, setIsDownloadsOpen] = useState(false);
   const sliderMeta = getStoreSliderMeta(storeInfo, bannerImages);
   const menuSections = buildMenuSections({
     label: sliderMeta.navLabel,
@@ -201,11 +198,6 @@ export default function DashboardSidebar({
                         return;
                       }
 
-                      if (item.label === "Downloads") {
-                        setIsDownloadsOpen(true);
-                        return;
-                      }
-
                       showToast({
                         message:
                           item.label === "Feeds"
@@ -255,52 +247,6 @@ export default function DashboardSidebar({
         </span>
         Logout
       </Link>
-
-      {isDownloadsOpen ? (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 px-4">
-          <div className="w-full max-w-2xl rounded-sm border border-white/10 bg-[#121212] p-5 shadow-2xl">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
-                  Downloads
-                </p>
-                <h2 className="mt-2 text-lg font-extrabold text-brand-white">
-                  Templates
-                </h2>
-              </div>
-              <button
-                className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-white/10 text-white/65 transition-colors hover:border-white/20 hover:text-brand-white"
-                type="button"
-                onClick={() => setIsDownloadsOpen(false)}
-              >
-                x
-              </button>
-            </div>
-
-            <div className="mt-5 space-y-2">
-              {DOWNLOAD_ITEMS.map((item) => (
-                <button
-                  key={item.label}
-                  className="flex min-h-12 w-full items-center justify-between rounded-sm border border-white/10 px-4 text-left text-sm font-semibold text-white/75 transition-colors hover:border-brand-gold hover:text-brand-white"
-                  type="button"
-                  onClick={() => {
-                    if (typeof window !== "undefined") {
-                      window.open(item.href, "_blank", "noopener,noreferrer");
-                    }
-                    showToast({
-                      message: `${item.label} opened in a new tab.`,
-                      type: "success",
-                    });
-                  }}
-                >
-                  <span>{item.label}</span>
-                  <SidebarGlyph className="h-4 w-4" name="download" />
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      ) : null}
     </nav>
   );
 }
