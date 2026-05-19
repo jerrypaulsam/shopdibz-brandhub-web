@@ -1,5 +1,8 @@
+import { useMemo, useState } from "react";
 import AuthButton from "@/src/components/auth/AuthButton";
+import ProductSearchableSelect from "@/src/components/product/ProductSearchableSelect";
 import StoreSection from "@/src/components/store/StoreSection";
+import { findProductCategoryPathMatches } from "@/src/data/product-category-search";
 
 /**
  * @param {{ categories: Array<any>, subCategories: Array<any>, itemSubCategories: Array<any>, draft: any, chooseCategory: (value: string) => void, chooseSubCategory: (value: string) => void, chooseItemSubCategory: (value: string) => void, chooseVariantMode: (value: string) => void, chooseListingMode: (value: string) => void, continueToNext: () => Promise<void> }} props
@@ -16,75 +19,127 @@ export default function ProductCategoryPanel({
   chooseListingMode,
   continueToNext,
 }) {
+  const [catalogSearch, setCatalogSearch] = useState("");
+  const categoryOptions = useMemo(
+    () =>
+      categories.map((category) => ({
+        value: category.slug,
+        label: category.name,
+      })),
+    [categories],
+  );
+  const subCategoryOptions = useMemo(
+    () =>
+      subCategories.map((subCategory) => ({
+        value: subCategory.slug,
+        label: subCategory.name,
+      })),
+    [subCategories],
+  );
+  const itemSubCategoryOptions = useMemo(
+    () =>
+      itemSubCategories.map((itemSubCategory) => ({
+        value: itemSubCategory.slug,
+        label: itemSubCategory.name,
+      })),
+    [itemSubCategories],
+  );
+  const smartMatches = useMemo(
+    () => findProductCategoryPathMatches(categories, catalogSearch, 5),
+    [categories, catalogSearch],
+  );
+
+  function applySuggestedPath(path) {
+    chooseCategory(path.categorySlug);
+    chooseSubCategory(path.subCategorySlug);
+    chooseItemSubCategory(path.itemSubCategorySlug || "");
+    setCatalogSearch(path.label);
+  }
+
   return (
     <div className="space-y-6">
       <StoreSection
         title="Category Selection"
         subtitle="Choose the most specific category path so search, analytics, and bulk templates stay aligned."
       >
-        <div className="grid gap-5 lg:grid-cols-2">
-          <label className="block">
-            <span className="text-sm font-semibold text-white/80">Category</span>
-            <select
-              className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
-              value={draft.categorySlug}
-              onChange={(event) => chooseCategory(event.target.value)}
-            >
-              <option className="bg-black" value="">
-                Select category
-              </option>
-              {categories.map((category) => (
-                <option className="bg-black" key={category.slug} value={category.slug}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="mb-5 rounded-[18px] border border-white/10 bg-black/20 p-4">
+          <div className="flex flex-col gap-3">
+            <div>
+              <p className="text-sm font-semibold text-white/80">Smart Category Search</p>
+              <p className="mt-1 text-xs leading-5 text-white/45">
+                Search with product or category keywords to see the most probable path from category.json and fill the dropdowns in one click.
+              </p>
+            </div>
 
-          <label className="block">
-            <span className="text-sm font-semibold text-white/80">Subcategory</span>
-            <select
-              className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
-              value={draft.subCategorySlug}
-              onChange={(event) => chooseSubCategory(event.target.value)}
-            >
-              <option className="bg-black" value="">
-                Select subcategory
-              </option>
-              {subCategories.map((subCategory) => (
-                <option className="bg-black" key={subCategory.slug} value={subCategory.slug}>
-                  {subCategory.name}
-                </option>
-              ))}
-            </select>
-          </label>
+            <input
+              className="w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none placeholder:text-white/25"
+              type="text"
+              value={catalogSearch}
+              placeholder="Try: t-shirt, cricket bat, face wash"
+              onChange={(event) => setCatalogSearch(event.target.value)}
+            />
+
+            {catalogSearch.trim() ? (
+              smartMatches.length ? (
+                <div className="space-y-2">
+                  {smartMatches.map((match, index) => (
+                    <button
+                      className={`block w-full rounded-[14px] border px-4 py-3 text-left transition-colors ${
+                        index === 0
+                          ? "border-brand-gold/35 bg-brand-gold/10"
+                          : "border-white/10 hover:border-white/20"
+                      }`}
+                      key={match.key}
+                      type="button"
+                      onClick={() => applySuggestedPath(match)}
+                    >
+                      <p className="text-sm font-bold text-brand-white">
+                        {index === 0 ? "Best match" : "Suggested path"}
+                      </p>
+                      <p className="mt-1 text-sm text-white/70">{match.label}</p>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-white/45">
+                  No probable category flow found for that search yet.
+                </p>
+              )
+            ) : null}
+          </div>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-2">
+          <ProductSearchableSelect
+            label="Category"
+            value={draft.categorySlug}
+            options={categoryOptions}
+            placeholder="Select category"
+            onChange={chooseCategory}
+          />
+
+          <ProductSearchableSelect
+            label="Subcategory"
+            value={draft.subCategorySlug}
+            options={subCategoryOptions}
+            placeholder="Select subcategory"
+            onChange={chooseSubCategory}
+            disabled={!draft.categorySlug}
+            emptyMessage={draft.categorySlug ? "No subcategories found." : "Choose a category first."}
+          />
         </div>
 
         {itemSubCategories.length ? (
           <div className="mt-5">
-            <label className="block">
-              <span className="text-sm font-semibold text-white/80">
-                Item Subcategory
-              </span>
-              <select
-                className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
-                value={draft.itemSubCategorySlug}
-                onChange={(event) => chooseItemSubCategory(event.target.value)}
-              >
-                <option className="bg-black" value="">
-                  Select item subcategory
-                </option>
-                {itemSubCategories.map((itemSubCategory) => (
-                  <option
-                    className="bg-black"
-                    key={itemSubCategory.slug}
-                    value={itemSubCategory.slug}
-                  >
-                    {itemSubCategory.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <ProductSearchableSelect
+              label="Item Subcategory"
+              value={draft.itemSubCategorySlug}
+              options={itemSubCategoryOptions}
+              placeholder="Select item subcategory"
+              onChange={chooseItemSubCategory}
+              disabled={!draft.subCategorySlug}
+              emptyMessage={draft.subCategorySlug ? "No item subcategories found." : "Choose a subcategory first."}
+            />
           </div>
         ) : null}
       </StoreSection>
