@@ -56,16 +56,24 @@ export async function resolveSellerAccessRoute(options) {
       session?.cre,
     ]),
   );
-  const verified = toBoolean(
+  let verified = toBoolean(
     firstDefined([
       session?.verified,
       session?.user?.ver,
       session?.ver,
     ]),
   );
+  const verification =
+    storeCreated
+      ? await options.checkStoreVerification().catch(() => null)
+      : null;
+
+  if (verification?.status === 200 || verification?.status === 201) {
+    verified = true;
+  }
 
   if (!storeUrl) {
-    if (verified) {
+    if (verification?.status === 200 || verification?.status === 201 || verified) {
       return {
         redirectTo: "/store-info-form",
         storeInfo: cachedStoreInfo,
@@ -73,36 +81,40 @@ export async function resolveSellerAccessRoute(options) {
       };
     }
 
-    if (storeCreated) {
-      const verification = await options.checkStoreVerification().catch(() => null);
+    if (verification?.status === 403) {
+      return {
+        redirectTo: "/awaiting-verification",
+        storeInfo: cachedStoreInfo,
+        resolved: true,
+      };
+    }
 
-      if (verification?.status === 200 || verification?.status === 201) {
-        return {
-          redirectTo: "/store-info-form",
-          storeInfo: cachedStoreInfo,
-          resolved: true,
-        };
-      }
-
-      if (verification?.status === 403) {
-        return {
-          redirectTo: "/awaiting-verification",
-          storeInfo: cachedStoreInfo,
-          resolved: true,
-        };
-      }
-
-      if (verification?.status === 404) {
-        return {
-          redirectTo: "/settings/bank/create",
-          storeInfo: cachedStoreInfo,
-          resolved: true,
-        };
-      }
+    if (verification?.status === 404) {
+      return {
+        redirectTo: "/settings/bank/create",
+        storeInfo: cachedStoreInfo,
+        resolved: true,
+      };
     }
 
     return {
       redirectTo: "/store-form",
+      storeInfo: cachedStoreInfo,
+      resolved: true,
+    };
+  }
+
+  if (verification?.status === 403) {
+    return {
+      redirectTo: "/awaiting-verification",
+      storeInfo: cachedStoreInfo,
+      resolved: true,
+    };
+  }
+
+  if (verification?.status === 404) {
+    return {
+      redirectTo: "/settings/bank/create",
       storeInfo: cachedStoreInfo,
       resolved: true,
     };
@@ -116,7 +128,7 @@ export async function resolveSellerAccessRoute(options) {
     };
   }
 
-  let storeInfo = cachedStoreInfo;
+  let storeInfo = null;
 
   try {
     const fetchedStoreInfo = await options.fetchStoreInfo();
@@ -133,7 +145,7 @@ export async function resolveSellerAccessRoute(options) {
       };
     }
 
-    // Leave route resolution to the session/cached state when store info is unavailable.
+    storeInfo = cachedStoreInfo;
   }
 
   if (isStoreClosed(storeInfo)) {

@@ -9,16 +9,17 @@ import {
 } from "@/src/api/auth";
 import {
   fetchStoreInfo,
-  getDashboardSession,
   isClosedStoreAccessError,
 } from "@/src/api/dashboard";
-import { fetchBannerImages } from "@/src/api/store";
+import { checkStoreVerification, fetchBannerImages } from "@/src/api/store";
+import { resolveSellerAccessRoute } from "@/src/utils/sellerAccess";
 
 /**
  * @param {{ children: import("react").ReactNode }} props
  */
 export default function DashboardShell({ children }) {
   const router = useRouter();
+  const pathname = String(router.pathname || "");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCheckingAccess, setIsCheckingAccess] = useState(() => !getCachedStoreInfo());
   const [sidebarStoreInfo, setSidebarStoreInfo] = useState(() => getCachedStoreInfo());
@@ -50,6 +51,15 @@ export default function DashboardShell({ children }) {
       parsedSession?.user?.store_url ||
       parsedSession?.storeUrl,
   );
+  const isSetupRoute = [
+    "/store-form",
+    "/settings/bank/create",
+    "/awaiting-verification",
+    "/store-info-form",
+    "/onboard-payment",
+    "/subscription-payment-status",
+    "/store-closed",
+  ].includes(pathname);
 
   useEffect(() => {
     if (hasHydrated && router.isReady && !hasAccessToken) {
@@ -65,9 +75,7 @@ export default function DashboardShell({ children }) {
         return;
       }
 
-      const session = getDashboardSession();
-
-      if (!session.storeUrl) {
+      if (isSetupRoute) {
         if (isCurrent) {
           setIsCheckingAccess(false);
         }
@@ -75,16 +83,38 @@ export default function DashboardShell({ children }) {
       }
 
       try {
-        // Workspace access is validated here instead of the global route guard so
-        // dashboard transitions stay responsive. We do one fresh store-info check
-        // up front, then let individual pages load against the warmed session/cache.
+        // Workspace routes still need the same onboarding/paywall resolution as
+        // setup routes, otherwise direct URLs can bypass the expected seller flow.
         if (!getCachedStoreInfo()) {
           setIsCheckingAccess(true);
         }
 
-        const storeInfo = await fetchStoreInfo({ forceFresh: true });
+        const access = await resolveSellerAccessRoute({
+          session: parsedSession,
+          cachedStoreInfo: getCachedStoreInfo(),
+          fetchStoreInfo: () => fetchStoreInfo({ forceFresh: true }),
+          checkStoreVerification,
+        });
 
         if (!isCurrent) {
+          return;
+        }
+
+        if (access.redirectTo) {
+          if (access.redirectTo === "/store-closed") {
+            clearCachedStoreInfo();
+          }
+
+          await router.replace(access.redirectTo);
+          return;
+        }
+
+        const storeInfo = access.storeInfo || getCachedStoreInfo();
+
+        if (!storeInfo) {
+          setSidebarStoreInfo(null);
+          setSidebarBannerImages([]);
+          setIsCheckingAccess(false);
           return;
         }
 
@@ -133,7 +163,7 @@ export default function DashboardShell({ children }) {
     return () => {
       isCurrent = false;
     };
-  }, [hasAccessToken, hasHydrated, router, router.isReady]);
+  }, [hasAccessToken, hasHydrated, isSetupRoute, parsedSession, router, router.isReady]);
 
   if (!hasHydrated || !hasAccessToken || isCheckingAccess) {
     return (

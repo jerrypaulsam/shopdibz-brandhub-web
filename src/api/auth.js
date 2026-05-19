@@ -575,7 +575,6 @@ export function cacheStoreInfo(storeInfo) {
   updateAuthSession({
     storeUrl: storeInfo?.url || "",
     storeCreated: true,
-    verified: true,
     user: {
       storeUrl: storeInfo?.url || "",
       email: storeInfo?.user?.email || "",
@@ -593,7 +592,6 @@ export function cacheStoreInfo(storeInfo) {
         storeInfo?.user?.eV ??
         true,
       cre: true,
-      ver: true,
     },
   });
 }

@@ -146,7 +146,8 @@ export function useStoreInfoForm() {
   }
 
   async function submitInfo() {
-    const validation = validateStoreInfoForm(form, !storeInfo);
+    const isInitialSetup = !String(storeInfo?.url || "").trim();
+    const validation = validateStoreInfoForm(form, isInitialSetup);
 
     if (validation.message) {
       setFieldErrors(validation.errors);

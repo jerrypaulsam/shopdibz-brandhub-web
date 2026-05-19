@@ -86,7 +86,7 @@ export default function SellerRouteGuard({ children }) {
         const access = await resolveSellerAccessRoute({
           session,
           cachedStoreInfo: getCachedStoreInfo(),
-          fetchStoreInfo,
+          fetchStoreInfo: () => fetchStoreInfo({ forceFresh: true }),
           checkStoreVerification,
         });
 

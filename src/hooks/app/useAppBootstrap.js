@@ -62,7 +62,7 @@ export function useAppBootstrap() {
         const access = await resolveSellerAccessRoute({
           session: getAuthSession() || authSession,
           cachedStoreInfo: getCachedStoreInfo(),
-          fetchStoreInfo,
+          fetchStoreInfo: () => fetchStoreInfo({ forceFresh: true }),
           checkStoreVerification,
         });
 
