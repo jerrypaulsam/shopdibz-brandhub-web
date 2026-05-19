@@ -237,7 +237,7 @@ export default function OrderDetailPanel({
                     </p>
                   </div>
                   <h2 className="mt-3 text-xl font-extrabold text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
-                    Refund details for seller visibility
+                    Refund details for brand visibility
                   </h2>
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-red-100/80 [html[data-theme='light']_&]:text-red-900/80">
                     This order has refund activity attached to it. Refund decisions are handled by the Shopdibz team or system checks after verification. If anything looks incorrect, raise a support ticket with the relevant details.
