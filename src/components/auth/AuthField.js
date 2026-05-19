@@ -1,5 +1,5 @@
 /**
- * @param {{ label: string, value: string, onChange: (value: string) => void, type?: string, placeholder?: string, autoComplete?: string, maxLength?: number, centered?: boolean }} props
+ * @param {{ label: string, value: string, onChange: (value: string) => void, type?: string, placeholder?: string, autoComplete?: string, maxLength?: number, centered?: boolean, disabled?: boolean }} props
  */
 export default function AuthField({
   label,
@@ -10,6 +10,7 @@ export default function AuthField({
   autoComplete,
   maxLength,
   centered = false,
+  disabled = false,
 }) {
   return (
     <label className="theme-text-muted-strong block text-sm font-semibold">
@@ -23,6 +24,7 @@ export default function AuthField({
         placeholder={placeholder || label}
         autoComplete={autoComplete}
         maxLength={maxLength}
+        disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
       />
     </label>

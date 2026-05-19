@@ -9,6 +9,7 @@ import AuthTitle from "@/src/components/auth/AuthTitle";
 import { useSellerGuestRedirect } from "@/src/hooks/auth/useSellerGuestRedirect";
 import { useLoginForm } from "@/src/hooks/auth/useLoginForm";
 import { useState } from "react";
+import BrandHubLogo from "@/src/components/app/BrandHubLogo";
 
 export default function LoginPage() {
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
@@ -20,14 +21,25 @@ export default function LoginPage() {
     setPassword,
     message,
     isSubmitting,
+    isTransitioning,
     submitLogin,
   } = useLoginForm();
 
-  if (isRedirecting) {
+  if (isRedirecting || isTransitioning) {
     return (
       <AuthShell>
-        <div className="flex flex-1 items-center justify-center text-sm font-semibold text-white/60">
-          Redirecting to dashboard...
+        <div className="flex flex-1 items-center justify-center px-6">
+          <div className="text-center">
+            <div className="mx-auto flex h-20 w-20 animate-pulse items-center justify-center rounded-full">
+              <BrandHubLogo alt="Shopdibz Brand Hub" width={80} height={80} priority />
+            </div>
+            <p className="mt-6 text-sm font-bold uppercase tracking-[0.18em] text-brand-white">
+              Signing you in
+            </p>
+            <p className="mt-2 text-sm font-semibold text-white/60">
+              Opening your dashboard...
+            </p>
+          </div>
         </div>
       </AuthShell>
     );
@@ -51,6 +63,7 @@ export default function LoginPage() {
                 value={email}
                 type="email"
                 autoComplete="email"
+                disabled={isSubmitting}
                 onChange={setEmail}
               />
               <AuthField
@@ -58,6 +71,7 @@ export default function LoginPage() {
                 value={password}
                 type="password"
                 autoComplete="current-password"
+                disabled={isSubmitting}
                 onChange={setPassword}
               />
             </div>

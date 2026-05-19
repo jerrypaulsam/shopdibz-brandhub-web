@@ -14,6 +14,7 @@ export function useLoginForm() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     if (hasAuthenticatedSellerSession()) {
@@ -31,6 +32,7 @@ export function useLoginForm() {
     }
 
     setIsSubmitting(true);
+    setIsTransitioning(false);
     setMessage("");
 
     try {
@@ -41,10 +43,12 @@ export function useLoginForm() {
         loc,
       });
       saveAuthSession(result.data);
-      setMessage("Logged In");
+      setMessage("Login successful. Opening your dashboard...");
+      setIsTransitioning(true);
       await router.replace("/");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Invalid Credentials");
+      setIsTransitioning(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -57,6 +61,7 @@ export function useLoginForm() {
     setPassword,
     message,
     isSubmitting,
+    isTransitioning,
     submitLogin,
   };
 }
