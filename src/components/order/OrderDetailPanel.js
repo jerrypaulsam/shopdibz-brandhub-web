@@ -68,7 +68,13 @@ export default function OrderDetailPanel({
   const variantLabel = getOrderVariantLabel(order);
   const productSlug = order?.product?.slug || order?.prdt?.slug || "";
   const trackingUrl = String(order?.trackUrl || "").trim();
-  const canTrackShipment = status === "SD" && Boolean(trackingUrl);
+  const canTrackShipment = Boolean(trackingUrl);
+  const refundCode = String(order?.product?.refund || "").trim();
+  const hasRefundSection = ["RQ", "AC", "RJ", "CO"].includes(refundCode)
+    || Boolean(order?.product?.refundStatus)
+    || Boolean(order?.product?.refundType)
+    || Boolean(order?.product?.refundAttachment)
+    || Boolean(order?.product?.refundId);
   const totalValue = useMemo(
     () => getOrderQuantity(order) * getOrderUnitPrice(order),
     [order],
@@ -197,6 +203,63 @@ export default function OrderDetailPanel({
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_320px] 2xl:grid-cols-[minmax(0,1.55fr)_340px]">
         <div className="space-y-6">
+          {hasRefundSection ? (
+            <article className="rounded-sm border border-red-500/30 bg-red-500/10 p-5 shadow-[0_0_0_1px_rgba(239,68,68,0.08)] [html[data-theme='light']_&]:border-red-500/35 [html[data-theme='light']_&]:bg-red-500/12">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="rounded-sm border border-red-300/35 bg-red-400/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-red-100 [html[data-theme='light']_&]:text-red-800">
+                      Priority
+                    </span>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-red-100/80 [html[data-theme='light']_&]:text-red-700">
+                      Refund and return details
+                    </p>
+                  </div>
+                  <h2 className="mt-3 text-xl font-extrabold text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                    Review before taking the next action
+                  </h2>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-red-100/80 [html[data-theme='light']_&]:text-red-900/80">
+                    This order has refund activity attached to it. Keep these details visible while handling support, shipment, and settlement steps.
+                  </p>
+                </div>
+                {order?.product?.refundStatus ? (
+                  <span className="inline-flex items-center self-start rounded-sm border border-red-300/35 bg-red-400/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-red-100 [html[data-theme='light']_&]:text-red-800">
+                    {order.product.refundStatus}
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                <Metric label="Refund Status" value={order?.product?.refundStatus || "---"} />
+                <Metric label="Request Type" value={order?.product?.refundType || "---"} />
+              </div>
+
+              {order?.product?.cancellationReason ? (
+                <div className="mt-5 rounded-sm border border-red-300/20 bg-black/15 p-4 [html[data-theme='light']_&]:bg-white/40">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-red-100/75 [html[data-theme='light']_&]:text-red-700">
+                    Reason shared
+                  </p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                    {order.product.cancellationReason}
+                  </p>
+                </div>
+              ) : null}
+
+              {order?.product?.refundAttachment ? (
+                <div className="mt-5">
+                  <a
+                    className="theme-action-neutral inline-flex min-h-10 items-center rounded-sm border px-4 text-sm font-semibold transition-colors"
+                    href={order.product.refundAttachment}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Open Refund Attachment
+                  </a>
+                </div>
+              ) : null}
+            </article>
+          ) : null}
+
           <article className="theme-surface rounded-sm border p-5">
             <div className="flex flex-col gap-5 lg:flex-row">
               {getOrderPrimaryImage(order) ? (
@@ -363,7 +426,7 @@ export default function OrderDetailPanel({
                 <InfoRow label="Pickup Schedule" value={order?.pickUpSchedule} />
                 <InfoRow label="Tracking Company" value={order?.shipCompany} />
                 <InfoRow label="Tracking Number" value={order?.trackNo} />
-                <InfoRow label="Tracking URL" value={order?.trackUrl} isLink />
+                <TrackingActionRow label="Tracking" href={trackingUrl} />
                 <InfoRow
                   label="Delivered On"
                   value={formatOrderDate(order?.product?.delDate)}
@@ -371,7 +434,7 @@ export default function OrderDetailPanel({
               </div>
             </div>
 
-            {order?.product?.cancellationReason ? (
+            {order?.product?.cancellationReason && !hasRefundSection ? (
               <div className="mt-5 rounded-sm border border-white/10 bg-black/20 p-4">
                 <p className="text-sm font-bold text-brand-white">
                   {["AC", "RQ", "RJ", "CO"].includes(String(order?.product?.refund || ""))
@@ -744,6 +807,29 @@ function InfoRow({ label, value, isLink = false }) {
       ) : (
         <span className="text-right font-semibold text-brand-white">{value}</span>
       )}
+    </div>
+  );
+}
+
+/**
+ * @param {{ label: string, href: string }} props
+ */
+function TrackingActionRow({ label, href }) {
+  if (!href) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-start justify-between gap-4 rounded-sm border border-white/10 bg-black/10 px-3 py-3">
+      <span className="theme-text-muted">{label}</span>
+      <a
+        className="theme-action-neutral inline-flex min-h-9 shrink-0 items-center rounded-sm border px-3 text-sm font-semibold transition-colors"
+        href={href}
+        rel="noreferrer"
+        target="_blank"
+      >
+        Track Order
+      </a>
     </div>
   );
 }

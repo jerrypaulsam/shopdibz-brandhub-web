@@ -321,6 +321,10 @@ export function normalizeOrderDetail(raw) {
       cancellationReason:
         product?.cancellationReason ?? product?.canReason ?? "",
       resellPrice: product?.resellPrice ?? null,
+      refundType: product?.refundType ?? product?.type ?? "",
+      refundAttachment: product?.refundAttachment ?? product?.refAtt ?? "",
+      refundId: product?.refundId ?? null,
+      refundStatus: product?.refundStatus ?? "",
     },
     address: {
       ...address,
