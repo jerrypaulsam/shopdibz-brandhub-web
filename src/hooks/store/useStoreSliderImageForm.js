@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { addStoreBanners, fetchBannerImages, fetchEditableStoreInfo, fetchProductGroups } from "@/src/api/store";
 import { logScreenView } from "@/src/api/analytics";
 
@@ -24,11 +24,25 @@ export function useStoreSliderImageForm(initialMobileSliderSelection = false) {
   const [storeInfo, setStoreInfo] = useState(null);
   const [bannerImages, setBannerImages] = useState([]);
   const [productGroups, setProductGroups] = useState([]);
-  const [mobileSliderSelection, setMobileSliderSelection] = useState(initialMobileSliderSelection);
+  const [mobileSliderSelection, setMobileSliderSelectionState] = useState(initialMobileSliderSelection);
+  const mobileSliderSelectionRef = useRef(initialMobileSliderSelection);
   const [slots, setSlots] = useState(() => buildSlots(MAX_SLIDERS_PER_VIEW));
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const setMobileSliderSelection = useCallback((value) => {
+    const nextSelection = Boolean(value);
+    mobileSliderSelectionRef.current = nextSelection;
+
+    setMobileSliderSelectionState((current) => {
+      if (current === nextSelection) {
+        return current;
+      }
+
+      return nextSelection;
+    });
+    setSlots(buildSlots(getRequiredSlotCountForView(bannerImages, nextSelection)));
+  }, [bannerImages]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -48,9 +62,19 @@ export function useStoreSliderImageForm(initialMobileSliderSelection = false) {
           return;
         }
 
+        const nextBannerImages = images?.results || [];
+
         setStoreInfo(info);
-        setBannerImages(images?.results || []);
+        setBannerImages(nextBannerImages);
         setProductGroups(Array.isArray(groups) ? groups : groups?.results || []);
+        setSlots(
+          buildSlots(
+            getRequiredSlotCountForView(
+              nextBannerImages,
+              mobileSliderSelectionRef.current,
+            ),
+          ),
+        );
 
         logScreenView("store_slider_image_form", info?.url || "Anonymous", "store");
       } catch (error) {
@@ -88,10 +112,6 @@ export function useStoreSliderImageForm(initialMobileSliderSelection = false) {
   const canUseExternalLinks = storeInfo?.plan === "P";
   const currentSliderCount = filteredBannerImages.length;
   const requiredSlotCount = Math.max(0, MAX_SLIDERS_PER_VIEW - currentSliderCount);
-
-  useEffect(() => {
-    setSlots(buildSlots(requiredSlotCount));
-  }, [requiredSlotCount, mobileSliderSelection]);
 
   function updateSlot(index, patch) {
     setSlots((current) =>
@@ -139,7 +159,13 @@ export function useStoreSliderImageForm(initialMobileSliderSelection = false) {
       setMessage("Slider set updated.");
 
       const nextBanners = await fetchBannerImages().catch(() => ({ results: [] }));
-      setBannerImages(nextBanners?.results || []);
+      const nextBannerImages = nextBanners?.results || [];
+      setBannerImages(nextBannerImages);
+      setSlots(
+        buildSlots(
+          getRequiredSlotCountForView(nextBannerImages, mobileSliderSelection),
+        ),
+      );
       return true;
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Slider publish failed");
@@ -181,4 +207,13 @@ function isValidUrl(value) {
   } catch {
     return false;
   }
+}
+
+function getRequiredSlotCountForView(images, mobileSliderSelection) {
+  const currentSliderCount = images.filter(
+    (item) =>
+      Boolean(item?.for_mobile ?? item?.forMobile) === mobileSliderSelection,
+  ).length;
+
+  return Math.max(0, MAX_SLIDERS_PER_VIEW - currentSliderCount);
 }

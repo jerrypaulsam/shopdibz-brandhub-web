@@ -6,7 +6,7 @@ import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { useToast } from "@/src/components/app/ToastProvider";
 import { getStoreSliderMeta } from "@/src/utils/store-slider-routing";
 
-function buildMenuSections(sliderItem) {
+function buildMenuSections(sliderItem, hasUnreadNotifications) {
   return [
     {
       title: "Workspace",
@@ -28,7 +28,13 @@ function buildMenuSections(sliderItem) {
         { label: "Store Preview", icon: "eye", kind: "preview" },
         { label: "Store Reviews", href: "/store-reviews", icon: "star", kind: "route" },
         sliderItem,
-        { label: "Notifications", href: "/notifications", icon: "bell", kind: "route" },
+        {
+          label: "Notifications",
+          href: "/notifications",
+          icon: "bell",
+          kind: "route",
+          unread: hasUnreadNotifications,
+        },
       ],
     },
     {
@@ -67,13 +73,17 @@ export default function DashboardSidebar({
 }) {
   const { confirm } = useConfirm();
   const { showToast } = useToast();
+  const hasUnreadNotifications = isFlagEnabled(storeInfo?.notiSts);
   const sliderMeta = getStoreSliderMeta(storeInfo, bannerImages);
-  const menuSections = buildMenuSections({
-    label: sliderMeta.navLabel,
-    href: sliderMeta.sidebarHref,
-    icon: sliderMeta.hasAnySlider ? "image" : "image-plus",
-    kind: "route",
-  });
+  const menuSections = buildMenuSections(
+    {
+      label: sliderMeta.navLabel,
+      href: sliderMeta.sidebarHref,
+      icon: sliderMeta.hasAnySlider ? "image" : "image-plus",
+      kind: "route",
+    },
+    hasUnreadNotifications,
+  );
 
   function showStoreUrlRequiredToast() {
     showToast({
@@ -174,10 +184,20 @@ export default function DashboardSidebar({
                         onNavigate?.();
                       }}
                     >
-                      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border ${isLocked ? "border-white/5 text-white/25" : "border-white/10 text-brand-gold"}`}>
+                      <span className={`relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border ${isLocked ? "border-white/5 text-white/25" : "border-white/10 text-brand-gold"}`}>
                         <SidebarGlyph name={item.icon} />
+                        {item.unread && !isLocked ? (
+                          <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-brand-red" />
+                        ) : null}
                       </span>
-                      {item.label}
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="truncate">{item.label}</span>
+                        {item.unread && !isLocked ? (
+                          <span className="rounded-full border border-brand-gold/20 bg-brand-gold/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-gold">
+                            New
+                          </span>
+                        ) : null}
+                      </span>
                     </Link>
                   );
                 }
@@ -249,6 +269,23 @@ export default function DashboardSidebar({
       </Link>
     </nav>
   );
+}
+
+function isFlagEnabled(value) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    return value === 1;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    return normalized === "true" || normalized === "1";
+  }
+
+  return false;
 }
 
 /**

@@ -1,4 +1,5 @@
 import AnalyticsGrid from "./AnalyticsGrid";
+import DashboardAttentionBadges from "./DashboardAttentionBadges";
 import CreateActions from "./CreateActions";
 import DashboardHeader from "./DashboardHeader";
 import LatestOrders from "./LatestOrders";
@@ -30,6 +31,7 @@ export default function DashboardHome() {
     <div className="mx-auto max-w-[1600px] px-4 py-6 md:px-6 xl:px-8">
       <div className="space-y-5">
         <NewsBanner onTap={() => setIsAeyraOpen(true)} />
+        <DashboardAttentionBadges storeInfo={storeInfo} />
         {!hidePremiumBanner ? (
           <PremiumBanner
             storeInfo={storeInfo}
