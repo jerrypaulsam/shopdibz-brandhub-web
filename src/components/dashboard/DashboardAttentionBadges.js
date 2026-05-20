@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { useState } from "react";
 
+const downloadAppHref =
+  "https://www.shopdibz.com/brand-hub?utm_source=brand-hub&utm_medium=organic";
+
 /**
  * @param {{ storeInfo: any }} props
  */
@@ -14,49 +17,66 @@ export default function DashboardAttentionBadges({ storeInfo }) {
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="theme-surface-soft rounded-[18px] border px-4 py-4 sm:px-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/35 [html[data-theme='light']_&]:text-[#7b6358]">
+            Attention Board
+          </p>
+          <p className="mt-1 text-sm font-semibold text-brand-white [html[data-theme='light']_&]:text-[#2f241f]">
+            Fresh updates that may need your action.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
         {hasUnreadNotifications ? (
           <Link
-            className="theme-surface-soft inline-flex min-h-10 items-center gap-2 rounded-full border border-brand-gold/25 px-4 py-2 text-sm font-bold text-brand-gold transition-colors hover:border-brand-gold hover:text-brand-white"
+            className="inline-flex min-h-11 items-center gap-3 rounded-full border border-brand-gold/25 bg-brand-gold/10 px-4 py-2.5 text-sm font-bold text-brand-gold transition-colors hover:border-brand-gold hover:bg-brand-gold/15 hover:text-brand-white"
             href="/notifications"
           >
-            <span className="relative inline-flex h-5 w-5 items-center justify-center">
-              <BellGlyph />
+            <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-full border border-brand-gold/20 bg-black/15 [html[data-theme='light']_&]:bg-white/70">
+              <BellGlyph className="h-4 w-4" />
               <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand-red" />
             </span>
-            New notifications
+            <span className="flex flex-col leading-none">
+              <span>Notifications</span>
+              <span className="mt-1 text-[11px] font-semibold tracking-[0.14em] text-brand-gold/80 [html[data-theme='light']_&]:text-[#6f4337]">
+                New Updates
+              </span>
+            </span>
           </Link>
         ) : null}
 
         {hasUnreadMessages ? (
           <button
-            className={`theme-surface-soft inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-colors ${
+            className={`inline-flex min-h-11 items-center gap-3 rounded-full border px-4 py-2.5 text-sm font-bold transition-colors ${
               isMessageOpen
-                ? "border-red-400/35 text-red-200 [html[data-theme='light']_&]:text-[#8f4e3f]"
-                : "border-red-400/20 text-red-200 hover:border-red-400/35 [html[data-theme='light']_&]:text-[#8f4e3f]"
+                ? "border-red-400/35 bg-red-500/12 text-red-200 [html[data-theme='light']_&]:text-[#8f4e3f]"
+                : "border-red-400/20 bg-red-500/8 text-red-200 hover:border-red-400/35 hover:bg-red-500/12 [html[data-theme='light']_&]:text-[#8f4e3f]"
             }`}
             type="button"
             aria-expanded={isMessageOpen}
             onClick={() => setIsMessageOpen((current) => !current)}
           >
-            <span className="relative inline-flex h-5 w-5 items-center justify-center">
-              <ChatGlyph />
+            <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-400/20 bg-black/15 [html[data-theme='light']_&]:bg-white/70">
+              <ChatGlyph className="h-4 w-4" />
               <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand-red" />
             </span>
-            New message
-            <span className="theme-text-muted text-xs font-semibold">
-              {isMessageOpen ? "Hide" : "Click to open"}
+            <span className="flex flex-col text-left leading-none">
+              <span>Messages</span>
+              <span className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-current/75">
+                {isMessageOpen ? "Close" : "View"}
+              </span>
             </span>
           </button>
         ) : null}
       </div>
+      </div>
 
       {hasUnreadMessages && isMessageOpen ? (
-        <div className="theme-surface-soft rounded-sm border border-red-400/20 px-4 py-4">
+        <div className="mt-4 rounded-[16px] border border-red-400/20 bg-red-500/6 px-4 py-4">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-red-400/20 bg-red-500/10 text-red-200 [html[data-theme='light']_&]:text-[#8f4e3f]">
-              <ChatGlyph />
+              <ChatGlyph className="h-4 w-4" />
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
@@ -70,6 +90,16 @@ export default function DashboardAttentionBadges({ storeInfo }) {
               <p className="theme-text-muted mt-1 text-sm leading-6">
                 A customer or team message is waiting. Open the Brand Hub app to read and reply.
               </p>
+              <div className="mt-4">
+                <a
+                  className="inline-flex min-h-10 items-center justify-center rounded-full border border-red-400/25 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-100 transition-colors hover:border-red-400/40 hover:bg-red-500/16 hover:text-white [html[data-theme='light']_&]:text-[#8f4e3f]"
+                  href={downloadAppHref}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Download Brand Hub App
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -78,10 +108,10 @@ export default function DashboardAttentionBadges({ storeInfo }) {
   );
 }
 
-function BellGlyph() {
+function BellGlyph({ className = "h-4 w-4" }) {
   return (
     <svg
-      className="h-4 w-4"
+      className={className}
       fill="none"
       stroke="currentColor"
       strokeLinecap="round"
@@ -95,10 +125,10 @@ function BellGlyph() {
   );
 }
 
-function ChatGlyph() {
+function ChatGlyph({ className = "h-4 w-4" }) {
   return (
     <svg
-      className="h-4 w-4"
+      className={className}
       fill="none"
       stroke="currentColor"
       strokeLinecap="round"
