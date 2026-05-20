@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export const config = {
@@ -16,7 +17,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", storeUrl = "", variants = false, fileBase64 = "", fileName = "bulk-update.xlsm" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", storeUrl = "", variants = false, fileBase64 = "", fileName = "bulk-update.xlsm" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !storeUrl || !fileBase64) {
     res.status(400).json({ message: "Missing bulk update fields" });

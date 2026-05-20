@@ -25,7 +25,7 @@ export function useMobileVerifyForm() {
       return;
     }
 
-    clearAuthSession();
+    clearAuthSession({ clearServerCookies: false });
     logScreenView("init-mobile-verify", "Anonymous", "store");
   }, [router]);
 

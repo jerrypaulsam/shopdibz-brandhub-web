@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { requestStoreJsonWithAuth } from "@/src/api/serverStoreProxy";
 
 export default async function handler(req, res) {
@@ -8,7 +9,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", storeUrl = "", type = "" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", storeUrl = "", type = "" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !storeUrl || !type) {
     res.status(400).json({ message: "Missing special remove fields" });

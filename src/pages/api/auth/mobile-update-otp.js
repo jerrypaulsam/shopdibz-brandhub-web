@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { postFormToShopdibz } from "@/src/api/serverAuthProxy";
 
 export default async function handler(req, res) {
@@ -8,7 +9,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", mobile = "" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", mobile = "" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
   const normalizedMobile = String(mobile || "").replace(/\D/g, "").slice(-10);
 
   if (!accessToken || normalizedMobile.length !== 10) {

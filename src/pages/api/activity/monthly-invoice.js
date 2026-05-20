@@ -1,3 +1,4 @@
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { getStoreJsonWithAuth } from "@/src/api/serverStoreProxy";
 
 export default async function handler(req, res) {
@@ -7,7 +8,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", storeUrl = "", month = "", year = "" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", storeUrl = "", month = "", year = "" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !storeUrl || !month || !year) {
     res.status(400).json({ message: "Missing invoice request fields" });

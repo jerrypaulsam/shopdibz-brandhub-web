@@ -1,4 +1,5 @@
 import { API_BASE_URL, SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -7,7 +8,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", reviewId = 0, vote = "" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", reviewId = 0, vote = "" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !reviewId || vote === "") {
     res.status(400).json({ message: "Access token, review ID, and vote are required" });

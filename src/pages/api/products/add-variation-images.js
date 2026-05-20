@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreMultiForm } from "@/src/api/serverStoreProxy";
 
 export const config = {
@@ -16,7 +17,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", variationId = 0, images = [] } = req.body || {};
+  const { accessToken: explicitAccessToken = "", variationId = 0, images = [] } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !variationId) {
     res.status(400).json({ message: "Access token and variation id are required" });

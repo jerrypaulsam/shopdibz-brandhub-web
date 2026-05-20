@@ -1,4 +1,5 @@
 import { API_BASE_URL, SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 
 export const config = {
   api: {
@@ -15,7 +16,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", imageBase64 = "" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", imageBase64 = "" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !imageBase64) {
     res.status(400).json({ message: "Access token and image are required" });

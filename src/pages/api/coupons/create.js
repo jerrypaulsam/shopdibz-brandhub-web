@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export default async function handler(req, res) {
@@ -9,7 +10,7 @@ export default async function handler(req, res) {
   }
 
   const {
-    accessToken = "",
+    accessToken: explicitAccessToken = "",
     storeUrl = "",
     couponCode = "",
     type = "",
@@ -21,6 +22,7 @@ export default async function handler(req, res) {
     percentage = "",
     maxDiscountAmount = "",
   } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (
     !accessToken ||

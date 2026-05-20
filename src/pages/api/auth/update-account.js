@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { putFormToShopdibz } from "@/src/api/serverAuthProxy";
 
 export default async function handler(req, res) {
@@ -8,7 +9,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", fName = "", lName = "", email = "" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", fName = "", lName = "", email = "" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !fName || !email) {
     res.status(400).json({ message: "First name, email, and access token are required" });

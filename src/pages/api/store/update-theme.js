@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export default async function handler(req, res) {
@@ -8,7 +9,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", themeId = "" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", themeId = "" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !themeId) {
     res.status(400).json({ message: "Theme fields are missing" });

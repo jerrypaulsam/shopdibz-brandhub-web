@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export const config = {
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
   }
 
   const {
-    accessToken = "",
+    accessToken: explicitAccessToken = "",
     storeUrl = "",
     name = "",
     discountType = "0",
@@ -26,6 +27,7 @@ export default async function handler(req, res) {
     imageBase64 = "",
     fileName = "group-cover.jpg",
   } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !storeUrl || !name || !imageBase64) {
     res.status(400).json({ message: "Missing product group create fields" });

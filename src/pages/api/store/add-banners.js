@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreMultiForm } from "@/src/api/serverStoreProxy";
 
 export const config = {
@@ -17,13 +18,14 @@ export default async function handler(req, res) {
   }
 
   const {
-    accessToken = "",
+    accessToken: explicitAccessToken = "",
     storeUrl = "",
     forMobile = false,
     images = [],
     productGroupSlugs = [],
     links = [],
   } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !storeUrl || !Array.isArray(images) || images.length < 1 || images.length > 2) {
     res.status(400).json({ message: "Access token, store URL, and 1 or 2 images are required" });

@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import {
   logProxyResponse,
   parseUpstreamResponse,
@@ -27,13 +28,14 @@ export async function proxyDashboardGet(req, res, options) {
 
   const queryString = searchParams.toString();
   const url = `${API_BASE_URL}${options.endpoint}${queryString ? `?${queryString}` : ""}`;
+  const accessToken = getRequestAccessToken(req, options.accessToken);
 
   try {
     const response = await fetch(url, {
       headers: withInternalProxyHeaders(
-        options.accessToken
+        accessToken
           ? {
-              Authorization: `JWT ${options.accessToken}`,
+              Authorization: `JWT ${accessToken}`,
             }
           : undefined,
       ),

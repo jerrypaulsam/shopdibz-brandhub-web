@@ -1,4 +1,5 @@
 import { API_BASE_URL, SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -7,7 +8,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", storeUrl = "" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", storeUrl = "" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !storeUrl) {
     res.status(400).json({ message: "Access token and store URL are required" });

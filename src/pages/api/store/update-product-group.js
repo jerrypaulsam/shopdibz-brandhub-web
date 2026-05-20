@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export default async function handler(req, res) {
@@ -9,12 +10,13 @@ export default async function handler(req, res) {
   }
 
   const {
-    accessToken = "",
+    accessToken: explicitAccessToken = "",
     groupId = 0,
     name = "",
     active = false,
     show = false,
   } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !Number(groupId) || !String(name).trim()) {
     res.status(400).json({ message: "Missing product group update fields" });

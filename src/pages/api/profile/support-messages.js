@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { getStoreJsonWithAuth } from "@/src/api/serverStoreProxy";
 
 export default async function handler(req, res) {
@@ -8,7 +9,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", ticketId = 0, page = 1 } = req.body || {};
+  const { accessToken: explicitAccessToken = "", ticketId = 0, page = 1 } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !ticketId) {
     res.status(400).json({ message: "Access token and ticket ID are required" });

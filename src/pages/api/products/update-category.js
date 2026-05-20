@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export default async function handler(req, res) {
@@ -9,12 +10,13 @@ export default async function handler(req, res) {
   }
 
   const {
-    accessToken = "",
+    accessToken: explicitAccessToken = "",
     slug = "",
     categoryId = 0,
     subCategoryId = 0,
     itemSubCategoryId = null,
   } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !slug || !categoryId || !subCategoryId) {
     res.status(400).json({ message: "Access token, slug, category, and subcategory are required" });

@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { getStoreJsonWithAuth } from "@/src/api/serverStoreProxy";
 import { resolveProductSelection } from "@/src/data/product-catalog";
 
@@ -26,8 +27,7 @@ export default async function handler(req, res) {
     subCategory = "",
     item = "",
   } = req.query || {};
-  const authHeader = String(req.headers.authorization || "");
-  const accessToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const accessToken = getRequestAccessToken(req);
 
   if (!accessToken) {
     res.status(400).json({ message: "Access token is required" });

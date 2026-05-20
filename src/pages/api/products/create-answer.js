@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export default async function handler(req, res) {
@@ -8,7 +9,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", questionId = 0, answer = "", orderId = "" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", questionId = 0, answer = "", orderId = "" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !questionId || !answer) {
     res.status(400).json({ message: "Access token, question ID, and answer are required" });

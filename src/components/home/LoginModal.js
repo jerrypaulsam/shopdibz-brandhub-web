@@ -31,7 +31,7 @@ export default function LoginModal({ isOpen, onClose }) {
       return;
     }
 
-    clearAuthSession();
+    clearAuthSession({ clearServerCookies: false });
     logScreenView("login_dialog", "Anonymous", "store");
   }, [isOpen]);
 

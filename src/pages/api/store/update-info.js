@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export default async function handler(req, res) {
@@ -9,7 +10,7 @@ export default async function handler(req, res) {
   }
 
   const {
-    accessToken = "",
+    accessToken: explicitAccessToken = "",
     name = "",
     storeUrl = "",
     storeEmail = "",
@@ -27,6 +28,7 @@ export default async function handler(req, res) {
     enableResell = false,
     storeVideo = "",
   } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   const result = await submitStoreForm({
     endpoint: SHOPDIBZ_URLS.updateStoreInfo,

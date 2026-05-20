@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { getStoreJsonWithAuth } from "@/src/api/serverStoreProxy";
 import { resolveOrderTab } from "@/src/utils/orders";
 
@@ -9,9 +10,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const authHeader = String(req.headers.authorization || "");
-  const accessToken =
-    authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const accessToken = getRequestAccessToken(req);
   const { storeUrl = "", tab = "pending", page = "1" } = req.query || {};
 
   if (!accessToken || !storeUrl) {

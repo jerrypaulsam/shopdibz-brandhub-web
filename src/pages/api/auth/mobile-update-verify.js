@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { postFormToShopdibz } from "@/src/api/serverAuthProxy";
 
 export default async function handler(req, res) {
@@ -8,7 +9,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", otp = "" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", otp = "" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
   const normalizedOtp = String(otp || "").replace(/\D/g, "").trim();
 
   if (!accessToken || !normalizedOtp) {

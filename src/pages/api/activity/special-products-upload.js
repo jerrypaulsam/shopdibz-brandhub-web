@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export const config = {
@@ -16,7 +17,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", storeUrl = "", type = "", fileBase64 = "", fileName = "special-products.xlsm" } = req.body || {};
+  const { accessToken: explicitAccessToken = "", storeUrl = "", type = "", fileBase64 = "", fileName = "special-products.xlsm" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !storeUrl || !type || !fileBase64) {
     res.status(400).json({ message: "Missing special upload fields" });

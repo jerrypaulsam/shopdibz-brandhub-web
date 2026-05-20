@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreMultiForm } from "@/src/api/serverStoreProxy";
 
 export const config = {
@@ -16,7 +17,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "", slug = "", images = [] } = req.body || {};
+  const { accessToken: explicitAccessToken = "", slug = "", images = [] } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !slug) {
     res.status(400).json({ message: "Access token and slug are required" });

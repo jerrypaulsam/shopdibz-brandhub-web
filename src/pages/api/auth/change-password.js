@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { putFormToShopdibz } from "@/src/api/serverAuthProxy";
 
 export default async function handler(req, res) {
@@ -9,11 +10,12 @@ export default async function handler(req, res) {
   }
 
   const {
-    accessToken = "",
+    accessToken: explicitAccessToken = "",
     oldPassword = "",
     newPassword = "",
     confirmPassword = "",
   } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !oldPassword || !newPassword || !confirmPassword) {
     res.status(400).json({ message: "All password fields are required" });

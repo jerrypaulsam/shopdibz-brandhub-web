@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export const config = {
@@ -17,12 +18,13 @@ export default async function handler(req, res) {
   }
 
   const {
-    accessToken = "",
+    accessToken: explicitAccessToken = "",
     bannerId = 0,
     imageBase64 = "",
     productGroupSlug = "",
     link = "",
   } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !bannerId || !imageBase64) {
     res.status(400).json({ message: "Access token, banner ID, and image are required" });

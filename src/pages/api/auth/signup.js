@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { setAuthCookies } from "@/src/api/authCookies";
 import { postFormToShopdibz } from "@/src/api/serverAuthProxy";
 
 export default async function handler(req, res) {
@@ -35,6 +36,10 @@ export default async function handler(req, res) {
     loc,
     mob: mobile,
   });
+
+  if (result.status >= 200 && result.status < 300) {
+    setAuthCookies(res, result.data);
+  }
 
   res.status(result.status).json(result.data);
 }

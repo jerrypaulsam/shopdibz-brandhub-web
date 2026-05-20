@@ -1,4 +1,5 @@
 import { API_BASE_URL, SHOPDIBZ_URLS } from "@/src/api/config";
+import { setAuthCookies } from "@/src/api/authCookies";
 import {
   logProxyResponse,
   parseUpstreamResponse,
@@ -44,6 +45,10 @@ export default async function handler(req, res) {
       text,
     });
     const data = text ? parseUpstreamResponse(text) : {};
+
+    if (response.ok) {
+      setAuthCookies(res, data);
+    }
 
     res.status(response.status).json(data);
   } catch (error) {

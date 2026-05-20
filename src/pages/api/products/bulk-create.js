@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreMultiForm } from "@/src/api/serverStoreProxy";
 
 export const config = {
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
   }
 
   const {
-    accessToken = "",
+    accessToken: explicitAccessToken = "",
     storeUrl = "",
     categoryId = 0,
     subCategoryId = 0,
@@ -26,6 +27,7 @@ export default async function handler(req, res) {
     fileBase64 = "",
     fileName = "",
   } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken || !storeUrl || !fileBase64) {
     res.status(400).json({ message: "Access token, store URL, and sheet are required" });

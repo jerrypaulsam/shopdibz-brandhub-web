@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { getStoreJsonWithAuth } from "@/src/api/serverStoreProxy";
 
 export default async function handler(req, res) {
@@ -9,8 +10,7 @@ export default async function handler(req, res) {
   }
 
   const { campaignId = "" } = req.query || {};
-  const authHeader = String(req.headers.authorization || "");
-  const accessToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const accessToken = getRequestAccessToken(req);
 
   if (!accessToken || !campaignId) {
     res.status(400).json({ message: "Access token and campaign ID are required" });

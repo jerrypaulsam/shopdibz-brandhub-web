@@ -1,4 +1,5 @@
 import { SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { submitStoreForm } from "@/src/api/serverStoreProxy";
 
 export default async function handler(req, res) {
@@ -8,9 +9,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const authHeader = String(req.headers.authorization || "");
-  const accessToken =
-    authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const accessToken = getRequestAccessToken(req);
   const { orderId, status = "" } = req.body || {};
 
   if (!accessToken || !orderId || !status) {

@@ -1,4 +1,5 @@
 import { API_BASE_URL, SHOPDIBZ_URLS } from "@/src/api/config";
+import { getRequestAccessToken } from "@/src/api/authCookies";
 import { parseUpstreamResponse, withInternalProxyHeaders } from "@/src/api/serverProxyUtils";
 
 export default async function handler(req, res) {
@@ -8,7 +9,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { accessToken = "" } = req.body || {};
+  const { accessToken: explicitAccessToken = "" } = req.body || {};
+  const accessToken = getRequestAccessToken(req, explicitAccessToken);
 
   if (!accessToken) {
     res.status(400).json({ message: "Access token is required" });

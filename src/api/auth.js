@@ -122,10 +122,8 @@ export async function verifyEmailOtp(payload) {
 export async function logoutSeller() {
   const authSession = getAuthSession();
   const userCode = authSession?.user?.uCode || authSession?.user?.userCode || "";
-  const refreshToken = authSession?.data?.refresh || authSession?.refresh || "";
 
   return postAuthJson("/api/auth/logout", {
-    refreshToken,
     userCode,
   });
 }
@@ -390,7 +388,7 @@ export function saveAuthSession(authData) {
 
   window.localStorage.setItem(
     AUTH_STORAGE_KEY,
-    JSON.stringify(nextSession),
+    JSON.stringify(stripSensitiveAuthFields(nextSession)),
   );
   dispatchAuthSessionChange();
 }
@@ -417,7 +415,10 @@ export function updateAuthSession(patch) {
     },
   });
 
-  window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextSession));
+  window.localStorage.setItem(
+    AUTH_STORAGE_KEY,
+    JSON.stringify(stripSensitiveAuthFields(nextSession)),
+  );
   dispatchAuthSessionChange();
 }
 
@@ -491,9 +492,13 @@ export function hasSellerDashboardSession(session = getAuthSession()) {
   return Boolean(accessToken && storeUrl);
 }
 
-export function clearAuthSession() {
+export function clearAuthSession(options = {}) {
   if (typeof window === "undefined") {
     return;
+  }
+
+  if (options.clearServerCookies !== false) {
+    clearServerAuthCookies();
   }
 
   window.localStorage.removeItem(AUTH_STORAGE_KEY);
@@ -575,6 +580,14 @@ function dispatchAuthSessionChange() {
   }
 
   window.dispatchEvent(new Event(AUTH_SESSION_EVENT));
+}
+
+function clearServerAuthCookies() {
+  fetch("/api/auth/session", {
+    method: "DELETE",
+    credentials: "same-origin",
+    keepalive: true,
+  }).catch(() => null);
 }
 
 /**
@@ -742,6 +755,23 @@ export function normalizeAuthSession(rawSession) {
       ...data,
       access: data.access || session.access || "",
       refresh: data.refresh || session.refresh || "",
+    },
+  };
+}
+
+/**
+ * @param {any} session
+ * @returns {any}
+ */
+function stripSensitiveAuthFields(session) {
+  const normalizedSession = normalizeAuthSession(session);
+
+  return {
+    ...normalizedSession,
+    refresh: "",
+    data: {
+      ...(normalizedSession.data || {}),
+      refresh: "",
     },
   };
 }
