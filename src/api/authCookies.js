@@ -1,8 +1,8 @@
 export const ACCESS_TOKEN_COOKIE_NAME = "shopdibz_seller_access";
 export const REFRESH_TOKEN_COOKIE_NAME = "shopdibz_seller_refresh";
 
-const ACCESS_TOKEN_COOKIE_MAX_AGE = 60 * 60 * 8;
-const REFRESH_TOKEN_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
+const ACCESS_TOKEN_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+const REFRESH_TOKEN_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 /**
  * @param {unknown} authData
