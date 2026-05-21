@@ -41,6 +41,7 @@ export const SHOPDIBZ_URLS = {
   sendOrderMessage: "/api/orders/send_message/order/",
   managers: "/api/store/managers/",
   notifications: "/api/notifications/all/seller/",
+  notificationReadStatus: "/api/notifications/read/store/noti/",
   reviewVoting: "/api/store/store_feedback/",
   products: "/api/products/",
   updateCategory: "/api/products/category/",

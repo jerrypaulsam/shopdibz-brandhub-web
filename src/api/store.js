@@ -285,6 +285,29 @@ export function fetchNotifications(page = 1) {
 }
 
 /**
+ * @returns {Promise<any>}
+ */
+export function markStoreNotificationsRead() {
+  const session = getDashboardSession();
+
+  return postStoreJson("/api/store/notifications-read-status", {
+    accessToken: session.accessToken,
+    storeUrl: session.storeUrl,
+  }).then((data) => {
+    const cachedStore = getSessionCachedStoreInfo() || getCachedStoreInfo();
+
+    if (cachedStore) {
+      cacheStoreInfo({
+        ...cachedStore,
+        notiSts: false,
+      });
+    }
+
+    return data;
+  });
+}
+
+/**
  * @param {number} [page]
  * @returns {Promise<any>}
  */

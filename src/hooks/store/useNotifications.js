@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchNotifications } from "@/src/api/store";
+import { fetchNotifications, markStoreNotificationsRead } from "@/src/api/store";
 import { logScreenView } from "@/src/api/analytics";
 import { getAuthSession } from "@/src/api/auth";
 
@@ -16,13 +16,20 @@ export function useNotifications() {
       setMessage("");
 
       try {
-        const data = await fetchNotifications(1);
+        const [notificationsResult] = await Promise.allSettled([
+          fetchNotifications(1),
+          markStoreNotificationsRead(),
+        ]);
+
+        if (notificationsResult.status !== "fulfilled") {
+          throw notificationsResult.reason;
+        }
 
         if (!isCurrent) {
           return;
         }
 
-        setNotifications(data?.results || []);
+        setNotifications(notificationsResult.value?.results || []);
 
         const authSession = getAuthSession();
         logScreenView(
