@@ -1,4 +1,10 @@
 import { isClosedStoreAccessError } from "@/src/api/dashboard";
+import {
+  clearPendingOnboardingPayment,
+  getPendingOnboardingPayment,
+} from "@/src/api/auth";
+
+const ONBOARDING_PAYMENT_PENDING_MAX_AGE_MS = 10 * 60 * 1000;
 
 /**
  * @param {{
@@ -138,6 +144,7 @@ export async function resolveSellerAccessRoute(options) {
     }
   } catch (error) {
     if (isClosedStoreAccessError(error)) {
+      clearPendingOnboardingPayment();
       return {
         redirectTo: "/store-closed",
         storeInfo,
@@ -149,6 +156,7 @@ export async function resolveSellerAccessRoute(options) {
   }
 
   if (isStoreClosed(storeInfo)) {
+    clearPendingOnboardingPayment();
     return {
       redirectTo: "/store-closed",
       storeInfo,
@@ -157,6 +165,7 @@ export async function resolveSellerAccessRoute(options) {
   }
 
   if (isExplicitFalse(firstDefined([storeInfo?.bankVerify, storeInfo?.bank_verify, storeInfo?.bV]))) {
+    clearPendingOnboardingPayment();
     return {
       redirectTo: "/settings/bank/create",
       storeInfo,
@@ -164,7 +173,17 @@ export async function resolveSellerAccessRoute(options) {
     };
   }
 
-  if (isExplicitFalse(storeInfo?.paywall)) {
+  if (isExplicitTrue(storeInfo?.paywall)) {
+    clearPendingOnboardingPayment();
+  } else if (hasPendingOnboardingPayment(storeUrl)) {
+    return {
+      redirectTo: "/onboard-payment-status",
+      storeInfo,
+      resolved: true,
+    };
+  }
+
+  if (requiresOnboardingPayment(storeInfo)) {
     return {
       redirectTo: "/onboard-payment",
       storeInfo,
@@ -186,17 +205,15 @@ export async function resolveSellerAccessRoute(options) {
 export function shouldGuardSellerRoute(pathname) {
   const value = String(pathname || "").trim();
 
-  // Only setup/status routes are globally blocked here.
-  // Main seller workspace routes use DashboardShell for access checks.
-  return [
-    "/store-form",
-    "/settings/bank/create",
-    "/awaiting-verification",
-    "/store-info-form",
-    "/onboard-payment",
-    "/subscription-payment-status",
-    "/store-closed",
-  ].some((route) => value === route || value.startsWith(`${route}?`));
+  if (!value || value.startsWith("/api/")) {
+    return false;
+  }
+
+  if (isPublicLandingRoute(value)) {
+    return false;
+  }
+
+  return !isSystemPublicRoute(value);
 }
 
 /**
@@ -206,18 +223,11 @@ export function shouldGuardSellerRoute(pathname) {
 export function shouldBlockSellerRouteUntilResolved(pathname) {
   const value = String(pathname || "").trim();
 
-  if (!value || value.startsWith("/api/")) {
+  if (!shouldGuardSellerRoute(value)) {
     return false;
   }
 
-  return [
-    "/store-form",
-    "/settings/bank/create",
-    "/awaiting-verification",
-    "/store-info-form",
-    "/onboard-payment",
-    "/store-closed",
-  ].some((prefix) => value === prefix || value.startsWith(`${prefix}/`) || value.startsWith(`${prefix}?`));
+  return !isGuestAccessibleRoute(value);
 }
 
 /**
@@ -244,6 +254,8 @@ export function isOnboardingOnlyRoute(pathname) {
   const value = String(pathname || "").trim();
 
   return [
+    "/",
+    "/hub",
     "/login",
     "/sign-up",
     "/new-mobile-verify",
@@ -252,9 +264,52 @@ export function isOnboardingOnlyRoute(pathname) {
     "/settings/bank/create",
     "/awaiting-verification",
     "/onboard-payment",
+    "/onboard-payment-status",
     "/subscription-payment-status",
     "/store-closed",
   ].some((route) => value === route);
+}
+
+/**
+ * @param {string} pathname
+ * @returns {boolean}
+ */
+function isGuestAccessibleRoute(pathname) {
+  const value = String(pathname || "").trim();
+
+  return [
+    "/login",
+    "/sign-up",
+    "/new-mobile-verify",
+    "/init-email-verify",
+  ].some((route) => value === route || value.startsWith(`${route}?`));
+}
+
+/**
+ * @param {string} pathname
+ * @returns {boolean}
+ */
+function isPublicLandingRoute(pathname) {
+  const value = String(pathname || "").trim();
+
+  return [
+    "/",
+    "/hub",
+  ].some((route) => value === route || value.startsWith(`${route}?`));
+}
+
+/**
+ * @param {string} pathname
+ * @returns {boolean}
+ */
+function isSystemPublicRoute(pathname) {
+  const value = String(pathname || "").trim();
+
+  return [
+    "/404",
+    "/500",
+    "/maintenance",
+  ].some((route) => value === route || value.startsWith(`${route}?`));
 }
 
 /**
@@ -263,7 +318,11 @@ export function isOnboardingOnlyRoute(pathname) {
  */
 function getAllowedRoutesForTarget(targetRoute) {
   if (targetRoute === "/onboard-payment") {
-    return ["/onboard-payment", "/subscription-payment-status"];
+    return ["/onboard-payment", "/onboard-payment-status"];
+  }
+
+  if (targetRoute === "/onboard-payment-status") {
+    return ["/onboard-payment", "/onboard-payment-status"];
   }
 
   return [targetRoute];
@@ -317,6 +376,60 @@ function isExplicitFalse(value) {
   }
 
   return false;
+}
+
+/**
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+function isExplicitTrue(value) {
+  if (typeof value === "boolean") {
+    return value === true;
+  }
+
+  if (typeof value === "number") {
+    return value === 1;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    return normalized === "true" || normalized === "1";
+  }
+
+  return false;
+}
+
+/**
+ * @param {any} storeInfo
+ * @returns {boolean}
+ */
+function requiresOnboardingPayment(storeInfo) {
+  return !isExplicitTrue(storeInfo?.paywall);
+}
+
+/**
+ * @param {string} storeUrl
+ * @returns {boolean}
+ */
+function hasPendingOnboardingPayment(storeUrl) {
+  const pendingPayment = getPendingOnboardingPayment();
+  const normalizedStoreUrl = String(storeUrl || "").trim();
+
+  if (!pendingPayment?.storeUrl || !pendingPayment?.createdAt) {
+    return false;
+  }
+
+  if (String(pendingPayment.storeUrl).trim() !== normalizedStoreUrl) {
+    clearPendingOnboardingPayment();
+    return false;
+  }
+
+  if ((Date.now() - Number(pendingPayment.createdAt || 0)) > ONBOARDING_PAYMENT_PENDING_MAX_AGE_MS) {
+    clearPendingOnboardingPayment();
+    return false;
+  }
+
+  return true;
 }
 
 /**

@@ -6,7 +6,7 @@ import OnboardingFlowShell from "@/src/components/auth/OnboardingFlowShell";
 import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
 import StoreSignaturePad from "@/src/components/store/StoreSignaturePad";
-import { useStoreCreateForm } from "@/src/hooks/store/useStoreCreateForm";
+import { STORE_CREATE_FIELD_LIMITS, useStoreCreateForm } from "@/src/hooks/store/useStoreCreateForm";
 
 export default function StoreCreateFormPage() {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
@@ -87,7 +87,7 @@ export default function StoreCreateFormPage() {
                 label="GSTIN"
                 value={gstin}
                 placeholder="GSTIN"
-                maxLength={15}
+                maxLength={STORE_CREATE_FIELD_LIMITS.gstin}
                 error={fieldErrors.gstin}
                 onChange={setGstin}
               />
@@ -105,6 +105,7 @@ export default function StoreCreateFormPage() {
                 value={storeRegisteredName}
                 placeholder="Registered Store Name"
                 helper="Name as in GST details"
+                maxLength={STORE_CREATE_FIELD_LIMITS.storeRegisteredName}
                 disabled={gstVerified}
                 error={fieldErrors.storeRegisteredName}
                 onChange={setStoreRegisteredName}
@@ -114,6 +115,7 @@ export default function StoreCreateFormPage() {
                 label="PAN Number"
                 value={storeRegistrationId}
                 placeholder="PAN Number"
+                maxLength={STORE_CREATE_FIELD_LIMITS.storeRegistrationId}
                 disabled={gstVerified}
                 error={fieldErrors.storeRegistrationId}
                 onChange={setStoreRegistrationId}
@@ -124,6 +126,8 @@ export default function StoreCreateFormPage() {
                 value={refCode}
                 placeholder="Referral Code"
                 helper="Enter Referral Code (Optional)"
+                maxLength={STORE_CREATE_FIELD_LIMITS.refCode}
+                error={fieldErrors.refCode}
                 onChange={setRefCode}
               />
             </div>

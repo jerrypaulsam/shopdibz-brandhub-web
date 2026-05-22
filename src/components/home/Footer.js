@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+const COPYRIGHT_YEAR = 2026;
+
 const footerColumns = [
   {
     heading: "ABOUT",
@@ -30,8 +32,6 @@ const footerColumns = [
 ];
 
 export default function Footer() {
-  const year = new Date().getFullYear();
-
   return (
     <footer className="theme-home-section px-5 py-14 text-brand-white sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl">
@@ -102,7 +102,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 border-t border-white/15 pt-6 text-center text-sm text-white/70">
-          Copyright © {year} | Shopdibz Private Limited™
+          Copyright (c) {COPYRIGHT_YEAR} | Shopdibz Private Limited
         </div>
       </div>
     </footer>

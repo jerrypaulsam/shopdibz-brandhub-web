@@ -195,7 +195,7 @@ export default function StoreInfoFormPage() {
                   ) : null}
                   <StoreField
                     label="ScrapItt Username"
-                    helper="Optional. Use only letters, numbers, periods, underscores, and an optional leading @."
+                    helper="Optional. Use only letters, numbers, periods, and underscores. Do not start with @."
                     maxLength={STORE_INFO_FIELD_LIMITS.link1}
                     value={form.link1}
                     error={fieldErrors.link1}
@@ -203,7 +203,7 @@ export default function StoreInfoFormPage() {
                   />
                   <StoreField
                     label="Instagram Username"
-                    helper="Optional. Use only letters, numbers, periods, underscores, and an optional leading @."
+                    helper="Optional. Use only letters, numbers, periods, and underscores. Do not start with @."
                     maxLength={STORE_INFO_FIELD_LIMITS.link2}
                     value={form.link2}
                     error={fieldErrors.link2}

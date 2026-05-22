@@ -23,9 +23,7 @@ export default function DashboardShell({ children }) {
   const router = useRouter();
   const pathname = String(router.pathname || "");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isCheckingAccess, setIsCheckingAccess] = useState(
-    () => !getSessionCachedStoreInfo(),
-  );
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
   const [sidebarStoreInfo, setSidebarStoreInfo] = useState(
     () => getSessionCachedStoreInfo() || getCachedStoreInfo(),
   );
@@ -79,6 +77,7 @@ export default function DashboardShell({ children }) {
     "/awaiting-verification",
     "/store-info-form",
     "/onboard-payment",
+    "/onboard-payment-status",
     "/subscription-payment-status",
     "/store-closed",
   ].includes(pathname);
@@ -106,36 +105,16 @@ export default function DashboardShell({ children }) {
 
       if (sessionCachedStoreInfo) {
         setSidebarStoreInfo(sessionCachedStoreInfo);
-        setIsCheckingAccess(false);
-
-        fetchBannerImages()
-          .then((banners) => {
-            if (!isCurrent) {
-              return;
-            }
-
-            setSidebarBannerImages(banners?.results || []);
-          })
-          .catch(() => {
-            if (!isCurrent) {
-              return;
-            }
-
-            setSidebarBannerImages([]);
-          });
-        return;
       }
 
       try {
         // Workspace routes still need the same onboarding/paywall resolution as
         // setup routes, otherwise direct URLs can bypass the expected seller flow.
-        if (!getCachedStoreInfo()) {
-          setIsCheckingAccess(true);
-        }
+        setIsCheckingAccess(true);
 
         const access = await resolveSellerAccessRoute({
           session: parsedSession,
-          cachedStoreInfo: getCachedStoreInfo(),
+          cachedStoreInfo: sessionCachedStoreInfo || getCachedStoreInfo(),
           fetchStoreInfo: () => fetchStoreInfo({ forceFresh: true }),
           checkStoreVerification,
         });

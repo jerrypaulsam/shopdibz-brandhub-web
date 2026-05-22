@@ -8,6 +8,10 @@ import {
 } from "@/src/api/auth";
 import { logScreenView } from "@/src/api/analytics";
 
+export const LOGIN_FIELD_LIMITS = {
+  email: 70,
+};
+
 export function useLoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -26,8 +30,20 @@ export function useLoginForm() {
   }, [router]);
 
   async function submitLogin() {
-    if (!email || !password) {
+    const trimmedEmail = String(email || "").trim();
+
+    if (!trimmedEmail || !password) {
       setMessage("Required");
+      return;
+    }
+
+    if (trimmedEmail.length > LOGIN_FIELD_LIMITS.email) {
+      setMessage(`Email must be ${LOGIN_FIELD_LIMITS.email} characters or fewer`);
+      return;
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(trimmedEmail)) {
+      setMessage("Please enter valid email");
       return;
     }
 
@@ -38,7 +54,7 @@ export function useLoginForm() {
     try {
       const loc = await getBrowserLocation();
       const result = await loginSeller({
-        email: email.toLowerCase(),
+        email: trimmedEmail.toLowerCase(),
         password,
         loc,
       });

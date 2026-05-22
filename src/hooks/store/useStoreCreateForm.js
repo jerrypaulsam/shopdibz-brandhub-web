@@ -4,6 +4,13 @@ import { createStore, verifyGstNumber } from "@/src/api/store";
 import { logScreenView } from "@/src/api/analytics";
 import { useToast } from "@/src/components/app/ToastProvider";
 
+export const STORE_CREATE_FIELD_LIMITS = {
+  gstin: 15,
+  storeRegisteredName: 100,
+  storeRegistrationId: 30,
+  refCode: 7,
+};
+
 export function useStoreCreateForm() {
   const router = useRouter();
   const { showToast } = useToast();
@@ -75,6 +82,7 @@ export function useStoreCreateForm() {
       storeRegisteredName,
       storeRegistrationId,
       gstin,
+      refCode,
       signatureBase64,
     });
 
@@ -144,15 +152,26 @@ function extractPanFromGstin(value) {
 
 function validateStoreCreateForm(form) {
   const errors = {};
+  const trimmedGstin = form.gstin.trim();
+  const trimmedStoreRegisteredName = form.storeRegisteredName.trim();
+  const trimmedStoreRegistrationId = form.storeRegistrationId.trim();
+  const trimmedRefCode = String(form.refCode || "").trim();
 
-  if (form.gstin.trim().length !== 15) {
+  if (trimmedGstin.length !== STORE_CREATE_FIELD_LIMITS.gstin) {
     errors.gstin = "GSTIN should be 15 characters";
   }
-  if (!form.storeRegisteredName.trim()) {
+  if (!trimmedStoreRegisteredName) {
     errors.storeRegisteredName = "Field required *";
+  } else if (trimmedStoreRegisteredName.length > STORE_CREATE_FIELD_LIMITS.storeRegisteredName) {
+    errors.storeRegisteredName = `Registered store name must be ${STORE_CREATE_FIELD_LIMITS.storeRegisteredName} characters or fewer.`;
   }
-  if (!form.storeRegistrationId.trim()) {
+  if (!trimmedStoreRegistrationId) {
     errors.storeRegistrationId = "Field required *";
+  } else if (trimmedStoreRegistrationId.length > STORE_CREATE_FIELD_LIMITS.storeRegistrationId) {
+    errors.storeRegistrationId = `PAN number must be ${STORE_CREATE_FIELD_LIMITS.storeRegistrationId} characters or fewer.`;
+  }
+  if (trimmedRefCode.length > STORE_CREATE_FIELD_LIMITS.refCode) {
+    errors.refCode = `Referral code must be ${STORE_CREATE_FIELD_LIMITS.refCode} characters or fewer.`;
   }
   if (!form.signatureBase64) {
     errors.signature = "Signature is required.";

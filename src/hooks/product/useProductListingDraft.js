@@ -6,6 +6,10 @@ import {
   PRODUCT_SHIP_ZONES,
 } from "@/src/data/product-variation-options";
 import { resolveProductSelection } from "@/src/data/product-catalog";
+import {
+  PRODUCT_FIELD_LIMITS,
+  PRODUCT_VARIATION_FIELD_LIMITS,
+} from "./productFieldLimits";
 
 export const PRODUCT_DRAFT_STORAGE_KEY = "shopdibz_product_listing_draft";
 
@@ -386,9 +390,13 @@ export function useProductListingDraft() {
       }
       if (!value.name.trim()) {
         errors.push("Variation name is required.");
+      } else if (value.name.trim().length > PRODUCT_VARIATION_FIELD_LIMITS.name) {
+        errors.push(`Variation name must be ${PRODUCT_VARIATION_FIELD_LIMITS.name} characters or fewer.`);
       }
       if (!value.typeMap.trim()) {
         errors.push("Variation mapping is required.");
+      } else if (value.typeMap.trim().length > PRODUCT_VARIATION_FIELD_LIMITS.typeMap) {
+        errors.push(`Variation mapping must be ${PRODUCT_VARIATION_FIELD_LIMITS.typeMap} characters or fewer.`);
       }
       if (!value.mrp.trim() || !value.price.trim()) {
         errors.push("Variation price and MRP are required.");
@@ -408,6 +416,10 @@ export function useProductListingDraft() {
 
       if (errors.length) {
         return errors;
+      }
+
+      if (value.variationSkuCode.trim().length > PRODUCT_VARIATION_FIELD_LIMITS.skuCode) {
+        return [`Variation SKU code must be ${PRODUCT_VARIATION_FIELD_LIMITS.skuCode} characters or fewer.`];
       }
 
       setDraft((currentDraft) => ({
@@ -617,19 +629,21 @@ function validateInfoDraft({ draft, isBookCategory, requiredSelectionReady }) {
   }
   if (!draft.title.trim()) {
     errors.title = "field required *";
-  } else if (draft.title.trim().length > 180) {
-    errors.title = "Max. 180 Characters";
+  } else if (draft.title.trim().length > PRODUCT_FIELD_LIMITS.title) {
+    errors.title = `Max. ${PRODUCT_FIELD_LIMITS.title} Characters`;
   }
   if (!draft.gstRate) {
     errors.gstRate = "field required *";
   }
   if (!draft.hsnCode.trim()) {
     errors.hsnCode = "field required *";
+  } else if (draft.hsnCode.trim().length > PRODUCT_FIELD_LIMITS.hsnCode) {
+    errors.hsnCode = `Max. ${PRODUCT_FIELD_LIMITS.hsnCode} Characters`;
   }
   if (!draft.description.trim()) {
     errors.description = "* Required";
-  } else if (draft.description.trim().length > 6000) {
-    errors.description = "Max. 6000 Characters";
+  } else if (draft.description.trim().length > PRODUCT_FIELD_LIMITS.description) {
+    errors.description = `Max. ${PRODUCT_FIELD_LIMITS.description} Characters`;
   }
   if (!draft.manufacturerValue.trim()) {
     errors.manufacturerValue = "field required *";
@@ -639,13 +653,21 @@ function validateInfoDraft({ draft, isBookCategory, requiredSelectionReady }) {
   }
   if (!isBookCategory && !draft.brand.trim()) {
     errors.brand = "field required *";
+  } else if (!isBookCategory && draft.brand.trim().length > PRODUCT_FIELD_LIMITS.brand) {
+    errors.brand = `Max. ${PRODUCT_FIELD_LIMITS.brand} Characters`;
   }
   if (isBookCategory && !draft.publisher.trim()) {
     errors.publisher = "field required *";
+  } else if (isBookCategory && draft.publisher.trim().length > PRODUCT_FIELD_LIMITS.publisher) {
+    errors.publisher = `Max. ${PRODUCT_FIELD_LIMITS.publisher} Characters`;
   }
 
-  if (draft.videoUrl.trim() && !isValidUrl(draft.videoUrl.trim())) {
-    errors.videoUrl = "Enter a Url";
+  if (draft.videoUrl.trim()) {
+    if (draft.videoUrl.trim().length > PRODUCT_FIELD_LIMITS.videoUrl) {
+      errors.videoUrl = `Max. ${PRODUCT_FIELD_LIMITS.videoUrl} Characters`;
+    } else if (!isValidUrl(draft.videoUrl.trim())) {
+      errors.videoUrl = "Enter a Url";
+    }
   }
 
   if (draft.variantMode === "without-variant") {
@@ -657,6 +679,8 @@ function validateInfoDraft({ draft, isBookCategory, requiredSelectionReady }) {
     }
     if (!draft.skuCode.trim()) {
       errors.skuCode = "field required *";
+    } else if (draft.skuCode.trim().length > PRODUCT_FIELD_LIMITS.skuCode) {
+      errors.skuCode = `Max. ${PRODUCT_FIELD_LIMITS.skuCode} Characters`;
     }
     if (
       Number(draft.price || 0) > 0 &&
@@ -669,6 +693,14 @@ function validateInfoDraft({ draft, isBookCategory, requiredSelectionReady }) {
 
   if (draft.variantMode === "with-variant" && !draft.variations.length) {
     errors.variations = "Please Add At least One Variation.";
+  }
+
+  if (draft.mpn.trim().length > PRODUCT_FIELD_LIMITS.mpn) {
+    errors.mpn = `Max. ${PRODUCT_FIELD_LIMITS.mpn} Characters`;
+  }
+
+  if (draft.brandCertificate.trim().length > PRODUCT_FIELD_LIMITS.brandCertificate) {
+    errors.brandCertificate = `Max. ${PRODUCT_FIELD_LIMITS.brandCertificate} Characters`;
   }
 
   draft.attributes.forEach((attribute) => {

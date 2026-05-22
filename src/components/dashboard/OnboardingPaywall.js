@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Script from "next/script";
 import { useRouter } from "next/router";
-import { clearAuthSession, logoutSeller } from "@/src/api/auth";
+import {
+  clearAuthSession,
+  logoutSeller,
+  savePendingOnboardingPayment,
+} from "@/src/api/auth";
 import { fetchStoreInfo } from "@/src/api/dashboard";
 import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import { logScreenView } from "@/src/api/analytics";
@@ -25,7 +28,9 @@ const advantages = [
 export default function OnboardingPaywall({ storeInfo }) {
   const router = useRouter();
   const { confirm } = useConfirm();
-  const [isRazorpayReady, setIsRazorpayReady] = useState(false);
+  const [isRazorpayReady, setIsRazorpayReady] = useState(
+    () => typeof window !== "undefined" && Boolean(window.Razorpay),
+  );
   const [isPaying, setIsPaying] = useState(false);
   const [paymentMessage, setPaymentMessage] = useState("");
 
@@ -36,6 +41,45 @@ export default function OnboardingPaywall({ storeInfo }) {
 
     logScreenView("onboard_fee_screen", storeInfo.url || "Anonymous", "store");
   }, [storeInfo?.url]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    if (window.Razorpay) {
+      return undefined;
+    }
+
+    const existingScript = document.querySelector(
+      'script[data-shopdibz-razorpay="true"]',
+    );
+
+    if (existingScript) {
+      const handleLoad = () => setIsRazorpayReady(true);
+      const handleError = () =>
+        setPaymentMessage("Payment gateway failed to load. Refresh and try again.");
+
+      existingScript.addEventListener("load", handleLoad);
+      existingScript.addEventListener("error", handleError);
+
+      return () => {
+        existingScript.removeEventListener("load", handleLoad);
+        existingScript.removeEventListener("error", handleError);
+      };
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.dataset.shopdibzRazorpay = "true";
+    script.onload = () => setIsRazorpayReady(true);
+    script.onerror = () =>
+      setPaymentMessage("Payment gateway failed to load. Refresh and try again.");
+    document.body.appendChild(script);
+
+    return undefined;
+  }, []);
 
   async function handleLogout() {
     const accepted = await confirm({
@@ -83,6 +127,7 @@ export default function OnboardingPaywall({ storeInfo }) {
 
     setIsPaying(true);
     setPaymentMessage("");
+    let paymentCaptured = false;
 
     try {
       const paymentOrder = await initiateOnboardingPayment({
@@ -90,11 +135,15 @@ export default function OnboardingPaywall({ storeInfo }) {
         code: userCode,
       });
 
+      let verificationResult = null;
+
       await openRazorpayCheckout({
         paymentOrder,
         storeInfo,
         onVerify: async (paymentResponse) => {
-          await verifyOnboardingPayment({
+          paymentCaptured = true;
+          savePendingOnboardingPayment(storeUrl);
+          verificationResult = await verifyOnboardingPayment({
             ...paymentResponse,
             storeUrl,
             code: userCode,
@@ -102,15 +151,22 @@ export default function OnboardingPaywall({ storeInfo }) {
         },
       });
 
-      await fetchStoreInfo().catch(() => null);
-      await router.replace("/home");
+      await fetchStoreInfo({ forceFresh: true }).catch(() => null);
+      await router.replace(verificationResult?.redirectTo || "/home");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Payment could not be completed.";
 
-      if (message !== "CHECKOUT_DISMISSED") {
-        setPaymentMessage(message);
+      if (message === "CHECKOUT_DISMISSED") {
+        return;
       }
+
+      if (paymentCaptured) {
+        await router.replace("/onboard-payment-status");
+        return;
+      }
+
+      setPaymentMessage(message);
     } finally {
       setIsPaying(false);
     }
@@ -118,12 +174,6 @@ export default function OnboardingPaywall({ storeInfo }) {
 
   return (
     <main className="theme-app relative min-h-screen overflow-hidden px-4 py-8 text-brand-white sm:px-6 lg:px-8 [html[data-theme='light']_&]:text-[#2f2622]">
-      <Script
-        src="https://checkout.razorpay.com/v1/checkout.js"
-        strategy="afterInteractive"
-        onLoad={() => setIsRazorpayReady(true)}
-        onError={() => setPaymentMessage("Payment gateway failed to load. Refresh and try again.")}
-      />
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[-10%] top-[-8%] h-72 w-72 rounded-full bg-brand-red/20 blur-3xl" />
         <div className="absolute right-[-8%] top-[12%] h-80 w-80 rounded-full bg-brand-gold/10 blur-3xl" />

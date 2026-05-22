@@ -6,7 +6,7 @@ import AuthMessage from "@/src/components/auth/AuthMessage";
 import AuthShell from "@/src/components/auth/AuthShell";
 import OnboardingFlowShell from "@/src/components/auth/OnboardingFlowShell";
 import { useSellerGuestRedirect } from "@/src/hooks/auth/useSellerGuestRedirect";
-import { useSignupForm } from "@/src/hooks/auth/useSignupForm";
+import { SIGNUP_FIELD_LIMITS, useSignupForm } from "@/src/hooks/auth/useSignupForm";
 
 export default function SignUpPage() {
   const isRedirecting = useSellerGuestRedirect();
@@ -98,19 +98,20 @@ export default function SignUpPage() {
               value={email}
               type="email"
               autoComplete="email"
+              maxLength={SIGNUP_FIELD_LIMITS.email}
               onChange={setEmail}
             />
             <AuthField
               label="First Name"
               value={fName}
-              maxLength={15}
+              maxLength={SIGNUP_FIELD_LIMITS.firstName}
               autoComplete="given-name"
               onChange={setFName}
             />
             <AuthField
               label="Last Name"
               value={lName}
-              maxLength={15}
+              maxLength={SIGNUP_FIELD_LIMITS.lastName}
               autoComplete="family-name"
               onChange={setLName}
             />
@@ -119,6 +120,7 @@ export default function SignUpPage() {
               value={password}
               type="password"
               autoComplete="new-password"
+              maxLength={SIGNUP_FIELD_LIMITS.password}
               onChange={setPassword}
             />
             <AuthField
@@ -126,6 +128,7 @@ export default function SignUpPage() {
               value={confirmPassword}
               type="password"
               autoComplete="new-password"
+              maxLength={SIGNUP_FIELD_LIMITS.password}
               onChange={setConfirmPassword}
             />
           </div>

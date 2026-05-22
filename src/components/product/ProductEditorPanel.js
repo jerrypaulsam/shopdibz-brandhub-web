@@ -6,6 +6,7 @@ import {
   PRODUCT_SHIP_EX_ZONES,
   PRODUCT_SHIP_ZONES,
 } from "@/src/data/product-variation-options";
+import { PRODUCT_FIELD_LIMITS } from "@/src/hooks/product/productFieldLimits";
 
 /**
  * @param {{ form: any, categoryTrail: string, isBookCategory: boolean, fieldErrors: Record<string, string>, setFormField: (field: string, value: any) => void, addAttribute: () => void, updateAttribute: (id: number, key: "key" | "value", value: string) => void, removeAttribute: (id: number) => void, addKeyword: (value: string) => string, removeKeyword: (value: string) => void, toggleShipZone: (value: string) => void, toggleShipExZone: (value: string) => void, submit: () => Promise<void>, isSubmitting: boolean }} props
@@ -59,11 +60,11 @@ export default function ProductEditorPanel({
 
       <StoreSection title="Core Details">
         <div className="grid gap-5 md:grid-cols-2">
-          <StoreField label="Title" value={form.title} error={fieldErrors.title} onChange={(value) => setFormField("title", value)} />
+          <StoreField label="Title" maxLength={PRODUCT_FIELD_LIMITS.title} value={form.title} error={fieldErrors.title} onChange={(value) => setFormField("title", value)} />
           {!isBookCategory ? (
-            <StoreField label="Brand" value={form.brand} error={fieldErrors.brand} onChange={(value) => setFormField("brand", value)} />
+            <StoreField label="Brand" maxLength={PRODUCT_FIELD_LIMITS.brand} value={form.brand} error={fieldErrors.brand} onChange={(value) => setFormField("brand", value)} />
           ) : (
-            <StoreField label="Publisher" value={form.publisher} error={fieldErrors.publisher} onChange={(value) => setFormField("publisher", value)} />
+            <StoreField label="Publisher" maxLength={PRODUCT_FIELD_LIMITS.publisher} value={form.publisher} error={fieldErrors.publisher} onChange={(value) => setFormField("publisher", value)} />
           )}
         </div>
       </StoreSection>
@@ -74,12 +75,12 @@ export default function ProductEditorPanel({
             <>
               <StoreField label="MRP" value={form.mrp} error={fieldErrors.mrp} onChange={(value) => setFormField("mrp", value)} />
               <StoreField label="Price" value={form.price} error={fieldErrors.price} onChange={(value) => setFormField("price", value)} />
-              <StoreField label="SKU Code" value={form.skuCode} error={fieldErrors.skuCode} onChange={(value) => setFormField("skuCode", value)} />
+              <StoreField label="SKU Code" maxLength={PRODUCT_FIELD_LIMITS.skuCode} value={form.skuCode} error={fieldErrors.skuCode} onChange={(value) => setFormField("skuCode", value)} />
             </>
           ) : null}
           <StoreField label="Shipping Cost" value={form.shipCost} onChange={(value) => setFormField("shipCost", value)} />
-          <StoreField label="HSN Code" value={form.hsnCode} error={fieldErrors.hsnCode} onChange={(value) => setFormField("hsnCode", value)} />
-          <StoreField label={isBookCategory ? "ISBN" : "MPN / GTIN"} value={form.mpn} onChange={(value) => setFormField("mpn", value)} />
+          <StoreField label="HSN Code" maxLength={PRODUCT_FIELD_LIMITS.hsnCode} value={form.hsnCode} error={fieldErrors.hsnCode} onChange={(value) => setFormField("hsnCode", value)} />
+          <StoreField label={isBookCategory ? "ISBN" : "MPN / GTIN"} maxLength={PRODUCT_FIELD_LIMITS.mpn} value={form.mpn} error={fieldErrors.mpn} onChange={(value) => setFormField("mpn", value)} />
           <label className="block">
             <span className="text-sm font-semibold text-white/80">GST Rate</span>
             <select
@@ -131,6 +132,7 @@ export default function ProductEditorPanel({
           <StoreField
             label="Description"
             multiline
+            maxLength={PRODUCT_FIELD_LIMITS.description}
             value={form.description}
             error={fieldErrors.description}
             onChange={(value) => setFormField("description", value)}
@@ -138,13 +140,16 @@ export default function ProductEditorPanel({
           {!isBookCategory ? (
             <StoreField
               label="Brand Certificate URL"
+              maxLength={PRODUCT_FIELD_LIMITS.brandCertificate}
               value={form.brandCertificate}
+              error={fieldErrors.brandCertificate}
               onChange={(value) => setFormField("brandCertificate", value)}
             />
           ) : null}
           <StoreField
             label="Video URL"
             value={form.videoUrl}
+            maxLength={PRODUCT_FIELD_LIMITS.videoUrl}
             error={fieldErrors.videoUrl}
             onChange={(value) => setFormField("videoUrl", value)}
           />

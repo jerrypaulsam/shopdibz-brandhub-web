@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useToast } from "@/src/components/app/ToastProvider";
 import { PRODUCT_VARIATION_MAPS } from "@/src/data/product-variation-options";
 import { useProductListingDraft } from "./useProductListingDraft";
+import { PRODUCT_VARIATION_FIELD_LIMITS } from "./productFieldLimits";
 
 const EMPTY_VARIATION_FORM = {
   name: "",
@@ -83,13 +84,16 @@ function validateVariationForm(form, requireVariantType) {
 
   if (requireVariantType && !form.variantType) errors.variantType = "field required *";
   if (!form.name.trim()) errors.name = "field required *";
+  else if (form.name.trim().length > PRODUCT_VARIATION_FIELD_LIMITS.name) errors.name = `Max. ${PRODUCT_VARIATION_FIELD_LIMITS.name} Characters`;
   if (!form.typeMap.trim()) errors.typeMap = "field required *";
+  else if (form.typeMap.trim().length > PRODUCT_VARIATION_FIELD_LIMITS.typeMap) errors.typeMap = `Max. ${PRODUCT_VARIATION_FIELD_LIMITS.typeMap} Characters`;
   if (!form.mrp.trim()) errors.mrp = "field required *";
   if (!form.price.trim()) errors.price = "field required *";
   if (Number(form.price || 0) > Number(form.mrp || 0)) {
     errors.price = "Selling Price Should be lower than MRP";
   }
   if (!form.variationSkuCode.trim()) errors.variationSkuCode = "field required *";
+  else if (form.variationSkuCode.trim().length > PRODUCT_VARIATION_FIELD_LIMITS.skuCode) errors.variationSkuCode = `Max. ${PRODUCT_VARIATION_FIELD_LIMITS.skuCode} Characters`;
   if (form.stock === "S" && !form.maxStock.trim()) errors.maxStock = "field required *";
 
   return errors;

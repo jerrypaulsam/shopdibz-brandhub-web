@@ -9,6 +9,13 @@ import {
 } from "@/src/api/auth";
 import { logScreenView } from "@/src/api/analytics";
 
+export const SIGNUP_FIELD_LIMITS = {
+  email: 70,
+  firstName: 15,
+  lastName: 15,
+  password: 15,
+};
+
 export function useSignupForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -39,15 +46,23 @@ export function useSignupForm() {
    * @returns {string}
    */
   function validate() {
-    if (!email || !fName || !password || !confirmPassword) {
+    const trimmedEmail = String(email || "").trim();
+    const trimmedFirstName = String(fName || "").trim();
+    const trimmedLastName = String(lName || "").trim();
+
+    if (!trimmedEmail || !trimmedFirstName || !password || !confirmPassword) {
       return "Required";
     }
 
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
+    if (trimmedEmail.length > SIGNUP_FIELD_LIMITS.email) {
+      return `Email must be ${SIGNUP_FIELD_LIMITS.email} characters or fewer`;
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(trimmedEmail)) {
       return "Please enter valid email";
     }
 
-    if (fName.length > 15 || lName.length > 15) {
+    if (trimmedFirstName.length > SIGNUP_FIELD_LIMITS.firstName || trimmedLastName.length > SIGNUP_FIELD_LIMITS.lastName) {
       return "Max. 15 Characters";
     }
 
@@ -55,7 +70,7 @@ export function useSignupForm() {
       return "password must be at least 8 digits long";
     }
 
-    if (password.length > 15) {
+    if (password.length > SIGNUP_FIELD_LIMITS.password) {
       return "Maximum of 15 characters";
     }
 
@@ -72,6 +87,7 @@ export function useSignupForm() {
 
   async function submitSignup() {
     const validationMessage = validate();
+    const trimmedEmail = String(email || "").trim();
 
     if (validationMessage) {
       setMessage(validationMessage);
@@ -85,7 +101,7 @@ export function useSignupForm() {
       const mobileVerification = getMobileVerification();
       const loc = await getBrowserLocation();
       const result = await signupSeller({
-        email: email.toLowerCase(),
+        email: trimmedEmail.toLowerCase(),
         fName,
         lName,
         password,

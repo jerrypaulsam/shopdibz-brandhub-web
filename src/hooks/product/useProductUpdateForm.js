@@ -11,6 +11,9 @@ import {
   parsePseudoArray,
   attributeMapToRows,
 } from "@/src/utils/product";
+import {
+  PRODUCT_FIELD_LIMITS,
+} from "./productFieldLimits";
 
 /**
  * @returns {{
@@ -296,28 +299,52 @@ export function useProductUpdateForm(options = {}) {
 function validateProductUpdateForm(form, isBookCategory) {
   const errors = {};
 
-  if (!form.title.trim()) errors.title = "field required *";
-  if (!isBookCategory && !form.brand.trim()) errors.brand = "field required *";
-  if (isBookCategory && !form.publisher.trim()) errors.publisher = "field required *";
+  if (!form.title.trim()) {
+    errors.title = "field required *";
+  } else if (form.title.trim().length > PRODUCT_FIELD_LIMITS.title) {
+    errors.title = `Max. ${PRODUCT_FIELD_LIMITS.title} Characters`;
+  }
+  if (!isBookCategory && !form.brand.trim()) {
+    errors.brand = "field required *";
+  } else if (!isBookCategory && form.brand.trim().length > PRODUCT_FIELD_LIMITS.brand) {
+    errors.brand = `Max. ${PRODUCT_FIELD_LIMITS.brand} Characters`;
+  }
+  if (isBookCategory && !form.publisher.trim()) {
+    errors.publisher = "field required *";
+  } else if (isBookCategory && form.publisher.trim().length > PRODUCT_FIELD_LIMITS.publisher) {
+    errors.publisher = `Max. ${PRODUCT_FIELD_LIMITS.publisher} Characters`;
+  }
   if (!form.variants) {
     if (!form.mrp.trim()) errors.mrp = "field required *";
     if (!form.price.trim()) errors.price = "field required *";
     if (!form.skuCode.trim()) errors.skuCode = "field required *";
+    else if (form.skuCode.trim().length > PRODUCT_FIELD_LIMITS.skuCode) errors.skuCode = `Max. ${PRODUCT_FIELD_LIMITS.skuCode} Characters`;
     if (Number(form.price || 0) > Number(form.mrp || 0)) {
       errors.price = "Selling Price Should be lower than MRP";
     }
   }
   if (!form.hsnCode.trim()) errors.hsnCode = "field required *";
+  else if (form.hsnCode.trim().length > PRODUCT_FIELD_LIMITS.hsnCode) errors.hsnCode = `Max. ${PRODUCT_FIELD_LIMITS.hsnCode} Characters`;
   if (!form.gstRate) errors.gstRate = "field required *";
   if (!form.description.trim()) {
     errors.description = "* Required";
-  } else if (form.description.trim().length > 6000) {
-    errors.description = "Max. 6000 Characters";
+  } else if (form.description.trim().length > PRODUCT_FIELD_LIMITS.description) {
+    errors.description = `Max. ${PRODUCT_FIELD_LIMITS.description} Characters`;
   }
   if (!form.manufacturerValue.trim()) errors.manufacturerValue = "field required *";
   if (!form.originCountryValue.trim()) errors.originCountryValue = "field required *";
-  if (form.videoUrl.trim() && !isValidUrl(form.videoUrl.trim())) {
-    errors.videoUrl = "Enter a Url";
+  if (form.mpn.trim().length > PRODUCT_FIELD_LIMITS.mpn) {
+    errors.mpn = `Max. ${PRODUCT_FIELD_LIMITS.mpn} Characters`;
+  }
+  if (form.brandCertificate.trim().length > PRODUCT_FIELD_LIMITS.brandCertificate) {
+    errors.brandCertificate = `Max. ${PRODUCT_FIELD_LIMITS.brandCertificate} Characters`;
+  }
+  if (form.videoUrl.trim()) {
+    if (form.videoUrl.trim().length > PRODUCT_FIELD_LIMITS.videoUrl) {
+      errors.videoUrl = `Max. ${PRODUCT_FIELD_LIMITS.videoUrl} Characters`;
+    } else if (!isValidUrl(form.videoUrl.trim())) {
+      errors.videoUrl = "Enter a Url";
+    }
   }
 
   form.attributes.forEach((attribute) => {

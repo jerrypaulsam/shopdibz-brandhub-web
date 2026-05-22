@@ -7,6 +7,7 @@ import {
 import { useToast } from "@/src/components/app/ToastProvider";
 import { PRODUCT_VARIATION_MAPS } from "@/src/data/product-variation-options";
 import { resolveActiveVariation } from "@/src/utils/product";
+import { PRODUCT_VARIATION_FIELD_LIMITS } from "./productFieldLimits";
 
 /**
  * @returns {{
@@ -202,7 +203,9 @@ function validateVariationForm(form) {
 
   form.variationFields.forEach((field) => {
     if (!field.name.trim()) errors[`${field.key}-name`] = "field required *";
+    else if (field.name.trim().length > PRODUCT_VARIATION_FIELD_LIMITS.name) errors[`${field.key}-name`] = `Max. ${PRODUCT_VARIATION_FIELD_LIMITS.name} Characters`;
     if (!field.typeMap.trim()) errors[`${field.key}-typeMap`] = "field required *";
+    else if (field.typeMap.trim().length > PRODUCT_VARIATION_FIELD_LIMITS.typeMap) errors[`${field.key}-typeMap`] = `Max. ${PRODUCT_VARIATION_FIELD_LIMITS.typeMap} Characters`;
   });
   if (!form.mrp.trim()) errors.mrp = "field required *";
   if (!form.price.trim()) errors.price = "field required *";
@@ -210,6 +213,7 @@ function validateVariationForm(form) {
     errors.price = "Selling Price Should be lower than MRP";
   }
   if (!form.variationSkuCode.trim()) errors.variationSkuCode = "field required *";
+  else if (form.variationSkuCode.trim().length > PRODUCT_VARIATION_FIELD_LIMITS.skuCode) errors.variationSkuCode = `Max. ${PRODUCT_VARIATION_FIELD_LIMITS.skuCode} Characters`;
   if (form.stock === "S" && !form.maxStock.trim()) errors.maxStock = "field required *";
 
   return errors;

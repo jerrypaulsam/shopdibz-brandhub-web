@@ -1,6 +1,7 @@
 import AuthButton from "@/src/components/auth/AuthButton";
 import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
+import { PRODUCT_VARIATION_FIELD_LIMITS } from "@/src/hooks/product/productFieldLimits";
 import { titleCaseValue } from "@/src/utils/product";
 
 /**
@@ -29,6 +30,7 @@ export default function ProductVariationPanel({
           <StoreField
             label={`${variantTypeLabel} Name`}
             value={form.name}
+            maxLength={PRODUCT_VARIATION_FIELD_LIMITS.name}
             error={fieldErrors.name}
             onChange={(value) => setFormField("name", value)}
           />
@@ -81,6 +83,7 @@ export default function ProductVariationPanel({
           <StoreField
             label="SKU Code"
             value={form.variationSkuCode}
+            maxLength={PRODUCT_VARIATION_FIELD_LIMITS.skuCode}
             error={fieldErrors.variationSkuCode}
             onChange={(value) => setFormField("variationSkuCode", value)}
           />

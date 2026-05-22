@@ -16,6 +16,8 @@ import {
   updateStoreTheme,
   uploadFounderWelcomeMessage,
 } from "@/src/api/store";
+import { clearCachedStoreInfo } from "@/src/api/auth";
+import { fetchStoreInfo } from "@/src/api/dashboard";
 import { logScreenView } from "@/src/api/analytics";
 import { useToast } from "@/src/components/app/ToastProvider";
 
@@ -197,7 +199,9 @@ export function useStoreInfoForm() {
       });
       setMessage("Store Info Updated Successfully");
       showToast({ message: "Store Info Updated Successfully", type: "success" });
-      await router.replace("/home");
+      clearCachedStoreInfo();
+      await fetchStoreInfo({ forceFresh: true }).catch(() => null);
+      await router.replace(isInitialSetup ? "/onboard-payment" : "/home");
     } catch (error) {
       const nextMessage = error instanceof Error ? error.message : "Oops something went wrong";
       setMessage(nextMessage);
@@ -703,18 +707,22 @@ function validateStoreInfoForm(form, isInitialSetup) {
   if (trimmedLink1) {
     if (trimmedLink1.length > STORE_INFO_FIELD_LIMITS.link1) {
       errors.link1 = `ScrapItt username must be ${STORE_INFO_FIELD_LIMITS.link1} characters or fewer.`;
+    } else if (trimmedLink1.startsWith("@")) {
+      errors.link1 = "Remove @ from the beginning of the ScrapItt username.";
     } else if (!isValidSocialHandle(trimmedLink1)) {
       errors.link1 =
-        "Use only letters, numbers, periods, underscores, and an optional leading @.";
+        "Use only letters, numbers, periods, and underscores.";
     }
   }
 
   if (trimmedLink2) {
     if (trimmedLink2.length > STORE_INFO_FIELD_LIMITS.link2) {
       errors.link2 = `Instagram username must be ${STORE_INFO_FIELD_LIMITS.link2} characters or fewer.`;
+    } else if (trimmedLink2.startsWith("@")) {
+      errors.link2 = "Remove @ from the beginning of the Instagram username.";
     } else if (!isValidSocialHandle(trimmedLink2)) {
       errors.link2 =
-        "Use only letters, numbers, periods, underscores, and an optional leading @.";
+        "Use only letters, numbers, periods, and underscores.";
     }
   }
 
@@ -729,7 +737,7 @@ function validateStoreInfoForm(form, isInitialSetup) {
  * @returns {boolean}
  */
 function isValidSocialHandle(value) {
-  return /^@?[A-Za-z0-9._]+$/.test(String(value || "").trim());
+  return /^[A-Za-z0-9._]+$/.test(String(value || "").trim());
 }
 
 function normalizeYoutubeLink(value) {

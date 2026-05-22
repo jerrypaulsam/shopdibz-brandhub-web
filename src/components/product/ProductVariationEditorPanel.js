@@ -1,6 +1,7 @@
 import AuthButton from "@/src/components/auth/AuthButton";
 import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
+import { PRODUCT_VARIATION_FIELD_LIMITS } from "@/src/hooks/product/productFieldLimits";
 import { titleCaseValue } from "@/src/utils/product";
 
 /**
@@ -44,6 +45,7 @@ export default function ProductVariationEditorPanel({
                     <StoreField
                       label={`${field.label} Name`}
                       value={currentValue.name || ""}
+                      maxLength={PRODUCT_VARIATION_FIELD_LIMITS.name}
                       error={fieldErrors[`${field.key}-name`]}
                       onChange={(value) => setVariationField(field.key, "name", value)}
                     />
@@ -80,7 +82,7 @@ export default function ProductVariationEditorPanel({
               })
             : (
               <>
-                <StoreField label="Variation Name" value={form.name} error={fieldErrors.name} onChange={(value) => setFormField("name", value)} />
+                <StoreField label="Variation Name" maxLength={PRODUCT_VARIATION_FIELD_LIMITS.name} value={form.name} error={fieldErrors.name} onChange={(value) => setFormField("name", value)} />
                 <label className="block">
                   <span className="text-sm font-semibold text-white/80">Type Mapping</span>
                   <select
@@ -107,7 +109,7 @@ export default function ProductVariationEditorPanel({
             )}
           <StoreField label="MRP" value={form.mrp} error={fieldErrors.mrp} onChange={(value) => setFormField("mrp", value)} />
           <StoreField label="Selling Price" value={form.price} error={fieldErrors.price} onChange={(value) => setFormField("price", value)} />
-          <StoreField label="SKU Code" value={form.variationSkuCode} error={fieldErrors.variationSkuCode} onChange={(value) => setFormField("variationSkuCode", value)} />
+          <StoreField label="SKU Code" maxLength={PRODUCT_VARIATION_FIELD_LIMITS.skuCode} value={form.variationSkuCode} error={fieldErrors.variationSkuCode} onChange={(value) => setFormField("variationSkuCode", value)} />
           <label className="block">
             <span className="text-sm font-semibold text-white/80">Availability</span>
             <select

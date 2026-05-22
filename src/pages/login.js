@@ -7,7 +7,7 @@ import AuthMessage from "@/src/components/auth/AuthMessage";
 import AuthShell from "@/src/components/auth/AuthShell";
 import AuthTitle from "@/src/components/auth/AuthTitle";
 import { useSellerGuestRedirect } from "@/src/hooks/auth/useSellerGuestRedirect";
-import { useLoginForm } from "@/src/hooks/auth/useLoginForm";
+import { LOGIN_FIELD_LIMITS, useLoginForm } from "@/src/hooks/auth/useLoginForm";
 import { useState } from "react";
 import BrandHubLogo from "@/src/components/app/BrandHubLogo";
 
@@ -63,6 +63,7 @@ export default function LoginPage() {
                 value={email}
                 type="email"
                 autoComplete="email"
+                maxLength={LOGIN_FIELD_LIMITS.email}
                 disabled={isSubmitting}
                 onChange={setEmail}
               />

@@ -8,6 +8,11 @@ import {
 
 export function useSellerGuestRedirect() {
   const router = useRouter();
+  const hasHydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getHydratedSnapshot,
+    getServerHydrationSnapshot,
+  );
   const rawSession = useSyncExternalStore(
     subscribeAuthSession,
     getAuthSessionSnapshot,
@@ -28,10 +33,22 @@ export function useSellerGuestRedirect() {
   }, [rawSession]);
 
   useEffect(() => {
-    if (hasAuthenticatedSession) {
+    if (hasHydrated && hasAuthenticatedSession) {
       router.replace("/");
     }
-  }, [hasAuthenticatedSession, router]);
+  }, [hasAuthenticatedSession, hasHydrated, router]);
 
-  return hasAuthenticatedSession;
+  return hasHydrated && hasAuthenticatedSession;
+}
+
+function subscribeToHydration() {
+  return () => {};
+}
+
+function getHydratedSnapshot() {
+  return true;
+}
+
+function getServerHydrationSnapshot() {
+  return false;
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import AuthButton from "@/src/components/auth/AuthButton";
 import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
+import { PRODUCT_FIELD_LIMITS } from "@/src/hooks/product/productFieldLimits";
 import { titleCaseValue } from "@/src/utils/product";
 
 /**
@@ -74,7 +75,7 @@ export default function ProductInfoPanel({
           <StoreField
             label="Title"
             value={draft.title}
-            maxLength={180}
+            maxLength={PRODUCT_FIELD_LIMITS.title}
             error={fieldErrors.title}
             onChange={(value) => updateDraft({ title: value })}
           />
@@ -82,6 +83,7 @@ export default function ProductInfoPanel({
             <StoreField
               label="Brand Name"
               value={draft.brand}
+              maxLength={PRODUCT_FIELD_LIMITS.brand}
               error={fieldErrors.brand}
               onChange={(value) => updateDraft({ brand: value })}
             />
@@ -89,6 +91,7 @@ export default function ProductInfoPanel({
             <StoreField
               label="Name of Publisher"
               value={draft.publisher}
+              maxLength={PRODUCT_FIELD_LIMITS.publisher}
               error={fieldErrors.publisher}
               onChange={(value) => updateDraft({ publisher: value })}
             />
@@ -166,6 +169,7 @@ export default function ProductInfoPanel({
           <StoreField
             label="HSN Code"
             value={draft.hsnCode}
+            maxLength={PRODUCT_FIELD_LIMITS.hsnCode}
             error={fieldErrors.hsnCode}
             onChange={(value) => updateDraft({ hsnCode: value })}
           />
@@ -173,6 +177,7 @@ export default function ProductInfoPanel({
             <StoreField
               label="SKU Code"
               value={draft.skuCode}
+              maxLength={PRODUCT_FIELD_LIMITS.skuCode}
               error={fieldErrors.skuCode}
               onChange={(value) => updateDraft({ skuCode: value })}
             />
@@ -180,18 +185,22 @@ export default function ProductInfoPanel({
           <StoreField
             label={isBookCategory ? "ISBN" : "MPN / GTIN"}
             value={draft.mpn}
+            maxLength={PRODUCT_FIELD_LIMITS.mpn}
+            error={fieldErrors.mpn}
             onChange={(value) => updateDraft({ mpn: value })}
           />
           <StoreField
             label="Manufacturer"
             value={draft.manufacturerValue}
             error={fieldErrors.manufacturerValue}
+            maxLength={PRODUCT_FIELD_LIMITS.attributeTitle}
             onChange={(value) => updateDraft({ manufacturerValue: value })}
           />
           <StoreField
             label="Country of Origin"
             value={draft.originCountryValue}
             error={fieldErrors.originCountryValue}
+            maxLength={PRODUCT_FIELD_LIMITS.attributeTitle}
             onChange={(value) => updateDraft({ originCountryValue: value })}
           />
         </div>
@@ -202,12 +211,14 @@ export default function ProductInfoPanel({
               <StoreField
                 label="Attribute Title"
                 value={attribute.key}
+                maxLength={PRODUCT_FIELD_LIMITS.attributeTitle}
                 error={fieldErrors[`attribute-${attribute.id}-key`]}
                 onChange={(value) => updateAttribute(attribute.id, "key", value)}
               />
               <StoreField
                 label="Attribute Value"
                 value={attribute.value}
+                maxLength={PRODUCT_FIELD_LIMITS.attributeValue}
                 error={fieldErrors[`attribute-${attribute.id}-value`]}
                 onChange={(value) => updateAttribute(attribute.id, "value", value)}
               />
@@ -238,7 +249,7 @@ export default function ProductInfoPanel({
           <StoreField
             label="Product Description"
             multiline
-            maxLength={6000}
+            maxLength={PRODUCT_FIELD_LIMITS.description}
             helper="Supports HTML tags in the description as well."
             value={draft.description}
             error={fieldErrors.description}
@@ -249,12 +260,15 @@ export default function ProductInfoPanel({
               label="Brand Authenticity Certificate"
               helper="Public URL to the certificate."
               value={draft.brandCertificate}
+              maxLength={PRODUCT_FIELD_LIMITS.brandCertificate}
+              error={fieldErrors.brandCertificate}
               onChange={(value) => updateDraft({ brandCertificate: value })}
             />
           ) : null}
           <StoreField
             label="Video URL (YouTube)"
             value={draft.videoUrl}
+            maxLength={PRODUCT_FIELD_LIMITS.videoUrl}
             error={fieldErrors.videoUrl}
             onChange={(value) => updateDraft({ videoUrl: value })}
           />
