@@ -19,6 +19,20 @@ import {
 import { logScreenView } from "@/src/api/analytics";
 import { useToast } from "@/src/components/app/ToastProvider";
 
+export const STORE_INFO_FIELD_LIMITS = {
+  storeName: 25,
+  storeUrl: 20,
+  storeEmail: 100,
+  storeDescription: 1500,
+  storeAddress: 220,
+  storeCity: 50,
+  storeState: 50,
+  contactNo: 10,
+  storeVideo: 200,
+  link1: 200,
+  link2: 100,
+};
+
 export function useStoreInfoForm() {
   const router = useRouter();
   const { showToast } = useToast();
@@ -596,48 +610,73 @@ function pickStoreValue(incoming, fallback, preserveCurrent) {
  */
 function validateStoreInfoForm(form, isInitialSetup) {
   const errors = {};
+  const trimmedStoreName = form.storeName.trim();
+  const trimmedStoreUrl = form.storeUrl.trim();
+  const trimmedStoreEmail = form.storeEmail.trim();
+  const trimmedContactNo = form.contactNo.trim();
+  const trimmedStoreDescription = form.storeDescription.trim();
+  const trimmedStoreAddress = form.storeAddress.trim();
+  const trimmedStoreCity = form.storeCity.trim();
+  const trimmedStoreState = form.storeState.trim();
+  const trimmedStoreVideo = form.storeVideo.trim();
+  const trimmedLink1 = form.link1.trim();
+  const trimmedLink2 = form.link2.trim();
 
-  if (!form.storeName.trim()) {
+  if (!trimmedStoreName) {
     errors.storeName = "field required *";
+  } else if (trimmedStoreName.length > STORE_INFO_FIELD_LIMITS.storeName) {
+    errors.storeName = `Store name must be ${STORE_INFO_FIELD_LIMITS.storeName} characters or fewer.`;
   }
 
-  if (!form.storeEmail.trim()) {
+  if (!trimmedStoreEmail) {
     errors.storeEmail = "field required *";
-  } else if (!/^\S+@\S+\.\S+$/.test(form.storeEmail.trim())) {
+  } else if (trimmedStoreEmail.length > STORE_INFO_FIELD_LIMITS.storeEmail) {
+    errors.storeEmail = `Store email must be ${STORE_INFO_FIELD_LIMITS.storeEmail} characters or fewer.`;
+  } else if (!/^\S+@\S+\.\S+$/.test(trimmedStoreEmail)) {
     errors.storeEmail = "Please enter a valid store email.";
   }
 
-  if (!form.contactNo.trim()) {
+  if (!trimmedContactNo) {
     errors.contactNo = "field required *";
-  } else if (!/^\d{10}$/.test(form.contactNo.trim())) {
+  } else if (!/^\d{10}$/.test(trimmedContactNo)) {
     errors.contactNo = "10 Digits Number";
   }
 
-  if (!form.storeDescription.trim()) {
+  if (!trimmedStoreDescription) {
     errors.storeDescription = "field required *";
-  } else if (form.storeDescription.trim().length < 20) {
+  } else if (trimmedStoreDescription.length < 20) {
     errors.storeDescription = "Store description should be at least 20 characters.";
+  } else if (trimmedStoreDescription.length > STORE_INFO_FIELD_LIMITS.storeDescription) {
+    errors.storeDescription = `Store description must be ${STORE_INFO_FIELD_LIMITS.storeDescription} characters or fewer.`;
   }
 
   if (isInitialSetup) {
-    if (!form.storeUrl.trim()) {
+    if (!trimmedStoreUrl) {
       errors.storeUrl = "field required *";
-    } else if (!/^[a-z0-9-]+$/.test(form.storeUrl.trim())) {
+    } else if (trimmedStoreUrl.length > STORE_INFO_FIELD_LIMITS.storeUrl) {
+      errors.storeUrl = `Store URL must be ${STORE_INFO_FIELD_LIMITS.storeUrl} characters or fewer.`;
+    } else if (!/^[a-z0-9-]+$/.test(trimmedStoreUrl)) {
       errors.storeUrl = "Use lowercase letters, numbers, and hyphens only.";
     }
 
-    if (!form.storeAddress.trim()) {
+    if (!trimmedStoreAddress) {
       errors.storeAddress = "field required *";
-    } else if (!/.*[0-9].*/.test(form.storeAddress.trim())) {
+    } else if (trimmedStoreAddress.length > STORE_INFO_FIELD_LIMITS.storeAddress) {
+      errors.storeAddress = `Store address must be ${STORE_INFO_FIELD_LIMITS.storeAddress} characters or fewer.`;
+    } else if (!/.*[0-9].*/.test(trimmedStoreAddress)) {
       errors.storeAddress = "Should contain a plot no./flat no. etc";
     }
 
-    if (!form.storeCity.trim()) {
+    if (!trimmedStoreCity) {
       errors.storeCity = "field required *";
+    } else if (trimmedStoreCity.length > STORE_INFO_FIELD_LIMITS.storeCity) {
+      errors.storeCity = `City must be ${STORE_INFO_FIELD_LIMITS.storeCity} characters or fewer.`;
     }
 
-    if (!form.storeState.trim()) {
+    if (!trimmedStoreState) {
       errors.storeState = "field required *";
+    } else if (trimmedStoreState.length > STORE_INFO_FIELD_LIMITS.storeState) {
+      errors.storeState = `State must be ${STORE_INFO_FIELD_LIMITS.storeState} characters or fewer.`;
     }
 
     if (!/^\d{6}$/.test(form.storePinCode.trim())) {
@@ -649,22 +688,34 @@ function validateStoreInfoForm(form, isInitialSetup) {
     errors.shipMode = "field required *";
   }
 
-  if (form.storeVideo.trim()) {
-    const normalized = normalizeYoutubeLink(form.storeVideo);
+  if (trimmedStoreVideo) {
+    if (trimmedStoreVideo.length > STORE_INFO_FIELD_LIMITS.storeVideo) {
+      errors.storeVideo = `Store video must be ${STORE_INFO_FIELD_LIMITS.storeVideo} characters or fewer.`;
+    }
 
-    if (!normalized) {
+    const normalized = normalizeYoutubeLink(trimmedStoreVideo);
+
+    if (!errors.storeVideo && !normalized) {
       errors.storeVideo = "Please enter a valid YouTube video link or video ID.";
     }
   }
 
-  if (form.link1.trim() && !isValidSocialHandle(form.link1)) {
-    errors.link1 =
-      "Use only letters, numbers, periods, underscores, and an optional leading @.";
+  if (trimmedLink1) {
+    if (trimmedLink1.length > STORE_INFO_FIELD_LIMITS.link1) {
+      errors.link1 = `ScrapItt username must be ${STORE_INFO_FIELD_LIMITS.link1} characters or fewer.`;
+    } else if (!isValidSocialHandle(trimmedLink1)) {
+      errors.link1 =
+        "Use only letters, numbers, periods, underscores, and an optional leading @.";
+    }
   }
 
-  if (form.link2.trim() && !isValidSocialHandle(form.link2)) {
-    errors.link2 =
-      "Use only letters, numbers, periods, underscores, and an optional leading @.";
+  if (trimmedLink2) {
+    if (trimmedLink2.length > STORE_INFO_FIELD_LIMITS.link2) {
+      errors.link2 = `Instagram username must be ${STORE_INFO_FIELD_LIMITS.link2} characters or fewer.`;
+    } else if (!isValidSocialHandle(trimmedLink2)) {
+      errors.link2 =
+        "Use only letters, numbers, periods, underscores, and an optional leading @.";
+    }
   }
 
   return {

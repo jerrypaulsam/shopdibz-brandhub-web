@@ -12,7 +12,7 @@ import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
 import StoreToggleRow from "@/src/components/store/StoreToggleRow";
 import ThemePicker from "@/src/components/store/ThemePicker";
-import { useStoreInfoForm } from "@/src/hooks/store/useStoreInfoForm";
+import { STORE_INFO_FIELD_LIMITS, useStoreInfoForm } from "@/src/hooks/store/useStoreInfoForm";
 import { getPaymentsPricingUrl } from "@/src/utils/payments";
 
 export default function StoreInfoFormPage() {
@@ -146,12 +146,12 @@ export default function StoreInfoFormPage() {
                 </div>
 
                 <div className="mt-8 grid gap-5">
-                  <StoreField label="Store Name" value={form.storeName} error={fieldErrors.storeName} onChange={(value) => updateField("storeName", value)} />
+                  <StoreField label="Store Name" maxLength={STORE_INFO_FIELD_LIMITS.storeName} value={form.storeName} error={fieldErrors.storeName} onChange={(value) => updateField("storeName", value)} />
                   {isInitialSetup ? (
-                    <StoreField label="Store ID" value={form.storeUrl} helper="Example: mystore, fashionstore, etc." error={fieldErrors.storeUrl} onChange={(value) => updateField("storeUrl", value)} />
+                    <StoreField label="Store ID" maxLength={STORE_INFO_FIELD_LIMITS.storeUrl} value={form.storeUrl} helper="Example: mystore, fashionstore, etc." error={fieldErrors.storeUrl} onChange={(value) => updateField("storeUrl", value)} />
                   ) : null}
-                  <StoreField label="Store Email" type="email" value={form.storeEmail} error={fieldErrors.storeEmail} onChange={(value) => updateField("storeEmail", value)} />
-                  <StoreField label="Description" multiline maxLength={1000} value={form.storeDescription} error={fieldErrors.storeDescription} onChange={(value) => updateField("storeDescription", value)} />
+                  <StoreField label="Store Email" type="email" maxLength={STORE_INFO_FIELD_LIMITS.storeEmail} value={form.storeEmail} error={fieldErrors.storeEmail} onChange={(value) => updateField("storeEmail", value)} />
+                  <StoreField label="Description" multiline maxLength={STORE_INFO_FIELD_LIMITS.storeDescription} value={form.storeDescription} error={fieldErrors.storeDescription} onChange={(value) => updateField("storeDescription", value)} />
                   <label className="block">
                     <span className="text-sm font-semibold text-white/80">Contact No.</span>
                     <div className={`mt-3 flex items-center overflow-hidden rounded-[15px] border bg-transparent ${fieldErrors.contactNo ? "border-red-400/70" : "border-white/15"}`}>
@@ -162,7 +162,7 @@ export default function StoreInfoFormPage() {
                         className="w-full bg-transparent px-4 py-3 text-base text-brand-white outline-none placeholder:text-white/25"
                         type="tel"
                         inputMode="numeric"
-                        maxLength={10}
+                        maxLength={STORE_INFO_FIELD_LIMITS.contactNo}
                         value={form.contactNo}
                         placeholder="10 digit mobile number"
                         onChange={(event) => updateField("contactNo", event.target.value)}
@@ -174,7 +174,7 @@ export default function StoreInfoFormPage() {
                       <p className="mt-2 text-xs text-white/40">Saved with +91 automatically.</p>
                     )}
                   </label>
-                  <StoreField label="Store Video" helper="Enter YouTube Video ID or full YouTube URL" value={form.storeVideo} error={fieldErrors.storeVideo} onChange={(value) => updateField("storeVideo", value)} />
+                  <StoreField label="Store Video" maxLength={STORE_INFO_FIELD_LIMITS.storeVideo} helper="Enter YouTube Video ID or full YouTube URL" value={form.storeVideo} error={fieldErrors.storeVideo} onChange={(value) => updateField("storeVideo", value)} />
                 </div>
               </CollapsibleStoreSection>
 
@@ -187,15 +187,16 @@ export default function StoreInfoFormPage() {
                 <div className="grid gap-5 md:grid-cols-2">
                   {isInitialSetup ? (
                     <>
-                      <StoreField label="Store Address" value={form.storeAddress} error={fieldErrors.storeAddress} onChange={(value) => updateField("storeAddress", value)} />
-                      <StoreField label="City" value={form.storeCity} error={fieldErrors.storeCity} onChange={(value) => updateField("storeCity", value)} />
-                      <StoreField label="State" value={form.storeState} error={fieldErrors.storeState} onChange={(value) => updateField("storeState", value)} />
+                      <StoreField label="Store Address" maxLength={STORE_INFO_FIELD_LIMITS.storeAddress} value={form.storeAddress} error={fieldErrors.storeAddress} onChange={(value) => updateField("storeAddress", value)} />
+                      <StoreField label="City" maxLength={STORE_INFO_FIELD_LIMITS.storeCity} value={form.storeCity} error={fieldErrors.storeCity} onChange={(value) => updateField("storeCity", value)} />
+                      <StoreField label="State" maxLength={STORE_INFO_FIELD_LIMITS.storeState} value={form.storeState} error={fieldErrors.storeState} onChange={(value) => updateField("storeState", value)} />
                       <StoreField label="Pincode" type="tel" value={form.storePinCode} error={fieldErrors.storePinCode} onChange={(value) => updateField("storePinCode", value)} />
                     </>
                   ) : null}
                   <StoreField
                     label="ScrapItt Username"
                     helper="Optional. Use only letters, numbers, periods, underscores, and an optional leading @."
+                    maxLength={STORE_INFO_FIELD_LIMITS.link1}
                     value={form.link1}
                     error={fieldErrors.link1}
                     onChange={(value) => updateField("link1", value)}
@@ -203,6 +204,7 @@ export default function StoreInfoFormPage() {
                   <StoreField
                     label="Instagram Username"
                     helper="Optional. Use only letters, numbers, periods, underscores, and an optional leading @."
+                    maxLength={STORE_INFO_FIELD_LIMITS.link2}
                     value={form.link2}
                     error={fieldErrors.link2}
                     onChange={(value) => updateField("link2", value)}
