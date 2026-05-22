@@ -5,6 +5,18 @@ import {
 } from "@/src/api/auth";
 
 const ONBOARDING_PAYMENT_PENDING_MAX_AGE_MS = 10 * 60 * 1000;
+const SELLER_ACCESS_SESSION_CACHE_KEY = "shopdibz_seller_access_resolution";
+const SELLER_ACCESS_CACHE_MS = 2000;
+const SELLER_ACCESS_SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+let sellerAccessResolutionCache = {
+  key: "",
+  expiresAt: 0,
+  value: null,
+};
+let sellerAccessResolutionRequest = {
+  key: "",
+  promise: null,
+};
 
 /**
  * @param {{
@@ -12,6 +24,7 @@ const ONBOARDING_PAYMENT_PENDING_MAX_AGE_MS = 10 * 60 * 1000;
  * cachedStoreInfo?: any,
  * fetchStoreInfo: () => Promise<any>,
  * checkStoreVerification: () => Promise<{ status?: number } | null>,
+ * forceFresh?: boolean,
  * }} options
  * @returns {Promise<{ redirectTo: string, storeInfo: any, resolved: boolean }>}
  */
@@ -19,6 +32,43 @@ export async function resolveSellerAccessRoute(options) {
   const session = options?.session || {};
   const cachedStoreInfo = options?.cachedStoreInfo || null;
   const accessToken = String(session?.data?.access || session?.access || "").trim();
+  const forceFresh = Boolean(options?.forceFresh);
+  const storeUrl = String(
+    firstDefined([
+      session?.user?.storeUrl,
+      session?.user?.store_url,
+      session?.storeUrl,
+      cachedStoreInfo?.url,
+      "",
+    ]),
+  ).trim();
+  const cacheKey = [
+    accessToken,
+    storeUrl,
+    String(
+      firstDefined([
+        session?.emailVerified,
+        session?.user?.emailVerified,
+        session?.user?.emailVerify,
+        session?.user?.eV,
+        session?.eV,
+      ]),
+    ),
+    String(
+      firstDefined([
+        session?.storeCreated,
+        session?.user?.cre,
+        session?.cre,
+      ]),
+    ),
+    String(
+      firstDefined([
+        session?.verified,
+        session?.user?.ver,
+        session?.ver,
+      ]),
+    ),
+  ].join(":");
 
   if (!accessToken) {
     return {
@@ -46,15 +96,6 @@ export async function resolveSellerAccessRoute(options) {
     };
   }
 
-  const storeUrl = String(
-    firstDefined([
-      session?.user?.storeUrl,
-      session?.user?.store_url,
-      session?.storeUrl,
-      cachedStoreInfo?.url,
-      "",
-    ]),
-  ).trim();
   const storeCreated = toBoolean(
     firstDefined([
       session?.storeCreated,
@@ -69,8 +110,112 @@ export async function resolveSellerAccessRoute(options) {
       session?.ver,
     ]),
   );
+
+  const now = Date.now();
+
+  if (!forceFresh) {
+    if (
+      sellerAccessResolutionCache.key === cacheKey &&
+      sellerAccessResolutionCache.value &&
+      sellerAccessResolutionCache.expiresAt > now
+    ) {
+      return sellerAccessResolutionCache.value;
+    }
+
+    const sessionCachedResolution = getSessionCachedSellerAccessResolution(cacheKey);
+
+    if (sessionCachedResolution) {
+      sellerAccessResolutionCache = {
+        key: cacheKey,
+        expiresAt: now + SELLER_ACCESS_CACHE_MS,
+        value: sessionCachedResolution,
+      };
+      return sessionCachedResolution;
+    }
+  }
+
+  if (
+    sellerAccessResolutionRequest.key === cacheKey &&
+    sellerAccessResolutionRequest.promise
+  ) {
+    return sellerAccessResolutionRequest.promise;
+  }
+
+  const request = resolveSellerAccessRouteUncached({
+    cachedStoreInfo,
+    checkStoreVerification: options.checkStoreVerification,
+    fetchStoreInfo: options.fetchStoreInfo,
+    storeCreated,
+    storeUrl,
+    verified,
+  }).then((result) => {
+    sellerAccessResolutionCache = {
+      key: cacheKey,
+      expiresAt: Date.now() + SELLER_ACCESS_CACHE_MS,
+      value: result,
+    };
+    cacheSessionSellerAccessResolution(cacheKey, result);
+    return result;
+  });
+
+  sellerAccessResolutionRequest = {
+    key: cacheKey,
+    promise: request,
+  };
+
+  return request.finally(() => {
+    if (sellerAccessResolutionRequest.key === cacheKey) {
+      sellerAccessResolutionRequest = {
+        key: "",
+        promise: null,
+      };
+    }
+  });
+}
+
+export function invalidateSellerAccessCache() {
+  sellerAccessResolutionCache = {
+    key: "",
+    expiresAt: 0,
+    value: null,
+  };
+  sellerAccessResolutionRequest = {
+    key: "",
+    promise: null,
+  };
+
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.removeItem(SELLER_ACCESS_SESSION_CACHE_KEY);
+}
+
+/**
+ * @param {string} pathname
+ * @returns {boolean}
+ */
+export function shouldForceFreshSellerAccess(pathname) {
+  return isOnboardingOnlyRoute(pathname);
+}
+
+/**
+ * @param {{
+ * cachedStoreInfo: any,
+ * checkStoreVerification: () => Promise<{ status?: number } | null>,
+ * fetchStoreInfo: () => Promise<any>,
+ * storeCreated: boolean,
+ * storeUrl: string,
+ * verified: boolean,
+ * }} options
+ * @returns {Promise<{ redirectTo: string, storeInfo: any, resolved: boolean }>}
+ */
+async function resolveSellerAccessRouteUncached(options) {
+  const cachedStoreInfo = options.cachedStoreInfo;
+  const storeUrl = options.storeUrl;
+  let verified = options.verified;
   const verification =
-    storeCreated
+    options.storeCreated
       ? await options.checkStoreVerification().catch(() => null)
       : null;
 
@@ -126,7 +271,7 @@ export async function resolveSellerAccessRoute(options) {
     };
   }
 
-  if (storeCreated && !verified) {
+  if (options.storeCreated && !verified) {
     return {
       redirectTo: "/awaiting-verification",
       storeInfo: cachedStoreInfo,
@@ -196,6 +341,60 @@ export async function resolveSellerAccessRoute(options) {
     storeInfo,
     resolved: Boolean(storeInfo || !storeUrl),
   };
+}
+
+/**
+ * @param {string} cacheKey
+ * @returns {{ redirectTo: string, storeInfo: any, resolved: boolean } | null}
+ */
+function getSessionCachedSellerAccessResolution(cacheKey) {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const rawValue = window.sessionStorage.getItem(SELLER_ACCESS_SESSION_CACHE_KEY);
+
+  if (!rawValue) {
+    return null;
+  }
+
+  try {
+    const parsedValue = JSON.parse(rawValue);
+
+    if (!parsedValue?.key || parsedValue.key !== cacheKey) {
+      invalidateSellerAccessCache();
+      return null;
+    }
+
+    if ((Date.now() - Number(parsedValue.createdAt || 0)) > SELLER_ACCESS_SESSION_MAX_AGE_MS) {
+      invalidateSellerAccessCache();
+      return null;
+    }
+
+    return parsedValue.value || null;
+  } catch {
+    invalidateSellerAccessCache();
+    return null;
+  }
+}
+
+/**
+ * @param {string} cacheKey
+ * @param {{ redirectTo: string, storeInfo: any, resolved: boolean }} value
+ */
+function cacheSessionSellerAccessResolution(cacheKey, value) {
+  if (typeof window === "undefined" || !cacheKey || !value) {
+    return;
+  }
+
+  window.sessionStorage.setItem(
+    SELLER_ACCESS_SESSION_CACHE_KEY,
+    JSON.stringify({
+      key: cacheKey,
+      createdAt: Date.now(),
+      value,
+    }),
+  );
 }
 
 /**

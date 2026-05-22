@@ -14,7 +14,10 @@ import {
   isClosedStoreAccessError,
 } from "@/src/api/dashboard";
 import { checkStoreVerification, fetchBannerImages } from "@/src/api/store";
-import { resolveSellerAccessRoute } from "@/src/utils/sellerAccess";
+import {
+  resolveSellerAccessRoute,
+  shouldForceFreshSellerAccess,
+} from "@/src/utils/sellerAccess";
 
 /**
  * @param {{ children: import("react").ReactNode }} props
@@ -117,6 +120,7 @@ export default function DashboardShell({ children }) {
           cachedStoreInfo: sessionCachedStoreInfo || getCachedStoreInfo(),
           fetchStoreInfo: () => fetchStoreInfo({ forceFresh: true }),
           checkStoreVerification,
+          forceFresh: shouldForceFreshSellerAccess(pathname),
         });
 
         if (!isCurrent) {
@@ -186,12 +190,12 @@ export default function DashboardShell({ children }) {
     return () => {
       isCurrent = false;
     };
-  }, [hasAccessToken, hasHydrated, isSetupRoute, parsedSession, router, router.isReady, sessionCachedStoreInfo]);
+  }, [hasAccessToken, hasHydrated, isSetupRoute, parsedSession, pathname, router, router.isReady, sessionCachedStoreInfo]);
 
   if (!hasHydrated || !hasAccessToken || isCheckingAccess) {
     return (
       <main className="theme-app flex min-h-screen items-center justify-center">
-        <p className="theme-text-muted text-sm font-semibold">Loading seller workspace...</p>
+        <p className="theme-text-muted text-sm font-semibold">Loading Brand Workspace...</p>
       </main>
     );
   }
@@ -276,4 +280,3 @@ function isStoreClosed(storeInfo) {
 
   return false;
 }
-

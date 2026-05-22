@@ -1,5 +1,6 @@
 import { getAccessToken } from "./auth";
 import { resolveApiErrorMessage } from "./error";
+import { invalidateSellerAccessCache } from "@/src/utils/sellerAccess";
 
 /**
  * @param {string} url
@@ -41,6 +42,9 @@ export function updateBankDetails(payload) {
     accountNumber: payload.accountNumber,
     bankName: payload.bankName,
     ifscCode: payload.ifscCode,
+  }).then((data) => {
+    invalidateSellerAccessCache();
+    return data;
   });
 }
 

@@ -17,6 +17,7 @@ export const STORE_INFO_STORAGE_KEY = "shopdibz_store_info";
 export const SESSION_STORE_INFO_STORAGE_KEY = "shopdibz_session_store_info";
 export const ONBOARDING_PAYMENT_PENDING_STORAGE_KEY = "shopdibz_onboarding_payment_pending";
 export const AUTH_SESSION_EVENT = "shopdibz:auth-session-change";
+const SELLER_ACCESS_SESSION_CACHE_KEY = "shopdibz_seller_access_resolution";
 
 /**
  * @returns {Promise<string>}
@@ -391,6 +392,7 @@ export function saveAuthSession(authData) {
     AUTH_STORAGE_KEY,
     JSON.stringify(stripSensitiveAuthFields(nextSession)),
   );
+  clearSellerAccessSessionCache();
   dispatchAuthSessionChange();
 }
 
@@ -518,6 +520,7 @@ export function clearAuthSession(options = {}) {
     }
   });
 
+  clearSellerAccessSessionCache();
   dispatchAuthSessionChange();
 }
 
@@ -528,6 +531,7 @@ export function clearCachedStoreInfo() {
 
   window.localStorage.removeItem(STORE_INFO_STORAGE_KEY);
   window.sessionStorage.removeItem(SESSION_STORE_INFO_STORAGE_KEY);
+  clearSellerAccessSessionCache();
   dispatchAuthSessionChange();
 }
 
@@ -698,6 +702,7 @@ export function savePendingOnboardingPayment(storeUrl) {
       createdAt: Date.now(),
     }),
   );
+  clearSellerAccessSessionCache();
   dispatchAuthSessionChange();
 }
 
@@ -730,7 +735,16 @@ export function clearPendingOnboardingPayment() {
   }
 
   window.sessionStorage.removeItem(ONBOARDING_PAYMENT_PENDING_STORAGE_KEY);
+  clearSellerAccessSessionCache();
   dispatchAuthSessionChange();
+}
+
+function clearSellerAccessSessionCache() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.removeItem(SELLER_ACCESS_SESSION_CACHE_KEY);
 }
 
 /**

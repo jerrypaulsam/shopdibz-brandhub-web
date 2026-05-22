@@ -1,4 +1,5 @@
 import { resolveApiErrorMessage } from "./error";
+import { invalidateSellerAccessCache } from "@/src/utils/sellerAccess";
 
 async function postPaymentJson(url, payload, fallback) {
   const response = await fetch(url, {
@@ -36,5 +37,8 @@ export function verifyOnboardingPayment(payload) {
     "/api/payments/onboard-verify",
     payload,
     "Payment verification failed.",
-  );
+  ).then((data) => {
+    invalidateSellerAccessCache();
+    return data;
+  });
 }

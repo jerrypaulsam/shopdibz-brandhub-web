@@ -7,6 +7,7 @@ import {
   updateAuthSession,
 } from "./auth";
 import { resolveApiErrorMessage } from "./error";
+import { invalidateSellerAccessCache } from "@/src/utils/sellerAccess";
 
 const SESSION_BANNER_IMAGES_STORAGE_KEY = "shopdibz_session_banner_images";
 let bannerImagesCache = {
@@ -124,6 +125,7 @@ export function createStore(payload) {
     accessToken: getAccessToken(),
     ...payload,
   }).then((data) => {
+    invalidateSellerAccessCache();
     updateAuthSession({
       storeCreated: true,
       verified: false,
@@ -142,6 +144,7 @@ export function updateStoreInfo(payload) {
     accessToken: getAccessToken(),
     ...payload,
   }).then((data) => {
+    invalidateSellerAccessCache();
     if (payload.storeUrl) {
       updateAuthSession({
         storeUrl: payload.storeUrl,

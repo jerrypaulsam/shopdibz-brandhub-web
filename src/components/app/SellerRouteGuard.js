@@ -13,6 +13,7 @@ import {
   isAllowedSellerRoute,
   isOnboardingOnlyRoute,
   resolveSellerAccessRoute,
+  shouldForceFreshSellerAccess,
   shouldBlockSellerRouteUntilResolved,
   shouldGuardSellerRoute,
 } from "@/src/utils/sellerAccess";
@@ -88,6 +89,7 @@ export default function SellerRouteGuard({ children }) {
           cachedStoreInfo: getCachedStoreInfo(),
           fetchStoreInfo: () => fetchStoreInfo({ forceFresh: true }),
           checkStoreVerification,
+          forceFresh: shouldForceFreshSellerAccess(pathname),
         });
 
         if (!isCurrent) {
@@ -133,7 +135,7 @@ export default function SellerRouteGuard({ children }) {
             <BrandHubLogo alt="Shopdibz Brand Hub" width={80} height={80} priority />
           </div>
           <p className="mt-6 text-sm font-bold uppercase tracking-[0.18em]">
-            Checking Seller Access
+            Checking Brand Access
           </p>
         </div>
       </main>

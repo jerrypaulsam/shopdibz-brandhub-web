@@ -70,6 +70,10 @@ export function getPaymentStatus(payment) {
     return "On Hold";
   }
 
+  if (payment?.completed) {
+    return "Settled";
+  }
+
   const initiatedAt = new Date(payment?.initDate || payment?.initiateDate || "");
 
   if (!Number.isNaN(initiatedAt.getTime())) {

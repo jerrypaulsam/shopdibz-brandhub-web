@@ -18,12 +18,20 @@ import {
 function filterPaymentsByTab(payments, tabSlug) {
   if (tabSlug === "pending") {
     return payments.filter(
-      (payment) => payment?.transactionId == null && payment?.tId == null,
+      (payment) =>
+        !payment?.completed &&
+        payment?.transactionId == null &&
+        payment?.tId == null,
     );
   }
 
   if (tabSlug === "settled") {
-    return payments.filter((payment) => payment?.transactionId != null || payment?.tId != null);
+    return payments.filter(
+      (payment) =>
+        Boolean(payment?.completed) ||
+        payment?.transactionId != null ||
+        payment?.tId != null,
+    );
   }
 
   return payments;
