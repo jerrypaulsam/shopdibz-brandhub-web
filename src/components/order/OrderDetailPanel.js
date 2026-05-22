@@ -1020,7 +1020,7 @@ function TextInput({ label, value, onChange }) {
 function PrimaryButton({ label, disabled = false, tone = "default", onClick }) {
   return (
     <button
-      className={`min-h-11 w-full rounded-sm px-4 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+      className={`min-h-11 w-full rounded-sm px-4 mt-2 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
         tone === "danger"
           ? "bg-red-500 text-white hover:bg-red-400"
           : "bg-brand-gold text-brand-black hover:bg-[#f7c751]"

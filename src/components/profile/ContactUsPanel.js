@@ -22,7 +22,7 @@ export default function ContactUsPanel({
     <StoreSection title="Create Ticket" subtitle="Open a support request that will appear inside your action board.">
       <div className="mx-auto max-w-[720px]">
         <label className="block">
-          <span className="text-sm font-semibold text-white/80">Choose Contact Type</span>
+          <span className="text-sm font-semibold text-white/80">Choose Ticket Type</span>
           <select
             className="mt-3 w-full rounded-[15px] border border-white/15 bg-transparent px-4 py-3 text-base text-brand-white outline-none"
             value={type}
