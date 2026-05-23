@@ -1,20 +1,19 @@
 import Link from "next/link";
 import AuthButton from "@/src/components/auth/AuthButton";
+import ShippingZoneSelector from "@/src/components/product/ShippingZoneSelector";
 import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
 import { PRODUCT_FIELD_LIMITS } from "@/src/hooks/product/productFieldLimits";
 import { titleCaseValue } from "@/src/utils/product";
 
 /**
- * @param {{ draft: any, selectionSummary: string, isBookCategory: boolean, gstOptions: Array<any>, shipZonesPreset: string[], shipExZonesPreset: string[], variationTypes: string[], fieldErrors: Record<string, string>, updateDraft: (value: any) => void, addKeyword: (value: string) => string, removeKeyword: (value: string) => void, addAttribute: () => void, updateAttribute: (id: number, key: "key" | "value", value: string) => void, removeAttribute: (id: number) => void, removeVariation: (id: number) => void, toggleShipZone: (value: string) => void, toggleShipExZone: (value: string) => void, chooseVariantType: (value: string) => Promise<void>, submitInfoForm: () => Promise<void>, isSubmitting: boolean, buildQuery: (patch?: Record<string, string>) => Record<string, string> }} props
+ * @param {{ draft: any, selectionSummary: string, isBookCategory: boolean, gstOptions: Array<any>, variationTypes: string[], fieldErrors: Record<string, string>, updateDraft: (value: any) => void, addKeyword: (value: string) => string, removeKeyword: (value: string) => void, addAttribute: () => void, updateAttribute: (id: number, key: "key" | "value", value: string) => void, removeAttribute: (id: number) => void, removeVariation: (id: number) => void, toggleShipZone: (value: string) => void, toggleShipExZone: (value: string) => void, chooseVariantType: (value: string) => Promise<void>, submitInfoForm: () => Promise<void>, isSubmitting: boolean, buildQuery: (patch?: Record<string, string>) => Record<string, string> }} props
  */
 export default function ProductInfoPanel({
   draft,
   selectionSummary,
   isBookCategory,
   gstOptions,
-  shipZonesPreset,
-  shipExZonesPreset,
   variationTypes,
   fieldErrors = {},
   updateDraft,
@@ -413,52 +412,12 @@ export default function ProductInfoPanel({
         </div>
 
         {draft.shippingProfile ? (
-          <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <div>
-              <p className="text-sm font-bold text-brand-white">Delivery Zones</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {shipZonesPreset.map((zone) => {
-                  const active = draft.shipZones.includes(zone);
-                  return (
-                    <button
-                      className={`rounded-full border px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] ${
-                        active
-                          ? "border-brand-gold bg-brand-gold/10 text-brand-white"
-                          : "border-white/10 text-white/55"
-                      }`}
-                      key={zone}
-                      type="button"
-                      onClick={() => toggleShipZone(zone)}
-                    >
-                      {zone}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-bold text-brand-white">Excluded Delivery Zones</p>
-              <div className="mt-3 flex max-h-60 flex-wrap gap-2 overflow-y-auto">
-                {shipExZonesPreset.map((zone) => {
-                  const active = draft.shipExZones.includes(zone);
-                  return (
-                    <button
-                      className={`rounded-full border px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] ${
-                        active
-                          ? "border-brand-gold bg-brand-gold/10 text-brand-white"
-                          : "border-white/10 text-white/55"
-                      }`}
-                      key={zone}
-                      type="button"
-                      onClick={() => toggleShipExZone(zone)}
-                    >
-                      {zone}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          <ShippingZoneSelector
+            selectedExcludedZones={draft.shipExZones}
+            selectedZones={draft.shipZones}
+            toggleShipExZone={toggleShipExZone}
+            toggleShipZone={toggleShipZone}
+          />
         ) : null}
       </StoreSection>
 

@@ -4,6 +4,7 @@ import {
   PRODUCT_GST_OPTIONS,
   PRODUCT_SHIP_EX_ZONES,
   PRODUCT_SHIP_ZONES,
+  normalizeShipExZoneValues,
 } from "@/src/data/product-variation-options";
 import { resolveProductSelection } from "@/src/data/product-catalog";
 import {
@@ -73,9 +74,13 @@ function readDraftFromStorage() {
       return { ...DEFAULT_DRAFT };
     }
 
+    const parsedDraft = JSON.parse(rawDraft);
+
     return {
       ...DEFAULT_DRAFT,
-      ...JSON.parse(rawDraft),
+      ...parsedDraft,
+      shipZones: normalizeShipZoneValues(parsedDraft?.shipZones),
+      shipExZones: normalizeShipExZoneValues(parsedDraft?.shipExZones),
     };
   } catch {
     return { ...DEFAULT_DRAFT };
@@ -726,4 +731,18 @@ function isValidUrl(value) {
   } catch {
     return false;
   }
+}
+
+/**
+ * @param {unknown} values
+ * @returns {string[]}
+ */
+function normalizeShipZoneValues(values) {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return values
+    .map((value) => String(value).trim().toUpperCase())
+    .filter((value) => value && value !== "ALL");
 }

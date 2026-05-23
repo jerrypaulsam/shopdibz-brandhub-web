@@ -518,6 +518,15 @@ export function canMarkDelivered(detail) {
  * @param {any} detail
  * @returns {boolean}
  */
+export function canDownloadInvoice(detail) {
+  const status = getOrderStatusCode(detail);
+  return status === "DD" || status === "ND";
+}
+
+/**
+ * @param {any} detail
+ * @returns {boolean}
+ */
 export function canMessageCustomer(detail) {
   const status = getOrderStatusCode(detail);
   return status !== "DD" && status !== "SD" && status !== "CA";

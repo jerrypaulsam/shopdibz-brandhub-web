@@ -172,41 +172,166 @@ export const PRODUCT_SHIP_ZONES = [
   "NORTHEAST",
 ];
 
-export const PRODUCT_SHIP_EX_ZONES = [
-  "Jammu and Kashmir",
-  "Himachal Pradesh",
-  "Punjab",
-  "Chandigarh",
-  "Uttarakhand",
-  "Haryana",
-  "Delhi",
-  "Uttar Pradesh",
-  "Bihar",
-  "Jharkhand",
-  "Telangana",
-  "Karnataka",
-  "Tamil Nadu",
-  "Kerala",
-  "Lakshadweep",
-  "Andman & Nicobar Islands",
-  "Pondicherry",
-  "West Bengal",
-  "Sikkim",
-  "Orissa",
-  "Rajastan",
-  "Gujarat",
-  "Maharashtra",
-  "Goa",
-  "Dadra and Nagar Haveli",
-  "Daman and Diu",
-  "Madhya Pradesh",
-  "Chhattisgarh",
-  "Assam",
-  "Arunachal Pradesh",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
+export const PRODUCT_SHIP_EX_ZONE_OPTIONS = [
+  { value: "jammuAndKashmir", label: "Jammu and Kashmir" },
+  { value: "himachalPradesh", label: "Himachal Pradesh" },
+  { value: "punjab", label: "Punjab" },
+  { value: "chandigarh", label: "Chandigarh" },
+  { value: "uttarakhand", label: "Uttarakhand" },
+  { value: "haryana", label: "Haryana" },
+  { value: "delhi", label: "Delhi" },
+  { value: "uttarPradesh", label: "Uttar Pradesh" },
+  { value: "bihar", label: "Bihar" },
+  { value: "jharkhand", label: "Jharkhand" },
+  { value: "andhraPradesh", label: "Andhra Pradesh" },
+  { value: "telangana", label: "Telangana" },
+  { value: "karnataka", label: "Karnataka" },
+  { value: "tamilNadu", label: "Tamil Nadu" },
+  { value: "kerala", label: "Kerala" },
+  { value: "lakshadweep", label: "Lakshadweep" },
+  { value: "admanNicobarIslands", label: "Andaman & Nicobar Islands" },
+  { value: "pondicherry", label: "Pondicherry" },
+  { value: "westBengal", label: "West Bengal" },
+  { value: "sikkim", label: "Sikkim" },
+  { value: "orissa", label: "Orissa" },
+  { value: "rajastan", label: "Rajastan" },
+  { value: "gujarat", label: "Gujarat" },
+  { value: "maharashtra", label: "Maharashtra" },
+  { value: "goa", label: "Goa" },
+  { value: "dadraAndNagarHaveli", label: "Dadra and Nagar Haveli" },
+  { value: "damanAndDiu", label: "Daman and Diu" },
+  { value: "mathyaPradesh", label: "Madhya Pradesh" },
+  { value: "chhattisgarh", label: "Chhattisgarh" },
+  { value: "assam", label: "Assam" },
+  { value: "arunachalPradesh", label: "Arunachal Pradesh" },
+  { value: "manipur", label: "Manipur" },
+  { value: "meghalaya", label: "Meghalaya" },
+  { value: "mizoram", label: "Mizoram" },
+  { value: "nagaland", label: "Nagaland" },
 ];
+
+export const PRODUCT_SHIP_EX_ZONES = PRODUCT_SHIP_EX_ZONE_OPTIONS.map(
+  (option) => option.value,
+);
+
+export const PRODUCT_ZONE_DETAILS = [
+  {
+    value: "NORTH",
+    label: "North",
+    states: [
+      "Delhi",
+      "Haryana",
+      "Punjab",
+      "Himachal Pradesh",
+      "Jammu and Kashmir",
+      "Uttarakhand",
+      "Uttar Pradesh",
+      "Bihar",
+      "Jharkhand",
+      "Chandigarh",
+    ],
+  },
+  {
+    value: "SOUTH",
+    label: "South",
+    states: [
+      "Andhra Pradesh",
+      "Telangana",
+      "Karnataka",
+      "Tamil Nadu",
+      "Kerala",
+      "Lakshadweep",
+      "Andaman & Nicobar Islands",
+      "Pondicherry",
+    ],
+  },
+  {
+    value: "EAST",
+    label: "East",
+    states: ["West Bengal", "Sikkim", "Orissa"],
+  },
+  {
+    value: "WEST",
+    label: "West",
+    states: [
+      "Rajastan",
+      "Gujarat",
+      "Maharashtra",
+      "Goa",
+      "Dadra and Nagar Haveli",
+      "Daman and Diu",
+    ],
+  },
+  {
+    value: "CENTRAL",
+    label: "Central",
+    states: ["Madhya Pradesh", "Chhattisgarh"],
+  },
+  {
+    value: "NORTHEAST",
+    label: "Northeast",
+    states: [
+      "Assam",
+      "Arunachal Pradesh",
+      "Manipur",
+      "Meghalaya",
+      "Mizoram",
+      "Nagaland",
+    ],
+  },
+];
+
+const PRODUCT_SHIP_EX_ZONE_VALUE_ALIASES = {
+  "Jammu and Kashmir": "jammuAndKashmir",
+  "Himachal Pradesh": "himachalPradesh",
+  Punjab: "punjab",
+  Chandigarh: "chandigarh",
+  Uttarakhand: "uttarakhand",
+  Haryana: "haryana",
+  Delhi: "delhi",
+  "Uttar Pradesh": "uttarPradesh",
+  Bihar: "bihar",
+  Jharkhand: "jharkhand",
+  "Andhra Pradesh": "andhraPradesh",
+  Telangana: "telangana",
+  Karnataka: "karnataka",
+  "Tamil Nadu": "tamilNadu",
+  Kerala: "kerala",
+  Lakshadweep: "lakshadweep",
+  "Andman & Nicobar Islands": "admanNicobarIslands",
+  "Andaman & Nicobar Islands": "admanNicobarIslands",
+  Pondicherry: "pondicherry",
+  "West Bengal": "westBengal",
+  Sikkim: "sikkim",
+  Orissa: "orissa",
+  Rajastan: "rajastan",
+  Gujarat: "gujarat",
+  Maharashtra: "maharashtra",
+  Goa: "goa",
+  "Dadra and Nagar Haveli": "dadraAndNagarHaveli",
+  "Daman and Diu": "damanAndDiu",
+  "Madhya Pradesh": "mathyaPradesh",
+  Chhattisgarh: "chhattisgarh",
+  Assam: "assam",
+  "Arunachal Pradesh": "arunachalPradesh",
+  Manipur: "manipur",
+  Meghalaya: "meghalaya",
+  Mizoram: "mizoram",
+  Nagaland: "nagaland",
+};
+
+/**
+ * @param {string[]} values
+ * @returns {string[]}
+ */
+export function normalizeShipExZoneValues(values) {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return values
+    .map((value) => PRODUCT_SHIP_EX_ZONE_VALUE_ALIASES[String(value).trim()] || String(value).trim())
+    .filter((value) => value && value.toLowerCase() !== "none");
+}
 
 export { PRODUCT_BULK_TEMPLATE_URLS } from "@/src/data/downloads";

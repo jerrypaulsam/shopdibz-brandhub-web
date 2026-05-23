@@ -14,6 +14,7 @@ import { getDashboardSession } from "@/src/api/dashboard";
 import { logScreenView } from "@/src/api/analytics";
 import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import {
+  canDownloadInvoice,
   firstQueryValue,
   normalizeOrderDetail,
   resolveOrderDocumentUrl,
@@ -276,8 +277,8 @@ export function useOrderDetail() {
       setActionError("");
       setActionMessage("");
 
-      if (order?.product?.status !== "DD") {
-        setActionError("Invoice can only be downloaded once the order is delivered.");
+      if (!canDownloadInvoice(order)) {
+        setActionError("Invoice can only be downloaded for delivered items.");
         return;
       }
 

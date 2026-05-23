@@ -1,10 +1,9 @@
 import AuthButton from "@/src/components/auth/AuthButton";
+import ShippingZoneSelector from "@/src/components/product/ShippingZoneSelector";
 import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
 import {
   PRODUCT_GST_OPTIONS,
-  PRODUCT_SHIP_EX_ZONES,
-  PRODUCT_SHIP_ZONES,
 } from "@/src/data/product-variation-options";
 import { PRODUCT_FIELD_LIMITS } from "@/src/hooks/product/productFieldLimits";
 
@@ -252,46 +251,12 @@ export default function ProductEditorPanel({
         </div>
 
         {form.shippingProfile ? (
-          <div className="mt-6 grid gap-6 xl:grid-cols-2">
-            <div>
-              <p className="text-sm font-bold text-brand-white">Shipping Zones</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {PRODUCT_SHIP_ZONES.map((zone) => (
-                  <button
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                      form.shipZones.includes(zone)
-                        ? "border-brand-gold bg-brand-gold/10 text-brand-white"
-                        : "border-white/10 text-white/55"
-                    }`}
-                    key={zone}
-                    type="button"
-                    onClick={() => toggleShipZone(zone)}
-                  >
-                    {zone}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-bold text-brand-white">Excluded Zones</p>
-              <div className="mt-3 flex max-h-64 flex-wrap gap-2 overflow-y-auto">
-                {PRODUCT_SHIP_EX_ZONES.map((zone) => (
-                  <button
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                      form.shipExZones.includes(zone)
-                        ? "border-brand-gold bg-brand-gold/10 text-brand-white"
-                        : "border-white/10 text-white/55"
-                    }`}
-                    key={zone}
-                    type="button"
-                    onClick={() => toggleShipExZone(zone)}
-                  >
-                    {zone}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+          <ShippingZoneSelector
+            selectedExcludedZones={form.shipExZones}
+            selectedZones={form.shipZones}
+            toggleShipExZone={toggleShipExZone}
+            toggleShipZone={toggleShipZone}
+          />
         ) : null}
       </StoreSection>
 

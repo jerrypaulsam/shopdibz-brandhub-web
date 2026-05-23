@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchProductDetail, updateExistingProduct } from "@/src/api/products";
 import { useToast } from "@/src/components/app/ToastProvider";
+import { normalizeShipExZoneValues } from "@/src/data/product-variation-options";
 import { getProductCategories } from "@/src/data/product-catalog";
 import {
   buildAttributePayload,
@@ -115,8 +116,8 @@ export function useProductUpdateForm(options = {}) {
           shippingProfile: Boolean(data.shProf),
           showSizeChart: Boolean(data.prdtInfo?.showChart),
           enablePrebooking: Boolean(data.prebook),
-          shipZones: parsePseudoArray(data.prdtInfo?.sZones),
-          shipExZones: parsePseudoArray(data.prdtInfo?.sxZones),
+          shipZones: normalizeShipZoneValues(parsePseudoArray(data.prdtInfo?.sZones)),
+          shipExZones: normalizeShipExZoneValues(parsePseudoArray(data.prdtInfo?.sxZones)),
           attributes: attributeMapToRows(attributes),
           manufacturerValue: attributes.Manufacturer?.[0] || "",
           originCountryValue: attributes["Country of Origin"]?.[0] || "",
@@ -383,6 +384,16 @@ function resolveUpdateCategoryTrail(product, categories) {
   return [category?.name, subCategory?.name, itemSubCategory?.name]
     .filter(Boolean)
     .join(" / ");
+}
+
+function normalizeShipZoneValues(values) {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return values
+    .map((value) => String(value).trim().toUpperCase())
+    .filter((value) => value && value !== "ALL");
 }
 
 function isValidUrl(value) {
