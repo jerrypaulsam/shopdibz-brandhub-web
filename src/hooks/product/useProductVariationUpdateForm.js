@@ -78,8 +78,8 @@ export function useProductVariationUpdateForm() {
             mrp: String(variation.mrp || ""),
             price: String(variation.price || ""),
             variationSkuCode: variation.sku || "",
-            stock: variation.inStock || "S",
-            maxStock: String(variation.mStock || 1),
+            stock: variation.inStock ?? "S",
+            maxStock: String(variation.mStock ?? 1),
             variationFields: fieldOrder.map((key, index) => {
               const currentValue = existingVariationTypes[index] || {};
               return {

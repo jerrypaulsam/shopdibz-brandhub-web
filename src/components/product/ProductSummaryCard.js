@@ -14,6 +14,8 @@ import {
   getProductVariations,
   getVariationCode,
   getVariationLabel,
+  getVariationPriceInfo,
+  getVariationStockValue,
   getVariationTypeNames,
 } from "@/src/utils/product";
 
@@ -52,16 +54,19 @@ export default function ProductSummaryCard({
   const reviewCount = getProductReviewCount(product);
   const hasVariants = getProductHasVariants(product);
   const sold = hasVariants ? null : Number(product?.sold || 0);
-  const views = Number(product?.vCnt || product?.views || 0);
   const variations = getProductVariations(product);
   const variationCount = variations.length;
   const [showAllVariations, setShowAllVariations] = useState(false);
   const visibleVariations = showAllVariations ? variations : variations.slice(0, 3);
-  const firstVariationId = variationCount ? variations[0]?.id : 0;
   const isArchived = Boolean(product?.arch || product?.archived);
   const isPromoted = Boolean(product?.isPromoted || product?.promoted);
   const featuredStatus = Number(product?.feaStat ?? product?.featuredStatus ?? 3);
   const approvalLabel = getProductApprovalStatus(product) ? "Active" : "Pending";
+  const inventoryValue = hasVariants
+    ? "NA"
+    : stock > 0
+      ? `${stock} in stock`
+      : "Out of stock";
   const canManagePromotion = !isArchived && typeof onAddToPromotionFeed === "function";
   const canRemovePromotion =
     featuredStatus >= 0 &&
@@ -94,7 +99,7 @@ export default function ProductSummaryCard({
               <div className="flex flex-wrap gap-2">
                 <Badge>{approvalLabel}</Badge>
                 <Badge>{hasVariants ? "With Variant" : "Without Variant"}</Badge>
-                <Badge>{hasVariants == false ? (stock > 0 ? `Stock ${stock}` : "Out of Stock") : "-"}</Badge>
+                <Badge>{hasVariants ? "Inventory NA" : stock > 0 ? `Stock ${stock}` : "Out of Stock"}</Badge>
                 {isPromoted ? <Badge tone="promoted">Promoted</Badge> : null}
               </div>
               <h3 className="mt-3 max-w-full text-xl font-black leading-tight text-brand-white lg:pr-4">
@@ -118,7 +123,10 @@ export default function ProductSummaryCard({
                     {priceRange.minPrice > 0 ? `From Rs. ${priceRange.minPrice.toFixed(2)}` : "Check Variants"}
                   </p>
                   <p className="mt-1 text-sm text-white/45">
-                    Variant MRP and price are managed per option
+                    MRP Rs. {priceRange.minMrp.toFixed(2)}
+                    {priceRange.maxMrp !== priceRange.minMrp
+                      ? ` - Rs. ${priceRange.maxMrp.toFixed(2)}`
+                      : ""}
                   </p>
                 </>
               ) : (
@@ -148,7 +156,7 @@ export default function ProductSummaryCard({
           </div>
 
           <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Metric label="Views" value={views > 0 ? String(views) : "0"} />
+            <Metric label="Inventory" value={inventoryValue} />
             <Metric label="Listing Type" value={hasVariants ? "Variant" : "Single"} />
             <Metric label="Variation Count" value={String(variationCount)} />
             <Metric label="Approval" value={approvalLabel} />
@@ -304,6 +312,8 @@ export default function ProductSummaryCard({
               <div className="mt-4 space-y-3">
                 {visibleVariations.map((variation) => {
                   const variationTypes = getVariationTypeNames(variation);
+                  const variationPrice = getVariationPriceInfo(variation);
+                  const variationStock = getVariationStockValue(variation);
 
                   return (
                     <div
@@ -318,8 +328,19 @@ export default function ProductSummaryCard({
                           Code {getVariationCode(variation) || "-"}
                           {variationTypes.length ? ` / ${variationTypes.join(", ")}` : ""}
                         </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <MiniMetric
+                            label="Price"
+                            value={`Rs. ${variationPrice.price.toFixed(2)}`}
+                          />
+                          <MiniMetric
+                            label="MRP"
+                            value={`Rs. ${variationPrice.mrp.toFixed(2)}`}
+                          />
+                        </div>
                       </div>
                       <div className="flex flex-wrap items-start gap-2 lg:justify-end">
+                        <StockPill value={variationStock} />
                         <Link
                           className="inline-flex min-h-9 items-center justify-center rounded-sm border border-white/10 px-3 py-2 text-xs font-semibold text-brand-white hover:border-brand-gold hover:text-brand-gold"
                           href={`/products/${slug}?variation-id=${variation.id}&variant-mode=with-variant`}
@@ -397,6 +418,36 @@ function Metric({ label, value }) {
         {label}
       </p>
       <p className="mt-2 text-sm font-bold text-brand-white">{value}</p>
+    </div>
+  );
+}
+
+/**
+ * @param {{ label: string, value: string }} props
+ */
+function MiniMetric({ label, value }) {
+  return (
+    <div className="rounded-sm border border-white/10 bg-white/[0.03] px-3 py-2 [html[data-theme='light']_&]:bg-[#fff8f3]">
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/40">
+        {label}
+      </p>
+      <p className="mt-1 text-xs font-bold text-brand-white">{value}</p>
+    </div>
+  );
+}
+
+/**
+ * @param {{ value: number }} props
+ */
+function StockPill({ value }) {
+  return (
+    <div className="min-w-[92px] rounded-sm border border-white/10 bg-black/25 px-3 py-2 text-center [html[data-theme='light']_&]:bg-[#fff8f3]">
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/40">
+        Stock
+      </p>
+      <p className="mt-1 text-xs font-bold text-brand-white">
+        {value > 0 ? String(value) : "0"}
+      </p>
     </div>
   );
 }

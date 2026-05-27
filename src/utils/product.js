@@ -192,6 +192,22 @@ export function normalizeRemoteAssetUrl(value) {
 }
 
 /**
+ * @param {Array<any>} candidates
+ * @returns {number}
+ */
+function getBestNumber(candidates) {
+  for (const candidate of candidates) {
+    const parsed = Number(candidate);
+
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+
+  return 0;
+}
+
+/**
  * @param {any} product
  * @returns {string}
  */
@@ -245,8 +261,12 @@ export function getProductPriceRange(product) {
   const variations = product?.prdtVari || product?.productVariations || product?.variations || [];
 
   if (Array.isArray(variations) && variations.length) {
-    const prices = variations.map((variation) => Number(variation?.price || 0));
-    const mrps = variations.map((variation) => Number(variation?.mrp || 0));
+    const prices = variations.map((variation) =>
+      getBestNumber([variation?.price, variation?.prc, 0]),
+    );
+    const mrps = variations.map((variation) =>
+      getBestNumber([variation?.mrp, variation?.mPrice, 0]),
+    );
 
     return {
       minPrice: Math.min(...prices),
@@ -257,10 +277,10 @@ export function getProductPriceRange(product) {
   }
 
   return {
-    minPrice: Number(product?.prdtInfo?.price || product?.price || 0),
-    maxPrice: Number(product?.prdtInfo?.price || product?.price || 0),
-    minMrp: Number(product?.prdtInfo?.mrp || product?.mrp || 0),
-    maxMrp: Number(product?.prdtInfo?.mrp || product?.mrp || 0),
+    minPrice: getBestNumber([product?.prdtInfo?.price, product?.price, product?.prc, 0]),
+    maxPrice: getBestNumber([product?.prdtInfo?.price, product?.price, product?.prc, 0]),
+    minMrp: getBestNumber([product?.prdtInfo?.mrp, product?.mrp, product?.mPrice, 0]),
+    maxMrp: getBestNumber([product?.prdtInfo?.mrp, product?.mrp, product?.mPrice, 0]),
   };
 }
 
@@ -283,16 +303,7 @@ export function getProductCategoryTrail(product) {
  * @returns {number}
  */
 export function getProductStockValue(product) {
-  const directStockCandidates = [product?.mStock, product?.stock];
-  const directStock = directStockCandidates.reduce((bestValue, candidate) => {
-    const parsed = Number(candidate);
-
-    if (Number.isFinite(parsed) && parsed > bestValue) {
-      return parsed;
-    }
-
-    return bestValue;
-  }, 0);
+  const directStock = getBestNumber([product?.mStock, product?.maxStock, product?.stock, 0]);
 
   if (directStock > 0) {
     return directStock;
@@ -303,18 +314,12 @@ export function getProductStockValue(product) {
   if (Array.isArray(variations) && variations.length) {
     return variations.reduce(
       (sum, variation) => {
-        const variationStock = [variation?.mStock, variation?.stock].reduce(
-          (bestValue, candidate) => {
-            const parsed = Number(candidate);
-
-            if (Number.isFinite(parsed) && parsed > bestValue) {
-              return parsed;
-            }
-
-            return bestValue;
-          },
+        const variationStock = getBestNumber([
+          variation?.mStock,
+          variation?.maxStock,
+          variation?.stock,
           0,
-        );
+        ]);
 
         return sum + variationStock;
       },
@@ -442,9 +447,17 @@ export function titleCaseValue(value) {
  */
 export function getVariationPriceInfo(variation) {
   return {
-    price: Number(variation?.price || variation?.prc || 0),
-    mrp: Number(variation?.mrp || variation?.mPrice || 0),
+    price: getBestNumber([variation?.price, variation?.prc, 0]),
+    mrp: getBestNumber([variation?.mrp, variation?.mPrice, 0]),
   };
+}
+
+/**
+ * @param {any} variation
+ * @returns {number}
+ */
+export function getVariationStockValue(variation) {
+  return getBestNumber([variation?.mStock, variation?.maxStock, variation?.stock, 0]);
 }
 
 /**
