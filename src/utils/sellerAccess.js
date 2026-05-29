@@ -408,7 +408,11 @@ export function shouldGuardSellerRoute(pathname) {
     return false;
   }
 
-  return isOnboardingOnlyRoute(value) && !isSystemPublicRoute(value);
+  return (
+    isOnboardingOnlyRoute(value) &&
+    !isSystemPublicRoute(value) &&
+    !isPublicLandingRoute(value)
+  );
 }
 
 /**
