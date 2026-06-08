@@ -328,6 +328,8 @@ export function normalizeOrderDetail(raw) {
       returnAwb: product?.returnAwb ?? "",
       returnShipComp: product?.returnShipComp ?? "",
       refundCompleted: Boolean(product?.refundCompleted),
+      exchangeStatus: product?.exchangeStatus ?? "",
+      exchangeVariantCode: product?.exchangeVariantCode ?? "",
     },
     address: {
       ...address,

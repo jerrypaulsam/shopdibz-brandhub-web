@@ -25,7 +25,7 @@ import {
 } from "@/src/utils/orders";
 
 /**
- * @param {{ order: any, isLoading: boolean, message: string, actionMessage: string, actionError: string, busyAction: string, isPhoneVisible: boolean, onTogglePhone: (value: boolean) => void, onSubmitPack: (payload: { packageWidth: number, packageLength: number, packageHeight: number, packageWeight: number }) => Promise<void>, onSubmitTracking: (payload: { company: string, trackingNo: string, trackingUrl: string }) => Promise<void>, onSubmitRefundReturnTracking: (payload: { company: string, trackingNo: string }) => Promise<boolean>, onSubmitDelivered: () => Promise<void>, onSubmitCancel: (payload: { reasonId: number, detail: string }) => Promise<void>, onSubmitMessage: (message: string) => Promise<void>, onOpenInvoice: () => Promise<void>, onOpenCreditNote: () => Promise<void>, onOpenShippingLabel: () => Promise<void> }} props
+ * @param {{ order: any, isLoading: boolean, message: string, actionMessage: string, actionError: string, busyAction: string, isPhoneVisible: boolean, onTogglePhone: (value: boolean) => void, onSubmitPack: (payload: { packageWidth: number, packageLength: number, packageHeight: number, packageWeight: number }) => Promise<void>, onSubmitTracking: (payload: { company: string, trackingNo: string, trackingUrl: string }) => Promise<void>, onSubmitRefundReturnTracking: (payload: { company: string, trackingNo: string }) => Promise<boolean>, onSubmitExchangeDecision: (decision: "APPROVED" | "DECLINED") => Promise<boolean>, onSubmitDelivered: () => Promise<void>, onSubmitCancel: (payload: { reasonId: number, detail: string }) => Promise<void>, onSubmitMessage: (message: string) => Promise<void>, onOpenInvoice: () => Promise<void>, onOpenCreditNote: () => Promise<void>, onOpenShippingLabel: () => Promise<void> }} props
  */
 export default function OrderDetailPanel({
   order,
@@ -39,6 +39,7 @@ export default function OrderDetailPanel({
   onSubmitPack,
   onSubmitTracking,
   onSubmitRefundReturnTracking,
+  onSubmitExchangeDecision,
   onSubmitDelivered,
   onSubmitCancel,
   onSubmitMessage,
@@ -76,11 +77,19 @@ export default function OrderDetailPanel({
   const trackingUrl = String(order?.trackUrl || "").trim();
   const canTrackShipment = Boolean(trackingUrl);
   const hasRefundSection = Boolean(order?.product?.refundId);
+  const exchangeStatus = String(order?.product?.exchangeStatus || "").trim();
+  const exchangeVariantCode = String(order?.product?.exchangeVariantCode || "").trim();
+  const isExchangeFlow = exchangeStatus === "PENDING" || exchangeStatus === "APPROVED";
+  const showExchangeOutcomeNote = exchangeStatus === "DECLINED" || exchangeStatus === "TIMED_OUT";
+  const isExchangeRequest = isExchangeFlow;
+  const canRespondToExchange = exchangeStatus === "PENDING";
+  const isNormalRefundAccepted = String(order?.product?.refundStatus || "").trim() === "Accepted";
+  const canAddReturnTrackingForExchange = exchangeStatus === "APPROVED";
   const returnTrackingNumber = String(order?.product?.returnAwb || "").trim();
   const returnTrackingCompany = String(order?.product?.returnShipComp || "").trim();
   const hasReturnTrackingDetails = Boolean(returnTrackingNumber || returnTrackingCompany);
   const canUpdateReturnTracking = hasRefundSection
-    && String(order?.product?.refundStatus || "").trim() === "Accepted"
+    && (isNormalRefundAccepted || canAddReturnTrackingForExchange)
     && !order?.assistedShip
     && !hasReturnTrackingDetails
     && !order?.product?.refundCompleted;
@@ -233,14 +242,18 @@ export default function OrderDetailPanel({
                       Priority
                     </span>
                     <p className="text-xs font-bold uppercase tracking-[0.16em] text-red-100/80 [html[data-theme='light']_&]:text-red-700">
-                      Refund and return details
+                      {isExchangeRequest ? "Exchange request details" : "Refund and return details"}
                     </p>
                   </div>
                   <h2 className="mt-3 text-xl font-extrabold text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
-                    Refund details for brand visibility
+                    {isExchangeRequest
+                      ? "Exchange request details for brand visibility"
+                      : "Refund details for brand visibility"}
                   </h2>
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-red-100/80 [html[data-theme='light']_&]:text-red-900/80">
-                    This order has refund activity attached to it. Refund decisions are handled by the Shopdibz team or system checks after verification. If anything looks incorrect, raise a support ticket with the relevant details.
+                    {isExchangeRequest
+                      ? "This order has an exchange request attached to it. Accepting starts the exchange flow. Rejecting keeps the case in the normal refund flow. If anything looks incorrect, raise a support ticket with the relevant details."
+                      : "This order has refund activity attached to it. Refund decisions are handled by the Shopdibz team or system checks after verification. If anything looks incorrect, raise a support ticket with the relevant details."}
                   </p>
                 </div>
                 {order?.product?.refundStatus ? (
@@ -259,6 +272,68 @@ export default function OrderDetailPanel({
                 />
               </div>
 
+              {showExchangeOutcomeNote ? (
+                <div className="mt-5 rounded-sm border border-red-300/20 bg-black/15 p-4 [html[data-theme='light']_&]:bg-white/40">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-red-100/75 [html[data-theme='light']_&]:text-red-700">
+                    Exchange update
+                  </p>
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <InfoRow label="Exchange Status" value={exchangeStatus} />
+                    <InfoRow label="Requested Variant" value={exchangeVariantCode} />
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                    {exchangeStatus === "TIMED_OUT"
+                      ? "The exchange request was not actioned in time and has moved back to the normal refund and return flow."
+                      : "The exchange request was declined and has moved back to the normal refund and return flow."}
+                  </p>
+                </div>
+              ) : null}
+
+              {isExchangeRequest ? (
+                <div className="mt-5 rounded-sm border border-red-300/20 bg-black/15 p-4 [html[data-theme='light']_&]:bg-white/40">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-red-100/75 [html[data-theme='light']_&]:text-red-700">
+                      Exchange request
+                      </p>
+                      <div className="mt-3 grid gap-3 md:grid-cols-2">
+                        <InfoRow label="Exchange Status" value={exchangeStatus} />
+                        <InfoRow label="Requested Variant" value={exchangeVariantCode} />
+                      </div>
+                      <p className="mt-3 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                        {canRespondToExchange
+                          ? "This is an exchange request. Accept to begin the exchange flow, or reject to let it continue as a normal refund."
+                          : "This order includes an exchange request. The current exchange state is shown above."}
+                      </p>
+                    {exchangeStatus === "PENDING" ? (
+                      <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                        If no action is taken within 24 hours, the exchange request will be declined automatically and processed as a normal refund.
+                      </p>
+                    ) : null}
+                  </div>
+
+                  {canRespondToExchange ? (
+                    <div className="mt-5 flex flex-col gap-3 border-t border-red-300/20 pt-4 sm:flex-row">
+                      <button
+                        className="theme-action-accent inline-flex min-h-11 items-center justify-center rounded-sm border px-5 py-2.5 text-center text-sm font-bold leading-5 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                        type="button"
+                        disabled={busyAction === "exchange-response"}
+                        onClick={() => onSubmitExchangeDecision("APPROVED")}
+                      >
+                        {busyAction === "exchange-response" ? "Saving..." : "Accept"}
+                      </button>
+                      <button
+                        className="theme-action-neutral inline-flex min-h-11 items-center justify-center rounded-sm border px-5 py-2.5 text-center text-sm font-bold leading-5 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                        type="button"
+                        disabled={busyAction === "exchange-response"}
+                        onClick={() => onSubmitExchangeDecision("DECLINED")}
+                      >
+                        {busyAction === "exchange-response" ? "Saving..." : "Reject"}
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
               {order?.product?.cancellationReason ? (
                 <div className="mt-5 rounded-sm border border-red-300/20 bg-black/15 p-4 [html[data-theme='light']_&]:bg-white/40">
                   <p className="text-xs font-bold uppercase tracking-[0.14em] text-red-100/75 [html[data-theme='light']_&]:text-red-700">
@@ -276,9 +351,15 @@ export default function OrderDetailPanel({
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-red-100/75 [html[data-theme='light']_&]:text-red-700">
                       Return tracking
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
-                      Current refund status: <span className="font-bold">{order?.product?.refundStatus || "---"}</span>. Return tracking can only be added after the refund is accepted.
-                    </p>
+                    {canAddReturnTrackingForExchange ? (
+                      <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                        Current exchange status: <span className="font-bold">{exchangeStatus}</span>. For this self-shipping exchange order, add the reverse pickup tracking details here so the return can move from the customer to the warehouse.
+                      </p>
+                    ) : (
+                      <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                        Current refund status: <span className="font-bold">{order?.product?.refundStatus || "NA"}</span>. Return tracking can only be added after the refund is accepted.
+                      </p>
+                    )}
                     {hasReturnTrackingDetails ? (
                       <div className="mt-3 grid gap-3 md:grid-cols-2">
                         <InfoRow label="Return Shipping Company" value={returnTrackingCompany} />
@@ -290,7 +371,9 @@ export default function OrderDetailPanel({
                       </p>
                     ) : (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
-                        Return tracking details have not been added yet for this self-shipping refund.
+                        {canAddReturnTrackingForExchange
+                          ? "Reverse pickup tracking details have not been added yet for this self-shipping exchange return."
+                          : "Return tracking details have not been added yet for this self-shipping refund."}
                       </p>
                     )}
                   </div>
@@ -907,11 +990,11 @@ function InfoRow({ label, value, isLink = false }) {
   }
 
   return (
-    <div className="flex items-start justify-between gap-4 rounded-sm border border-white/10 bg-black/10 px-3 py-3">
+    <div className="flex flex-col gap-2 rounded-sm border border-white/10 bg-black/10 px-3 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
       <span className="theme-text-muted">{label}</span>
       {isLink ? (
         <a
-          className="text-right text-brand-gold underline decoration-white/15 underline-offset-4"
+          className="min-w-0 break-all text-left text-brand-gold underline decoration-white/15 underline-offset-4 sm:text-right"
           href={String(value)}
           rel="noreferrer"
           target="_blank"
@@ -919,7 +1002,9 @@ function InfoRow({ label, value, isLink = false }) {
           {value}
         </a>
       ) : (
-        <span className="text-right font-semibold text-brand-white">{value}</span>
+        <span className="min-w-0 break-words text-left font-semibold text-brand-white sm:text-right">
+          {value}
+        </span>
       )}
     </div>
   );
@@ -934,10 +1019,10 @@ function TrackingActionRow({ label, href }) {
   }
 
   return (
-    <div className="flex items-start justify-between gap-4 rounded-sm border border-white/10 bg-black/10 px-3 py-3">
+    <div className="flex flex-col gap-3 rounded-sm border border-white/10 bg-black/10 px-3 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
       <span className="theme-text-muted">{label}</span>
       <a
-        className="theme-action-neutral inline-flex min-h-9 shrink-0 items-center rounded-sm border px-3 text-sm font-semibold transition-colors"
+        className="theme-action-neutral inline-flex min-h-9 shrink-0 items-center justify-center rounded-sm border px-3 py-2 text-center text-sm font-semibold leading-5 transition-colors"
         href={href}
         rel="noreferrer"
         target="_blank"
@@ -1020,7 +1105,7 @@ function TextInput({ label, value, onChange }) {
 function PrimaryButton({ label, disabled = false, tone = "default", onClick }) {
   return (
     <button
-      className={`min-h-11 w-full rounded-sm px-4 mt-2 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+      className={`mt-2 min-h-11 w-full rounded-sm px-4 py-2 text-center text-sm font-bold leading-5 transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
         tone === "danger"
           ? "bg-red-500 text-white hover:bg-red-400"
           : "bg-brand-gold text-brand-black hover:bg-[#f7c751]"
@@ -1037,12 +1122,12 @@ function PrimaryButton({ label, disabled = false, tone = "default", onClick }) {
 function SecondaryButton({ label, disabled = false, onClick, icon = "" }) {
   return (
     <button
-      className="theme-action-neutral flex min-h-11 w-full items-center justify-between gap-3 rounded-sm border px-4 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+      className="theme-action-neutral flex min-h-11 w-full items-center justify-between gap-3 rounded-sm border px-4 py-2 text-sm font-bold leading-5 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
       disabled={disabled}
       type="button"
       onClick={onClick}
     >
-      <span>{label}</span>
+      <span className="min-w-0 flex-1 text-left break-words">{label}</span>
       {icon === "chat" ? (
         <svg
           className="h-4 w-4 shrink-0"

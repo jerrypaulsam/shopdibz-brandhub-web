@@ -177,6 +177,19 @@ export function updateRefundTracking(payload) {
 }
 
 /**
+ * @param {{ refundId: number, decision: "APPROVED" | "DECLINED" }} payload
+ * @returns {Promise<any>}
+ */
+export function respondToExchangeRequest(payload) {
+  const session = getDashboardSession();
+
+  return postOrderJson("/api/orders/respond-exchange", {
+    accessToken: session.accessToken,
+    payload,
+  });
+}
+
+/**
  * @param {number} orderId
  * @returns {Promise<any>}
  */

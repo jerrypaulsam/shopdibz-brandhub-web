@@ -15,6 +15,7 @@ export default function OrderDetailPage() {
     submitPack,
     submitTracking,
     submitRefundReturnTracking,
+    submitExchangeDecision,
     submitDelivered,
     submitCancel,
     submitMessage,
@@ -41,6 +42,7 @@ export default function OrderDetailPage() {
         onSubmitMessage={submitMessage}
         onSubmitPack={submitPack}
         onSubmitRefundReturnTracking={submitRefundReturnTracking}
+        onSubmitExchangeDecision={submitExchangeDecision}
         onSubmitTracking={submitTracking}
         onTogglePhone={revealPhone}
       />

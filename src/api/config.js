@@ -38,6 +38,7 @@ export const SHOPDIBZ_URLS = {
   orderStatus: "/api/orders/orderStatus/",
   orderTracking: "/api/orders/track/",
   refundBrandTracking: "/api/returns/brand/track/",
+  refundBrandExchangeResponse: "/api/returns/exchange/",
   sendOrderMessage: "/api/orders/send_message/order/",
   managers: "/api/store/managers/",
   notifications: "/api/notifications/all/seller/",

@@ -5,6 +5,7 @@ import {
   fetchOrderDetail,
   fetchOrderInvoice,
   markOrderPacked,
+  respondToExchangeRequest,
   sendOrderMessage,
   updateOrderStatus,
   updateOrderTracking,
@@ -233,6 +234,44 @@ export function useOrderDetail() {
     return false;
   }
 
+  async function submitExchangeDecision(decision) {
+    const refundId = Number(order?.product?.refundId || 0);
+    const exchangeStatus = String(order?.product?.exchangeStatus || "").trim();
+
+    if (!refundId) {
+      setActionError("Exchange request unavailable.");
+      return false;
+    }
+
+    if (exchangeStatus !== "PENDING") {
+      setActionError("Exchange request can no longer be updated.");
+      return false;
+    }
+
+    if (decision !== "APPROVED" && decision !== "DECLINED") {
+      setActionError("Invalid exchange decision.");
+      return false;
+    }
+
+    const result = await runAction("exchange-response", () =>
+      respondToExchangeRequest({
+        refundId,
+        decision,
+      }),
+    );
+
+    if (result) {
+      setActionMessage(
+        decision === "APPROVED"
+          ? "Exchange request accepted."
+          : "Exchange request rejected.",
+      );
+      return true;
+    }
+
+    return false;
+  }
+
   async function submitCancel(payload) {
     if (!Number(payload.reasonId || 0)) {
       setActionError("Cancellation reason is required.");
@@ -430,6 +469,7 @@ export function useOrderDetail() {
     submitPack,
     submitTracking,
     submitRefundReturnTracking,
+    submitExchangeDecision,
     submitDelivered,
     submitCancel,
     submitMessage,
