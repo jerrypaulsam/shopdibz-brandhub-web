@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Script from "next/script";
 import { useRouter } from "next/router";
+import { trackSubscriptionPaid } from "@/src/api/analytics";
 import { fetchStoreInfo } from "@/src/api/dashboard";
 import {
   createStoreSubscription,
@@ -170,6 +171,14 @@ export default function SubscriptionPlansPage() {
       });
 
       if (activated) {
+        trackSubscriptionPaid({
+          storeUrl,
+          planCode: subscription.planType,
+          planName: subscription.planName || resolvePlanName(subscription.planType),
+          value: Number(subscription.displayAmount || 0),
+          currency: "INR",
+          subscriptionId: subscription.subscriptionId,
+        });
         setStatusTone("success");
         setMessage("Your plan is active. Redirecting to your dashboard...");
         await router.replace("/home");

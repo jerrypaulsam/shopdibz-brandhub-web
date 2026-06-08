@@ -6,7 +6,7 @@ import {
   loginSeller,
   saveAuthSession,
 } from "@/src/api/auth";
-import { logScreenView } from "@/src/api/analytics";
+import { logScreenView, trackLoginComplete } from "@/src/api/analytics";
 
 export const LOGIN_FIELD_LIMITS = {
   email: 70,
@@ -59,6 +59,7 @@ export function useLoginForm() {
         loc,
       });
       saveAuthSession(result.data);
+      trackLoginComplete();
       setMessage("Login successful. Opening your dashboard...");
       setIsTransitioning(true);
       await router.replace("/");

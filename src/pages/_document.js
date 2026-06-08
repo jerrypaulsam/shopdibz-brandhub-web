@@ -20,6 +20,8 @@ const THEME_INIT_SCRIPT = `
   })();
 `;
 
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "";
+
 export default function Document() {
   return (
     <Html lang="en" suppressHydrationWarning>
@@ -27,6 +29,18 @@ export default function Document() {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </Head>
       <body suppressHydrationWarning>
+        {META_PIXEL_ID ? (
+          <noscript>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              alt=""
+              height="1"
+              src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+              style={{ display: "none" }}
+              width="1"
+            />
+          </noscript>
+        ) : null}
         <Main />
         <NextScript />
       </body>

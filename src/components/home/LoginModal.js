@@ -8,7 +8,7 @@ import {
   loginSeller,
   saveAuthSession,
 } from "@/src/api/auth";
-import { logScreenView } from "@/src/api/analytics";
+import { logScreenView, trackLoginComplete } from "@/src/api/analytics";
 
 /**
  * @param {{ isOpen: boolean, onClose: () => void }} props
@@ -56,6 +56,7 @@ export default function LoginModal({ isOpen, onClose }) {
       const loc = await getBrowserLocation();
       const result = await loginSeller({ email: email.toLowerCase(), password, loc });
       saveAuthSession(result.data);
+      trackLoginComplete();
       setMessage("Login successful.");
       setForgotPasswordOpen(false);
       onClose();

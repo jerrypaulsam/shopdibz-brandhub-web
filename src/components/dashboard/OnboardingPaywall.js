@@ -8,7 +8,7 @@ import {
 } from "@/src/api/auth";
 import { fetchStoreInfo } from "@/src/api/dashboard";
 import { useConfirm } from "@/src/components/app/ConfirmProvider";
-import { logScreenView } from "@/src/api/analytics";
+import { logScreenView, trackOnboardingPaid } from "@/src/api/analytics";
 import {
   initiateOnboardingPayment,
   verifyOnboardingPayment,
@@ -148,6 +148,14 @@ export default function OnboardingPaywall({ storeInfo }) {
             storeUrl,
             code: userCode,
           });
+          if (verificationResult?.success) {
+            trackOnboardingPaid({
+              storeUrl,
+              orderId: paymentOrder.orderId,
+              value: Number(paymentOrder.displayAmount || 0),
+              currency: paymentOrder.currency,
+            });
+          }
         },
       });
 

@@ -7,7 +7,7 @@ import {
   saveAuthSession,
   signupSeller,
 } from "@/src/api/auth";
-import { logScreenView } from "@/src/api/analytics";
+import { logScreenView, trackSignupComplete } from "@/src/api/analytics";
 
 export const SIGNUP_FIELD_LIMITS = {
   email: 70,
@@ -111,9 +111,7 @@ export function useSignupForm() {
       });
 
       saveAuthSession(result.data);
-      if (typeof window.fbq === "function") {
-        window.fbq("track", "CompleteRegistration");
-      }
+      trackSignupComplete();
       await router.replace("/init-email-verify");
     } catch (error) {
       setMessage(
