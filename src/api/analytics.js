@@ -264,3 +264,40 @@ export function trackSubscriptionPaid(options = {}) {
     value: numericValue > 0 ? numericValue : "",
   });
 }
+
+/**
+ * @param {{
+ *   storeUrl?: string,
+ *   orderId?: string,
+ *   value?: number,
+ *   currency?: string,
+ * }} [options]
+ */
+export function trackAdWalletRechargePaid(options = {}) {
+  const storeUrl = String(options.storeUrl || "").trim();
+  const orderId = String(options.orderId || "").trim();
+  const numericValue = Number(options.value || 0);
+  const currency = String(options.currency || DEFAULT_CURRENCY).trim() || DEFAULT_CURRENCY;
+  const payload = {
+    currency,
+    value: numericValue > 0 ? numericValue : undefined,
+    transaction_id: orderId || undefined,
+    item_category: "ad_wallet",
+    item_name: "Ad Wallet Recharge",
+    store_url: storeUrl || undefined,
+  };
+
+  trackGoogleEvent("purchase", payload);
+  trackMetaEvent("track", "Purchase", {
+    currency,
+    value: numericValue > 0 ? numericValue : undefined,
+    content_name: "Ad Wallet Recharge",
+    content_category: "ad_wallet",
+  });
+  trackClarityEvent("ad_wallet_recharge_paid", {
+    store_url: storeUrl,
+    order_id: orderId,
+    currency,
+    value: numericValue > 0 ? numericValue : "",
+  });
+}

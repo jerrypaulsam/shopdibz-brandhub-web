@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { trackAdWalletRechargePaid } from "@/src/api/analytics";
 import {
   initiateAdWalletRecharge,
   verifyAdWalletRecharge,
@@ -107,7 +108,16 @@ export default function AdWalletRechargeButton({
         paymentOrder,
         storeInfo,
         onVerify: async (paymentResponse) => {
-          await verifyAdWalletRecharge(paymentResponse);
+          const verificationResult = await verifyAdWalletRecharge(paymentResponse);
+
+          if (verificationResult?.success) {
+            trackAdWalletRechargePaid({
+              storeUrl,
+              orderId: paymentOrder.orderId,
+              value: Number(paymentOrder.displayAmount || numericAmount),
+              currency: paymentOrder.currency,
+            });
+          }
         },
       });
 
