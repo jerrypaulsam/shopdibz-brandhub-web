@@ -66,6 +66,11 @@ export default function OrderCard({ order, fallbackStatus = "", activeTabSlug = 
               <span className="rounded-sm border border-white/10 px-2.5 py-1 text-xs font-semibold text-white/55">
                 Order #{displayReference || "---"}
               </span>
+              {order?.is_exchange_replacement ? (
+                <span className="inline-flex items-center rounded-sm border border-sky-400/30 bg-sky-500/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-200 [html[data-theme='light']_&]:border-sky-500/35 [html[data-theme='light']_&]:bg-sky-500/10 [html[data-theme='light']_&]:text-sky-800">
+                  Replacement
+                </span>
+              ) : null}
             </div>
             <h3 className="mt-2 max-w-2xl text-base font-bold text-brand-white">
               <Link href={`/orders/${orderItemId}`}>

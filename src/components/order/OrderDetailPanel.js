@@ -446,6 +446,11 @@ export default function OrderDetailPanel({
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/35">
                   Product
                 </p>
+                {order?.is_exchange_replacement ? (
+                  <span className="mt-3 inline-flex items-center rounded-sm border border-sky-400/30 bg-sky-500/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-200 [html[data-theme='light']_&]:border-sky-500/35 [html[data-theme='light']_&]:bg-sky-500/10 [html[data-theme='light']_&]:text-sky-800">
+                    Replacement
+                  </span>
+                ) : null}
                 {productSlug ? (
                   <Link
                     className="mt-2 block text-xl font-extrabold text-brand-white transition-colors hover:text-brand-gold"
