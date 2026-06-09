@@ -79,6 +79,7 @@ export default function OrderDetailPanel({
   const hasRefundSection = Boolean(order?.product?.refundId);
   const exchangeStatus = String(order?.product?.exchangeStatus || "").trim();
   const exchangeVariantCode = String(order?.product?.exchangeVariantCode || "").trim();
+  const isExchangeRelated = Boolean(exchangeStatus && exchangeStatus !== "NONE");
   const isExchangeFlow = exchangeStatus === "PENDING" || exchangeStatus === "APPROVED";
   const showExchangeOutcomeNote = exchangeStatus === "DECLINED" || exchangeStatus === "TIMED_OUT";
   const isExchangeRequest = isExchangeFlow;
@@ -265,12 +266,12 @@ export default function OrderDetailPanel({
 
               <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 <Metric
-                  label={isExchangeRequest ? "Return Request Status" : "Refund Status"}
+                  label={isExchangeRelated ? "Return Request Status" : "Refund Status"}
                   value={order?.product?.refundStatus || "---"}
                 />
                 <Metric label="Request Type" value={order?.product?.refundType || "---"} />
                 <Metric
-                  label={isExchangeRequest ? "Reverse Shipping" : "Return Shipping"}
+                  label={isExchangeRelated ? "Reverse Shipping" : "Return Shipping"}
                   value={order?.assistedShip ? "Assisted shipping" : "Self shipping"}
                 />
               </div>
@@ -352,11 +353,15 @@ export default function OrderDetailPanel({
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-red-100/75 [html[data-theme='light']_&]:text-red-700">
-                      {canAddReturnTrackingForExchange ? "Reverse pickup tracking" : "Return tracking"}
+                      {isExchangeRelated ? "Reverse pickup tracking" : "Return tracking"}
                     </p>
                     {canAddReturnTrackingForExchange ? (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
                         Current exchange status: <span className="font-bold">{exchangeStatus}</span>. For this self-shipping exchange order, add the reverse pickup tracking details here so the return can move from the customer to the warehouse.
+                      </p>
+                    ) : isExchangeRelated ? (
+                      <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                        Current exchange status: <span className="font-bold">{exchangeStatus}</span>. Reverse pickup tracking becomes available once the exchange is approved and the return request status is accepted.
                       </p>
                     ) : (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
@@ -366,23 +371,23 @@ export default function OrderDetailPanel({
                     {hasReturnTrackingDetails ? (
                       <div className="mt-3 grid gap-3 md:grid-cols-2">
                         <InfoRow
-                          label={canAddReturnTrackingForExchange ? "Reverse Pickup Company" : "Return Shipping Company"}
+                          label={isExchangeRelated ? "Reverse Pickup Company" : "Return Shipping Company"}
                           value={returnTrackingCompany}
                         />
                         <InfoRow
-                          label={canAddReturnTrackingForExchange ? "Reverse Pickup Tracking ID" : "Return Tracking ID"}
+                          label={isExchangeRelated ? "Reverse Pickup Tracking ID" : "Return Tracking ID"}
                           value={returnTrackingNumber}
                         />
                       </div>
                     ) : order?.assistedShip ? (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
-                        {isExchangeRequest
+                        {isExchangeRelated
                           ? "Reverse pickup is handled automatically for assisted-shipping exchange orders. Tracking details will appear here when available."
                           : "Reverse shipping is handled automatically for assisted shipping orders. Tracking details will appear here when available."}
                       </p>
                     ) : (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
-                        {canAddReturnTrackingForExchange
+                        {isExchangeRelated
                           ? "Reverse pickup tracking details have not been added yet for this self-shipping exchange return."
                           : "Return tracking details have not been added yet for this self-shipping refund."}
                       </p>
