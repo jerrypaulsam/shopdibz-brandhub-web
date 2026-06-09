@@ -84,7 +84,7 @@ export default function OrderDetailPanel({
   const isExchangeRequest = isExchangeFlow;
   const canRespondToExchange = exchangeStatus === "PENDING";
   const isNormalRefundAccepted = String(order?.product?.refundStatus || "").trim() === "Accepted";
-  const canAddReturnTrackingForExchange = exchangeStatus === "APPROVED";
+  const canAddReturnTrackingForExchange = exchangeStatus === "APPROVED" && isNormalRefundAccepted;
   const returnTrackingNumber = String(order?.product?.returnAwb || "").trim();
   const returnTrackingCompany = String(order?.product?.returnShipComp || "").trim();
   const hasReturnTrackingDetails = Boolean(returnTrackingNumber || returnTrackingCompany);
