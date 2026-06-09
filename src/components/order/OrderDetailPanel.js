@@ -253,8 +253,8 @@ export default function OrderDetailPanel({
                   </h2>
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-red-100/80 [html[data-theme='light']_&]:text-red-900/80">
                     {isExchangeRequest
-                      ? "This order has an exchange request attached to it. Accepting starts the exchange flow. Rejecting keeps the case in the normal refund flow. If anything looks incorrect, raise a support ticket with the relevant details."
-                      : "This order has refund activity attached to it. Refund decisions are handled by the Shopdibz team or system checks after verification. If anything looks incorrect, raise a support ticket with the relevant details."}
+                      ? "Accepting starts the exchange flow. Rejecting keeps the case in the normal refund flow."
+                      : "Refund decisions are handled by the Shopdibz team or system checks after verification."}
                   </p>
                 </div>
                 {order?.product?.refundStatus ? (
@@ -306,7 +306,7 @@ export default function OrderDetailPanel({
                       <p className="mt-3 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
                         {canRespondToExchange
                           ? "This is an exchange request. Accept to begin the exchange flow, or reject to let it continue as a normal refund."
-                          : "This order includes an exchange request. The current exchange state is shown above."}
+                          : "The current exchange state is shown above."}
                       </p>
                     {exchangeStatus === "PENDING" ? (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
