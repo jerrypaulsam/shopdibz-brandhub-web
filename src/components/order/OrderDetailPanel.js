@@ -264,10 +264,13 @@ export default function OrderDetailPanel({
               </div>
 
               <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                <Metric label="Refund Status" value={order?.product?.refundStatus || "---"} />
+                <Metric
+                  label={isExchangeRequest ? "Return Request Status" : "Refund Status"}
+                  value={order?.product?.refundStatus || "---"}
+                />
                 <Metric label="Request Type" value={order?.product?.refundType || "---"} />
                 <Metric
-                  label="Return Shipping"
+                  label={isExchangeRequest ? "Reverse Shipping" : "Return Shipping"}
                   value={order?.assistedShip ? "Assisted shipping" : "Self shipping"}
                 />
               </div>
@@ -349,7 +352,7 @@ export default function OrderDetailPanel({
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-red-100/75 [html[data-theme='light']_&]:text-red-700">
-                      Return tracking
+                      {canAddReturnTrackingForExchange ? "Reverse pickup tracking" : "Return tracking"}
                     </p>
                     {canAddReturnTrackingForExchange ? (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
@@ -362,12 +365,20 @@ export default function OrderDetailPanel({
                     )}
                     {hasReturnTrackingDetails ? (
                       <div className="mt-3 grid gap-3 md:grid-cols-2">
-                        <InfoRow label="Return Shipping Company" value={returnTrackingCompany} />
-                        <InfoRow label="Return Tracking ID" value={returnTrackingNumber} />
+                        <InfoRow
+                          label={canAddReturnTrackingForExchange ? "Reverse Pickup Company" : "Return Shipping Company"}
+                          value={returnTrackingCompany}
+                        />
+                        <InfoRow
+                          label={canAddReturnTrackingForExchange ? "Reverse Pickup Tracking ID" : "Return Tracking ID"}
+                          value={returnTrackingNumber}
+                        />
                       </div>
                     ) : order?.assistedShip ? (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
-                        Reverse shipping is handled automatically for assisted shipping orders. Tracking details will appear here when available.
+                        {isExchangeRequest
+                          ? "Reverse pickup is handled automatically for assisted-shipping exchange orders. Tracking details will appear here when available."
+                          : "Reverse shipping is handled automatically for assisted shipping orders. Tracking details will appear here when available."}
                       </p>
                     ) : (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
