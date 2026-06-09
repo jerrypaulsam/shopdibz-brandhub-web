@@ -79,7 +79,11 @@ export default function OrderDetailPanel({
   const hasRefundSection = Boolean(order?.product?.refundId);
   const exchangeStatus = String(order?.product?.exchangeStatus || "").trim();
   const exchangeVariantCode = String(order?.product?.exchangeVariantCode || "").trim();
+  const isRefundCompleted = Boolean(order?.product?.refundCompleted);
   const isExchangeRelated = Boolean(exchangeStatus && exchangeStatus !== "NONE");
+  const exchangeStageLabel = exchangeStatus === "APPROVED" && isRefundCompleted
+    ? "COMPLETED"
+    : exchangeStatus;
   const isExchangeFlow = exchangeStatus === "PENDING" || exchangeStatus === "APPROVED";
   const showExchangeOutcomeNote = exchangeStatus === "DECLINED" || exchangeStatus === "TIMED_OUT";
   const isExchangeRequest = isExchangeFlow;
@@ -282,7 +286,7 @@ export default function OrderDetailPanel({
                     Exchange update
                   </p>
                   <div className="mt-3 grid gap-3 md:grid-cols-2">
-                    <InfoRow label="Exchange Status" value={exchangeStatus} />
+                    <InfoRow label="Exchange Status" value={exchangeStageLabel} />
                     <InfoRow label="Requested Variant" value={exchangeVariantCode} />
                   </div>
                   <p className="mt-3 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
@@ -300,13 +304,13 @@ export default function OrderDetailPanel({
                       Exchange request
                       </p>
                       <div className="mt-3 grid gap-3 md:grid-cols-2">
-                        <InfoRow label="Exchange Status" value={exchangeStatus} />
+                        <InfoRow label="Exchange Status" value={exchangeStageLabel} />
                         <InfoRow label="Requested Variant" value={exchangeVariantCode} />
                       </div>
                       <p className="mt-3 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
                         {canRespondToExchange
                           ? "This is an exchange request. Accept to begin the exchange flow, or reject to let it continue as a normal refund."
-                          : "The current exchange state is shown above."}
+                          : ""}
                       </p>
                     {exchangeStatus === "PENDING" ? (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
@@ -357,11 +361,11 @@ export default function OrderDetailPanel({
                     </p>
                     {canAddReturnTrackingForExchange ? (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
-                        Current exchange status: <span className="font-bold">{exchangeStatus}</span>. For this self-shipping exchange order, add the reverse pickup tracking details here so the return can move from the customer to the warehouse.
+                        Current exchange status: <span className="font-bold">{exchangeStageLabel}</span>. For this self-shipping exchange order, add the reverse pickup tracking details here so the return can move from the customer to the warehouse.
                       </p>
                     ) : isExchangeRelated ? (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
-                        Current exchange status: <span className="font-bold">{exchangeStatus}</span>. Reverse pickup tracking becomes available once the exchange is approved and the return request status is accepted.
+                        Current exchange status: <span className="font-bold">{exchangeStageLabel}</span>. Reverse pickup tracking becomes available once the exchange is approved and the return request status is accepted.
                       </p>
                     ) : (
                       <p className="mt-2 text-sm leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
