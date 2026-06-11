@@ -65,6 +65,7 @@ export default function OrderDetailPanel({
   const [messageText, setMessageText] = useState("");
   const [isMessageComposerOpen, setIsMessageComposerOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [isPackConfirmOpen, setIsPackConfirmOpen] = useState(false);
   const [isReturnTrackingDialogOpen, setIsReturnTrackingDialogOpen] = useState(false);
   const [returnTrackingForm, setReturnTrackingForm] = useState({
     company: "",
@@ -122,6 +123,17 @@ export default function OrderDetailPanel({
       });
       setIsReturnTrackingDialogOpen(false);
     }
+  }
+
+  async function handleSubmitPack() {
+    await onSubmitPack({
+      packageWidth: Number(packForm.packageWidth || 0),
+      packageLength: Number(packForm.packageLength || 0),
+      packageHeight: Number(packForm.packageHeight || 0),
+      packageWeight: Number(packForm.packageWeight || 0),
+    });
+
+    setIsPackConfirmOpen(false);
   }
 
   if (isLoading) {
@@ -705,14 +717,7 @@ export default function OrderDetailPanel({
               <PrimaryButton
                 disabled={busyAction === "pack"}
                 label={busyAction === "pack" ? "Updating..." : "Confirm Packed"}
-                onClick={() =>
-                  onSubmitPack({
-                    packageWidth: Number(packForm.packageWidth || 0),
-                    packageLength: Number(packForm.packageLength || 0),
-                    packageHeight: Number(packForm.packageHeight || 0),
-                    packageWeight: Number(packForm.packageWeight || 0),
-                  })
-                }
+                onClick={() => setIsPackConfirmOpen(true)}
               />
             </ActionCard>
           ) : null}
@@ -944,6 +949,78 @@ export default function OrderDetailPanel({
                 label={busyAction === "refund-tracking" ? "Saving..." : "Save Return Tracking"}
                 onClick={handleSubmitReturnTracking}
               />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {isPackConfirmOpen ? (
+        <div
+          className="theme-overlay fixed inset-0 z-[90] flex items-center justify-center px-4 py-6"
+          role="presentation"
+          onClick={() => setIsPackConfirmOpen(false)}
+        >
+          <div
+            aria-modal="true"
+            className="theme-surface w-full max-w-lg rounded-sm border p-5 shadow-2xl max-h-[calc(100vh-3rem)] overflow-y-auto"
+            role="dialog"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+                  Packed Order
+                </p>
+                <h2 className="mt-2 text-lg font-extrabold text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                  Confirm package details
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-white/55 [html[data-theme='light']_&]:text-[#5f4339]">
+                  Please confirm the entered dimensions and weight before we update the order as packed.
+                </p>
+              </div>
+              <button
+                className="theme-action-neutral inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border transition-colors"
+                type="button"
+                onClick={() => setIsPackConfirmOpen(false)}
+              >
+                x
+              </button>
+            </div>
+
+            <div className="mt-5 rounded-sm border border-white/10 bg-black/20 p-4 [html[data-theme='light']_&]:bg-white/40">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <InfoRow label="Package Width" value={`${packForm.packageWidth} cm`} />
+                <InfoRow label="Package Length" value={`${packForm.packageLength} cm`} />
+                <InfoRow label="Package Height" value={`${packForm.packageHeight} cm`} />
+                <InfoRow label="Package Weight" value={`${packForm.packageWeight} gms`} />
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-sm border border-brand-gold/20 bg-brand-gold/10 px-4 py-3">
+              <p className="text-sm font-semibold leading-6 text-brand-white [html[data-theme='light']_&]:text-[#4f2c22]">
+                Are these package dimensions and weight correct?
+              </p>
+              <p className="mt-1 text-sm leading-6 text-white/55 [html[data-theme='light']_&]:text-[#5f4339]">
+                Choose Edit if you need to change anything, or Confirm to send the packed status update.
+              </p>
+            </div>
+
+            <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                className="theme-action-neutral min-h-11 rounded-sm border px-4 text-sm font-semibold transition-colors"
+                type="button"
+                onClick={() => setIsPackConfirmOpen(false)}
+              >
+                Edit
+              </button>
+              <button
+                className="inline-flex min-h-11 items-center justify-center rounded-sm bg-brand-gold px-4 py-2 text-center text-sm font-bold leading-5 text-brand-black transition-colors hover:bg-[#f7c751] disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-40"
+                disabled={busyAction === "pack"}
+                type="button"
+                onClick={handleSubmitPack}
+              >
+                {busyAction === "pack" ? "Updating..." : "Confirm and Update"}
+              </button>
             </div>
           </div>
         </div>
