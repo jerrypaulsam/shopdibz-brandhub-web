@@ -42,6 +42,7 @@ export default function ProductUpdatePage() {
         />
       ) : (
         <ProductEditorPanel
+          isPremium={product.isPremium}
           form={product.form}
           categoryTrail={product.categoryTrail}
           isBookCategory={product.isBookCategory}

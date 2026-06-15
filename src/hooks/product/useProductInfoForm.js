@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { getCachedStoreInfo } from "@/src/api/auth";
+import { isPremiumStore } from "@/src/utils/activity";
 import { createProductWithVariants } from "@/src/api/products";
 import { useToast } from "@/src/components/app/ToastProvider";
 import { PRODUCT_VARIATION_TYPES } from "@/src/data/product-variation-options";
@@ -23,6 +25,7 @@ export function useProductInfoForm() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPremium] = useState(() => isPremiumStore(getCachedStoreInfo()));
 
   function toggleShipZone(value) {
     const hasValue = draftApi.draft.shipZones.includes(value);
@@ -97,6 +100,7 @@ export function useProductInfoForm() {
 
   return {
     ...draftApi,
+    isPremium,
     variationTypes: PRODUCT_VARIATION_TYPES,
     error,
     fieldErrors,

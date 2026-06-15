@@ -15,6 +15,7 @@ export default function ProductInfoPage() {
       success={product.success}
     >
       <ProductInfoPanel
+        isPremium={product.isPremium}
         draft={product.draft}
         selectionSummary={product.getSelectionSummary()}
         isBookCategory={product.isBookCategory}

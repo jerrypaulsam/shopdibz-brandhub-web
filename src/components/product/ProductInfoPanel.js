@@ -20,6 +20,7 @@ export default function ProductInfoPanel({
   addKeyword,
   removeKeyword,
   addAttribute,
+
   updateAttribute,
   removeAttribute,
   removeVariation,
@@ -29,6 +30,7 @@ export default function ProductInfoPanel({
   submitInfoForm,
   isSubmitting,
   buildQuery,
+  isPremium,
 }) {
   async function handleKeywordKeyDown(event) {
     if (event.key !== "Enter" && event.key !== ",") {
@@ -125,6 +127,9 @@ export default function ProductInfoPanel({
               type="text"
               onKeyDown={handleKeywordKeyDown}
             />
+            {fieldErrors.keywords ? (
+              <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.keywords}</p>
+            ) : null}
           </label>
           {draft.keywords.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
@@ -395,20 +400,33 @@ export default function ProductInfoPanel({
             ["enablePrebooking", "Enable Prebooking", "Turn this on when customers should be allowed to place advance orders before stock is ready."],
             ["showSizeChart", "Show Size Chart", "Enable this when the store-level size guide should appear for this product."],
             ["shippingProfile", "Shipping Profile", "Turn this on when the product has restricted delivery zones instead of all-India shipping."],
-          ].map(([key, label, helper]) => (
-            <label className="flex items-start gap-3 rounded-sm border border-white/10 p-4" key={key}>
-              <input
-                checked={Boolean(draft[key])}
-                className="mt-1"
-                type="checkbox"
-                onChange={(event) => updateDraft({ [key]: event.target.checked })}
-              />
-              <span>
-                <span className="block text-sm font-bold text-brand-white">{label}</span>
-                <span className="mt-1 block text-sm leading-6 text-white/55">{helper}</span>
-              </span>
-            </label>
-          ))}
+          ].map(([key, label, helper]) => {
+            const isLocked = key === "enablePrebooking" && !isPremium;
+            return (
+              <div key={key} className="relative">
+                <label className={`flex items-start gap-3 rounded-sm border border-white/10 p-4 h-full ${isLocked ? "pointer-events-none select-none blur-[1px] opacity-60" : ""}`}>
+                  <input
+                    checked={Boolean(draft[key])}
+                    className="mt-1"
+                    type="checkbox"
+                    disabled={isLocked}
+                    onChange={(event) => updateDraft({ [key]: event.target.checked })}
+                  />
+                  <span>
+                    <span className="block text-sm font-bold text-brand-white">{label}</span>
+                    <span className="mt-1 block text-sm leading-6 text-white/55">{helper}</span>
+                  </span>
+                </label>
+                {isLocked ? (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-sm border border-brand-gold/20 bg-black/40">
+                    <span className="rounded-full bg-brand-gold/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-gold">
+                      Premium Store Only
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
 
         {draft.shippingProfile ? (

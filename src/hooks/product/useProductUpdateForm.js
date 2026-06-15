@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchProductDetail, updateExistingProduct } from "@/src/api/products";
+import { getCachedStoreInfo } from "@/src/api/auth";
+import { isPremiumStore } from "@/src/utils/activity";
 import { useToast } from "@/src/components/app/ToastProvider";
 import { normalizeShipExZoneValues } from "@/src/data/product-variation-options";
 import { getProductCategories } from "@/src/data/product-catalog";
@@ -37,6 +39,7 @@ import {
  * submit: () => Promise<void>,
  * slug: string,
  * variantMode: string,
+ * isPremium: boolean,
  * }} [options]
  */
 export function useProductUpdateForm(options = {}) {
@@ -80,6 +83,7 @@ export function useProductUpdateForm(options = {}) {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState("");
+  const [isPremium] = useState(() => isPremiumStore(getCachedStoreInfo()));
 
   useEffect(() => {
     async function load() {
@@ -276,6 +280,7 @@ export function useProductUpdateForm(options = {}) {
 
   return {
     form,
+    isPremium,
     setFormField,
     isLoading,
     isSubmitting,
@@ -331,6 +336,9 @@ function validateProductUpdateForm(form, isBookCategory) {
     errors.description = "* Required";
   } else if (form.description.trim().length > PRODUCT_FIELD_LIMITS.description) {
     errors.description = `Max. ${PRODUCT_FIELD_LIMITS.description} Characters`;
+  }
+  if (!form.keywords || form.keywords.length === 0) {
+    errors.keywords = "At least 1 keyword is required.";
   }
   if (!form.manufacturerValue.trim()) errors.manufacturerValue = "field required *";
   if (!form.originCountryValue.trim()) errors.originCountryValue = "field required *";

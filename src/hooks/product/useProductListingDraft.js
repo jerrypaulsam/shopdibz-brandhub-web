@@ -650,6 +650,9 @@ function validateInfoDraft({ draft, isBookCategory, requiredSelectionReady }) {
   } else if (draft.description.trim().length > PRODUCT_FIELD_LIMITS.description) {
     errors.description = `Max. ${PRODUCT_FIELD_LIMITS.description} Characters`;
   }
+  if (!draft.keywords || draft.keywords.length === 0) {
+    errors.keywords = "At least 1 keyword is required.";
+  }
   if (!draft.manufacturerValue.trim()) {
     errors.manufacturerValue = "field required *";
   }

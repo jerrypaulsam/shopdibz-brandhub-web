@@ -8,7 +8,7 @@ import {
 import { PRODUCT_FIELD_LIMITS } from "@/src/hooks/product/productFieldLimits";
 
 /**
- * @param {{ form: any, categoryTrail: string, isBookCategory: boolean, fieldErrors: Record<string, string>, setFormField: (field: string, value: any) => void, addAttribute: () => void, updateAttribute: (id: number, key: "key" | "value", value: string) => void, removeAttribute: (id: number) => void, addKeyword: (value: string) => string, removeKeyword: (value: string) => void, toggleShipZone: (value: string) => void, toggleShipExZone: (value: string) => void, submit: () => Promise<void>, isSubmitting: boolean }} props
+ * @param {{ form: any, categoryTrail: string, isBookCategory: boolean, fieldErrors: Record<string, string>, setFormField: (field: string, value: any) => void, addAttribute: () => void, updateAttribute: (id: number, key: "key" | "value", value: string) => void, removeAttribute: (id: number) => void, addKeyword: (value: string) => string, removeKeyword: (value: string) => void, toggleShipZone: (value: string) => void, toggleShipExZone: (value: string) => void, submit: () => Promise<void>, isSubmitting: boolean, isPremium: boolean }} props
  */
 export default function ProductEditorPanel({
   form,
@@ -25,6 +25,7 @@ export default function ProductEditorPanel({
   toggleShipExZone,
   submit,
   isSubmitting,
+  isPremium,
 }) {
   async function handleKeywordKeyDown(event) {
     if (event.key !== "Enter" && event.key !== ",") {
@@ -112,6 +113,9 @@ export default function ProductEditorPanel({
               type="text"
               onKeyDown={handleKeywordKeyDown}
             />
+            {fieldErrors.keywords ? (
+              <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.keywords}</p>
+            ) : null}
           </label>
           {form.keywords.length ? (
             <div className="flex flex-wrap gap-2">
@@ -237,17 +241,30 @@ export default function ProductEditorPanel({
             ["shippingProfile", "Shipping Profile"],
             ["showSizeChart", "Show Size Chart"],
             ["enablePrebooking", "Enable Prebooking"],
-          ].map(([field, label]) => (
-            <label className="flex items-start gap-3 rounded-sm border border-white/10 p-4" key={field}>
-              <input
-                checked={Boolean(form[field])}
-                className="mt-1"
-                type="checkbox"
-                onChange={(event) => setFormField(field, event.target.checked)}
-              />
-              <span className="text-sm font-semibold text-brand-white">{label}</span>
-            </label>
-          ))}
+          ].map(([field, label]) => {
+            const isLocked = field === "enablePrebooking" && !isPremium;
+            return (
+              <div key={field} className="relative">
+                <label className={`flex items-start gap-3 rounded-sm border border-white/10 p-4 h-full ${isLocked ? "pointer-events-none select-none blur-[1px] opacity-60" : ""}`}>
+                  <input
+                    checked={Boolean(form[field])}
+                    className="mt-1"
+                    type="checkbox"
+                    disabled={isLocked}
+                    onChange={(event) => setFormField(field, event.target.checked)}
+                  />
+                  <span className="text-sm font-semibold text-brand-white">{label}</span>
+                </label>
+                {isLocked ? (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-sm border border-brand-gold/20 bg-black/40">
+                    <span className="rounded-full bg-brand-gold/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-gold">
+                      Premium Only
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
 
         {form.shippingProfile ? (
