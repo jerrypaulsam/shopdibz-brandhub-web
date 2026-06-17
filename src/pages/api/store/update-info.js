@@ -26,6 +26,7 @@ export default async function handler(req, res) {
     shipType = "SE",
     shipMode = "0",
     enableResell = false,
+    category = "NONE",
     storeVideo = "",
   } = req.body || {};
   const accessToken = getRequestAccessToken(req, explicitAccessToken);
@@ -50,6 +51,7 @@ export default async function handler(req, res) {
       shipType,
       mode: shipMode,
       resell: enableResell,
+      category,
       video: storeVideo,
     },
   });

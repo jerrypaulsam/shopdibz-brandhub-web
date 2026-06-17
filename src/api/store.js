@@ -173,6 +173,7 @@ export function updateStoreInfo(payload) {
         shType: payload.shipType,
         mode: payload.shipMode,
         resell: payload.enableResell,
+        category: payload.category,
         video: payload.storeVideo,
       });
     }
@@ -333,6 +334,7 @@ export function voteStoreReview(payload) {
 
   return postStoreJson("/api/store/review-vote", {
     accessToken: session.accessToken,
+    storeUrl: session.storeUrl,
     reviewId: payload.reviewId,
     vote: payload.vote,
   });

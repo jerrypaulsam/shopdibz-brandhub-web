@@ -35,6 +35,23 @@ export const STORE_INFO_FIELD_LIMITS = {
   link2: 100,
 };
 
+export const STORE_CATEGORIES = [
+  { value: 'MIX', label: 'Mixed / Marketplace' },
+  { value: 'EL', label: 'Electronics' },
+  { value: 'GR', label: 'Groceries' },
+  { value: 'FA', label: 'Fashion & Apparel' },
+  { value: 'ACC', label: 'Accessories' },
+  { value: 'HB', label: 'Health & Beauty' },
+  { value: 'HL', label: 'Home & Living' },
+  { value: 'BK', label: 'Books & Stationery' },
+  { value: 'SP', label: 'Sports & Outdoors' },
+  { value: 'TY', label: 'Toys & Baby' },
+  { value: 'AU', label: 'Automotive' },
+  { value: 'DG', label: 'Digital Products' },
+  { value: 'PT', label: 'Pets' },
+  { value: 'IN', label: 'Industrial & Tools' },
+];
+
 export function useStoreInfoForm() {
   const router = useRouter();
   const { showToast } = useToast();
@@ -56,6 +73,7 @@ export function useStoreInfoForm() {
     activateStore: true,
     enableReselling: false,
     themeId: "0",
+    storeCategory: "NONE",
   });
   const [storeInfo, setStoreInfo] = useState(null);
   const [logoPreview, setLogoPreview] = useState("");
@@ -193,6 +211,7 @@ export function useStoreInfoForm() {
         shipType: form.shipType,
         shipMode: form.shipMode,
         enableResell: form.enableReselling,
+        category: form.storeCategory,
         storeVideo: form.storeVideo.trim()
           ? normalizeYoutubeLink(form.storeVideo)
           : "",
@@ -588,6 +607,7 @@ function applyStoreInfoToForm(data, setForm, options = {}) {
       current.themeId,
       preserveCurrent,
     ),
+    storeCategory: preserveCurrent && !data.category ? current.storeCategory : (data.category || "NONE"),
   }));
 }
 
@@ -652,6 +672,10 @@ function validateStoreInfoForm(form, isInitialSetup) {
     errors.storeDescription = "Store description should be at least 20 characters.";
   } else if (trimmedStoreDescription.length > STORE_INFO_FIELD_LIMITS.storeDescription) {
     errors.storeDescription = `Store description must be ${STORE_INFO_FIELD_LIMITS.storeDescription} characters or fewer.`;
+  }
+
+  if (!form.storeCategory || form.storeCategory === "NONE") {
+    errors.storeCategory = "Please select a store category.";
   }
 
   if (isInitialSetup) {

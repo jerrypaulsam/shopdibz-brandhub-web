@@ -12,7 +12,7 @@ import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
 import StoreToggleRow from "@/src/components/store/StoreToggleRow";
 import ThemePicker from "@/src/components/store/ThemePicker";
-import { STORE_INFO_FIELD_LIMITS, useStoreInfoForm } from "@/src/hooks/store/useStoreInfoForm";
+import { STORE_INFO_FIELD_LIMITS, STORE_CATEGORIES, useStoreInfoForm } from "@/src/hooks/store/useStoreInfoForm";
 import { getPaymentsPricingUrl } from "@/src/utils/payments";
 
 export default function StoreInfoFormPage() {
@@ -147,6 +147,22 @@ export default function StoreInfoFormPage() {
 
                 <div className="mt-8 grid gap-5">
                   <StoreField label="Store Name" maxLength={STORE_INFO_FIELD_LIMITS.storeName} value={form.storeName} error={fieldErrors.storeName} onChange={(value) => updateField("storeName", value)} />
+                  <label className="block">
+                    <span className="text-sm font-semibold text-white/80">Store Category</span>
+                    <select
+                      className={`mt-3 w-full rounded-[15px] border bg-transparent px-4 py-3 text-base outline-none ${fieldErrors.storeCategory ? "border-red-400/70 text-red-200" : "border-white/15 text-brand-white"}`}
+                      value={form.storeCategory}
+                      onChange={(event) => updateField("storeCategory", event.target.value)}
+                    >
+                      <option className="bg-black text-white" value="NONE">None</option>
+                      {STORE_CATEGORIES.map((cat) => (
+                        <option key={cat.value} className="bg-black text-white" value={cat.value}>{cat.label}</option>
+                      ))}
+                    </select>
+                    {fieldErrors.storeCategory ? (
+                      <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.storeCategory}</p>
+                    ) : null}
+                  </label>
                   {isInitialSetup ? (
                     <StoreField label="Store ID" maxLength={STORE_INFO_FIELD_LIMITS.storeUrl} value={form.storeUrl} helper="Example: mystore, fashionstore, etc." error={fieldErrors.storeUrl} onChange={(value) => updateField("storeUrl", value)} />
                   ) : null}

@@ -1,0 +1,311 @@
+# Storefront Theme Customisation — Implementation Plan
+
+> **Status: Awaiting final visual approval before execution**
+
+## Core Constraints
+
+| Rule | Detail |
+|---|---|
+| 🚫 Don't touch existing code | Existing serializers, views, `StorefrontExperience.js` stay exactly as-is |
+| 🆕 New model for new data | New `StorefrontConfig` Django model. Old `Store.themes` field stays and is decommissioned later |
+| 📐 Expandable theme registry | A registry file defines all themes. Adding a new one = add an entry + build a component |
+| 🛍 E-commerce themes only | Product-first layouts, not editorial/blog |
+| 💎 Gold + Platinum gate | `plan == 'G'` (Gold) or `plan == 'P'` (Platinum) |
+| 📝 Draft / Publish flow | Brands edit a draft; publish blocked until required fields are valid |
+
+---
+
+## Theme Visuals
+
+### Theme 1 — Classic Store
+
+![Classic Store theme mockup](C:\Users\jerry\.gemini\antigravity-ide\brain\5f87823f-056c-4c1b-aa77-094fa22cba2f\theme_classic_store_1781519500906.png)
+
+**Best for:** Brands with strong lifestyle photography, product collections, and active featured/top/deal products already set up.
+
+**Layout flow:** Header bar → Hero banner carousel (uploade by brand) → Product group collection tiles → Featured Picks shelf → Top Picks shelf → Product grid.
+
+**Required to publish:** Hero image (desktop). Optional: mobile hero image, featured group selection.
+
+---
+
+### Theme 2 — Bold Brand
+
+![Bold Brand theme mockup](C:\Users\jerry\.gemini\antigravity-ide\brain\5f87823f-056c-4c1b-aa77-094fa22cba2f\theme_bold_brand_1781519522648.png)
+
+**Best for:** Fashion, lifestyle, and premium brands that want a high-impact first impression. Brand identity takes centre stage.
+
+**Layout flow:** Header bar → Full-width hero image with brand name + tagline overlaid → Dense product grid immediately below.
+
+**Required to publish:** Hero image (desktop) + Brand tagline text.
+
+---
+
+### Theme 3 — Grid Focus
+
+![Grid Focus theme mockup](C:\Users\jerry\.gemini\antigravity-ide\brain\5f87823f-056c-4c1b-aa77-094fa22cba2f\theme_grid_focus_1781519543870.png)
+
+**Best for:** Brands with many products (crafts, accessories, stationery) where the goal is to show as much inventory as possible immediately.
+
+**Layout flow:** Compact identity bar (logo + name + stats + follow) → Category filter rail → Dense product grid. No hero, no shelves, zero wasted space.
+
+**Required to publish:** Nothing — zero required fields. Works out-of-the-box.
+
+---
+
+## Architecture Decision: No Separate Marketplace API
+
+The user correctly identified that a new public API endpoint for the marketplace is unnecessary overhead. Instead:
+
+> The `storefront_config` (live JSON) is **included directly in the existing `GetStoreInfoBuyerSerializer` response** as a new field `storefrontConfig`.
+
+This means:
+- The marketplace calls `store/info/buyer/get/<storeUrl>/` as it does today — zero extra network request.
+- `storefrontConfig` will be `{}` for stores without a config — the marketplace ignores it and renders the current default layout.
+- The **only new API endpoints needed** are 2 Brand Hub-specific ones for draft save and publish.
+
+---
+
+## Data Schema
+
+```json
+{
+  "version": 1,
+  "layout": "storefront_classic",
+  "palette": "1",
+  "font": "inter",
+  "hero": {
+    "desktop_url": "https://cdn.shopdibz.com/.../hero-desktop.jpg",
+    "mobile_url": "https://cdn.shopdibz.com/.../hero-mobile.jpg"
+  },
+  "featured_group_slug": "summer-sale",
+  "brand_tagline": "Quality you can trust."
+}
+```
+
+---
+
+## Required Fields Per Theme
+
+| Theme | Required to Publish | Optional |
+|---|---|---|
+| `storefront_classic` | `hero.desktop_url` | `hero.mobile_url`, `featured_group_slug` |
+| `storefront_bold` | `hero.desktop_url`, `brand_tagline` | — |
+| `storefront_grid` | *(none)* | `brand_tagline` |
+
+---
+
+## Proposed Changes (Build Order: Backend → Marketplace → Brand Hub)
+
+---
+
+### Phase 1 — Backend
+
+> [!IMPORTANT]
+> Additive only. No existing model, serializer, or view file is touched — new code is appended.
+
+#### [NEW] `StorefrontConfig` model — appended to `D:\Shopdibz\Backend\store\models.py`
+
+```python
+class StorefrontConfig(models.Model):
+    """
+    Stores draft + live storefront theme config for a store.
+    Separate from Store.themes (palette-only field, legacy).
+    Gated to Gold and Platinum plan stores only.
+    """
+    store        = models.OneToOneField(Store, on_delete=models.CASCADE, related_name="storefront_config")
+    draft        = models.JSONField(default=dict, blank=True)
+    live         = models.JSONField(default=dict, blank=True)
+    last_saved   = models.DateTimeField(auto_now=True)
+    published_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "store_storefront_config"
+
+    def __str__(self):
+        return f"{self.store.name} storefront config"
+```
+
+Zero impact on the existing `store` table. A migration is required (`makemigrations store`).
+
+#### [MODIFY] `GetStoreInfoBuyerSerializer` — in `D:\Shopdibz\Backend\store\api\serializers.py`
+
+Add **one new field** to the existing buyer serializer:
+
+```python
+storefrontConfig = serializers.SerializerMethodField("get_storefront_config")
+
+def get_storefront_config(self, store):
+    try:
+        return store.storefront_config.live or {}
+    except StorefrontConfig.DoesNotExist:
+        return {}
+```
+
+This is the **only modification to an existing file**. It is purely additive — a new read-only field on an existing serializer. No existing field is changed.
+
+> [!NOTE]
+> The field returns `{}` if no config exists, so all existing stores continue to work without any change.
+
+#### [NEW] 2 Brand Hub API views — appended to `D:\Shopdibz\Backend\store\api\views.py`
+
+1. **`GET/POST /store/storefront/config/manage/`** — Authenticated. Gold + Platinum only (`plan in ['G', 'P']`). `GET` returns `{draft, live, published_at}`. `POST` saves to the `draft` field only.
+2. **`POST /store/storefront/config/publish/`** — Authenticated. Gold + Platinum only. Validates the current `draft` against the theme's required-fields list. If valid → copies `draft` to `live`, sets `published_at`, returns success. If invalid → returns `{ "missing": ["hero.desktop_url"] }`.
+
+Both views are new classes appended **at the end of the file only**. Per `.codexrules`.
+
+#### [NEW] 2 URL patterns — bottom of `D:\Shopdibz\Backend\store\api\urls.py`
+
+---
+
+### Phase 2 — Marketplace: Theme Renderer
+
+> [!IMPORTANT]
+> `StorefrontExperience.js` is the very last file touched and the change is a 3-line guard only.
+
+#### [NEW] `src/lib/store/themeRegistry.js`
+
+```js
+// Add new themes here. No other file needs to change.
+export const THEME_REGISTRY = {
+  storefront_classic: {
+    id: 'storefront_classic',
+    label: 'Classic Store',
+    requiredFields: ['hero.desktop_url'],
+  },
+  storefront_bold: {
+    id: 'storefront_bold',
+    label: 'Bold Brand',
+    requiredFields: ['hero.desktop_url', 'brand_tagline'],
+  },
+  storefront_grid: {
+    id: 'storefront_grid',
+    label: 'Grid Focus',
+    requiredFields: [],
+  },
+};
+```
+
+#### [MODIFY] `src/pages/store/[store_url]/index.js`
+
+The `getServerSideProps` already fetches `storeInfo` which now includes `storefrontConfig` embedded in it. **No extra fetch needed.** Just destructure `storefrontConfig` from `storeInfo` and pass it as a separate prop to `StorefrontExperience`.
+
+```js
+const { storefrontConfig, ...rest } = storeInfo;
+// pass storefrontConfig as its own prop
+```
+
+#### [NEW] 3 Theme Layout Components
+
+- **[NEW]** `src/components/store/themes/ClassicStoreTheme.js`
+- **[NEW]** `src/components/store/themes/BoldBrandTheme.js`
+- **[NEW]** `src/components/store/themes/GridFocusTheme.js`
+- **[NEW]** `src/components/store/themes/StorefrontThemeRouter.js` — reads `config.layout`, looks up `THEME_REGISTRY`, renders correct component. Unknown layout → returns `null` (falls back to default).
+
+#### [MODIFY] `src/components/store/StorefrontExperience.js`
+
+**Only a 3-line guard at the top of the default export function:**
+
+```jsx
+if (storefrontConfig?.layout && storefrontConfig.layout !== 'default') {
+  return <StorefrontThemeRouter config={storefrontConfig} {...props} />;
+}
+// existing function body continues unchanged below
+```
+
+All existing stores without a config, or with `layout: 'default'`, hit the existing code path with **zero change**.
+
+---
+
+### Phase 3 — Brand Hub: Storefront Editor
+
+#### [NEW] `src/data/storefrontThemeRegistry.js`
+
+```js
+// To add a new theme: add one entry here + one in marketplace themeRegistry.js + build layout component.
+export const BRAND_HUB_THEME_REGISTRY = [
+  {
+    id: 'storefront_classic',
+    label: 'Classic Store',
+    description: 'Hero banner carousel, product collections, and featured shelves.',
+    requiredFields: ['hero.desktop_url'],
+    fields: ['hero_desktop', 'hero_mobile', 'featured_group_slug', 'palette', 'font'],
+  },
+  {
+    id: 'storefront_bold',
+    label: 'Bold Brand',
+    description: 'Full-screen hero image with your brand name and tagline front and centre.',
+    requiredFields: ['hero.desktop_url', 'brand_tagline'],
+    fields: ['hero_desktop', 'brand_tagline', 'palette', 'font'],
+  },
+  {
+    id: 'storefront_grid',
+    label: 'Grid Focus',
+    description: 'No hero — pure product grid from the first pixel. Maximum inventory visibility.',
+    requiredFields: [],
+    fields: ['brand_tagline', 'palette', 'font'],
+  },
+];
+```
+
+#### [NEW] `src/api/storefrontConfig.js`
+
+- `fetchStorefrontConfig()` — GET draft + live + published_at from backend.
+- `saveStorefrontDraft(payload)` — POST draft to manage endpoint.
+- `publishStorefrontConfig()` — POST to publish endpoint.
+
+#### [NEW] `src/hooks/store/useStorefrontEditor.js`
+
+- Loads draft and live config on mount.
+- Plan gate: if `storeInfo.plan !== 'G' && storeInfo.plan !== 'P'` → returns `isLocked: true`.
+- Tracks `layout`, `palette`, `font`, `heroDesktopFile`, `heroMobileFile`, `featuredGroupSlug`, `brandTagline`.
+- `saveDraft()` — always available, no validation.
+- `publish()` — validates required fields client-side first, then calls backend publish endpoint.
+- Surfaces `isDirty`, `isSaving`, `isPublishing`, `message`, `validationErrors`.
+
+#### [NEW] `src/components/store/StorefrontEditorPanel.js`
+
+Three logical sections:
+1. **Theme Picker** — Card grid with preview thumbnail, name, description. Selecting one updates the form below.
+2. **Dynamic Asset Form** — Different per theme:
+   - Classic: Desktop hero upload, optional mobile hero upload, product group picker.
+   - Bold Brand: Desktop hero upload, brand tagline input.
+   - Grid Focus: Optional brand tagline input only.
+   - All themes: 7-swatch colour palette picker + 3-option font picker.
+3. **Draft / Publish Controls:**
+   - **"Save Draft"** — always enabled.
+   - **"Publish"** — disabled with tooltip if required fields are missing. On success, shows live status timestamp.
+
+#### [NEW] `src/pages/storefront-editor.js`
+
+- Renders inside `DashboardShell`.
+- Shows upgrade card for non-Gold/Platinum stores (same `UpgradeCard` pattern as `store-slider-management.js`).
+- Renders `StorefrontEditorPanel` for eligible stores.
+
+#### [MODIFY] Brand Hub sidebar navigation
+
+Add "Storefront Editor" nav item next to "Slider Images".
+
+---
+
+## Verification Plan
+
+### Backend
+- `StorefrontConfig` migration applies cleanly with no changes to the `store` table.
+- `GetStoreInfoBuyerSerializer` returns `storefrontConfig: {}` for existing stores — no crash.
+- Manage endpoint returns `403` for Free/Silver plan stores.
+- Publish endpoint rejects a draft missing required fields with structured error.
+- Successful publish sets `live = draft` and `published_at`.
+
+### Marketplace
+- All existing stores render the current layout unchanged (no `storefrontConfig` in response = `{}`).
+- Store with `live.layout: 'storefront_bold'` renders `BoldBrandTheme`.
+- Store with `live.layout: 'storefront_grid'` renders `GridFocusTheme`.
+- Unknown `layout` value falls back to default layout gracefully.
+- All 3 new theme components are fully mobile-responsive.
+
+### Brand Hub
+- Free/Silver plan stores see the upgrade card.
+- Selecting "Classic Store" shows hero image upload; "Grid Focus" hides it.
+- "Publish" is disabled until required fields are filled.
+- After publishing, the marketplace store page reflects the new theme.
