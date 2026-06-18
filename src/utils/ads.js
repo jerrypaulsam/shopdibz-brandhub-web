@@ -106,6 +106,40 @@ export function formatCampaignMoney(value) {
 }
 
 /**
+ * @param {number | string | null | undefined} value
+ * @returns {string}
+ */
+export function formatCampaignCompactMoney(value) {
+  const amount = Number(value || 0);
+
+  if (Math.abs(amount) < 1000) {
+    return formatCampaignMoney(amount);
+  }
+
+  return `Rs. ${new Intl.NumberFormat("en-IN", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(amount)}`;
+}
+
+/**
+ * @param {number | string | null | undefined} value
+ * @returns {string}
+ */
+export function formatCampaignCompactCount(value) {
+  const amount = Number(value || 0);
+
+  if (Math.abs(amount) < 1000) {
+    return String(amount);
+  }
+
+  return new Intl.NumberFormat("en-IN", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(amount);
+}
+
+/**
  * @param {string | number | Date | null | undefined} value
  * @returns {string}
  */
