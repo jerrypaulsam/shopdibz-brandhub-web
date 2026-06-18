@@ -55,26 +55,16 @@ export default function AdCampaignCard({
           </p>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <Metric
             label="Budget"
             value={formatCampaignCompactMoney(campaign.budget)}
             title={formatCampaignMoney(campaign.budget)}
           />
           <Metric
-            label="Daily"
-            value={formatCampaignCompactMoney(campaign.dailyBudget)}
-            title={formatCampaignMoney(campaign.dailyBudget)}
-          />
-          <Metric
             label="Spend"
             value={formatCampaignCompactMoney(campaign.spend)}
             title={formatCampaignMoney(campaign.spend)}
-          />
-          <Metric
-            label="Rem."
-            value={formatCampaignCompactMoney(campaign.remainingBudget)}
-            title={formatCampaignMoney(campaign.remainingBudget)}
           />
           <Metric
             label="Clicks"
