@@ -23,6 +23,44 @@ export const ACCEPT_ALL_CONTENT_RIGHTS = {
   referenceLink: "",
 };
 
+export function normalizeContentRightsPreferences(preferences) {
+  if (!preferences || typeof preferences !== "object") {
+    return DEFAULT_CONTENT_RIGHTS;
+  }
+
+  return {
+    ownershipConfirmed: resolvePreferenceBoolean(
+      preferences.ownershipConfirmed ?? preferences.ownership_confirmed,
+      DEFAULT_CONTENT_RIGHTS.ownershipConfirmed,
+    ),
+    photographerPermission: resolvePreferenceBoolean(
+      preferences.photographerPermission ?? preferences.photographer_permission,
+      DEFAULT_CONTENT_RIGHTS.photographerPermission,
+    ),
+    modelRelease: resolvePreferenceBoolean(
+      preferences.modelRelease ?? preferences.model_release,
+      DEFAULT_CONTENT_RIGHTS.modelRelease,
+    ),
+    influencerEndorsement: resolvePreferenceBoolean(
+      preferences.influencerEndorsement ?? preferences.influencer_endorsement,
+      DEFAULT_CONTENT_RIGHTS.influencerEndorsement,
+    ),
+    paidAdvertising: resolvePreferenceBoolean(
+      preferences.paidAdvertising ?? preferences.paid_advertising,
+      DEFAULT_CONTENT_RIGHTS.paidAdvertising,
+    ),
+    aiDerivative: resolvePreferenceBoolean(
+      preferences.aiDerivative ?? preferences.ai_derivative,
+      DEFAULT_CONTENT_RIGHTS.aiDerivative,
+    ),
+    noMinors: resolvePreferenceBoolean(
+      preferences.noMinors ?? preferences.no_minors,
+      DEFAULT_CONTENT_RIGHTS.noMinors,
+    ),
+    referenceLink: String(preferences.referenceLink ?? preferences.reference_link ?? "").trim(),
+  };
+}
+
 export function loadContentRightsPreferences(storeUrl) {
   if (typeof window === "undefined") {
     return DEFAULT_CONTENT_RIGHTS;
@@ -32,10 +70,7 @@ export function loadContentRightsPreferences(storeUrl) {
     const saved = JSON.parse(
       window.localStorage.getItem(CONTENT_RIGHTS_STORAGE_KEY) || "{}",
     );
-    return {
-      ...DEFAULT_CONTENT_RIGHTS,
-      ...(saved?.[storeUrl] || {}),
-    };
+    return normalizeContentRightsPreferences(saved?.[storeUrl]);
   } catch {
     return DEFAULT_CONTENT_RIGHTS;
   }
@@ -59,10 +94,7 @@ export function saveContentRightsPreferences(storeUrl, preferences) {
     CONTENT_RIGHTS_STORAGE_KEY,
     JSON.stringify({
       ...saved,
-      [storeUrl]: {
-        ...DEFAULT_CONTENT_RIGHTS,
-        ...preferences,
-      },
+      [storeUrl]: normalizeContentRightsPreferences(preferences),
     }),
   );
 }
@@ -96,4 +128,20 @@ export function dismissContentRightsReminder() {
   }
 
   window.sessionStorage.setItem(CONTENT_RIGHTS_REMINDER_DISMISSED_KEY, "1");
+}
+
+function resolvePreferenceBoolean(value, fallback) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value.toLowerCase() === "true";
+  }
+
+  if (value === undefined || value === null) {
+    return fallback;
+  }
+
+  return Boolean(value);
 }

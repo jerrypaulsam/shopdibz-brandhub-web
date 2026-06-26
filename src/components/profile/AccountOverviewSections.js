@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Link from "next/link";
 import AuthButton from "@/src/components/auth/AuthButton";
@@ -12,8 +12,13 @@ import StoreToggleRow from "@/src/components/store/StoreToggleRow";
 import {
   ACCEPT_ALL_CONTENT_RIGHTS,
   loadContentRightsPreferences,
+  normalizeContentRightsPreferences,
   saveContentRightsPreferences,
 } from "@/src/utils/contentRightsPreferences";
+import {
+  fetchStoreContentRightsPreferences,
+  saveStoreContentRightsPreferences,
+} from "@/src/api/contentRights";
 import { getStoreSliderMeta } from "@/src/utils/store-slider-routing";
 
 /**
@@ -334,6 +339,33 @@ export function ContentRightsSection({ storeInfo }) {
   const storeUrl = String(storeInfo?.url || "seller").trim() || "seller";
   const [form, setForm] = useState(() => loadContentRightsPreferences(storeUrl));
   const [message, setMessage] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    if (!storeUrl || storeUrl === "seller") {
+      return () => {
+        isCurrent = false;
+      };
+    }
+
+    fetchStoreContentRightsPreferences(storeUrl)
+      .then((preferences) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        const normalizedPreferences = normalizeContentRightsPreferences(preferences);
+        setForm(normalizedPreferences);
+        saveContentRightsPreferences(storeUrl, normalizedPreferences);
+      })
+      .catch(() => null);
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [storeUrl]);
 
   function updateField(field, value) {
     setForm((current) => ({
@@ -348,9 +380,27 @@ export function ContentRightsSection({ storeInfo }) {
     setMessage("Default rights permissions selected. Save to keep this preference.");
   }
 
-  function savePreferences() {
-    saveContentRightsPreferences(storeUrl, form);
-    setMessage("Content rights preferences saved for this store.");
+  async function savePreferences() {
+    const normalizedPreferences = normalizeContentRightsPreferences(form);
+    saveContentRightsPreferences(storeUrl, normalizedPreferences);
+    setIsSaving(true);
+
+    try {
+      const savedPreferences = await saveStoreContentRightsPreferences(
+        storeUrl,
+        normalizedPreferences,
+      );
+      const nextPreferences = normalizeContentRightsPreferences(savedPreferences);
+      setForm(nextPreferences);
+      saveContentRightsPreferences(storeUrl, nextPreferences);
+      setMessage("Content rights preferences saved for this store.");
+    } catch {
+      setMessage(
+        "Saved on this device. Server sync is unavailable right now; please try again after backend deployment is complete.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -432,8 +482,8 @@ export function ContentRightsSection({ storeInfo }) {
         </div>
 
         <div className="max-w-xs">
-          <AuthButton type="button" onClick={savePreferences}>
-            Save Preferences
+          <AuthButton type="button" disabled={isSaving} onClick={savePreferences}>
+            {isSaving ? "Saving..." : "Save Preferences"}
           </AuthButton>
         </div>
 

@@ -89,4 +89,5 @@ export const SHOPDIBZ_URLS = {
   bulkSpecialRemove: "/api/store/bulk-remove/special-prdts/",
   bulkProductGroup: "/api/products/productGroup/bulk-add/",
   verifyGst: "/api/external/api/verify-gst/",
+  storeContentRights: "/api/privacy/store-content-rights/",
 };
