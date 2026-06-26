@@ -313,6 +313,7 @@ function ContentRightsReminder({ pathname, router, storeInfo }) {
   }
 
   async function reviewRights() {
+    setIsDismissed(true);
     await router.push("/profile/content-rights");
   }
 
