@@ -394,9 +394,12 @@ export function ContentRightsSection({ storeInfo }) {
       setForm(nextPreferences);
       saveContentRightsPreferences(storeUrl, nextPreferences);
       setMessage("Content rights preferences saved for this store.");
-    } catch {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "";
       setMessage(
-        "Saved on this device. Server sync is unavailable right now; please try again after backend deployment is complete.",
+        errorMessage
+          ? `Saved on this device. Server sync failed: ${errorMessage}`
+          : "Saved on this device. Server sync failed. Please try again.",
       );
     } finally {
       setIsSaving(false);

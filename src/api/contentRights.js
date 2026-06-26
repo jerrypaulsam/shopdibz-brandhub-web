@@ -17,11 +17,34 @@ async function postContentRightsJson(payload) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    const message = data?.message || data?.detail || "Content rights request failed";
+    const message = getContentRightsErrorMessage(data);
     throw new Error(message);
   }
 
   return data;
+}
+
+function getContentRightsErrorMessage(data) {
+  if (typeof data === "string") {
+    return data;
+  }
+
+  if (!data || typeof data !== "object") {
+    return "Content rights request failed";
+  }
+
+  if (data.message || data.detail) {
+    return String(data.message || data.detail);
+  }
+
+  const fieldErrors = Object.entries(data)
+    .map(([field, value]) => {
+      const message = Array.isArray(value) ? value.join(", ") : String(value || "");
+      return message ? `${field}: ${message}` : "";
+    })
+    .filter(Boolean);
+
+  return fieldErrors.join("; ") || "Content rights request failed";
 }
 
 /**
