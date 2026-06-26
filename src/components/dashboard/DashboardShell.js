@@ -297,9 +297,13 @@ function ContentRightsReminder({ pathname, router, storeInfo }) {
   );
   const storeUrl = String(storeInfo?.url || "").trim();
   const currentPath = String(router.asPath || pathname || "").split("?")[0];
+  const profileSection = String(router.query?.section || "");
+  const isContentRightsPage =
+    currentPath === "/profile/content-rights" ||
+    (pathname === "/profile/[section]" && profileSection === "content-rights");
   const shouldShow =
     Boolean(storeUrl) &&
-    currentPath !== "/profile/content-rights" &&
+    !isContentRightsPage &&
     !isDismissed &&
     !hasSavedContentRightsPreferences(storeUrl);
 
@@ -313,6 +317,7 @@ function ContentRightsReminder({ pathname, router, storeInfo }) {
   }
 
   async function reviewRights() {
+    dismissContentRightsReminder();
     setIsDismissed(true);
     await router.push("/profile/content-rights");
   }
