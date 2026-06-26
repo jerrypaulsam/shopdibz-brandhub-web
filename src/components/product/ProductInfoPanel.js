@@ -97,25 +97,26 @@ export default function ProductInfoPanel({
               onChange={(value) => updateDraft({ publisher: value })}
             />
           )}
-          {draft.variantMode === "without-variant" ? (
-            <>
-              <StoreField
-                label="MRP"
-                type="number"
-                value={draft.mrp}
-                error={fieldErrors.mrp}
-                onChange={(value) => updateDraft({ mrp: value })}
-              />
-              <StoreField
-                label="Selling Price"
-                type="number"
-                value={draft.price}
-                error={fieldErrors.price}
-                onChange={(value) => updateDraft({ price: value })}
-              />
-            </>
-          ) : null}
         </div>
+
+        {draft.variantMode === "without-variant" ? (
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            <StoreField
+              label="MRP"
+              type="number"
+              value={draft.mrp}
+              error={fieldErrors.mrp}
+              onChange={(value) => updateDraft({ mrp: value })}
+            />
+            <StoreField
+              label="Selling Price"
+              type="number"
+              value={draft.price}
+              error={fieldErrors.price}
+              onChange={(value) => updateDraft({ price: value })}
+            />
+          </div>
+        ) : null}
 
         <div className="mt-5">
           <label className="block">

@@ -29,7 +29,7 @@ function resolveSteps(query) {
 }
 
 /**
- * @param {{ title: string, subtitle: string, currentStep: string, query?: Record<string, string>, children: import("react").ReactNode, message?: string, success?: string }} props
+ * @param {{ title: string, subtitle: string, currentStep: string, query?: Record<string, string>, children: import("react").ReactNode, message?: string, success?: string, listingTipsContent?: import("react").ReactNode }} props
  */
 export default function ProductFlowLayout({
   title,
@@ -39,6 +39,7 @@ export default function ProductFlowLayout({
   children,
   message,
   success,
+  listingTipsContent,
 }) {
   const steps = resolveSteps(query);
   const currentIndex = steps.findIndex(([step]) => step === currentStep);
@@ -48,7 +49,7 @@ export default function ProductFlowLayout({
   return (
     <DashboardShell>
       <div className="mx-auto max-w-[1320px] px-4 py-8 md:px-6">
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <section className="space-y-6">
             <div className="theme-panel rounded-sm border p-6">
               <div className="space-y-3">
@@ -123,6 +124,11 @@ export default function ProductFlowLayout({
                 <p>Add clear product details and pricing before moving on to images or variations.</p>
                 <p>Use this step-by-step flow to review everything before the listing goes live.</p>
               </div>
+              {listingTipsContent ? (
+                <div className="mt-5 border-t border-white/10 pt-5">
+                  {listingTipsContent}
+                </div>
+              ) : null}
             </div>
           </aside>
         </div>

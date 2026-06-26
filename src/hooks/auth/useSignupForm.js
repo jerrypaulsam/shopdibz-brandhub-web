@@ -23,6 +23,7 @@ export function useSignupForm() {
   const [lName, setLName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [legalAccepted, setLegalAccepted] = useState(false);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -82,6 +83,10 @@ export function useSignupForm() {
       return "passwords do not match";
     }
 
+    if (!legalAccepted) {
+      return "Please accept the seller terms and privacy policy to continue.";
+    }
+
     return "";
   }
 
@@ -133,6 +138,8 @@ export function useSignupForm() {
     setPassword,
     confirmPassword,
     setConfirmPassword,
+    legalAccepted,
+    setLegalAccepted,
     message,
     isSubmitting,
     submitSignup,

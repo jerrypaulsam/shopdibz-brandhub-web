@@ -1,5 +1,6 @@
 import ProductFlowLayout from "@/src/components/product/ProductFlowLayout";
 import ProductVariationPanel from "@/src/components/product/ProductVariationPanel";
+// import SellerPayoutEstimateCard from "@/src/components/product/SellerPayoutEstimateCard";
 import { useProductVariationForm } from "@/src/hooks/product/useProductVariationForm";
 
 export default function ProductVariationPage() {
@@ -12,6 +13,7 @@ export default function ProductVariationPage() {
       currentStep="variation"
       query={product.buildQuery()}
       message={product.error}
+      // listingTipsContent={<SellerPayoutEstimateCard price={product.form.price} />}
     >
       <ProductVariationPanel
         draft={product.draft}

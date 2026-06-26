@@ -6,7 +6,14 @@ import AuthButton from "@/src/components/auth/AuthButton";
 import { useConfirm } from "@/src/components/app/ConfirmProvider";
 import AuthMessage from "@/src/components/auth/AuthMessage";
 import AspectCropDialog from "@/src/components/media/AspectCropDialog";
+import StoreField from "@/src/components/store/StoreField";
 import StoreSection from "@/src/components/store/StoreSection";
+import StoreToggleRow from "@/src/components/store/StoreToggleRow";
+import {
+  ACCEPT_ALL_CONTENT_RIGHTS,
+  loadContentRightsPreferences,
+  saveContentRightsPreferences,
+} from "@/src/utils/contentRightsPreferences";
 import { getStoreSliderMeta } from "@/src/utils/store-slider-routing";
 
 /**
@@ -315,6 +322,122 @@ export function SubscriptionSection({ storeInfo, message, isSubmitting, onCancel
             )}
           </div>
         )}
+      </div>
+    </StoreSection>
+  );
+}
+
+/**
+ * @param {{ storeInfo: any }} props
+ */
+export function ContentRightsSection({ storeInfo }) {
+  const storeUrl = String(storeInfo?.url || "seller").trim() || "seller";
+  const [form, setForm] = useState(() => loadContentRightsPreferences(storeUrl));
+  const [message, setMessage] = useState("");
+
+  function updateField(field, value) {
+    setForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+    setMessage("");
+  }
+
+  function acceptAll() {
+    setForm(ACCEPT_ALL_CONTENT_RIGHTS);
+    setMessage("Default rights permissions selected. Save to keep this preference.");
+  }
+
+  function savePreferences() {
+    saveContentRightsPreferences(storeUrl, form);
+    setMessage("Content rights preferences saved for this store.");
+  }
+
+  return (
+    <StoreSection title="Content Rights & Permissions">
+      <div className="space-y-5 text-sm leading-6 text-white/65">
+        <p>
+          These defaults help keep upload screens light. Use them only when your
+          store usually owns or controls the rights for uploaded images, banners,
+          logos, and promotional assets.
+        </p>
+
+        <div className="flex flex-wrap gap-3">
+          <button
+            className="theme-action-accent inline-flex min-h-11 items-center justify-center rounded-sm border px-5 text-sm font-bold transition-colors"
+            type="button"
+            onClick={acceptAll}
+          >
+            Accept All Defaults
+          </button>
+          <a
+            className="theme-action-neutral inline-flex min-h-11 items-center justify-center rounded-sm border px-5 text-sm font-bold transition-colors"
+            href="https://www.shopdibz.com/seller-services-agreement/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Review Agreement
+          </a>
+        </div>
+
+        <div className="grid gap-4 rounded-sm border border-white/10 bg-black/20 p-4">
+          <StoreToggleRow
+            label="I own or control the rights to content uploaded by this store."
+            checked={form.ownershipConfirmed}
+            helper="Use this only for assets the store can lawfully publish on Shopdibz."
+            onChange={(value) => updateField("ownershipConfirmed", value)}
+          />
+          <StoreToggleRow
+            label="Creator, designer, photographer, or agency permissions are in place."
+            checked={form.photographerPermission}
+            helper="Covers content made by third parties for your brand or products."
+            onChange={(value) => updateField("photographerPermission", value)}
+          />
+          <StoreToggleRow
+            label="Model, talent, or likeness releases are in place where people appear."
+            checked={form.modelRelease}
+            helper="Keep this enabled only when people-based content has the required releases."
+            onChange={(value) => updateField("modelRelease", value)}
+          />
+          <StoreToggleRow
+            label="Influencer, ambassador, celebrity, or endorsement permissions are in place where relevant."
+            checked={form.influencerEndorsement}
+            helper="Relevant for creator content, campaign material, endorsements, and co-branded posts."
+            onChange={(value) => updateField("influencerEndorsement", value)}
+          />
+          <StoreToggleRow
+            label="Shopdibz may use approved store content for marketplace promotion and paid advertising."
+            checked={form.paidAdvertising}
+            helper="You can turn this off if you want assets used only for regular storefront/listing display."
+            onChange={(value) => updateField("paidAdvertising", value)}
+          />
+          <StoreToggleRow
+            label="Shopdibz may use approved content for AI-assisted edits or derivative promotional creatives."
+            checked={form.aiDerivative}
+            helper="Examples include resizing, retouching, formatting, animation, or campaign adaptations."
+            onChange={(value) => updateField("aiDerivative", value)}
+          />
+          <StoreToggleRow
+            label="Uploaded promotional content should not depict minors unless separately cleared."
+            checked={form.noMinors}
+            helper="If a specific upload includes minors, handle it separately before using it for ads or AI."
+            onChange={(value) => updateField("noMinors", value)}
+          />
+          <StoreField
+            label="Evidence or release reference link"
+            value={form.referenceLink}
+            helper="Optional. Add a shared folder, contract reference, or internal release-record link."
+            onChange={(value) => updateField("referenceLink", value)}
+          />
+        </div>
+
+        <div className="max-w-xs">
+          <AuthButton type="button" onClick={savePreferences}>
+            Save Preferences
+          </AuthButton>
+        </div>
+
+        <AuthMessage>{message}</AuthMessage>
       </div>
     </StoreSection>
   );

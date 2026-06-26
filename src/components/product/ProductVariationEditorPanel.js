@@ -107,8 +107,11 @@ export default function ProductVariationEditorPanel({
                 </label>
               </>
             )}
-          <StoreField label="MRP" value={form.mrp} error={fieldErrors.mrp} onChange={(value) => setFormField("mrp", value)} />
-          <StoreField label="Selling Price" value={form.price} error={fieldErrors.price} onChange={(value) => setFormField("price", value)} />
+        </div>
+
+        <div className="mt-5 grid gap-5 md:grid-cols-2">
+          <StoreField label="MRP" type="number" value={form.mrp} error={fieldErrors.mrp} onChange={(value) => setFormField("mrp", value)} />
+          <StoreField label="Selling Price" type="number" value={form.price} error={fieldErrors.price} onChange={(value) => setFormField("price", value)} />
           <StoreField label="SKU Code" maxLength={PRODUCT_VARIATION_FIELD_LIMITS.skuCode} value={form.variationSkuCode} error={fieldErrors.variationSkuCode} onChange={(value) => setFormField("variationSkuCode", value)} />
           <label className="block">
             <span className="text-sm font-semibold text-white/80">Availability</span>

@@ -1,5 +1,6 @@
 import ProductFlowLayout from "@/src/components/product/ProductFlowLayout";
 import ProductInfoPanel from "@/src/components/product/ProductInfoPanel";
+// import SellerPayoutEstimateCard from "@/src/components/product/SellerPayoutEstimateCard";
 import { useProductInfoForm } from "@/src/hooks/product/useProductInfoForm";
 
 export default function ProductInfoPage() {
@@ -13,6 +14,11 @@ export default function ProductInfoPage() {
       query={product.buildQuery()}
       message={product.error}
       success={product.success}
+      // listingTipsContent={
+      //   product.draft.variantMode === "without-variant" ? (
+      //     <SellerPayoutEstimateCard price={product.draft.price} />
+      //   ) : null
+      // }
     >
       <ProductInfoPanel
         isPremium={product.isPremium}

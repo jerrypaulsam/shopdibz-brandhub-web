@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import AccountShell from "@/src/components/profile/AccountShell";
 import {
   AccountSettingsSection,
+  ContentRightsSection,
   HeaderImageSection,
   StoreSettingsSection,
   StoreSlidersSection,
@@ -13,6 +14,7 @@ import { useAccountHub } from "@/src/hooks/profile/useAccountHub";
 const validSections = new Set([
   "store-settings",
   "store-sliders",
+  "content-rights",
   "header-image",
   "account-settings",
   "subscription",
@@ -102,6 +104,10 @@ function renderSection(section, props) {
         onDeactivate={props.deactivateAccount}
       />
     );
+  }
+
+  if (section === "content-rights") {
+    return <ContentRightsSection storeInfo={props.storeInfo} />;
   }
 
   if (section === "subscription") {

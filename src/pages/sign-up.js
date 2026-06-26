@@ -21,6 +21,8 @@ export default function SignUpPage() {
     setPassword,
     confirmPassword,
     setConfirmPassword,
+    legalAccepted,
+    setLegalAccepted,
     message,
     isSubmitting,
     submitSignup,
@@ -141,6 +143,45 @@ export default function SignUpPage() {
               After signup, we&apos;ll send an email OTP and then move you into GST-based store creation.
             </p>
           </div>
+
+          <label className="mt-6 flex items-start gap-3 rounded-[20px] border border-white/10 bg-black/20 px-5 py-4 text-sm leading-6 text-white/70">
+            <input
+              className="mt-1 h-4 w-4 shrink-0 rounded border-white/20 bg-transparent accent-brand-gold"
+              type="checkbox"
+              checked={legalAccepted}
+              onChange={(event) => setLegalAccepted(event.target.checked)}
+            />
+            <span>
+              I agree to the{" "}
+              <a
+                className="font-bold text-brand-gold hover:text-brand-white"
+                href="https://www.shopdibz.com/seller-services-agreement/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Seller Services Agreement
+              </a>
+              ,{" "}
+              <a
+                className="font-bold text-brand-gold hover:text-brand-white"
+                href="https://www.shopdibz.com/termsandconditions"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Terms and Conditions
+              </a>
+              , and{" "}
+              <a
+                className="font-bold text-brand-gold hover:text-brand-white"
+                href="https://www.shopdibz.com/privacypolicy"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Privacy Policy
+              </a>
+              . I confirm that I am authorized to create this seller account for the business.
+            </span>
+          </label>
 
           <div className="mt-8">
             <AuthMessage>{message}</AuthMessage>

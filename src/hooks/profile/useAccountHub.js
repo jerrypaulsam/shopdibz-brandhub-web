@@ -69,6 +69,7 @@ export function useAccountHub(section) {
         ["store-settings", "Store Settings"],
         ["header-image", "Header Image"],
         ["store-sliders", sliderMeta.navLabel],
+        ["content-rights", "Content Rights"],
         ["subscription", "Subscription"],
         ["account-settings", "Account Settings"],
         ["support", "Support"],

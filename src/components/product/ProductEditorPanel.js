@@ -71,13 +71,6 @@ export default function ProductEditorPanel({
 
       <StoreSection title="Pricing, Tax & Catalog Codes">
         <div className="grid gap-5 md:grid-cols-2">
-          {!form.variants ? (
-            <>
-              <StoreField label="MRP" value={form.mrp} error={fieldErrors.mrp} onChange={(value) => setFormField("mrp", value)} />
-              <StoreField label="Price" value={form.price} error={fieldErrors.price} onChange={(value) => setFormField("price", value)} />
-              <StoreField label="SKU Code" maxLength={PRODUCT_FIELD_LIMITS.skuCode} value={form.skuCode} error={fieldErrors.skuCode} onChange={(value) => setFormField("skuCode", value)} />
-            </>
-          ) : null}
           <StoreField label="Shipping Cost" value={form.shipCost} onChange={(value) => setFormField("shipCost", value)} />
           <StoreField label="HSN Code" maxLength={PRODUCT_FIELD_LIMITS.hsnCode} value={form.hsnCode} error={fieldErrors.hsnCode} onChange={(value) => setFormField("hsnCode", value)} />
           <StoreField label={isBookCategory ? "ISBN" : "MPN / GTIN"} maxLength={PRODUCT_FIELD_LIMITS.mpn} value={form.mpn} error={fieldErrors.mpn} onChange={(value) => setFormField("mpn", value)} />
@@ -100,6 +93,14 @@ export default function ProductEditorPanel({
             ) : null}
           </label>
         </div>
+
+        {!form.variants ? (
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            <StoreField label="MRP" type="number" value={form.mrp} error={fieldErrors.mrp} onChange={(value) => setFormField("mrp", value)} />
+            <StoreField label="Price" type="number" value={form.price} error={fieldErrors.price} onChange={(value) => setFormField("price", value)} />
+            <StoreField label="SKU Code" maxLength={PRODUCT_FIELD_LIMITS.skuCode} value={form.skuCode} error={fieldErrors.skuCode} onChange={(value) => setFormField("skuCode", value)} />
+          </div>
+        ) : null}
       </StoreSection>
 
       <StoreSection title="Keywords, Description & Attributes">

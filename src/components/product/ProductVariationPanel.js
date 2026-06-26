@@ -65,7 +65,9 @@ export default function ProductVariationPanel({
               <p className="mt-2 text-xs font-semibold text-red-300">{fieldErrors.typeMap}</p>
             ) : null}
           </label>
+        </div>
 
+        <div className="mt-5 grid gap-5 md:grid-cols-2">
           <StoreField
             label="MRP"
             type="number"
